@@ -46,9 +46,7 @@ Instead of using pre-tuned threshold values, you can alternatively check the dis
 
 ```python
 distance = result[1] #the less the better
-
 threshold = 0.30 #threshold for VGG-Face and Cosine Similarity
-
 if distance < threshold:
 	return True
 else:
