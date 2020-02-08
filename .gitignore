@@ -1,0 +1,14 @@
+__pycache__/*
+basemodels/__pycache__/*
+configurations/__pycache__/*
+build/
+dist/
+Pipfile
+Pipfile.lock
+.mypy_cache/
+.vscode/
+.idea/
+deepface.egg-info/
+deepface/__pycache__/*
+deepface/commons/__pycache__/*
+deepface/basemodels/__pycache__/*
