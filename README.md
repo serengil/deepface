@@ -1,6 +1,6 @@
 # deepface
 
-**deepface** is a lightweight face recognition framework. You can verify faces with just a few lines of codes.
+**deepface** is a lightweight python based face recognition framework. You can verify faces with just a few lines of codes.
 
 ```python
 from deepface import DeepFace
