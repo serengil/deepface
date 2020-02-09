@@ -64,8 +64,8 @@ pip install deepface
 Alternatively, you can directly download the source code from this repository. GitHub repo might be newer than the PyPI version.
 
 ```
-git clone https://github.com/serengil/chefboost.git
-cd chefboost
+git clone https://github.com/serengil/deepface.git
+cd deepface
 pip install -e .
 ```
 
