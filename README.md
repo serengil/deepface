@@ -2,7 +2,7 @@
 
 [![Downloads](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
 
-**deepface** is a lightweight python based facial analysis framework including face recognition and demography. You can use the framework with a just few lines of codes.
+**deepface** is a lightweight python based facial analysis framework including face recognition and demography (age, gender, emotion and race). You can use the framework with a just few lines of codes.
 
 # Face Recognition
 
