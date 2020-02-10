@@ -81,7 +81,7 @@ demography = DeepFace.analyze("img4.jpg") #passing nothing as 2nd argument will 
 #demography = DeepFace.analyze("img4.jpg", ['age', 'gender', 'race', 'emotion']) #identical to above line
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/img4-cropped.jpg"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/img4-cropped.jpg" width="50%" height="50%"></p>
 
 Analysis function returns a json object.
 
