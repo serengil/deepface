@@ -67,8 +67,8 @@ Deepface also offers facial attribute analysis including [`age`](https://sefiks.
 
 ```python
 from deepface import DeepFace
-demography = DeepFace.analyze("img.zip") #passing nothing as 2nd argument will find everything
-#demography = DeepFace.analyze("img.zip", ['age', 'gender', 'race', 'emotion']) #identical to above line
+demography = DeepFace.analyze("img.jpg") #passing nothing as 2nd argument will find everything
+#demography = DeepFace.analyze("img.jpg", ['age', 'gender', 'race', 'emotion']) #identical to above line
 ```
 
 Analysis function returns a json object.
