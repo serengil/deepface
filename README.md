@@ -2,7 +2,11 @@
 
 [![Downloads](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
 
-**deepface** is a lightweight python based face recognition framework. You can verify faces with just a few lines of codes.
+**deepface** is a lightweight python based facial analysis framework including face recognition and demography. You can use the framework with a just few lines of codes.
+
+# Face Recognition
+
+Verify function under the DeepFace interface is used for face recognition.
 
 ```python
 from deepface import DeepFace
@@ -52,9 +56,54 @@ Instead of using pre-tuned threshold values, you can alternatively check the dis
 distance = result[1] #the less the better
 threshold = 0.30 #threshold for VGG-Face and Cosine Similarity
 if distance < threshold:
-	return True
+   return True
 else:
-	return False
+   return False
+```
+
+# Facial Attribute Analysis
+
+Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`emotion`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) predictions. Analysis function under the DeepFace interface is used to find demography of a face.
+
+```python
+from deepface import DeepFace
+demography = DeepFace.analyze("img.zip") #passing nothing as 2nd argument will find everything
+#demography = DeepFace.analyze("img.zip", ['age', 'gender', 'race', 'emotion']) #identical to above line
+```
+
+Analysis function returns a json object.
+
+```
+{
+   "age": 31.940666721338523
+   , "gender": "Woman"
+   , "race": {
+      "asian": 11.314528435468674,
+      "indian": 17.498773336410522,
+      "black": 3.541698679327965,
+      "white": 21.96589708328247,
+      "middle eastern": 19.87851709127426,
+      "latino hispanic": 25.800585746765137
+   }
+   , "dominant_race": "latino hispanic"
+   , "emotion": {
+      "angry": 6.004959843039945e-16,
+      "disgust": 4.9082449499136944e-34,
+      "fear": 4.7907148065142067e-23,
+      "happy": 100.0,
+      "sad": 4.8685008000541987e-14,
+      "surprise": 5.66862615875019e-10,
+      "neutral": 3.754812086254056e-09
+   }
+   , "dominant_emotion": "happy"
+}
+```
+
+Then, you can retrieve the fields of the response object easily in Python.
+
+```python
+import json
+print("Age: ",demography["age"])
 ```
 
 # Installation
@@ -77,11 +126,13 @@ Initial tests are run for Python 3.5.5 on Windows 10 but this is an OS-independe
 
 ```
 pip install numpy==1.14.0
+pip install pandas==0.23.4
 pip install matplotlib==2.2.2
 pip install gdown==3.10.1
 pip install opencv-python==3.4.4
 pip install tensorflow==1.9.0
 pip install keras==2.2.0
+pip install tqdm==4.30.0
 ```
 
 # Disclaimer
