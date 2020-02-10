@@ -1,5 +1,7 @@
 # deepface
 
+[![Downloads](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
+
 **deepface** is a lightweight python based face recognition framework. You can verify faces with just a few lines of codes.
 
 ```python
