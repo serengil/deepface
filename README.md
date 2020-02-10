@@ -13,6 +13,16 @@ from deepface import DeepFace
 result = DeepFace.verify("img1.jpg", "img2.jpg")
 ```
 
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-1.jpg"></p>
+
+```
+Model: VGG-Face
+Similarity metric: Cosine
+Found Distance: 0.25638097524642944
+Max Threshold to Verify: 0.40
+Result: They are same
+```
+
 ## Face recognition models
 
 Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Facenet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/) and [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
@@ -67,33 +77,35 @@ Deepface also offers facial attribute analysis including [`age`](https://sefiks.
 
 ```python
 from deepface import DeepFace
-demography = DeepFace.analyze("img.jpg") #passing nothing as 2nd argument will find everything
-#demography = DeepFace.analyze("img.jpg", ['age', 'gender', 'race', 'emotion']) #identical to above line
+demography = DeepFace.analyze("img4.jpg") #passing nothing as 2nd argument will find everything
+#demography = DeepFace.analyze("img4.jpg", ['age', 'gender', 'race', 'emotion']) #identical to above line
 ```
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/img4-cropped.jpg"></p>
 
 Analysis function returns a json object.
 
 ```
 {
-   "age": 31.940666721338523
+   "age": 31.25149216214664
    , "gender": "Woman"
    , "race": {
-      "asian": 11.314528435468674,
-      "indian": 17.498773336410522,
-      "black": 3.541698679327965,
-      "white": 21.96589708328247,
-      "middle eastern": 19.87851709127426,
-      "latino hispanic": 25.800585746765137
+      "asian": 0.43224629728474007,
+      "indian": 1.3657950678941648,
+      "black": 0.05537125728443308,
+      "white": 75.67231510116548,
+      "middle eastern": 13.872351579210257,
+      "latino hispanic": 8.601920819397021
    }
-   , "dominant_race": "latino hispanic"
+   , "dominant_race": "white"
    , "emotion": {
-      "angry": 6.004959843039945e-16,
-      "disgust": 4.9082449499136944e-34,
-      "fear": 4.7907148065142067e-23,
-      "happy": 100.0,
-      "sad": 4.8685008000541987e-14,
-      "surprise": 5.66862615875019e-10,
-      "neutral": 3.754812086254056e-09
+      "angry": 0.08186087173241338,
+      "disgust": 2.225523142400352e-06,
+      "fear": 0.04342652618288561,
+      "happy": 90.62228091028702,
+      "sad": 1.1166408126522078,
+      "surprise": 0.6784230348078054,
+      "neutral": 7.457371945067876
    }
    , "dominant_emotion": "happy"
 }

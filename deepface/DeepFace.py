@@ -80,15 +80,17 @@ def verify(img1_path, img2_path
 	
 	if distance <= threshold:
 		identified =  True
+		message = "The both face photos are same person."
 	else:
 		identified =  False
+		message = "The both face photos are not same person!"
 	
 	#-------------------------
 	
 	plot = False
 	
 	if plot:
-		label = "Distance is "+str(round(distance, 2))
+		label = "Distance is "+str(round(distance, 2))+"\nwhereas max threshold is "+ str(threshold)+ ".\n"+ message
 		
 		fig = plt.figure()
 		fig.add_subplot(1,2, 1)

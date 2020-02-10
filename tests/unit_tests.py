@@ -2,13 +2,15 @@ from deepface import DeepFace
 import json
 
 #-----------------------------------------
+
 print("Facial analysis tests")
 
-img = "dataset/img1.jpg"
+img = "dataset/img4.jpg"
 demography = DeepFace.analyze(img, ['age', 'gender', 'race', 'emotion'])
 
 print("Demography:")
 print(demography)
+demography = json.loads(demography)
 
 #check response is a valid json
 print("Age: ", demography["age"])
