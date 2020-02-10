@@ -237,7 +237,7 @@ def loadModel():
 	if os.path.isfile(home+'/.deepface/weights/openface_weights.h5') != True:
 		print("openface_weights.h5 will be downloaded...")
 		
-		url = 'https://drive.google.com/file/d/1LSe1YCV1x-BfNnfb7DFZTNpv_Q9jITxn'
+		url = 'https://drive.google.com/uc?id=1LSe1YCV1x-BfNnfb7DFZTNpv_Q9jITxn'
 		output = home+'/.deepface/weights/openface_weights.h5'
 		gdown.download(url, output, quiet=False)
 	

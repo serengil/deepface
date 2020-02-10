@@ -6,7 +6,7 @@ import gdown
 
 #---------------------------------------
 
-def loadModel():
+def baseModel():
 	model = Sequential()
 	model.add(ZeroPadding2D((1,1),input_shape=(224,224, 3)))
 	model.add(Convolution2D(64, (3, 3), activation='relu'))
@@ -52,6 +52,12 @@ def loadModel():
 	model.add(Flatten())
 	model.add(Activation('softmax'))
 	
+	return model
+
+def loadModel():
+	
+	model = baseModel()
+	
 	#-----------------------------------
 	
 	home = str(Path.home())
@@ -69,6 +75,7 @@ def loadModel():
 	
 	#-----------------------------------
 	
+	#TO-DO: why?
 	vgg_face_descriptor = Model(inputs=model.layers[0].input, outputs=model.layers[-2].output)
 	
 	return vgg_face_descriptor

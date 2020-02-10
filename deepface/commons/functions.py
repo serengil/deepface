@@ -19,10 +19,6 @@ def initializeFolder():
 	if not os.path.exists(home+"/.deepface/weights"):
 		os.mkdir(home+"/.deepface/weights")
 		print("Directory ",home,"/.deepface/weights created")
-	
-	if not os.path.exists(home+"/.deepface/config"):
-		os.mkdir(home+"/.deepface/config")
-		print("Directory ",home,"/.deepface/config created")
 
 def validateInputs(model_name, distance_metric):
 	
@@ -67,10 +63,11 @@ def findThreshold(model_name, distance_metric):
 	
 	return threshold
 
-def detectFace(image_path, target_size=(224, 224)):
+def detectFace(image_path, target_size=(224, 224), grayscale = False):
 	
 	opencv_home = cv2.__file__
-	folders = opencv_home.split("\\")[0:-1]
+	folders = opencv_home.split(os.path.sep)[0:-1]
+	
 	path = folders[0]
 	for folder in folders[1:]:
 		path = path + "/" + folder
@@ -84,7 +81,10 @@ def detectFace(image_path, target_size=(224, 224)):
 	
 	detector = cv2.CascadeClassifier(detector_path)
 	
-	img = cv2.imread(image_path)
+	if grayscale != True:
+		img = cv2.imread(image_path)
+	else: #gray scale
+		img = cv2.imread(image_path, 0)
 	
 	faces = detector.detectMultiScale(img, 1.3, 5)
 	

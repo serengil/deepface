@@ -540,7 +540,7 @@ def loadModel():
 	if os.path.isfile(home+'/.deepface/weights/facenet_weights.h5') != True:
 		print("facenet_weights.h5 will be downloaded...")
 		
-		url = 'https://drive.google.com/file/d/1971Xk5RwedbudGgTIrGAL4F7Aifu7id1/view?usp=sharing'
+		url = 'https://drive.google.com/uc?id=1971Xk5RwedbudGgTIrGAL4F7Aifu7id1'
 		output = home+'/.deepface/weights/facenet_weights.h5'
 		gdown.download(url, output, quiet=False)
 	

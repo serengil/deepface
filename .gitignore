@@ -12,3 +12,4 @@ deepface.egg-info/
 deepface/__pycache__/*
 deepface/commons/__pycache__/*
 deepface/basemodels/__pycache__/*
+deepface/subsidiarymodels/__pycache__/*
