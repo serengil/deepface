@@ -65,7 +65,7 @@ The easiest way to install deepface is to download it from [PyPI](https://pypi.o
 pip install deepface
 ```
 
-Alternatively, you can directly download the source code from this repository. GitHub repo might be newer than the PyPI version.
+Alternatively, you can directly download the source code from this repository. **GitHub repo might be newer than the PyPI version**.
 
 ```
 git clone https://github.com/serengil/deepface.git
