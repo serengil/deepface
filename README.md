@@ -9,7 +9,7 @@ from deepface import DeepFace
 result = DeepFace.verify("img1.jpg", "img2.jpg")
 ```
 
-# Face recognition models
+## Face recognition models
 
 Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Facenet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/) and [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
 
@@ -20,7 +20,7 @@ facenet_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Facenet")
 openface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "OpenFace")
 ```
 
-# Similarity
+## Similarity
 
 These models actually find the vector embeddings of faces. Decision of verification is based on the distance between vectors. Distance could be found by different metrics such as [`Cosine Similarity`](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration finds the **cosine similarity**. You can alternatively set the similarity metric while verification as demostratred below.
 
@@ -32,7 +32,7 @@ result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distan
 
 VGG-Face has the highest accuracy score but it is not convenient for real time studies because of its complex structure. Facenet is a complex model as well. On the other hand, OpenFace has a close accuracy score but it performs the fastest. That's why, OpenFace is much more convenient for real time studies.
 
-# Verification
+## Verification
 
 Verification function returns a tuple including boolean verification result, distance between two faces and max threshold to identify. 
 
