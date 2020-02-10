@@ -13,7 +13,7 @@ from deepface import DeepFace
 result = DeepFace.verify("img1.jpg", "img2.jpg")
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-1.jpg"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-1.jpg"  width="50%" height="50%"></p>
 
 ```
 Model: VGG-Face
