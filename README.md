@@ -115,6 +115,7 @@ Then, you can retrieve the fields of the response object easily in Python.
 
 ```python
 import json
+demography = json.loads(demography)
 print("Age: ",demography["age"])
 ```
 
