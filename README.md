@@ -18,8 +18,8 @@ result = DeepFace.verify("img1.jpg", "img2.jpg")
 ```
 Model: VGG-Face
 Similarity metric: Cosine
-Found Distance: 0.25638097524642944
 Max Threshold to Verify: 0.40
+Found Distance: 0.25638097524642944
 Result: They are same
 ```
 
