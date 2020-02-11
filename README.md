@@ -16,11 +16,11 @@ result = DeepFace.verify("img1.jpg", "img2.jpg")
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-1.jpg"  width="50%" height="50%"></p>
 
 ```
-Model: VGG-Face
-Similarity metric: Cosine
-Found Distance: 0.25638097524642944
-Max Threshold to Verify: 0.40
-Result: They are same
+**Model:** VGG-Face
+**Similarity metric:** Cosine
+**Found Distance:** 0.25638097524642944
+**Max Threshold to Verify:** 0.40
+**Result:** They are same
 ```
 
 ## Face recognition models
