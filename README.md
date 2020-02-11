@@ -48,7 +48,7 @@ result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distan
 
 ## Verification
 
-Verification function returns a tuple including boolean verification result, distance between two faces and max threshold to identify. 
+Verification function returns a tuple including boolean verification result, distance between two faces and max threshold to identify (this shows difference based on face recognition model and similarity metric). 
 
 ```
 (True, 0.281734, 0.30)
@@ -60,17 +60,6 @@ You can just check the verification result to decide that two images are same pe
 verified = result[0] #returns True if images are same person's face
 found_distance = result[1] #distance of two face vectors
 max_threshold_to_verify = result[2] #faces have a distance less than this value will be verified
-```
-
-Instead of using pre-tuned threshold values, you can alternatively check the distance by yourself.
-
-```python
-distance = result[1] #the less the better
-threshold = 0.30 #threshold for VGG-Face and Cosine Similarity
-if distance < threshold:
-   return True
-else:
-   return False
 ```
 
 # Facial Attribute Analysis
