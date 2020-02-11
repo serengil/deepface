@@ -76,7 +76,7 @@ demography = DeepFace.analyze("img4.jpg") #passing nothing as 2nd argument will 
 
 Analysis function returns a json object.
 
-```
+```json
 {
    "age": 31.25149216214664
    , "gender": "Woman"
