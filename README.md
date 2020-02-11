@@ -29,7 +29,7 @@ Face recognition can be handled by different models. Currently, [`VGG-Face`](htt
 
 ```python
 vggface_result = DeepFace.verify("img1.jpg", "img2.jpg") #default is VGG-Face
-#vggface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face")
+#vggface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face") #identical to the line above
 facenet_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Facenet")
 openface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "OpenFace")
 ```
@@ -78,7 +78,7 @@ Deepface also offers facial attribute analysis including [`age`](https://sefiks.
 ```python
 from deepface import DeepFace
 demography = DeepFace.analyze("img4.jpg") #passing nothing as 2nd argument will find everything
-#demography = DeepFace.analyze("img4.jpg", ['age', 'gender', 'race', 'emotion']) #identical to above line
+#demography = DeepFace.analyze("img4.jpg", ['age', 'gender', 'race', 'emotion']) #identical to the line above
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/img4-cropped.jpg" width="20%" height="20%"></p>
