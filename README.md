@@ -58,6 +58,8 @@ You can just check the verification result to decide that two images are same pe
 
 ```python
 verified = result[0] #returns True if images are same person's face
+found_distance = result[1] #distance of two face vectors
+max_threshold_to_verify = result[2] #faces have a distance less than this value will be verified
 ```
 
 Instead of using pre-tuned threshold values, you can alternatively check the distance by yourself.
