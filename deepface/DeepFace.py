@@ -122,8 +122,6 @@ def analyze(img_path, actions= []):
 	
 	print("Actions to do: ", actions)
 	
-	img = functions.detectFace(img_path, (224, 224))
-	
 	#TO-DO: do this in parallel
 	
 	pbar = tqdm(range(0,len(actions)), desc='Finding actions')
@@ -163,6 +161,7 @@ def analyze(img_path, actions= []):
 			resp_obj += emotion_obj
 			
 		elif action == 'age':
+			img = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
 			#print("age prediction")
 			model = Age.loadModel()
 			age_predictions = model.predict(img)[0,:]
@@ -171,6 +170,7 @@ def analyze(img_path, actions= []):
 			resp_obj += "\"age\": %s" % (apparent_age)
 			
 		elif action == 'gender':
+			img = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
 			#print("gender prediction")
 			
 			model = Gender.loadModel()
@@ -184,6 +184,7 @@ def analyze(img_path, actions= []):
 			resp_obj += "\"gender\": \"%s\"" % (gender)
 			
 		elif action == 'race':
+			img = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
 			model = Race.loadModel()
 			race_predictions = model.predict(img)[0,:]
 			race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']

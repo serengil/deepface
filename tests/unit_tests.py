@@ -6,6 +6,11 @@ import json
 print("Facial analysis tests")
 
 img = "dataset/img4.jpg"
+demography = DeepFace.analyze(img)
+print(demography)
+
+#-----------------------------------------
+
 demography = DeepFace.analyze(img, ['age', 'gender', 'race', 'emotion'])
 
 print("Demography:")
