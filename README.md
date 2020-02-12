@@ -139,6 +139,10 @@ pip install keras==2.2.0
 pip install tqdm==4.30.0
 ```
 
+# Playlist
+
+Deepface is mentioned in this [youtube playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E).
+
 # Disclaimer
 
 Reference face recognition models have different type of licenses. This framework is just a wrapper for those models. That's why, licence types are inherited as well. You should check the licenses for the face recognition models before use.
