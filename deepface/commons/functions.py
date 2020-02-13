@@ -20,19 +20,6 @@ def initializeFolder():
 		os.mkdir(home+"/.deepface/weights")
 		print("Directory ",home,"/.deepface/weights created")
 
-def validateInputs(model_name, distance_metric):
-	
-	distance_metrics = ['cosine', 'euclidean', 'euclidean_l2']
-	if distance_metric not in distance_metrics:
-		raise ValueError("Distance metric must be in ",distance_metrics," but you passed ", distance_metric)
-	
-	#--------------------------
-	
-	model_names = ['VGG-Face', 'Facenet', 'OpenFace']
-	
-	if model_name not in model_names:
-		raise ValueError("Model name metric must be in ",model_names," but you passed ", model_name)
-
 def findThreshold(model_name, distance_metric):
 	
 	threshold = 0.40
