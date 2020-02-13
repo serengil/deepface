@@ -39,14 +39,17 @@ def verify(img1_path, img2_path
 	#-------------------------
 	
 	if model_name == 'VGG-Face':
+		print("Using VGG-Face backend.")
 		model = VGGFace.loadModel()
 		input_shape = (224, 224)	
 	
 	elif model_name == 'OpenFace':
+		print("Using OpenFace backend.")
 		model = OpenFace.loadModel()
 		input_shape = (96, 96)
 	
 	elif model_name == 'Facenet':
+		print("Using Facenet backend.")
 		model = Facenet.loadModel()
 		input_shape = (160, 160)
 	
@@ -69,10 +72,13 @@ def verify(img1_path, img2_path
 	#find distances between embeddings
 	
 	if distance_metric == 'cosine':
+		print("Using cosine similarity")
 		distance = dst.findCosineDistance(img1_representation, img2_representation)
 	elif distance_metric == 'euclidean':
+		print("Using euclidean distance")
 		distance = dst.findEuclideanDistance(img1_representation, img2_representation)
 	elif distance_metric == 'euclidean_l2':
+		print("Using euclidean distance l2 form")
 		distance = dst.findEuclideanDistance(dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation))
 	
 	#-------------------------
