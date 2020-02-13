@@ -35,7 +35,7 @@ def loadModel():
 		print("race_model_single_batch.h5 will be downloaded...")
 		
 		#zip
-		url = 'https://drive.google.com/file/d/1nz-WDhghGQBC4biwShQ9kYjvQMpO6smj'
+		url = 'https://drive.google.com/uc?id=1nz-WDhghGQBC4biwShQ9kYjvQMpO6smj'
 		output = home+'/.deepface/weights/race_model_single_batch.zip'
 		gdown.download(url, output, quiet=False)
 		
