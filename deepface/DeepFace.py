@@ -24,12 +24,6 @@ def verify(img1_path, img2_path
 	
 	if os.path.isfile(img2_path) != True:
 		raise ValueError("Confirm that ",img2_path," exists")
-		
-	#-------------------------
-	
-	#print("Face verification will be applied on ",model_name," model and ",distance_metric," metric")
-	
-	functions.validateInputs(model_name, distance_metric)
 	
 	#-------------------------
 	
@@ -53,6 +47,9 @@ def verify(img1_path, img2_path
 		model = Facenet.loadModel()
 		input_shape = (160, 160)
 	
+	else:
+		raise ValueError("Invalid model_name passed - ", model_name)
+
 	#-------------------------
 	#crop face
 	
@@ -80,6 +77,8 @@ def verify(img1_path, img2_path
 	elif distance_metric == 'euclidean_l2':
 		print("Using euclidean distance l2 form")
 		distance = dst.findEuclideanDistance(dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation))
+	else:
+		raise ValueError("Invalid distance_metric passed - ", distance_metric)
 	
 	#-------------------------
 	#decision
