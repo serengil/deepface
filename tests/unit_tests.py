@@ -15,7 +15,6 @@ demography = DeepFace.analyze(img, ['age', 'gender', 'race', 'emotion'])
 
 print("Demography:")
 print(demography)
-demography = json.loads(demography)
 
 #check response is a valid json
 print("Age: ", demography["age"])

@@ -7,11 +7,14 @@ import os
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import json
 
 #from basemodels import VGGFace, OpenFace, Facenet, Age, Gender, Race, Emotion
+#from extendedmodels import Age, Gender, Race, Emotion
 #from commons import functions, distance as dst
 
-from deepface.basemodels import VGGFace, OpenFace, Facenet, Age, Gender, Race, Emotion
+from deepface.basemodels import VGGFace, OpenFace, Facenet
+from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, distance as dst
 
 def verify(img1_path, img2_path
@@ -33,17 +36,17 @@ def verify(img1_path, img2_path
 	#-------------------------
 	
 	if model_name == 'VGG-Face':
-		print("Using VGG-Face backend.")
+		print("Using VGG-Face backend ", end='')
 		model = VGGFace.loadModel()
 		input_shape = (224, 224)	
 	
 	elif model_name == 'OpenFace':
-		print("Using OpenFace backend.")
+		print("Using OpenFace backend ", end='')
 		model = OpenFace.loadModel()
 		input_shape = (96, 96)
 	
 	elif model_name == 'Facenet':
-		print("Using Facenet backend.")
+		print("Using Facenet backend ", end='')
 		model = Facenet.loadModel()
 		input_shape = (160, 160)
 	
@@ -69,13 +72,13 @@ def verify(img1_path, img2_path
 	#find distances between embeddings
 	
 	if distance_metric == 'cosine':
-		print("Using cosine similarity")
+		print("and cosine similarity.")
 		distance = dst.findCosineDistance(img1_representation, img2_representation)
 	elif distance_metric == 'euclidean':
-		print("Using euclidean distance")
+		print("and euclidean distance.")
 		distance = dst.findEuclideanDistance(img1_representation, img2_representation)
 	elif distance_metric == 'euclidean_l2':
-		print("Using euclidean distance l2 form")
+		print("and euclidean distance l2 form.")
 		distance = dst.findEuclideanDistance(dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation))
 	else:
 		raise ValueError("Invalid distance_metric passed - ", distance_metric)
@@ -119,7 +122,7 @@ def verify(img1_path, img2_path
 
 def analyze(img_path, actions= []):
 	
-	resp_obj = "{\n   "
+	resp_obj = "{"
 	
 	#if a specific target is not passed, then find them all
 	if len(actions) == 0:
@@ -138,7 +141,7 @@ def analyze(img_path, actions= []):
 		pbar.set_description("Action: %s" % (action))
 		
 		if action_idx > 0:
-			resp_obj += "\n   , "
+			resp_obj += ", "
 		
 		if action == 'emotion':
 			emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
@@ -156,12 +159,11 @@ def analyze(img_path, actions= []):
 				
 				if i > 0: emotion_obj += ", "
 				
-				emotion_obj += "\n      "
 				emotion_obj += "\"%s\": %s" % (emotion_label, emotion_prediction)
 			
-			emotion_obj += "\n   }"
+			emotion_obj += "}"
 			
-			emotion_obj += "\n   , \"dominant_emotion\": \"%s\"" % (emotion_labels[np.argmax(emotion_predictions)])
+			emotion_obj += ", \"dominant_emotion\": \"%s\"" % (emotion_labels[np.argmax(emotion_predictions)])
 			
 			resp_obj += emotion_obj
 			
@@ -203,17 +205,19 @@ def analyze(img_path, actions= []):
 				
 				if i > 0: race_obj += ", "
 				
-				race_obj += "\n      "
 				race_obj += "\"%s\": %s" % (race_label, race_prediction)
 			
-			race_obj += "\n   }"
-			race_obj += "\n   , \"dominant_race\": \"%s\"" % (race_labels[np.argmax(race_predictions)])
+			race_obj += "}"
+			race_obj += ", \"dominant_race\": \"%s\"" % (race_labels[np.argmax(race_predictions)])
 			
 			resp_obj += race_obj
 		
 		action_idx = action_idx + 1
 	
-	resp_obj += "\n}"
+	resp_obj += "}"
+	
+	resp_obj = json.loads(resp_obj)
+	
 	return resp_obj
 #---------------------------
 
