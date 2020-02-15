@@ -30,8 +30,8 @@ result = DeepFace.verify("img1.jpg", "img2.jpg")
 You can retrieve the fields of the response object easily in Python.
 
 ```python
-print("Is verified: ", demography["verified"])
-print("Distance: ", demography["distance"])
+print("Is verified: ", result["verified"])
+print("Distance: ", result["distance"])
 ```
 
 ## Face recognition models
