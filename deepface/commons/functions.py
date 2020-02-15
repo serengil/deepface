@@ -89,6 +89,14 @@ def findThreshold(model_name, distance_metric):
 		elif distance_metric == 'euclidean_l2':
 			threshold = 0.80
 	
+	elif model_name == 'DeepFace':
+		if distance_metric == 'cosine':
+			threshold = 0.23
+		elif distance_metric == 'euclidean':
+			threshold = 64
+		elif distance_metric == 'euclidean_l2':
+			threshold = 0.69
+	
 	return threshold
 
 def detectFace(image_path, target_size=(224, 224), grayscale = False):

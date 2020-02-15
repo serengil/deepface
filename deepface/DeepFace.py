@@ -9,11 +9,11 @@ import pandas as pd
 from tqdm import tqdm
 import json
 
-#from basemodels import VGGFace, OpenFace, Facenet, Age, Gender, Race, Emotion
+#from basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 #from extendedmodels import Age, Gender, Race, Emotion
 #from commons import functions, distance as dst
 
-from deepface.basemodels import VGGFace, OpenFace, Facenet
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, distance as dst
 
@@ -36,19 +36,24 @@ def verify(img1_path, img2_path
 	#-------------------------
 	
 	if model_name == 'VGG-Face':
-		print("Using VGG-Face backend ", end='')
+		print("Using VGG-Face model backend and", distance_metric,"distance.")
 		model = VGGFace.loadModel()
 		input_shape = (224, 224)	
 	
 	elif model_name == 'OpenFace':
-		print("Using OpenFace backend ", end='')
+		print("Using OpenFace model backend", distance_metric,"distance.")
 		model = OpenFace.loadModel()
 		input_shape = (96, 96)
 	
 	elif model_name == 'Facenet':
-		print("Using Facenet backend ", end='')
+		print("Using Facenet model backend", distance_metric,"distance.")
 		model = Facenet.loadModel()
 		input_shape = (160, 160)
+	
+	elif model_name == 'DeepFace':
+		print("Using FB DeepFace model backend", distance_metric,"distance.")
+		model = FbDeepFace.loadModel()
+		input_shape = (152, 152)
 	
 	else:
 		raise ValueError("Invalid model_name passed - ", model_name)
@@ -72,13 +77,10 @@ def verify(img1_path, img2_path
 	#find distances between embeddings
 	
 	if distance_metric == 'cosine':
-		print("and cosine similarity.")
 		distance = dst.findCosineDistance(img1_representation, img2_representation)
 	elif distance_metric == 'euclidean':
-		print("and euclidean distance.")
 		distance = dst.findEuclideanDistance(img1_representation, img2_representation)
 	elif distance_metric == 'euclidean_l2':
-		print("and euclidean distance l2 form.")
 		distance = dst.findEuclideanDistance(dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation))
 	else:
 		raise ValueError("Invalid distance_metric passed - ", distance_metric)
@@ -87,11 +89,9 @@ def verify(img1_path, img2_path
 	#decision
 	
 	if distance <= threshold:
-		identified =  True
-		message = "The both face photos are same person."
+		identified =  "true"
 	else:
-		identified =  False
-		message = "The both face photos are not same person!"
+		identified =  "false"
 	
 	#-------------------------
 	
@@ -114,11 +114,19 @@ def verify(img1_path, img2_path
 	
 	toc = time.time()
 	
+	resp_obj = "{"
+	resp_obj += "\"verified\": "+identified
+	resp_obj += ", \"distance\": "+str(distance)
+	resp_obj += ", \"max_threshold_to_verify\": "+str(threshold)
+	resp_obj += ", \"model\": \""+model_name+"\""
+	resp_obj += ", \"similarity_metric\": \""+distance_metric+"\""
+	resp_obj += "}"
+	
+	resp_obj = json.loads(resp_obj) #string to json
+	
 	#print("identification lasts ",toc-tic," seconds")
 	
-	#Return a tuple. First item is the identification result based on tuned threshold.
-	#Second item is the threshold. You might want to customize this threshold to identify faces.
-	return (identified, distance, threshold)
+	return resp_obj
 
 def analyze(img_path, actions= []):
 	

@@ -1,16 +1,19 @@
 from deepface import DeepFace
 import json
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 #-----------------------------------------
 
-print("Facial analysis tests")
+print("Facial analysis test. Passing nothing as an action")
 
 img = "dataset/img4.jpg"
 demography = DeepFace.analyze(img)
 print(demography)
 
-#-----------------------------------------
+print("-----------------------------------------")
 
+print("Facial analysis test. Passing all to the action")
 demography = DeepFace.analyze(img, ['age', 'gender', 'race', 'emotion'])
 
 print("Demography:")
@@ -28,11 +31,17 @@ print("Face recognition tests")
 
 dataset = [
 	['dataset/img1.jpg', 'dataset/img2.jpg', True],
+	['dataset/img5.jpg', 'dataset/img6.jpg', True],
+	['dataset/img6.jpg', 'dataset/img7.jpg', True],
+	['dataset/img8.jpg', 'dataset/img9.jpg', True],
+	
 	['dataset/img1.jpg', 'dataset/img3.jpg', False],
 	['dataset/img2.jpg', 'dataset/img3.jpg', False],
+	['dataset/img6.jpg', 'dataset/img8.jpg', False],
+	['dataset/img6.jpg', 'dataset/img9.jpg', False],
 ]
 
-models = ['VGG-Face', 'Facenet', 'OpenFace']
+models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
 metrics = ['cosine', 'euclidean', 'euclidean_l2']
 
 passed_tests = 0; test_cases = 0
@@ -44,21 +53,24 @@ for model in models:
 			img2 = instance[1]
 			result = instance[2]
 			
-			idx = DeepFace.verify(img1, img2, model_name = model, distance_metric = metric)
+			resp_obj = DeepFace.verify(img1, img2, model_name = model, distance_metric = metric)
+			prediction = resp_obj["verified"]
+			distance = round(resp_obj["distance"], 2)
+			required_threshold = resp_obj["max_threshold_to_verify"]
 			
 			test_result_label = "failed"
-			if idx[0] == result:
+			if prediction == result:
 				passed_tests = passed_tests + 1
 				test_result_label = "passed"
 			
-			if idx[0] == True:
+			if prediction == True:
 				classified_label = "verified"
 			else:
 				classified_label = "unverified"
 			
 			test_cases = test_cases + 1
 			
-			print(img1, " and ", img2," are ", classified_label, " as same person based on ", model," model and ",metric," distance metric. Distance: ",round(idx[1], 2),", Required Threshold: ", idx[2]," (",test_result_label,")")
+			print(img1, " and ", img2," are ", classified_label, " as same person based on ", model," model and ",metric," distance metric. Distance: ",distance,", Required Threshold: ", required_threshold," (",test_result_label,")")
 		
 		print("--------------------------")
 

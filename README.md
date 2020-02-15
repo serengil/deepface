@@ -4,7 +4,7 @@
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-icon.png" width="20%" height="20%"></p>
 
-**deepface** is a lightweight python based facial analysis framework including face recognition and demography (age, gender, emotion and race). You can use the framework with a just few lines of codes.
+**deepface** is a lightweight facial analysis framework including face recognition and demography (age, gender, emotion and race) for Python. You can use the framework with a just few lines of codes.
 
 # Face Recognition
 
@@ -17,23 +17,26 @@ result = DeepFace.verify("img1.jpg", "img2.jpg")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-1.jpg"  width="50%" height="50%"></p>
 
-```
-Model: VGG-Face
-Similarity metric: Cosine
-Max Threshold to Verify: 0.40
-Found Distance: 0.25638097524642944
-Result: They are same
+```json
+{
+   "verified": true,
+   "distance": 0.25638097524642944,
+   "max_threshold_to_verify": 0.40,
+   "model": "VGG-Face",
+   "similarity_metric": "cosine"
+}
 ```
 
 ## Face recognition models
 
-Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Facenet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/) and [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
+Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google Facenet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) and `Facebook DeepFace` models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
 
 ```python
 vggface_result = DeepFace.verify("img1.jpg", "img2.jpg") #default is VGG-Face
 #vggface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face") #identical to the line above
 facenet_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Facenet")
 openface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "OpenFace")
+deepface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "DeepFace")
 ```
 
 VGG-Face has the highest accuracy score but it is not convenient for real time studies because of its complex structure. Facenet is a complex model as well. On the other hand, OpenFace has a close accuracy score but it performs the fastest. That's why, OpenFace is much more convenient for real time studies.
@@ -50,18 +53,11 @@ result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distan
 
 ## Verification
 
-Verification function returns a tuple including boolean verification result, distance between two faces and max threshold to identify (this shows difference based on face recognition model and similarity metric). 
-
-```
-(True, 0.281734, 0.30)
-```
-
-You can just check the verification result to decide that two images are same person or not. Thresholds for distance metrics are already tuned in the framework for face recognition models and distance metrics.
+Verification function returns a json object including verification result based on found distance and tuned threshold. You can check the verification result by accessing the attribute in the json object.
 
 ```python
-verified = result[0] #returns True if images are same person's face
-found_distance = result[1] #distance of two face vectors
-max_threshold_to_verify = result[2] #faces have a distance less than this value will be verified
+result = DeepFace.verify("img1.jpg", "img2.jpg")
+is_verified = result["verified"]
 ```
 
 # Facial Attribute Analysis
@@ -149,7 +145,9 @@ Deepface is mentioned in this [youtube playlist](https://www.youtube.com/watch?v
 
 Reference face recognition models have different type of licenses. This framework is just a wrapper for those models. That's why, licence types are inherited as well. You should check the licenses for the face recognition models before use.
 
-Herein, [OpenFace](https://github.com/cmusatyalab/openface/blob/master/LICENSE) is licensed under Apache License 2.0, and [Facenet](https://github.com/davidsandberg/facenet/blob/master/LICENSE.md) is licensed under MIT License. They both allow you to use commercial use. On the other hand, [VGG-Face](http://www.robots.ox.ac.uk/~vgg/software/vgg_face/) is licensed under Creative Commons Attribution License. That's why, it is restricted to adopt VGG-Face for commercial use.
+Herein, [OpenFace](https://github.com/cmusatyalab/openface/blob/master/LICENSE) is licensed under Apache License 2.0. [FB DeepFace](https://github.com/swghosh/DeepFace) and [Facenet](https://github.com/davidsandberg/facenet/blob/master/LICENSE.md) is licensed under MIT License. The both Apache License 2.0 and MIT license types allow you to use for commercial purpose. 
+
+On the other hand, [VGG-Face](http://www.robots.ox.ac.uk/~vgg/software/vgg_face/) is licensed under Creative Commons Attribution License. That's why, it is restricted to adopt VGG-Face for commercial use.
 
 # Support
 
