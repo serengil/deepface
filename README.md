@@ -1,5 +1,7 @@
 # deepface
 
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-icon.png"></p>
+
 [![Downloads](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
 
 **deepface** is a lightweight python based facial analysis framework including face recognition and demography (age, gender, emotion and race). You can use the framework with a just few lines of codes.
@@ -156,3 +158,5 @@ There are many ways to support a project - starring⭐️ the GitHub repos is ju
 # Licence
 
 Deepface is licensed under the MIT License - see [`LICENSE`](https://github.com/serengil/deepface/blob/master/LICENSE) for more details.
+
+[Deepface logo](https://www.flaticon.com/free-icon/face-recognition_2313156) is made by [Pixel Perfect](https://www.flaticon.com/authors/pixel-perfect) from [flaticon](https://www.flaticon.com/).
