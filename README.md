@@ -27,6 +27,13 @@ result = DeepFace.verify("img1.jpg", "img2.jpg")
 }
 ```
 
+You can retrieve the fields of the response object easily in Python.
+
+```python
+print("Is verified: ", demography["verified"])
+print("Distance: ", demography["distance"])
+```
+
 ## Face recognition models
 
 Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google Facenet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) and `Facebook DeepFace` models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
@@ -94,9 +101,9 @@ Analysis function returns a json object.
 Then, you can retrieve the fields of the response object easily in Python.
 
 ```python
-import json
-demography = json.loads(demography)
-print("Age: ",demography["age"])
+print("Age: ", demography["age"])
+print("Gender: ", demography["gender"])
+print("Emotion: ", demography["dominant_emotion"])
 ```
 
 # Installation
