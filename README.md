@@ -51,15 +51,6 @@ result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distan
 result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = "euclidean_l2")
 ```
 
-## Verification
-
-Verification function returns a json object including verification result based on found distance and tuned threshold. You can check the verification result by accessing the attribute in the json object.
-
-```python
-result = DeepFace.verify("img1.jpg", "img2.jpg")
-is_verified = result["verified"]
-```
-
 # Facial Attribute Analysis
 
 Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`emotion`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) predictions. Analysis function under the DeepFace interface is used to find demography of a face.
