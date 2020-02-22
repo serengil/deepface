@@ -74,27 +74,27 @@ Analysis function returns a json object.
 
 ```json
 {
-'age': 32.49221594557578,
-'gender': 'Woman',
-'race': {
-   'asian': 3.928472101688385, 
-   'white': 55.44567108154297, 
-   'middle eastern': 15.896821022033691, 
-   'indian': 3.050043433904648, 
-   'latino hispanic': 20.90577930212021, 
-   'black': 0.7732132915407419
+"age": 32.49221594557578,
+"gender": "Woman",
+"race": {
+   "asian": 3.928472101688385, 
+   "white": 55.44567108154297, 
+   "middle eastern": 15.896821022033691, 
+   "indian": 3.050043433904648, 
+   "latino hispanic": 20.90577930212021, 
+   "black": 0.7732132915407419
 },
-'dominant_race': 'white'
-'emotion': {
-   'angry': 3.1055836006999016, 
-   'fear': 1.1844050139188766, 
-   'neutral': 86.2661361694336, 
-   'sad': 7.137920707464218, 
-   'disgust': 0.0001227657776325941, 
-   'happy': 2.245445176959038, 
-   'surprise': 0.06038688006810844
+"dominant_race": "white"
+"emotion": {
+   "angry": 3.1055836006999016, 
+   "fear": 1.1844050139188766, 
+   "neutral": 86.2661361694336, 
+   "sad": 7.137920707464218, 
+   "disgust": 0.0001227657776325941, 
+   "happy": 2.245445176959038, 
+   "surprise": 0.06038688006810844
 }, 
-'dominant_emotion': 'neutral'
+"dominant_emotion": "neutral"
 }
 ```
 
