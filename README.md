@@ -76,7 +76,7 @@ Analysis function returns a json object.
 {
 "age": 32.49221594557578,
 "gender": "Woman",
-"race": {
+"race":{
    "asian": 3.928472101688385, 
    "white": 55.44567108154297, 
    "middle eastern": 15.896821022033691, 
@@ -85,7 +85,7 @@ Analysis function returns a json object.
    "black": 0.7732132915407419
 },
 "dominant_race": "white"
-"emotion": {
+"emotion":{
    "angry": 3.1055836006999016, 
    "fear": 1.1844050139188766, 
    "neutral": 86.2661361694336, 
