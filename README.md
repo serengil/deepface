@@ -68,33 +68,33 @@ demography = DeepFace.analyze("img4.jpg") #passing nothing as 2nd argument will 
 #demography = DeepFace.analyze("img4.jpg", ['age', 'gender', 'race', 'emotion']) #identical to the line above
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/img4-cropped.jpg" width="20%" height="20%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-2.jpg" width="20%" height="20%"></p>
 
 Analysis function returns a json object.
 
 ```json
 {
-   "age": 31.25149216214664
-   , "gender": "Woman"
-   , "race": {
-      "asian": 0.43224629728474007,
-      "indian": 1.3657950678941648,
-      "black": 0.05537125728443308,
-      "white": 75.67231510116548,
-      "middle eastern": 13.872351579210257,
-      "latino hispanic": 8.601920819397021
-   }
-   , "dominant_race": "white"
-   , "emotion": {
-      "angry": 0.08186087173241338,
-      "disgust": 2.225523142400352e-06,
-      "fear": 0.04342652618288561,
-      "happy": 90.62228091028702,
-      "sad": 1.1166408126522078,
-      "surprise": 0.6784230348078054,
-      "neutral": 7.457371945067876
-   }
-   , "dominant_emotion": "happy"
+'age': 32.49221594557578,
+'gender': 'Woman',
+'race': {
+   'asian': 3.928472101688385, 
+   'white': 55.44567108154297, 
+   'middle eastern': 15.896821022033691, 
+   'indian': 3.050043433904648, 
+   'latino hispanic': 20.90577930212021, 
+   'black': 0.7732132915407419
+},
+'dominant_race': 'white'
+'emotion': {
+   'angry': 3.1055836006999016, 
+   'fear': 1.1844050139188766, 
+   'neutral': 86.2661361694336, 
+   'sad': 7.137920707464218, 
+   'disgust': 0.0001227657776325941, 
+   'happy': 2.245445176959038, 
+   'surprise': 0.06038688006810844
+}, 
+'dominant_emotion': 'neutral'
 }
 ```
 
