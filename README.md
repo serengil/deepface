@@ -2,7 +2,7 @@
 
 [![Downloads](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/chefboost/master/icon/deepface-icon.png" width="200" height="200"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-icon.png" width="200" height="200"></p>
 
 **deepface** is a lightweight facial analysis framework including face recognition and demography (age, gender, emotion and race) for Python. You can use the framework with a just few lines of codes.
 
