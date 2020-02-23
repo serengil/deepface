@@ -92,8 +92,6 @@ def verify(img1_path, img2_path
 	
 	#-------------------------
 	
-	#plot = True #passed from the function
-	
 	if plot:
 		label = "Verified: "+identified
 		label += "\nThreshold: "+str(round(distance, 2))
