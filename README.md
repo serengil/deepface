@@ -4,7 +4,7 @@
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-icon.png" width="200" height="200"></p>
 
-**Deepface** is a lightweight facial analysis framework including face recognition and demography (age, gender, emotion and race) for Python. You can use the framework with a just few lines of codes. Deepface handles the common stages of modern face recognition pipelines in the background including detection, [alignment](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), represention and classification.
+**Deepface** is a lightweight facial analysis framework including face recognition and demography (age, gender, emotion and race) for Python. You can use the framework with a just few lines of codes. Deepface handles the common stages of the modern face recognition pipelines in the background including detection, [alignment](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), represention and classification.
 
 # Face Recognition
 
