@@ -133,6 +133,7 @@ pip install opencv-python==3.4.4
 pip install tensorflow==1.9.0
 pip install keras==2.2.0
 pip install tqdm==4.30.0
+pip install Pillow==5.2.0
 ```
 
 # Playlist

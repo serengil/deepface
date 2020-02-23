@@ -18,7 +18,7 @@ from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, distance as dst
 
 def verify(img1_path, img2_path
-	, model_name ='VGG-Face', distance_metric = 'cosine'):
+	, model_name ='VGG-Face', distance_metric = 'cosine', plot = False):
 	
 	tic = time.time()
 	
@@ -65,9 +65,6 @@ def verify(img1_path, img2_path
 	img2 = functions.detectFace(img2_path, input_shape)
 	
 	#-------------------------
-	#TO-DO: Apply face alignment here. Experiments show that aligment increases accuracy 1%.
-	
-	#-------------------------
 	#find embeddings
 	
 	img1_representation = model.predict(img1)[0,:]
@@ -95,10 +92,14 @@ def verify(img1_path, img2_path
 	
 	#-------------------------
 	
-	plot = False
+	#plot = True #passed from the function
 	
 	if plot:
-		label = "Distance is "+str(round(distance, 2))+"\nwhereas max threshold is "+ str(threshold)+ ".\n"+ message
+		label = "Verified: "+identified
+		label += "\nThreshold: "+str(round(distance, 2))
+		label += ", Max Threshold to Verify: "+str(threshold)
+		label += "\nModel: "+model_name
+		label += ", Similarity metric: "+distance_metric
 		
 		fig = plt.figure()
 		fig.add_subplot(1,2, 1)
@@ -227,6 +228,11 @@ def analyze(img_path, actions= []):
 	resp_obj = json.loads(resp_obj)
 	
 	return resp_obj
+
+def detectFace(img_path):
+	img = functions.detectFace(img_path)
+	return img
+
 #---------------------------
 
 functions.initializeFolder()
