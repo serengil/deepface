@@ -15,7 +15,7 @@ from deepface import DeepFace
 result = DeepFace.verify("img1.jpg", "img2.jpg")
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-0.jpg"  width="50%" height="50%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-2.jpg"  width="50%" height="50%"></p>
 
 ```json
 {
@@ -68,7 +68,7 @@ demography = DeepFace.analyze("img4.jpg") #passing nothing as 2nd argument will 
 #demography = DeepFace.analyze("img4.jpg", ['age', 'gender', 'race', 'emotion']) #identical to the line above
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/img10.jpg" width="20%" height="20%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-1.jpg" width="20%" height="20%"></p>
 
 Analysis function returns a json object.
 
