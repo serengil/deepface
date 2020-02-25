@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="deepface",  
-    version="0.0.8",
+    version="0.0.9",
     author="Sefik Ilkin Serengil",
     author_email="serengil@gmail.com",
     description="Deep Face Anaylsis Framework for Face Recognition and Demography",

@@ -9,13 +9,13 @@ import pandas as pd
 from tqdm import tqdm
 import json
 
-from basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
-from extendedmodels import Age, Gender, Race, Emotion
-from commons import functions, distance as dst
+#from basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+#from extendedmodels import Age, Gender, Race, Emotion
+#from commons import functions, distance as dst
 
-#from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
-#from deepface.extendedmodels import Age, Gender, Race, Emotion
-#from deepface.commons import functions, distance as dst
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+from deepface.extendedmodels import Age, Gender, Race, Emotion
+from deepface.commons import functions, distance as dst
 
 def verify(img1_path, img2_path
 	, model_name ='VGG-Face', distance_metric = 'cosine', plot = False):
