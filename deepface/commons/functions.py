@@ -128,10 +128,7 @@ def detectFace(image_path, target_size=(224, 224), grayscale = False):
 	face_detector = cv2.CascadeClassifier(face_detector_path)
 	eye_detector = cv2.CascadeClassifier(eye_detector_path)
 	
-	if grayscale != True:
-		img = cv2.imread(image_path)
-	else: #gray scale
-		img = cv2.imread(image_path, 0)
+	img = cv2.imread(image_path)
 	
 	img_raw = img.copy()
 	
@@ -228,6 +225,10 @@ def detectFace(image_path, target_size=(224, 224), grayscale = False):
 		
 		#face alignment block end
 		#---------------------------
+		
+		#face alignment block needs colorful images. that's why, converting to gray scale logic moved to here.
+		if grayscale == True:
+			detected_face = cv2.cvtColor(detected_face, cv2.COLOR_BGR2GRAY)
 		
 		detected_face = cv2.resize(detected_face, target_size)
 		
