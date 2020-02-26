@@ -231,8 +231,8 @@ def analyze(img_path, actions= []):
 	return resp_obj
 
 def detectFace(img_path):
-	img = functions.detectFace(img_path)
-	return img
+	img = functions.detectFace(img_path)[0] #detectFace returns (1, 224, 224, 3)
+	return img[:, :, ::-1] #bgr to rgb
 
 #---------------------------
 
