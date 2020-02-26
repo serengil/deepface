@@ -46,7 +46,7 @@ openface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "OpenFace
 deepface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "DeepFace")
 ```
 
-VGG-Face has the highest accuracy score but it is not convenient for real time studies because of its complex structure. Facenet is a complex model as well. On the other hand, OpenFace has a close accuracy score but it performs the fastest. That's why, OpenFace is much more convenient for real time studies.
+VGG-Face has the highest accuracy score but it is not convenient for real time studies because of its complex structure. FaceNet is a complex model as well. On the other hand, OpenFace has a close accuracy score but it performs the fastest. That's why, OpenFace is much more convenient for real time studies.
 
 ## Similarity
 
