@@ -5,6 +5,43 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 #-----------------------------------------
 
+print("Bulk tests")
+
+print("-----------------------------------------")
+
+print("Bulk face recognition tests")
+
+dataset = [
+	['dataset/img1.jpg', 'dataset/img2.jpg', True],
+	['dataset/img5.jpg', 'dataset/img6.jpg', True]
+]
+
+resp_obj = DeepFace.verify(dataset)
+print(resp_obj[0]["verified"] == True)
+print(resp_obj[1]["verified"] == True)
+
+print("-----------------------------------------")
+
+print("Bulk facial analysis tests")
+
+dataset = [
+	'dataset/img1.jpg',
+	'dataset/img2.jpg',
+	'dataset/img5.jpg',
+	'dataset/img6.jpg'
+]
+
+resp_obj = DeepFace.analyze(dataset)
+print(resp_obj[0]["age"]," years old ", resp_obj[0]["dominant_emotion"], " ",resp_obj[0]["gender"])
+print(resp_obj[1]["age"]," years old ", resp_obj[1]["dominant_emotion"], " ",resp_obj[1]["gender"])
+print(resp_obj[2]["age"]," years old ", resp_obj[2]["dominant_emotion"], " ",resp_obj[2]["gender"])
+print(resp_obj[3]["age"]," years old ", resp_obj[3]["dominant_emotion"], " ",resp_obj[3]["gender"])
+
+
+print("-----------------------------------------")
+
+#-----------------------------------------
+
 print("Facial analysis test. Passing nothing as an action")
 
 img = "dataset/img4.jpg"

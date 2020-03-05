@@ -34,6 +34,16 @@ print("Is verified: ", result["verified"])
 print("Distance: ", result["distance"])
 ```
 
+Each call of verification function builds a face recognition model scratch and this is a costly operation. If you are going to verify multiple faces sequentially, then you should pass an array to verify function to speed up.
+
+```python
+dataset = [
+	['dataset/img1.jpg', 'dataset/img2.jpg'],
+	['dataset/img5.jpg', 'dataset/img6.jpg']
+]
+result = DeepFace.verify(dataset)
+```
+
 ## Face recognition models
 
 Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google Facenet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) and [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
@@ -66,6 +76,8 @@ Deepface also offers facial attribute analysis including [`age`](https://sefiks.
 from deepface import DeepFace
 demography = DeepFace.analyze("img4.jpg") #passing nothing as 2nd argument will find everything
 #demography = DeepFace.analyze("img4.jpg", ['age', 'gender', 'race', 'emotion']) #identical to the line above
+
+demographies = DeepFace.analyze(["img1.jpg", "img2.jpg", "img3.jpg"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-1.jpg" width="20%" height="20%"></p>
