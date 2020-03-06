@@ -34,7 +34,7 @@ print("Is verified: ", result["verified"])
 print("Distance: ", result["distance"])
 ```
 
-Each call of verification function builds a face recognition model scratch and this is a costly operation. If you are going to verify multiple faces sequentially, then you should pass an array to verify function to speed the operation up. In this way, complex face recognition models will be built once.
+Each call of verification function builds a face recognition model from scratch and this is a costly operation. If you are going to verify multiple faces sequentially, then you should pass an array of faces to verification function to speed the operation up. In this way, complex face recognition models will be built once.
 
 ```python
 dataset = [
@@ -42,6 +42,9 @@ dataset = [
 	['dataset/img5.jpg', 'dataset/img6.jpg']
 ]
 result = DeepFace.verify(dataset)
+
+for i in range(0, len(dataset)):
+	print(result[i]["verified"])
 ```
 
 ## Face recognition models
