@@ -15,7 +15,6 @@ from deepface import DeepFace
 result = DeepFace.verify("img1.jpg", "img2.jpg")
 
 print("Is verified: ", result["verified"])
-print("Distance: ", result["distance"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-2.jpg"  width="50%" height="50%"></p>
