@@ -13,6 +13,9 @@ Verify function under the DeepFace interface is used for face recognition.
 ```python
 from deepface import DeepFace
 result = DeepFace.verify("img1.jpg", "img2.jpg")
+
+print("Is verified: ", result["verified"])
+print("Distance: ", result["distance"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-2.jpg"  width="50%" height="50%"></p>
@@ -25,13 +28,6 @@ result = DeepFace.verify("img1.jpg", "img2.jpg")
    "model": "VGG-Face",
    "similarity_metric": "cosine"
 }
-```
-
-You can retrieve the fields of the response object easily in Python.
-
-```python
-print("Is verified: ", result["verified"])
-print("Distance: ", result["distance"])
 ```
 
 Each call of verification function builds a face recognition model from scratch and this is a costly operation. If you are going to verify multiple faces sequentially, then you should pass an array of faces to verification function to speed the operation up. In this way, complex face recognition models will be built once.
@@ -79,8 +75,12 @@ Deepface also offers facial attribute analysis including [`age`](https://sefiks.
 from deepface import DeepFace
 demography = DeepFace.analyze("img4.jpg") #passing nothing as 2nd argument will find everything
 #demography = DeepFace.analyze("img4.jpg", ['age', 'gender', 'race', 'emotion']) #identical to the line above
+#demographies = DeepFace.analyze(["img1.jpg", "img2.jpg", "img3.jpg"]) #analyzing multiple faces same time
 
-demographies = DeepFace.analyze(["img1.jpg", "img2.jpg", "img3.jpg"]) #analyzing multiple faces same time
+print("Age: ", demography["age"])
+print("Gender: ", demography["gender"])
+print("Emotion: ", demography["dominant_emotion"])
+print("Emotion: ", demography["dominant_race"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-1.jpg" width="20%" height="20%"></p>
@@ -111,14 +111,6 @@ Analysis function returns a json object.
 }, 
 "dominant_emotion": "neutral"
 }
-```
-
-Then, you can retrieve the fields of the response object easily in Python.
-
-```python
-print("Age: ", demography["age"])
-print("Gender: ", demography["gender"])
-print("Emotion: ", demography["dominant_emotion"])
 ```
 
 # Installation
