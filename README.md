@@ -34,7 +34,7 @@ Each call of verification function builds a face recognition model from scratch 
 ```python
 dataset = [
 	['dataset/img1.jpg', 'dataset/img2.jpg'],
-	['dataset/img5.jpg', 'dataset/img6.jpg']
+	['dataset/img1.jpg', 'dataset/img3.jpg']
 ]
 result = DeepFace.verify(dataset)
 
