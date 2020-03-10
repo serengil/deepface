@@ -6,4 +6,4 @@ opencv-python==3.4.4
 tensorflow==1.9.0
 keras==2.2.0
 tqdm==4.30.0
-Pillow==5.2.0
+Pillow==6.2.0
