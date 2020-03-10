@@ -3,7 +3,7 @@ pandas==0.23.4
 matplotlib==2.2.2
 gdown==3.10.1
 opencv-python==3.4.4
-tensorflow==1.9.0
+tensorflow==1.15.2
 keras==2.2.0
 tqdm==4.30.0
 Pillow==5.2.0
