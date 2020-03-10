@@ -37,9 +37,6 @@ dataset = [
 	['dataset/img1.jpg', 'dataset/img3.jpg']
 ]
 result = DeepFace.verify(dataset)
-
-for i in range(0, len(dataset)):
-	print(result[i]["verified"])
 ```
 
 ## Face recognition models
