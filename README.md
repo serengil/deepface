@@ -128,19 +128,7 @@ cd deepface
 pip install -e .
 ```
 
-Initial tests are run for Python 3.5.5 on Windows 10 but this is an OS-independent framework. Even though pip handles to install dependent libraries, the framework basically needs the following dependencies. You might need the following library requirements if you install the source code from github.
-
-```
-pip install numpy==1.14.0
-pip install pandas==0.23.4
-pip install matplotlib==2.2.2
-pip install gdown==3.10.1
-pip install opencv-python==3.4.4
-pip install tensorflow==1.9.0
-pip install keras==2.2.0
-pip install tqdm==4.30.0
-pip install Pillow==5.2.0
-```
+Initial tests are run for Python 3.5.5 on Windows 10 but this is an OS-independent framework. Even though pip handles to install dependent libraries, the framework basically needs the dependencies defined in the [requirements](https://github.com/serengil/deepface/blob/master/requirements.txt). You might need the specified library requirements if you install the source code from scratch.
 
 # Playlist
 
