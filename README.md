@@ -143,6 +143,10 @@ On the other hand, [VGG-Face](http://www.robots.ox.ac.uk/~vgg/software/vgg_face/
 
 There are many ways to support a project - starring⭐️ the GitHub repos is just one.
 
+Alternatively, you can support this project through Patreon.
+
+<a href="https://www.patreon.com/bePatron?u=31795557" data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>
+
 # Licence
 
 Deepface is licensed under the MIT License - see [`LICENSE`](https://github.com/serengil/deepface/blob/master/LICENSE) for more details.
