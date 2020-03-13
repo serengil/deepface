@@ -145,7 +145,7 @@ There are many ways to support a project - starring⭐️ the GitHub repos is ju
 
 Alternatively, you can support this project through Patreon.
 
-<a href="https://www.patreon.com/bePatron?u=31795557" data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>
+<a href="https://www.patreon.com/bePatron?u=31795557"><img src="https://c5.patreon.com/external/logo/become_a_patron_button.png"></img></a>
 
 # Licence
 
