@@ -65,7 +65,7 @@ result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distan
 
 # Facial Attribute Analysis
 
-Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`emotion`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) predictions. Analysis function under the DeepFace interface is used to find demography of a face.
+Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`emotion`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutraş, sad, disgust, happy and surprise )and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face.
 
 ```python
 from deepface import DeepFace
@@ -79,35 +79,7 @@ print("Emotion: ", demography["dominant_emotion"])
 print("Emotion: ", demography["dominant_race"])
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-1.jpg" width="20%" height="20%"></p>
-
-Analysis function returns a json object.
-
-```json
-{
-"age": 32.49221594557578,
-"gender": "Woman",
-"race": {
-   "asian": 3.928472101688385, 
-   "white": 55.44567108154297, 
-   "middle eastern": 15.896821022033691, 
-   "indian": 3.050043433904648, 
-   "latino hispanic": 20.90577930212021, 
-   "black": 0.7732132915407419
-},
-"dominant_race": "white",
-"emotion": {
-   "angry": 3.1055836006999016, 
-   "fear": 1.1844050139188766, 
-   "neutral": 86.2661361694336, 
-   "sad": 7.137920707464218, 
-   "disgust": 0.0001227657776325941, 
-   "happy": 2.245445176959038, 
-   "surprise": 0.06038688006810844
-}, 
-"dominant_emotion": "neutral"
-}
-```
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-3.jpg" width="80%" height="80%"></p>
 
 # Installation
 
