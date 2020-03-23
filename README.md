@@ -17,7 +17,7 @@ result = DeepFace.verify("img1.jpg", "img2.jpg")
 print("Is verified: ", result["verified"])
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-5.jpg" width="95%" height="95%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-6.jpg" width="95%" height="95%"></p>
 
 Each call of verification function builds a face recognition model from scratch and this is a costly operation. If you are going to verify multiple faces sequentially, then you should pass an array of faces to verification function to speed the operation up. In this way, complex face recognition models will be built once.
 
