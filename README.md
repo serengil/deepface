@@ -66,7 +66,7 @@ demography = DeepFace.analyze("img4.jpg") #passing nothing as 2nd argument will 
 print("Age: ", demography["age"])
 print("Gender: ", demography["gender"])
 print("Emotion: ", demography["dominant_emotion"])
-print("Emotion: ", demography["dominant_race"])
+print("Race: ", demography["dominant_race"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-3.jpg" width="95%" height="95%"></p>
