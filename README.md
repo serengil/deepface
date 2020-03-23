@@ -79,7 +79,7 @@ print("Emotion: ", demography["dominant_emotion"])
 print("Emotion: ", demography["dominant_race"])
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-3.jpg" width="80%" height="80%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-3.jpg" width="95%" height="95%"></p>
 
 # Installation
 
