@@ -19,7 +19,7 @@ print("Is verified: ", result["verified"])
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-6.jpg" width="95%" height="95%"></p>
 
-Modern face recognition pipelines consist of 4 stages: detect, [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), represent and verify. Deepface handles all these common stages in the background. You can use the framework with a just few lines of codes.
+Modern face recognition pipelines consist of 4 stages: detect, [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), represent and verify. Deepface handles all these common stages in the background.
 
 Each call of verification function builds a face recognition model from scratch and this is a costly operation. If you are going to verify multiple faces sequentially, then you should pass an array of faces to verification function to speed the operation up. In this way, complex face recognition models will be built once.
 
