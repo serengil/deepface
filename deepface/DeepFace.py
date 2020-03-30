@@ -8,14 +8,15 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import json
+import cv2
 
 #from basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 #from extendedmodels import Age, Gender, Race, Emotion
-#from commons import functions, distance as dst
+#from commons import functions, realtime, distance as dst
 
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 from deepface.extendedmodels import Age, Gender, Race, Emotion
-from deepface.commons import functions, distance as dst
+from deepface.commons import functions, realtime, distance as dst
 
 def verify(img1_path, img2_path=''
 	, model_name ='VGG-Face', distance_metric = 'cosine', plot = False):
@@ -293,8 +294,12 @@ def detectFace(img_path):
 	img = functions.detectFace(img_path)[0] #detectFace returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb
 
+def stream(db_path, model_name ='VGG-Face', distance_metric = 'cosine', enable_face_analysis = True):
+	realtime.analysis(db_path, model_name, distance_metric, enable_face_analysis)
+
 #---------------------------
 
 functions.initializeFolder()
 
 #---------------------------
+

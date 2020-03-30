@@ -11,6 +11,7 @@ import gdown
 import hashlib
 import math
 from PIL import Image
+import copy
 
 def distance(a, b):
 	x1 = a[0]; y1 = a[1]
@@ -108,8 +109,7 @@ def findThreshold(model_name, distance_metric):
 	
 	return threshold
 
-def detectFace(image_path, target_size=(224, 224), grayscale = False):
-	
+def get_opencv_path():
 	opencv_home = cv2.__file__
 	folders = opencv_home.split(os.path.sep)[0:-1]
 	
@@ -123,12 +123,32 @@ def detectFace(image_path, target_size=(224, 224), grayscale = False):
 	if os.path.isfile(face_detector_path) != True:
 		raise ValueError("Confirm that opencv is installed on your environment! Expected path ",face_detector_path," violated.")
 	
+	return path+"/data/"
+
+def detectFace(img, target_size=(224, 224), grayscale = False):
+	
+	#-----------------------
+	
+	exact_image = False
+	if type(img).__module__ == np.__name__:
+		exact_image = True
+	
+	#-----------------------
+	
+	opencv_path = get_opencv_path()
+	face_detector_path = opencv_path+"haarcascade_frontalface_default.xml"
+	eye_detector_path = opencv_path+"haarcascade_eye.xml"
+	
+	if os.path.isfile(face_detector_path) != True:
+		raise ValueError("Confirm that opencv is installed on your environment! Expected path ",face_detector_path," violated.")
+	
 	#--------------------------------
 	
 	face_detector = cv2.CascadeClassifier(face_detector_path)
 	eye_detector = cv2.CascadeClassifier(eye_detector_path)
 	
-	img = cv2.imread(image_path)
+	if exact_image != True: #image path passed as input
+		img = cv2.imread(img)
 	
 	img_raw = img.copy()
 	
@@ -241,4 +261,16 @@ def detectFace(image_path, target_size=(224, 224), grayscale = False):
 		return img_pixels
 		
 	else:
-		raise ValueError("Face could not be detected in ", image_path,". Please confirm that the picture is a face photo.")
+		
+		if exact_image == True:
+			
+			if grayscale == True:
+				img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+			
+			img = cv2.resize(img, target_size)
+			img_pixels = image.img_to_array(img)
+			img_pixels = np.expand_dims(img_pixels, axis = 0)
+			img_pixels /= 255
+			return img_pixels
+		else:
+			raise ValueError("Face could not be detected in ", img,". Please confirm that the picture is a face photo.")
