@@ -82,7 +82,7 @@ from deepface import DeepFace
 DeepFace.stream("/user/database")
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-stream.jpg" width="90%" height="90%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-stream-2.jpg" width="90%" height="90%"></p>
 
 # Installation
 
