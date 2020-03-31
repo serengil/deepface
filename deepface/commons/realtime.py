@@ -127,6 +127,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 	tic = time.time()
 
 	cap = cv2.VideoCapture(0) #webcam
+	#cap = cv2.VideoCapture("C:/Users/IS96273/Desktop/skype-video-1.mp4") #video
 
 	while(True):
 		ret, img = cap.read()
@@ -363,6 +364,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 									display_img = cv2.resize(display_img, (pivot_img_size, pivot_img_size))
 																		
 									label = employee_name.replace("_", "").replace(".jpg", "")+" ("+"{0:.2f}".format(best_distance)+")"
+									#label = employee_name.replace("_", "").replace(".jpg", "")
 									
 									try:
 										if y - pivot_img_size > 0 and x + w + pivot_img_size < resolution_x:
