@@ -73,6 +73,17 @@ print("Race: ", demography["dominant_race"])
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/tests/dataset/test-case-3.jpg" width="95%" height="95%"></p>
 
+# Stream
+
+You can run deepface for real time videos as well. Calling stream function under the DeepFace interface will access your webcam and apply both face recognition and facial attribute analysis. Stream function expects the database folder including face images with jpg extention. VGG-Face is the default face recognition model and cosine similarity is the default distance metric similar to verify function.
+
+```python
+from deepface import DeepFace
+DeepFace.stream("/user/database")
+```
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-stream.jpg" width="90%" height="90%"></p>
+
 # Installation
 
 The easiest way to install deepface is to download it from [PyPI](https://pypi.org/project/deepface/).
