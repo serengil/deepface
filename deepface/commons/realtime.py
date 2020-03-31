@@ -66,8 +66,8 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 		
 		tic = time.time()
 		
-		#emotion_model = Emotion.loadModel()
-		#print("Emotion model loaded")
+		emotion_model = Emotion.loadModel()
+		print("Emotion model loaded")
 		
 		age_model = Age.loadModel()
 		print("Age model loaded")
@@ -188,7 +188,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 					for detected_face in detected_faces_final:
 						x = detected_face[0]; y = detected_face[1]
 						w = detected_face[2]; h = detected_face[3]
-						
+												
 						cv2.rectangle(freeze_img, (x,y), (x+w,y+h), (67,67,67), 1) #draw rectangle to main image
 						
 						#-------------------------------
@@ -202,7 +202,6 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 						
 						if enable_face_analysis == True:
 							
-							"""
 							gray_img = functions.detectFace(custom_face, (48, 48), True)
 							emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 							emotion_predictions = emotion_model.predict(gray_img)[0,:]
@@ -218,10 +217,56 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 								mood_items.append(mood_item)
 							
 							emotion_df = pd.DataFrame(mood_items, columns = ["emotion", "score"])
-							emotion_df = emotion_df.sort_values(by = ["score"], ascending=False)
-							dominant_emotion = emotion_df.iloc[0].emotion
-							emotion_score = emotion_df.iloc[0].score
-							"""
+							emotion_df = emotion_df.sort_values(by = ["score"], ascending=False).reset_index(drop=True)
+							
+							#background of mood box
+							
+							#transparency
+							overlay = freeze_img.copy()
+							opacity = 0.4
+							
+							if x+w+pivot_img_size < resolution_x:
+								#right
+								cv2.rectangle(freeze_img
+									, (x+w,y+20)
+									, (x+w+pivot_img_size, y+180)
+									, (64,64,64),cv2.FILLED)
+									
+								cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
+								
+							elif x-pivot_img_size > 0:
+								#left
+								cv2.rectangle(freeze_img
+									, (x-pivot_img_size,y+20)
+									, (x, y+180)
+									, (64,64,64),cv2.FILLED)
+								
+								cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
+							
+							for index, instance in emotion_df.iterrows():
+								emotion_label = "%s " % (instance['emotion'])
+								emotion_score = instance['score']/100
+								
+								bar_x = 35 #this is the size if an emotion is 100%
+								bar_x = int(bar_x * emotion_score)
+
+								if x+w+pivot_img_size < resolution_x:
+								
+									cv2.putText(freeze_img, emotion_label, (x+w, y + 20 + (index+1) * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+									
+									cv2.rectangle(freeze_img
+										, (x+w+70, y + 13 + (index+1) * 20)
+										, (x+w+70+bar_x, y + 13 + (index+1) * 20 + 5)
+										, (255,255,255), cv2.FILLED)
+								
+								elif x-pivot_img_size > 0:
+									
+									cv2.putText(freeze_img, emotion_label, (x-pivot_img_size, y + 20 + (index+1) * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+									
+									cv2.rectangle(freeze_img
+										, (x-pivot_img_size+70, y + 13 + (index+1) * 20)
+										, (x-pivot_img_size+70+bar_x, y + 13 + (index+1) * 20 + 5)
+										, (255,255,255), cv2.FILLED)
 							
 							#-------------------------------
 							
@@ -323,6 +368,11 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 										if y - pivot_img_size > 0 and x + w + pivot_img_size < resolution_x:
 											#top right
 											freeze_img[y - pivot_img_size:y, x+w:x+w+pivot_img_size] = display_img
+											
+											overlay = freeze_img.copy(); opacity = 0.4
+											cv2.rectangle(freeze_img,(x+w,y),(x+w+pivot_img_size, y+20),(46,200,255),cv2.FILLED)
+											cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
+											
 											cv2.putText(freeze_img, label, (x+w, y+10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1)
 											
 											#connect face and text
@@ -332,6 +382,11 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 										elif y + h + pivot_img_size < resolution_y and x - pivot_img_size > 0:
 											#bottom left
 											freeze_img[y+h:y+h+pivot_img_size, x-pivot_img_size:x] = display_img
+											
+											overlay = freeze_img.copy(); opacity = 0.4
+											cv2.rectangle(freeze_img,(x-pivot_img_size,y+h-20),(x, y+h),(46,200,255),cv2.FILLED)
+											cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
+											
 											cv2.putText(freeze_img, label, (x - pivot_img_size, y+h-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1)
 											
 											#connect face and text
@@ -341,6 +396,11 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 										elif y - pivot_img_size > 0 and x - pivot_img_size > 0:
 											#top left
 											freeze_img[y-pivot_img_size:y, x-pivot_img_size:x] = display_img
+											
+											overlay = freeze_img.copy(); opacity = 0.4
+											cv2.rectangle(freeze_img,(x- pivot_img_size,y),(x, y+20),(46,200,255),cv2.FILLED)
+											cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
+											
 											cv2.putText(freeze_img, label, (x - pivot_img_size, y+10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1)
 											
 											#connect face and text
@@ -350,6 +410,11 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 										elif x+w+pivot_img_size < resolution_x and y + h + pivot_img_size < resolution_y:
 											#bottom righ
 											freeze_img[y+h:y+h+pivot_img_size, x+w:x+w+pivot_img_size] = display_img
+											
+											overlay = freeze_img.copy(); opacity = 0.4
+											cv2.rectangle(freeze_img,(x+w,y+h-20),(x+w+pivot_img_size, y+h),(46,200,255),cv2.FILLED)
+											cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
+											
 											cv2.putText(freeze_img, label, (x+w, y+h-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1)
 											
 											#connect face and text
