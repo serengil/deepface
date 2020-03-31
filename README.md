@@ -75,7 +75,7 @@ print("Race: ", demography["dominant_race"])
 
 # Stream
 
-You can run deepface for real time videos as well. Calling stream function under the DeepFace interface will access your webcam and apply both face recognition and facial attribute analysis. Stream function expects the database folder including face images with jpg extention. VGG-Face is the default face recognition model and cosine similarity is the default distance metric similar to verify function.
+You can run deepface for real time videos as well. Calling stream function under the DeepFace interface will access your webcam and apply both face recognition and facial attribute analysis. Stream function expects a database folder including face images. VGG-Face is the default face recognition model and cosine similarity is the default distance metric similar to verify function. The function starts to analyze if it can focus a face sequantially 5 frames. Then, it shows results 5 seconds.
 
 ```python
 from deepface import DeepFace
