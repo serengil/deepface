@@ -229,8 +229,9 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 							if x+w+pivot_img_size < resolution_x:
 								#right
 								cv2.rectangle(freeze_img
-									, (x+w,y+20)
-									, (x+w+pivot_img_size, y+180)
+									#, (x+w,y+20)
+									, (x+w,y)
+									, (x+w+pivot_img_size, y+h)
 									, (64,64,64),cv2.FILLED)
 									
 								cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
@@ -238,8 +239,9 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 							elif x-pivot_img_size > 0:
 								#left
 								cv2.rectangle(freeze_img
-									, (x-pivot_img_size,y+20)
-									, (x, y+180)
+									#, (x-pivot_img_size,y+20)
+									, (x-pivot_img_size,y)
+									, (x, y+h)
 									, (64,64,64),cv2.FILLED)
 								
 								cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
@@ -252,22 +254,30 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 								bar_x = int(bar_x * emotion_score)
 
 								if x+w+pivot_img_size < resolution_x:
-								
-									cv2.putText(freeze_img, emotion_label, (x+w, y + 20 + (index+1) * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 									
-									cv2.rectangle(freeze_img
-										, (x+w+70, y + 13 + (index+1) * 20)
-										, (x+w+70+bar_x, y + 13 + (index+1) * 20 + 5)
-										, (255,255,255), cv2.FILLED)
+									text_location_y = y + 20 + (index+1) * 20
+									text_location_x = x+w
+									
+									if text_location_y < y + h:
+										cv2.putText(freeze_img, emotion_label, (text_location_x, text_location_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+										
+										cv2.rectangle(freeze_img
+											, (x+w+70, y + 13 + (index+1) * 20)
+											, (x+w+70+bar_x, y + 13 + (index+1) * 20 + 5)
+											, (255,255,255), cv2.FILLED)
 								
 								elif x-pivot_img_size > 0:
 									
-									cv2.putText(freeze_img, emotion_label, (x-pivot_img_size, y + 20 + (index+1) * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+									text_location_y = y + 20 + (index+1) * 20
+									text_location_x = x-pivot_img_size
 									
-									cv2.rectangle(freeze_img
-										, (x-pivot_img_size+70, y + 13 + (index+1) * 20)
-										, (x-pivot_img_size+70+bar_x, y + 13 + (index+1) * 20 + 5)
-										, (255,255,255), cv2.FILLED)
+									if text_location_y <= y+h:
+										cv2.putText(freeze_img, emotion_label, (text_location_x, text_location_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+										
+										cv2.rectangle(freeze_img
+											, (x-pivot_img_size+70, y + 13 + (index+1) * 20)
+											, (x-pivot_img_size+70+bar_x, y + 13 + (index+1) * 20 + 5)
+											, (255,255,255), cv2.FILLED)
 							
 							#-------------------------------
 							

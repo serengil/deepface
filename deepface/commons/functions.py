@@ -149,7 +149,7 @@ def detectFace(img, target_size=(224, 224), grayscale = False):
 	
 	if exact_image != True: #image path passed as input
 		img = cv2.imread(img)
-	
+
 	img_raw = img.copy()
 	
 	#--------------------------------
