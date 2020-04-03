@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import cv2
 import time
+import re
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -27,7 +28,11 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 		for r, d, f in os.walk(db_path): # r=root, d=directories, f = files
 			for file in f:
 				if ('.jpg' in file):
-					employees.append(file)
+					#exact_path = os.path.join(r, file)
+					exact_path = r + "/" + file
+					#print(exact_path)
+					employees.append(exact_path)
+					
 	
 	#------------------------
 	
@@ -91,9 +96,9 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 	#for employee in employees:
 	for index in pbar:
 		employee = employees[index]
-		pbar.set_description("Finding embedding for %s" % (employee))
+		pbar.set_description("Finding embedding for %s" % (employee.split("/")[-1]))
 		embedding = []
-		img = functions.detectFace(db_path+"/"+employee, input_shape)
+		img = functions.detectFace(employee, input_shape)
 		img_representation = model.predict(img)[0,:]
 		
 		embedding.append(employee)
@@ -365,16 +370,15 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 								candidate = df.iloc[0]
 								employee_name = candidate['employee']
 								best_distance = candidate['distance']
-								#employee_name = employee_name.replace("_", "")
 								
 								if best_distance <= threshold:
 									#print(employee_name)
-									display_img = cv2.imread("%s/%s" % (db_path, employee_name))
+									display_img = cv2.imread(employee_name)
 									
 									display_img = cv2.resize(display_img, (pivot_img_size, pivot_img_size))
 																		
-									label = employee_name.replace("_", "").replace(".jpg", "")+" ("+"{0:.2f}".format(best_distance)+")"
-									#label = employee_name.replace("_", "").replace(".jpg", "")
+									label = employee_name.split("/")[-1].replace(".jpg", "")
+									label = re.sub('[0-9]', '', label)
 									
 									try:
 										if y - pivot_img_size > 0 and x + w + pivot_img_size < resolution_x:
