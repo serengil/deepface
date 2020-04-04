@@ -96,7 +96,7 @@ user
 │   │   ├── Bob.jpg
 ```
 
-BTW, you should use regular slash (/) instead of backslash (\) in Windows OS while passing the path to stream function (e.g. DeepFace.stream("C:/User/Sefik/Desktop/database") )
+BTW, you should use regular slash ( / ) instead of backslash ( \ ) in Windows OS while passing the path to stream function (e.g. DeepFace.stream("C:/User/Sefik/Desktop/database") )
 
 # Installation
 
