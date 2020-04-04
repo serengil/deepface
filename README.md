@@ -84,6 +84,20 @@ DeepFace.stream("/user/database")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-3.jpg" width="90%" height="90%"></p>
 
+Even though face recognition is based on one-shot learning, you can use multiple faces pictures of a person as well. You should rearrange your directory structure as illustrated below.
+
+```bash
+user
+├── database
+│   ├── Alice
+│   │   ├── Alice1.jpg
+│   │   ├── Alice2.jpg
+│   ├── Bob
+│   │   ├── Bob.jog
+```
+
+BTW, you should use regular slash (/) instead of backslash (\) in Windows OS while passing the path to stream function (e.g. DeepFace.stream("C:/User/Sefik/Desktop/database") )
+
 # Installation
 
 The easiest way to install deepface is to download it from [PyPI](https://pypi.org/project/deepface/).
