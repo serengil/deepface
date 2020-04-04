@@ -93,7 +93,7 @@ user
 │   │   ├── Alice1.jpg
 │   │   ├── Alice2.jpg
 │   ├── Bob
-│   │   ├── Bob.jog
+│   │   ├── Bob.jpg
 ```
 
 BTW, you should use regular slash (/) instead of backslash (\) in Windows OS while passing the path to stream function (e.g. DeepFace.stream("C:/User/Sefik/Desktop/database") )
