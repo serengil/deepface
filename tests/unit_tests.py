@@ -17,8 +17,8 @@ dataset = [
 ]
 
 resp_obj = DeepFace.verify(dataset)
-print(resp_obj[0]["verified"] == True)
-print(resp_obj[1]["verified"] == True)
+print(resp_obj["pair_1"]["verified"] == True)
+print(resp_obj["pair_2"]["verified"] == True)
 
 print("-----------------------------------------")
 
@@ -32,10 +32,10 @@ dataset = [
 ]
 
 resp_obj = DeepFace.analyze(dataset)
-print(resp_obj[0]["age"]," years old ", resp_obj[0]["dominant_emotion"], " ",resp_obj[0]["gender"])
-print(resp_obj[1]["age"]," years old ", resp_obj[1]["dominant_emotion"], " ",resp_obj[1]["gender"])
-print(resp_obj[2]["age"]," years old ", resp_obj[2]["dominant_emotion"], " ",resp_obj[2]["gender"])
-print(resp_obj[3]["age"]," years old ", resp_obj[3]["dominant_emotion"], " ",resp_obj[3]["gender"])
+print(resp_obj["instance_1"]["age"]," years old ", resp_obj["instance_1"]["dominant_emotion"], " ",resp_obj["instance_1"]["gender"])
+print(resp_obj["instance_2"]["age"]," years old ", resp_obj["instance_2"]["dominant_emotion"], " ",resp_obj["instance_2"]["gender"])
+print(resp_obj["instance_3"]["age"]," years old ", resp_obj["instance_3"]["dominant_emotion"], " ",resp_obj["instance_3"]["gender"])
+print(resp_obj["instance_4"]["age"]," years old ", resp_obj["instance_4"]["dominant_emotion"], " ",resp_obj["instance_4"]["gender"])
 
 
 print("-----------------------------------------")

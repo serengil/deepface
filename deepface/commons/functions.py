@@ -12,6 +12,13 @@ import hashlib
 import math
 from PIL import Image
 import copy
+import base64
+
+def loadBase64Img(uri):
+   encoded_data = uri.split(',')[1]
+   nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
+   img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+   return img
 
 def distance(a, b):
 	x1 = a[0]; y1 = a[1]
@@ -133,6 +140,10 @@ def detectFace(img, target_size=(224, 224), grayscale = False):
 	if type(img).__module__ == np.__name__:
 		exact_image = True
 	
+	base64_img = False
+	if len(img) > 11 and img[0:11] == "data:image/":
+		base64_img = True
+
 	#-----------------------
 	
 	opencv_path = get_opencv_path()
@@ -147,9 +158,16 @@ def detectFace(img, target_size=(224, 224), grayscale = False):
 	face_detector = cv2.CascadeClassifier(face_detector_path)
 	eye_detector = cv2.CascadeClassifier(eye_detector_path)
 	
-	if exact_image != True: #image path passed as input
+	if base64_img == True:
+		img = loadBase64Img(img)
+		
+	elif exact_image != True: #image path passed as input
+		
+		if os.path.isfile(img) != True:
+			raise ValueError("Confirm that ",img," exists")
+		
 		img = cv2.imread(img)
-
+	
 	img_raw = img.copy()
 	
 	#--------------------------------

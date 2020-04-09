@@ -9,6 +9,7 @@ import pandas as pd
 from tqdm import tqdm
 import json
 import cv2
+from keras import backend as K
 
 #from basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 #from extendedmodels import Age, Gender, Race, Emotion
@@ -18,10 +19,14 @@ from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
+#TO-DO: pass built model optionally as input. I will get complex models up in rest api once and call these functions directly
+
 def verify(img1_path, img2_path=''
 	, model_name ='VGG-Face', distance_metric = 'cosine', plot = False):
 	
 	tic = time.time()
+
+	K.clear_session()
 	
 	if type(img1_path) == list:
 		bulkProcess = True
@@ -54,7 +59,7 @@ def verify(img1_path, img2_path=''
 	
 	else:
 		raise ValueError("Invalid model_name passed - ", model_name)
-	
+
 	#------------------------------
 	
 	#tuned thresholds for model and metric pair
@@ -68,14 +73,6 @@ def verify(img1_path, img2_path=''
 			img2_path = instance[1]
 			
 			#----------------------
-			
-			if os.path.isfile(img1_path) != True:
-				raise ValueError("Confirm that ",img1_path," exists")
-			
-			if os.path.isfile(img2_path) != True:
-				raise ValueError("Confirm that ",img2_path," exists")
-			
-			#----------------------
 			#crop and align faces
 			
 			img1 = functions.detectFace(img1_path, input_shape)
@@ -83,7 +80,7 @@ def verify(img1_path, img2_path=''
 			
 			#----------------------
 			#find embeddings
-	
+			
 			img1_representation = model.predict(img1)[0,:]
 			img2_representation = model.predict(img2)[0,:]
 			
@@ -140,6 +137,7 @@ def verify(img1_path, img2_path=''
 			if bulkProcess == True:
 				resp_objects.append(resp_obj)
 			else:
+				K.clear_session()
 				return resp_obj
 			#----------------------
 			
@@ -153,9 +151,25 @@ def verify(img1_path, img2_path=''
 	#print("identification lasts ",toc-tic," seconds")
 	
 	if bulkProcess == True:
-		return resp_objects
+		K.clear_session()
+
+		resp_obj = "{"
+		
+		for i in range(0, len(resp_objects)):
+			resp_item = json.dumps(resp_objects[i]) 
+
+			if i > 0:
+				resp_obj += ", "
+
+			resp_obj += "\"pair_"+str(i+1)+"\": "+resp_item
+		resp_obj += "}"
+		resp_obj = json.loads(resp_obj)
+		return resp_obj
+		#return resp_objects
 
 def analyze(img_path, actions= []):
+
+	K.clear_session()
 	
 	if type(img_path) == list:
 		img_paths = img_path.copy()
@@ -189,12 +203,6 @@ def analyze(img_path, actions= []):
 	
 	resp_objects = []
 	for img_path in img_paths:
-		
-		if type(img_path) != str:
-			raise ValueError("You should pass string data type for image paths but you passed ", type(img_path))
-		
-		if os.path.isfile(img_path) != True:
-			raise ValueError("Confirm that ",img_path," exists")
 		
 		resp_obj = "{"
 		
@@ -285,10 +293,25 @@ def analyze(img_path, actions= []):
 		if bulkProcess == True:
 			resp_objects.append(resp_obj)
 		else:
+			K.clear_session()
 			return resp_obj
 	
 	if bulkProcess == True:
-		return resp_objects
+		K.clear_session()
+
+		resp_obj = "{"
+		
+		for i in range(0, len(resp_objects)):
+			resp_item = json.dumps(resp_objects[i]) 
+
+			if i > 0:
+				resp_obj += ", "
+
+			resp_obj += "\"instance_"+str(i+1)+"\": "+resp_item
+		resp_obj += "}"
+		resp_obj = json.loads(resp_obj)
+		return resp_obj
+		#return resp_objects
 
 def detectFace(img_path):
 	img = functions.detectFace(img_path)[0] #detectFace returns (1, 224, 224, 3)
