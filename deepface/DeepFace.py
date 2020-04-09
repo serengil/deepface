@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 from keras.preprocessing import image
 import warnings
 warnings.filterwarnings("ignore")
@@ -103,24 +102,7 @@ def verify(img1_path, img2_path=''
 				identified =  "true"
 			else:
 				identified =  "false"
-			#----------------------
-			if plot:
-				label = "Verified: "+identified
-				label += "\nThreshold: "+str(round(distance, 2))
-				label += ", Max Threshold to Verify: "+str(threshold)
-				label += "\nModel: "+model_name
-				label += ", Similarity metric: "+distance_metric
-				
-				fig = plt.figure()
-				fig.add_subplot(1,2, 1)
-				plt.imshow(img1[0][:, :, ::-1])
-				plt.xticks([]); plt.yticks([])
-				fig.add_subplot(1,2, 2)
-				plt.imshow(img2[0][:, :, ::-1])
-				plt.xticks([]); plt.yticks([])
-				fig.suptitle(label, fontsize=17)
-				plt.show(block=True)
-				
+			
 			#----------------------
 			#response object
 			
