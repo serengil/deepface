@@ -1,6 +1,5 @@
 numpy>=1.14.0
 pandas>=0.23.4
-matplotlib>=2.2.2
 gdown>=3.10.1
 tqdm>=4.30.0
 Pillow>=5.2.0
