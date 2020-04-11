@@ -116,6 +116,16 @@ pip install -e .
 
 Initial tests are run for Python 3.5.5 on Windows 10 but this is an OS-independent framework. Even though pip handles to install dependent libraries, the framework basically needs the dependencies defined in the [requirements](https://github.com/serengil/deepface/blob/master/requirements.txt). You might need the specified library requirements if you install the source code from scratch.
 
+# API
+
+Deepface offers an API as well. You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up.
+
+```
+python api.py
+```
+
+The both face recognition and facial attribute analysis are covered in the API. You are expected to call these functions as post methods. Service endpoints will be `http://127.0.0.1:5000/verify` for face recognition and `http://127.0.0.1:5000/analyze` for facial attribute analysis. You should pass input images as base64 encoded string in this case. [Here](https://github.com/serengil/deepface/tree/master/api), you can find a postman project.
+
 # Playlist
 
 Deepface is mentioned in this [youtube playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E).
