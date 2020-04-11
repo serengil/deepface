@@ -32,7 +32,7 @@ def loadModel():
 	x = Conv2D(192, (3, 3), name='conv3')(x)
 	x = BatchNormalization(axis=3, epsilon=0.00001, name='bn3')(x)
 	x = Activation('relu')(x)
-	Lambda(lambda x: tf.nn.lrn(x, alpha=1e-4, beta=0.75), name='lrn_2')(x)
+	x = Lambda(lambda x: tf.nn.lrn(x, alpha=1e-4, beta=0.75), name='lrn_2')(x) #x is equal added
 	x = ZeroPadding2D(padding=(1, 1))(x)
 	x = MaxPooling2D(pool_size=3, strides=2)(x)
 

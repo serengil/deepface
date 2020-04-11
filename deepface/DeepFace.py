@@ -9,6 +9,8 @@ from tqdm import tqdm
 import json
 import cv2
 from keras import backend as K
+import keras
+import tensorflow as tf
 
 #from basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 #from extendedmodels import Age, Gender, Race, Emotion
@@ -18,14 +20,10 @@ from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
-#TO-DO: pass built model optionally as input. I will get complex models up in rest api once and call these functions directly
-
 def verify(img1_path, img2_path=''
-	, model_name ='VGG-Face', distance_metric = 'cosine', plot = False):
+	, model_name ='VGG-Face', distance_metric = 'cosine', model = None):
 	
 	tic = time.time()
-
-	K.clear_session()
 	
 	if type(img1_path) == list:
 		bulkProcess = True
@@ -36,28 +34,31 @@ def verify(img1_path, img2_path=''
 		
 	#------------------------------
 	
-	if model_name == 'VGG-Face':
-		print("Using VGG-Face model backend and", distance_metric,"distance.")
-		model = VGGFace.loadModel()
-		input_shape = (224, 224)	
+	if model == None:
+		if model_name == 'VGG-Face':
+			print("Using VGG-Face model backend and", distance_metric,"distance.")
+			model = VGGFace.loadModel()
+		
+		elif model_name == 'OpenFace':
+			print("Using OpenFace model backend", distance_metric,"distance.")
+			model = OpenFace.loadModel()
+		
+		elif model_name == 'Facenet':
+			print("Using Facenet model backend", distance_metric,"distance.")
+			model = Facenet.loadModel()
+		
+		elif model_name == 'DeepFace':
+			print("Using FB DeepFace model backend", distance_metric,"distance.")
+			model = FbDeepFace.loadModel()
+		
+		else:
+			raise ValueError("Invalid model_name passed - ", model_name)
+	else: #model != None
+		print("Already built model is passed")
 	
-	elif model_name == 'OpenFace':
-		print("Using OpenFace model backend", distance_metric,"distance.")
-		model = OpenFace.loadModel()
-		input_shape = (96, 96)
-	
-	elif model_name == 'Facenet':
-		print("Using Facenet model backend", distance_metric,"distance.")
-		model = Facenet.loadModel()
-		input_shape = (160, 160)
-	
-	elif model_name == 'DeepFace':
-		print("Using FB DeepFace model backend", distance_metric,"distance.")
-		model = FbDeepFace.loadModel()
-		input_shape = (152, 152)
-	
-	else:
-		raise ValueError("Invalid model_name passed - ", model_name)
+	#------------------------------
+	#face recognition models have different size of inputs
+	input_shape = model.layers[0].input_shape[1:3]
 
 	#------------------------------
 	
@@ -79,7 +80,7 @@ def verify(img1_path, img2_path=''
 			
 			#----------------------
 			#find embeddings
-			
+
 			img1_representation = model.predict(img1)[0,:]
 			img2_representation = model.predict(img2)[0,:]
 			
@@ -133,8 +134,6 @@ def verify(img1_path, img2_path=''
 	#print("identification lasts ",toc-tic," seconds")
 	
 	if bulkProcess == True:
-		K.clear_session()
-
 		resp_obj = "{"
 		
 		for i in range(0, len(resp_objects)):
@@ -151,8 +150,6 @@ def verify(img1_path, img2_path=''
 
 def analyze(img_path, actions= []):
 
-	K.clear_session()
-	
 	if type(img_path) == list:
 		img_paths = img_path.copy()
 		bulkProcess = True
@@ -275,12 +272,9 @@ def analyze(img_path, actions= []):
 		if bulkProcess == True:
 			resp_objects.append(resp_obj)
 		else:
-			K.clear_session()
 			return resp_obj
 	
 	if bulkProcess == True:
-		K.clear_session()
-
 		resp_obj = "{"
 		
 		for i in range(0, len(resp_objects)):
