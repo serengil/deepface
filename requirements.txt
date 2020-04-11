@@ -6,3 +6,4 @@ Pillow>=5.2.0
 opencv-python>=3.4.4
 tensorflow>=1.9.0
 keras>=2.2.0
+Flask>=1.1.2
