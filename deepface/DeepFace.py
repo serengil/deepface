@@ -20,6 +20,51 @@ from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
+
+def analyze_init(models = []):
+	#---------------------------------
+
+	#if a specific target is not passed, then find them all
+	if len(models) == 0:
+		models = ['emotion', 'age', 'gender', 'race']
+
+	print("Models to initialize: ", models)
+
+	#---------------------------------
+
+	if 'emotion' in models:
+		emotion_model = Emotion.loadModel()
+
+	if 'age' in models:
+		age_model = Age.loadModel()
+
+	if 'gender' in models:
+		gender_model = Gender.loadModel()
+
+	if 'race' in models:
+		race_model = Race.loadModel()
+
+
+def verify_init(model_name = 'VGG-Face'):
+	if model_name == 'VGG-Face':
+		print("Loading %s model" % model_name)
+		model = VGGFace.loadModel()
+
+	elif model_name == 'OpenFace':
+		print("Loading %s model" % model_name)
+		model = OpenFace.loadModel()
+
+	elif model_name == 'Facenet':
+		print("Loading %s model" % model_name)
+		model = Facenet.loadModel()
+
+	elif model_name == 'DeepFace':
+		print("Loading %s model" % model_name)
+		model = FbDeepFace.loadModel()
+	else:
+		raise ValueError("Invalid model_name passed - ", model_name)
+
+
 def verify(img1_path, img2_path=''
 	, model_name ='VGG-Face', distance_metric = 'cosine', model = None):
 	
