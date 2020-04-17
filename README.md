@@ -108,6 +108,8 @@ BTW, you should use regular slash ( / ) instead of backslash ( \ ) in Windows OS
 
 # API
 
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
+
 Deepface offers an API as well. You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up.
 
 ```
