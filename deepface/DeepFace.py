@@ -20,7 +20,6 @@ from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
-
 def verify(img1_path, img2_path=''
 	, model_name ='VGG-Face', distance_metric = 'cosine', model = None):
 
@@ -150,7 +149,7 @@ def verify(img1_path, img2_path=''
 		#return resp_objects
 
 
-def analyze(img_path, actions= [], models= {}):
+def analyze(img_path, actions = [], models = {}):
 
 	if type(img_path) == list:
 		img_paths = img_path.copy()
@@ -171,24 +170,28 @@ def analyze(img_path, actions= [], models= {}):
 
 	if 'emotion' in actions:
 		if 'emotion' in models:
+			print("already built emotion model is passed")
 			emotion_model = models['emotion']
 		else:
 			emotion_model = Emotion.loadModel()
 
 	if 'age' in actions:
 		if 'age' in models:
+			print("already built age model is passed")
 			age_model = models['age']
 		else:
 			age_model = Age.loadModel()
 
 	if 'gender' in actions:
 		if 'gender' in models:
+			print("already built gender model is passed")
 			gender_model = models['gender']
 		else:
 			gender_model = Gender.loadModel()
 
 	if 'race' in actions:
 		if 'race' in models:
+			print("already built race model is passed")
 			race_model = models['race']
 		else:
 			race_model = Race.loadModel()

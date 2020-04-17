@@ -3,36 +3,81 @@ from flask import Flask, jsonify, request, make_response
 import uuid
 import json
 import time
+from tqdm import tqdm
 
 import tensorflow as tf
 
 from deepface import DeepFace
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+from deepface.extendedmodels import Age, Gender, Race, Emotion
 
 #import DeepFace
 #from basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+#from extendedmodels import Age, Gender, Race, Emotion
 
 #------------------------------
 
 app = Flask(__name__)
 
+#------------------------------
+
 tic = time.time()
 
-vggface_model = VGGFace.loadModel()
-print("VGG-Face model is built.")
+print("Loading Face Recognition Models...")
 
-openface_model = OpenFace.loadModel()
-print("OpenFace model is built")
+pbar = tqdm(range(0,4), desc='Loading Face Recognition Models...')
 
-facenet_model = Facenet.loadModel()
-print("FaceNet model is built")
-
-deepface_model = FbDeepFace.loadModel()
-print("DeepFace model is built")
+for index in pbar:
+	if index == 0:
+		pbar.set_description("Loading VGG-Face")
+		vggface_model = VGGFace.loadModel()
+	elif index == 1:
+		pbar.set_description("Loading OpenFace")
+		openface_model = OpenFace.loadModel()
+	elif index == 2:
+		pbar.set_description("Loading Google FaceNet")
+		facenet_model = Facenet.loadModel()
+	elif index == 3:
+		pbar.set_description("Loading Facebook DeepFace")
+		deepface_model = FbDeepFace.loadModel()
 
 toc = time.time()
 
 print("Face recognition models are built in ", toc-tic," seconds")
+
+#------------------------------
+
+tic = time.time()
+
+print("Loading Facial Attribute Analysis Models...")
+
+pbar = tqdm(range(0,4), desc='Loading Facial Attribute Analysis Models...')
+
+for index in pbar:
+	if index == 0:
+		pbar.set_description("Loading emotion analysis model")
+		emotion_model = Emotion.loadModel()
+	elif index == 1:
+		pbar.set_description("Loading age prediction model")
+		age_model = Age.loadModel()
+	elif index == 2:
+		pbar.set_description("Loading gender prediction model")
+		gender_model = Gender.loadModel()
+	elif index == 3:
+		pbar.set_description("Loading race prediction model")
+		race_model = Race.loadModel()
+
+toc = time.time()
+
+facial_attribute_models = {}
+facial_attribute_models["emotion"] = emotion_model
+facial_attribute_models["age"] = age_model
+facial_attribute_models["gender"] = gender_model
+facial_attribute_models["race"] = race_model
+
+print("Facial attribute analysis models are built in ", toc-tic," seconds")
+
+#------------------------------
 
 graph = tf.get_default_graph()
 
@@ -76,7 +121,8 @@ def analyze():
 		
 		#---------------------------
 
-		resp_obj = DeepFace.analyze(instances, actions=actions)
+		#resp_obj = DeepFace.analyze(instances, actions=actions)
+		resp_obj = DeepFace.analyze(instances, actions=actions, models=facial_attribute_models)
 		
 		#---------------------------
 
@@ -85,7 +131,7 @@ def analyze():
 	resp_obj["trx_id"] = trx_id
 	resp_obj["seconds"] = toc-tic
 
-	return resp_obj
+	return resp_obj, 200
 
 @app.route('/verify', methods=['POST'])
 

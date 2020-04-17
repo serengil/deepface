@@ -125,3 +125,32 @@ if accuracy > 75:
 	print("Unit tests are completed successfully. Score: ",accuracy,"%")
 else:
 	raise ValueError("Unit test score does not satisfy the minimum required accuracy. Minimum expected score is 80% but this got ",accuracy,"%")
+
+#-----------------------------------
+
+# api tests - already built models will be passed to the functions
+
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+
+#-----------------------------------
+
+vggface_model = VGGFace.loadModel()
+resp_obj = DeepFace.verify("dataset/img1.jpg", "dataset/img2.jpg", model_name = "VGG-Face", model = vggface_model)
+print(resp_obj)
+
+#-----------------------------------
+
+from deepface.extendedmodels import Age, Gender, Race, Emotion
+
+emotion_model = Emotion.loadModel()
+age_model = Age.loadModel()
+gender_model = Gender.loadModel()
+race_model = Race.loadModel()
+
+facial_attribute_models = {}
+facial_attribute_models["emotion"] = emotion_model
+facial_attribute_models["age"] = age_model
+facial_attribute_models["gender"] = gender_model
+facial_attribute_models["race"] = race_model
+
+resp_obj = DeepFace.analyze("dataset/img1.jpg", models=facial_attribute_models)
