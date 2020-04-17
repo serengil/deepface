@@ -11,7 +11,7 @@
 The easiest way to install deepface is to download it from [PyPI](https://pypi.org/project/deepface/).
 
 ```python
-!pip install deepface
+pip install deepface
 ```
 
 # Face Recognition
