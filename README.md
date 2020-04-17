@@ -4,7 +4,15 @@
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-icon-labeled.png" width="200" height="240"></p>
 
-**Deepface** is a lightweight facial analysis framework including [face recognition](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and demography ([age](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [gender](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [emotion](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) and [race](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/)) for Python. You can apply facial analysis with a few lines of code. It plans to bridge a gap between software engineering and machine learning studies. 
+**Deepface** is a lightweight facial analysis framework including [face recognition](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and demography ([age](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [gender](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [emotion](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) and [race](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/)) for Python. You can apply facial analysis with a few lines of code. It plans to bridge a gap between software engineering and machine learning studies.
+
+# Installation
+
+The easiest way to install deepface is to download it from [PyPI](https://pypi.org/project/deepface/).
+
+```python
+!pip install deepface
+```
 
 # Face Recognition
 
@@ -97,24 +105,6 @@ user
 ```
 
 BTW, you should use regular slash ( / ) instead of backslash ( \ ) in Windows OS while passing the path to stream function. E.g. `DeepFace.stream("C:/User/Sefik/Desktop/database")`.
-
-# Installation
-
-The easiest way to install deepface is to download it from [PyPI](https://pypi.org/project/deepface/).
-
-```
-pip install deepface
-```
-
-Alternatively, you can directly download the source code from this repository. **GitHub repo might be newer than the PyPI version**.
-
-```
-git clone https://github.com/serengil/deepface.git
-cd deepface
-pip install -e .
-```
-
-Initial tests are run for Python 3.5.5 on Windows 10 but this is an OS-independent framework. Even though pip handles to install dependent libraries, the framework basically needs the dependencies defined in the [requirements](https://github.com/serengil/deepface/blob/master/requirements.txt). You might need the specified library requirements if you install the source code from scratch.
 
 # API
 
