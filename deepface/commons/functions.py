@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 import numpy as np
 import pandas as pd
 from keras.preprocessing.image import load_img, save_img, img_to_array
