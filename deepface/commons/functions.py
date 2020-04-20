@@ -12,6 +12,10 @@ import math
 from PIL import Image
 import copy
 import base64
+import multiprocessing
+import subprocess
+import tensorflow as tf
+import keras
 
 def loadBase64Img(uri):
    encoded_data = uri.split(',')[1]
@@ -291,3 +295,91 @@ def detectFace(img, target_size=(224, 224), grayscale = False):
 			return img_pixels
 		else:
 			raise ValueError("Face could not be detected in ", img,". Please confirm that the picture is a face photo.")
+			
+def allocateMemory():
+	
+	#find allocated memories
+	gpu_indexes = []
+	memory_usage_percentages = []; available_memories = []; total_memories = []; utilizations = []
+	power_usages = []; power_capacities = []
+	
+	try:
+		result = subprocess.check_output(['nvidia-smi'])
+
+		dashboard = result.decode("utf-8").split("=|")
+
+		dashboard = dashboard[1].split("\n")
+		
+		gpu_idx = 0
+		for line in dashboard:
+			if ("MiB" in line):
+				power_info = line.split("|")[1]
+				power_capacity = int(power_info.split("/")[-1].replace("W", ""))
+				power_usage = int((power_info.split("/")[-2]).strip().split(" ")[-1].replace("W", ""))
+				
+				power_usages.append(power_usage)
+				power_capacities.append(power_capacity)
+				
+				#----------------------------
+				
+				memory_info = line.split("|")[2].replace("MiB","").split("/")
+				utilization_info = int(line.split("|")[3].split("%")[0])
+				
+				allocated = int(memory_info[0])
+				total_memory = int(memory_info[1])
+				available_memory = total_memory - allocated
+				
+				total_memories.append(total_memory)
+				available_memories.append(available_memory)
+				memory_usage_percentages.append(round(100*int(allocated)/int(total_memory), 4))
+				utilizations.append(utilization_info)
+				gpu_indexes.append(gpu_idx)
+				
+				gpu_idx = gpu_idx + 1
+		
+		gpu_count = gpu_idx * 1
+				
+	except Exception as err:
+		gpu_count = 0
+		#print(str(err))
+		
+	#------------------------------
+	
+	df = pd.DataFrame(gpu_indexes, columns = ["gpu_index"])
+	df["total_memories_in_mb"] = total_memories
+	df["available_memories_in_mb"] = available_memories
+	df["memory_usage_percentage"] = memory_usage_percentages
+	df["utilizations"] = utilizations
+	df["power_usages_in_watts"] = power_usages
+	df["power_capacities_in_watts"] = power_capacities
+	
+	df = df.sort_values(by = ["available_memories_in_mb"], ascending = False).reset_index(drop = True)
+	
+	#------------------------------
+	
+	required_memory = 10000 #All deepface models require 9016 MiB
+	
+	if df.shape[0] > 0: #has gpu
+		if df.iloc[0].available_memories_in_mb > required_memory:
+			my_gpu = str(int(df.iloc[0].gpu_index))
+			os.environ["CUDA_VISIBLE_DEVICES"] = my_gpu
+			
+			#------------------------------
+			#tf allocates all memory by default
+			#this block avoids greedy approach
+			
+			config = tf.ConfigProto()
+			config.gpu_options.allow_growth = True
+			session = tf.Session(config=config)
+			keras.backend.set_session(session)
+			
+			print("DeepFace will run on GPU (gpu_", my_gpu,")")
+		else:
+			#this case has gpu but no enough memory to allocate
+			os.environ["CUDA_VISIBLE_DEVICES"] = "" #run it on cpu
+			print("Even though the system has GPUs, there is no enough space in memory to allocate.")
+			print("DeepFace will run on CPU")
+	else:
+		print("DeepFace will run on CPU")
+	
+	#------------------------------

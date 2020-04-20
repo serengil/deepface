@@ -120,7 +120,7 @@ def verify(img1_path, img2_path=''
 			if bulkProcess == True:
 				resp_objects.append(resp_obj)
 			else:
-				K.clear_session()
+				#K.clear_session()
 				return resp_obj
 			#----------------------
 
@@ -317,6 +317,8 @@ def stream(db_path, model_name ='VGG-Face', distance_metric = 'cosine', enable_f
 
 
 #---------------------------
+
+functions.allocateMemory()
 
 functions.initializeFolder()
 
