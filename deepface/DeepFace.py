@@ -207,7 +207,7 @@ def analyze(img_path, actions = [], models = {}):
 		pbar = tqdm(range(0,len(actions)), desc='Finding actions')
 
 		action_idx = 0
-		img_244 = None # Set to prevent re-detection
+		img_224 = None # Set to prevent re-detection
 		#for action in actions:
 		for index in pbar:
 			action = actions[index]
@@ -240,20 +240,20 @@ def analyze(img_path, actions = [], models = {}):
 				resp_obj += emotion_obj
 
 			elif action == 'age':
-				if img_244 is None:
-					img_244 = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
+				if img_224 is None:
+					img_224 = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
 				#print("age prediction")
-				age_predictions = age_model.predict(img_244)[0,:]
+				age_predictions = age_model.predict(img_224)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
 
 				resp_obj += "\"age\": %s" % (apparent_age)
 
 			elif action == 'gender':
-				if img_244 is None:
-					img_244 = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
+				if img_224 is None:
+					img_224 = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
 				#print("gender prediction")
 
-				gender_prediction = gender_model.predict(img_244)[0,:]
+				gender_prediction = gender_model.predict(img_224)[0,:]
 
 				if np.argmax(gender_prediction) == 0:
 					gender = "Woman"
@@ -263,9 +263,9 @@ def analyze(img_path, actions = [], models = {}):
 				resp_obj += "\"gender\": \"%s\"" % (gender)
 
 			elif action == 'race':
-				if img_244 is None:
-					img_244 = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
-				race_predictions = race_model.predict(img_244)[0,:]
+				if img_224 is None:
+					img_224 = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
+				race_predictions = race_model.predict(img_224)[0,:]
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
 				sum_of_predictions = race_predictions.sum()
