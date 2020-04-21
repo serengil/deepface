@@ -119,7 +119,7 @@ models["age"] = Age.loadModel()
 models["gender"] = Gender.loadModel()
 models["race"] = Race.loadModel()
 
-DeepFace.analyze("img1.jpg", models=facial_attribute_models)
+DeepFace.analyze("img1.jpg", models=models)
 ```
 
 # Streaming and Real Time Analysis
