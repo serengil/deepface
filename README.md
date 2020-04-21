@@ -66,7 +66,7 @@ You can build a face recognition model once and pass this to verify function as 
 
 ```python
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
-model = VGGFace.loadModel()
+model = VGGFace.loadModel() #all face recognition models have loadModel() function in their interfaces
 DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", model = model)
 ```
 
@@ -113,16 +113,11 @@ You can build facial attribute analysis models once and pass these to analyze fu
 import json
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 
-emotion_model = Emotion.loadModel()
-age_model = Age.loadModel()
-gender_model = Gender.loadModel()
-race_model = Race.loadModel()
-
 models = {}
-models["emotion"] = emotion_model
-models["age"] = age_model
-models["gender"] = gender_model
-models["race"] = race_model
+models["emotion"] = Emotion.loadModel()
+models["age"] = Age.loadModel()
+models["gender"] = Gender.loadModel()
+models["race"] = Race.loadModel()
 
 DeepFace.analyze("img1.jpg", models=facial_attribute_models)
 ```
