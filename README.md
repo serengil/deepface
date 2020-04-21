@@ -53,6 +53,13 @@ deepface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "DeepFace
 
 VGG-Face has the highest accuracy score but it is not convenient for real time studies because of its complex structure. FaceNet is a complex model as well. On the other hand, OpenFace has a close accuracy score but it performs the fastest. That's why, OpenFace is much more convenient for real time studies.
 
+The complexity of each face recognition model is different. Mean ± std. dev. of 7 runs for each model in my experiments is illustrated in the following table.
+
+| Model          | VGG-Face         | OpenFace         | Google FaceNet   | Facebook DeepFace |
+| ---            | ---              | ---              | ---              | ---               |
+| Building       | 2.35 s ± 46.9 ms | 6.37 s ± 1.28 s  | 25.7 s ± 7.93 s  | 23.9 s ± 2.52 s   |
+| Verification   | 897 ms ± 38.3 ms | 616 ms ± 12.1 ms | 684 ms ± 7.69 ms | 605 ms ± 13.2 ms  |
+
 ## Similarity
 
 These models actually find the vector embeddings of faces. Decision of verification is based on the distance between vectors. Distance could be found by different metrics such as [`Cosine Similarity`](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration finds the **cosine similarity**. You can alternatively set the similarity metric while verification as demostratred below.
