@@ -60,6 +60,16 @@ The complexity of each face recognition model is different. Mean ± std. dev. of
 | Building     | 2.35 s ± 46.9 ms | 6.37 s ± 1.28 s  | 25.7 s ± 7.93 s  | 23.9 s ± 2.52 s   |
 | Verification | 897 ms ± 38.3 ms | 616 ms ± 12.1 ms | 684 ms ± 7.69 ms | 605 ms ± 13.2 ms  |
 
+## Passing pre-built models
+
+You can build a face recognition model once and pass this to verify function as well. This might be logical if you need to call verify function several times.
+
+```python
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+model = VGGFace.loadModel()
+DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", model = model)
+```
+
 ## Similarity
 
 These models actually find the vector embeddings of faces. Decision of verification is based on the distance between vectors. Distance could be found by different metrics such as [`Cosine Similarity`](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration finds the **cosine similarity**. You can alternatively set the similarity metric while verification as demostratred below.
@@ -94,6 +104,28 @@ Model building and prediction times are different for those facial analysis mode
 | ---        | ---              | ---              | ---              | ---              |
 | Building   | 243 ms ± 15.2 ms | 2.25 s ± 34.9    | 2.25 s ± 90.9 ms | 2.23 s ± 68.6 ms |
 | Prediction | 389 ms ± 11.4 ms | 524 ms ± 16.1 ms | 516 ms ± 10.8 ms | 493 ms ± 20.3 ms |
+
+## Passing pre-built models
+
+You can build facial attribute analysis models once and pass these to analyze function as well. This might be logical if you need to call analyze function several times.
+
+```python
+import json
+from deepface.extendedmodels import Age, Gender, Race, Emotion
+
+emotion_model = Emotion.loadModel()
+age_model = Age.loadModel()
+gender_model = Gender.loadModel()
+race_model = Race.loadModel()
+
+models = {}
+models["emotion"] = emotion_model
+models["age"] = age_model
+models["gender"] = gender_model
+models["race"] = race_model
+
+DeepFace.analyze("img1.jpg", models=facial_attribute_models)
+```
 
 # Streaming and Real Time Analysis
 
