@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, make_response
 
+import argparse
 import uuid
 import json
 import time
@@ -206,6 +207,13 @@ def verify():
 	
 	return resp_obj, 200
 
+
 if __name__ == '__main__':
-	
-	app.run()
+	parser = argparse.ArgumentParser()
+	parser.add_argument(
+		'-p', '--port',
+		type=int,
+		default=5000,
+		help='Port of serving api')
+	args = parser.parse_args()
+	app.run(host='0.0.0.0', port=args.port)
