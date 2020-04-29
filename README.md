@@ -131,6 +131,8 @@ DeepFace.stream("/user/database")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-3.jpg" width="90%" height="90%"></p>
 
+You can watch a **demo** of real time analysis [`here`](https://youtu.be/-c9sSJcx6wI).
+
 Even though face recognition is based on one-shot learning, you can use multiple face pictures of a person as well. You should rearrange your directory structure as illustrated below.
 
 ```bash
