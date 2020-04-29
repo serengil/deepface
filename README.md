@@ -70,7 +70,7 @@ DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", model = model)
 
 ## Similarity
 
-These models actually find the vector embeddings of faces. In other words, we use face recognition models as [autoencoders](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/). Decision of verification is based on the distance between vectors. Distance could be found by different metrics such as [`Cosine Similarity`](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration finds the **cosine similarity**. You can alternatively set the similarity metric while verification as demostratred below.
+These models actually find the vector embeddings of faces. In other words, we use face recognition models as [`autoencoders`](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/). Decision of verification is based on the distance between vectors. Distance could be found by different metrics such as [`Cosine Similarity`](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration finds the **cosine similarity**. You can alternatively set the similarity metric while verification as demostratred below.
 
 ```python
 result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = "cosine")
