@@ -66,8 +66,15 @@ def verify(img1_path, img2_path=''
 	threshold = functions.findThreshold(model_name, distance_metric)
 
 	#------------------------------
+	pbar = tqdm(range(0,len(img_list)), desc='Verification')
+	
 	resp_objects = []
-	for instance in img_list:
+	
+	#for instance in img_list:
+	for index in pbar:
+	
+		instance = img_list[index]
+		
 		if type(instance) == list and len(instance) >= 2:
 			img1_path = instance[0]
 			img2_path = instance[1]
@@ -198,7 +205,12 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True):
 	#---------------------------------
 
 	resp_objects = []
-	for img_path in img_paths:
+	
+	global_pbar = tqdm(range(0,len(img_paths)), desc='Analyzing')
+	
+	#for img_path in img_paths:
+	for j in global_pbar:
+		img_path = img_paths[j]
 
 		resp_obj = "{"
 
