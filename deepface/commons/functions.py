@@ -168,8 +168,6 @@ def detectFace(img, target_size=(224, 224), grayscale = False, enforce_detection
 		
 	elif exact_image != True: #image path passed as input
 		
-		img_path = ""+img
-		
 		if os.path.isfile(img) != True:
 			raise ValueError("Confirm that ",img," exists")
 		
@@ -298,7 +296,7 @@ def detectFace(img, target_size=(224, 224), grayscale = False, enforce_detection
 			img_pixels /= 255
 			return img_pixels
 		else:
-			raise ValueError("Face could not be detected in ", img_path,". Please confirm that the picture is a face photo.")
+			raise ValueError("Face could not be detected. Please confirm that the picture is a face photo.")
 			
 def allocateMemory():
 	
