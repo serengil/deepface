@@ -21,7 +21,7 @@ from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
 def verify(img1_path, img2_path=''
-	, model_name ='VGG-Face', distance_metric = 'cosine', model = None):
+	, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True):
 
 	tic = time.time()
 
@@ -75,8 +75,8 @@ def verify(img1_path, img2_path=''
 			#----------------------
 			#crop and align faces
 
-			img1 = functions.detectFace(img1_path, input_shape)
-			img2 = functions.detectFace(img2_path, input_shape)
+			img1 = functions.detectFace(img1_path, input_shape, enforce_detection = enforce_detection)
+			img2 = functions.detectFace(img2_path, input_shape, enforce_detection = enforce_detection)
 
 			#----------------------
 			#find embeddings
@@ -149,7 +149,7 @@ def verify(img1_path, img2_path=''
 		#return resp_objects
 
 
-def analyze(img_path, actions = [], models = {}):
+def analyze(img_path, actions = [], models = {}, enforce_detection = True):
 
 	if type(img_path) == list:
 		img_paths = img_path.copy()
@@ -218,7 +218,7 @@ def analyze(img_path, actions = [], models = {}):
 
 			if action == 'emotion':
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
-				img = functions.detectFace(img_path, (48, 48), True)
+				img = functions.detectFace(img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection)
 
 				emotion_predictions = emotion_model.predict(img)[0,:]
 
@@ -241,7 +241,7 @@ def analyze(img_path, actions = [], models = {}):
 
 			elif action == 'age':
 				if img_224 is None:
-					img_224 = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
+					img_224 = functions.detectFace(img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection) #just emotion model expects grayscale images
 				#print("age prediction")
 				age_predictions = age_model.predict(img_224)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
@@ -250,7 +250,7 @@ def analyze(img_path, actions = [], models = {}):
 
 			elif action == 'gender':
 				if img_224 is None:
-					img_224 = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
+					img_224 = functions.detectFace(img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection) #just emotion model expects grayscale images
 				#print("gender prediction")
 
 				gender_prediction = gender_model.predict(img_224)[0,:]
@@ -264,7 +264,7 @@ def analyze(img_path, actions = [], models = {}):
 
 			elif action == 'race':
 				if img_224 is None:
-					img_224 = functions.detectFace(img_path, (224, 224), False) #just emotion model expects grayscale images
+					img_224 = functions.detectFace(img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection) #just emotion model expects grayscale images
 				race_predictions = race_model.predict(img_224)[0,:]
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
@@ -316,13 +316,12 @@ def detectFace(img_path):
 	return img[:, :, ::-1] #bgr to rgb
 
 
-def stream(db_path, model_name ='VGG-Face', distance_metric = 'cosine', enable_face_analysis = True):
+def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine', enable_face_analysis = True):
 	realtime.analysis(db_path, model_name, distance_metric, enable_face_analysis)
 
-
-#---------------------------
-
-functions.allocateMemory()
+def allocateMemory():
+	print("Analyzing your system...")
+	functions.allocateMemory()
 
 functions.initializeFolder()
 

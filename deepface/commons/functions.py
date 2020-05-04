@@ -135,7 +135,9 @@ def get_opencv_path():
 	
 	return path+"/data/"
 
-def detectFace(img, target_size=(224, 224), grayscale = False):
+def detectFace(img, target_size=(224, 224), grayscale = False, enforce_detection = True):
+	
+	img_path = ""
 	
 	#-----------------------
 	
@@ -165,6 +167,8 @@ def detectFace(img, target_size=(224, 224), grayscale = False):
 		img = loadBase64Img(img)
 		
 	elif exact_image != True: #image path passed as input
+		
+		img_path = ""+img
 		
 		if os.path.isfile(img) != True:
 			raise ValueError("Confirm that ",img," exists")
@@ -283,7 +287,7 @@ def detectFace(img, target_size=(224, 224), grayscale = False):
 		
 	else:
 		
-		if exact_image == True:
+		if (exact_image == True) or (enforce_detection != True):
 			
 			if grayscale == True:
 				img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -294,7 +298,7 @@ def detectFace(img, target_size=(224, 224), grayscale = False):
 			img_pixels /= 255
 			return img_pixels
 		else:
-			raise ValueError("Face could not be detected in ", img,". Please confirm that the picture is a face photo.")
+			raise ValueError("Face could not be detected in ", img_path,". Please confirm that the picture is a face photo.")
 			
 def allocateMemory():
 	
