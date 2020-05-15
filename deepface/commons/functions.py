@@ -296,7 +296,7 @@ def detectFace(img, target_size=(224, 224), grayscale = False, enforce_detection
 			img_pixels /= 255
 			return img_pixels
 		else:
-			raise ValueError("Face could not be detected. Please confirm that the picture is a face photo.")
+			raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
 			
 def allocateMemory():
 	
