@@ -14,7 +14,7 @@ The easiest way to install deepface is to download it from [PyPI](https://pypi.o
 pip install deepface
 ```
 
-# Face Recognition
+**Face Recognition** [`Demo`](https://youtu.be/KRCvkNCOphE)
 
 Verify function under the DeepFace interface is used for face recognition.
 
@@ -39,7 +39,7 @@ dataset = [
 result = DeepFace.verify(dataset)
 ```
 
-## Face recognition models
+### Face recognition models
 
 Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) and [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
 
@@ -58,7 +58,7 @@ The complexity and response time of each face recognition model is different so 
 | Building     | 2.35 s ± 46.9 ms | 6.37 s ± 1.28 s  | 25.7 s ± 7.93 s  | 23.9 s ± 2.52 s   |
 | Verification | 897 ms ± 38.3 ms | 616 ms ± 12.1 ms | 684 ms ± 7.69 ms | 605 ms ± 13.2 ms  |
 
-## Passing pre-built models
+### Passing pre-built models
 
 You can build a face recognition model once and pass this to verify function as well. This might be logical if you need to call verify function several times.
 
@@ -68,7 +68,7 @@ model = VGGFace.loadModel() #all face recognition models have loadModel() functi
 DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", model = model)
 ```
 
-## Similarity
+### Similarity
 
 These models actually find the vector embeddings of faces. In other words, we use face recognition models as [`autoencoders`](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/). Decision of verification is based on the distance between vectors. Distance could be found by different metrics such as [`Cosine Similarity`](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration finds the **cosine similarity**. You can alternatively set the similarity metric while verification as demostratred below.
 
@@ -78,7 +78,7 @@ result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distan
 result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = "euclidean_l2")
 ```
 
-# Facial Attribute Analysis
+**Facial Attribute Analysis** [`Demo`](https://youtu.be/GT2UeN85BdA)
 
 Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise)and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face.
 
@@ -103,7 +103,7 @@ Model building and prediction times are different for those facial analysis mode
 | Building   | 243 ms ± 15.2 ms | 2.25 s ± 34.9    | 2.25 s ± 90.9 ms | 2.23 s ± 68.6 ms |
 | Prediction | 389 ms ± 11.4 ms | 524 ms ± 16.1 ms | 516 ms ± 10.8 ms | 493 ms ± 20.3 ms |
 
-## Passing pre-built models
+### Passing pre-built models
 
 You can build facial attribute analysis models once and pass these to analyze function as well. This might be logical if you need to call analyze function several times.
 
@@ -120,7 +120,7 @@ models["race"] = Race.loadModel()
 DeepFace.analyze("img1.jpg", models=models)
 ```
 
-# Streaming and Real Time Analysis
+**Streaming and Real Time Analysis** [`Demo`](https://youtu.be/-c9sSJcx6wI)
 
 You can run deepface for real time videos as well. Calling stream function under the DeepFace interface will access your webcam and apply both face recognition and facial attribute analysis. Stream function expects a database folder including face images. VGG-Face is the default face recognition model and cosine similarity is the default distance metric similar to verify function. The function starts to analyze if it can focus a face sequantially 5 frames. Then, it shows results 5 seconds.
 
@@ -147,7 +147,7 @@ user
 
 BTW, you should use regular slash ( / ) instead of backslash ( \ ) in Windows OS while passing the path to stream function. E.g. `DeepFace.stream("C:/User/Sefik/Desktop/database")`.
 
-# API
+**API** [`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
 
@@ -159,11 +159,11 @@ python api.py
 
 The both face recognition and facial attribute analysis are covered in the API. You are expected to call these functions as http post methods. Service endpoints will be `http://127.0.0.1:5000/verify` for face recognition and `http://127.0.0.1:5000/analyze` for facial attribute analysis. You should pass input images as base64 encoded string in this case. [Here](https://github.com/serengil/deepface/tree/master/api), you can find a postman project.
 
-# E-Learning
+## E-Learning
 
 Deepface is mentioned in this [playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E) as video lectures.
 
-# Disclaimer
+## Disclaimer
 
 Reference face recognition models have different type of licenses. This framework is just a wrapper for those models. That's why, licence types are inherited as well. You should check the licenses for the face recognition models before use.
 
