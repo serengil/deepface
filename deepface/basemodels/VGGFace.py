@@ -16,7 +16,7 @@ import gdown
 # ---------------------------------------
 
 
-def get_base_model():
+def baseModel():
     model = Sequential()
     model.add(ZeroPadding2D((1, 1), input_shape=(224, 224, 3)))
     model.add(Convolution2D(64, (3, 3), activation="relu"))
@@ -86,7 +86,7 @@ def loadModel(model_path=""):
     # -----------------------------------
 
     print(f"Loading model from {model_path}")
-    model = get_base_model()
+    model = baseModel()
     model.load_weights(model_path)
 
     # -----------------------------------
