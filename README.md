@@ -36,8 +36,10 @@ dataset = [
 	['dataset/img1.jpg', 'dataset/img2.jpg'],
 	['dataset/img1.jpg', 'dataset/img3.jpg']
 ]
-result = DeepFace.verify(dataset)
+resp_obj = DeepFace.verify(dataset)
 ```
+
+Items of resp_obj might be unsorted when you pass multiple instances to verify function.
 
 ## Face recognition models
 
