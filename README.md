@@ -41,6 +41,18 @@ resp_obj = DeepFace.verify(dataset)
 
 Items of resp_obj might be unsorted when you pass multiple instances to verify function. Please check the item indexes in the response object.
 
+## Face recognition on a large scala data set
+
+You can apply face recognition on a large scale data set as well. Vector representations of faces in your database folder stored in a pickle file when find function is called once. Then, deepface just finds vector representation of the target image. Finding an identity in a large scale data set will be performed in just seconds.
+
+```python
+from deepface import DeepFace
+df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
+print(df.head())
+
+#DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db") #apply face recognition for multiple identities. this will return a list including pandas dataframe items.
+```
+
 ## Face recognition models
 
 Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) and [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
