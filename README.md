@@ -45,7 +45,7 @@ Items of resp_obj might be unsorted when you pass multiple instances to verify f
 
 **Large scale face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
-You can [apply](https://youtu.be/Hrjp-EStM_s) face recognition on a large scale data set as well. Vector representations of faces in your database folder stored in a pickle file when find function is called once. Then, deepface just finds vector representation of the target image. Finding an identity in a large scale data set will be performed in just seconds.
+You can apply face recognition on a large scale data set as well. Vector representations of faces in your database folder stored in a pickle file when find function is called once. Then, deepface just finds vector representation of the target image. Finding an identity in a large scale data set will be performed in just seconds.
 
 ```python
 from deepface import DeepFace
