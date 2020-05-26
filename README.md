@@ -14,9 +14,7 @@ The easiest way to install deepface is to download it from [`PyPI`](https://pypi
 pip install deepface
 ```
 
-## Face Recognition
-
-[`Demo`](https://youtu.be/KRCvkNCOphE)
+### Face Recognition - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
 Verify function under the DeepFace interface is used for face recognition.
 
@@ -152,8 +150,6 @@ DeepFace.stream("/user/database")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-3.jpg" width="90%" height="90%"></p>
-
-You can watch a **demo** of real time analysis [`here`](https://youtu.be/-c9sSJcx6wI).
 
 Even though face recognition is based on one-shot learning, you can use multiple face pictures of a person as well. You should rearrange your directory structure as illustrated below.
 
