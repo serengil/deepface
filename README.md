@@ -20,7 +20,7 @@ A modern face recognition pipeline consists of 4 common stages: detect, [align](
 
 Deepface handles all these common stages in the background.
 
-### Face Verification - [`Demo`](https://youtu.be/KRCvkNCOphE)
+**Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
 Verification function under the DeepFace interface offers a single face recognition.
 
