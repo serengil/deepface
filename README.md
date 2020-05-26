@@ -16,7 +16,9 @@ pip install deepface
 
 ## Face Recognition 
 
-A modern face recognition pipeline consists of 4 common stages: detect, [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), represent and verify. Deepface handles all these common stages in the background.
+A modern face recognition pipeline consists of 4 common stages: detect, [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), represent and verify. [`Demo`](https://youtu.be/OYialFo7Qo4)
+
+Deepface handles all these common stages in the background.
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
@@ -96,9 +98,7 @@ result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distan
 
 ## Facial Attribute Analysis
 
-Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise)and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face.
-
-[`Demo`](https://youtu.be/GT2UeN85BdA)
+Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise)and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face. [`Demo`](https://youtu.be/GT2UeN85BdA)
 
 ```python
 from deepface import DeepFace
