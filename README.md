@@ -45,6 +45,8 @@ Items of resp_obj might be unsorted when you pass multiple instances to verify f
 
 ## Large scale face recognition
 
+[`Demo`](https://youtu.be/Hrjp-EStM_s)
+
 You can [apply](https://youtu.be/Hrjp-EStM_s) face recognition on a large scale data set as well. Vector representations of faces in your database folder stored in a pickle file when find function is called once. Then, deepface just finds vector representation of the target image. Finding an identity in a large scale data set will be performed in just seconds.
 
 ```python
@@ -96,6 +98,8 @@ result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distan
 
 ## Facial Attribute Analysis
 
+[`Demo`](https://youtu.be/GT2UeN85BdA)
+
 Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise)and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face.
 
 ```python
@@ -138,6 +142,8 @@ DeepFace.analyze("img1.jpg", models=models)
 
 ## Streaming and Real Time Analysis
 
+[`Demo`](https://youtu.be/-c9sSJcx6wI)
+
 You can run deepface for real time videos as well. Calling stream function under the DeepFace interface will access your webcam and apply both face recognition and facial attribute analysis. Stream function expects a database folder including face images. VGG-Face is the default face recognition model and cosine similarity is the default distance metric similar to verify function. The function starts to analyze if it can focus a face sequantially 5 frames. Then, it shows results 5 seconds.
 
 ```python
@@ -164,6 +170,8 @@ user
 BTW, you should use regular slash ( / ) instead of backslash ( \ ) in Windows OS while passing the path to stream function. E.g. `DeepFace.stream("C:/User/Sefik/Desktop/database")`.
 
 ## API
+
+[`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
 
