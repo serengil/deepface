@@ -52,7 +52,7 @@ from deepface import DeepFace
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 print(df.head())
 
-#DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db") #apply face recognition for multiple identities. this will return a list including pandas dataframe items.
+#DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db")
 ```
 
 **Supported face recognition models**
