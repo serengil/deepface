@@ -94,9 +94,9 @@ result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distan
 result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = "euclidean_l2")
 ```
 
-## Facial Attribute Analysis
+**Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
-Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise)and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face. [`Demo`](https://youtu.be/GT2UeN85BdA)
+Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise)and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face. 
 
 ```python
 from deepface import DeepFace
@@ -136,9 +136,9 @@ models["race"] = Race.loadModel()
 DeepFace.analyze("img1.jpg", models=models)
 ```
 
-## Streaming and Real Time Analysis
+**Streaming and Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
 
-You can run deepface for real time videos as well. [`Demo`](https://youtu.be/-c9sSJcx6wI)
+You can run deepface for real time videos as well. 
 
 Calling stream function under the DeepFace interface will access your webcam and apply both face recognition and facial attribute analysis. Stream function expects a database folder including face images. VGG-Face is the default face recognition model and cosine similarity is the default distance metric similar to verify function. The function starts to analyze if it can focus a face sequantially 5 frames. Then, it shows results 5 seconds.
 
@@ -163,9 +163,9 @@ user
 
 BTW, you should use regular slash ( / ) instead of backslash ( \ ) in Windows OS while passing the path to stream function. E.g. `DeepFace.stream("C:/User/Sefik/Desktop/database")`.
 
-## API
+**API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
-Deepface serves an API as well. [`Demo`](https://youtu.be/HeKCQ6U9XmI)
+Deepface serves an API as well. 
 
 You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up. In this way, you can call deepface from an external system.
 
