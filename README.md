@@ -16,6 +16,8 @@ pip install deepface
 
 ## Face Recognition
 
+[`Demo`](https://youtu.be/KRCvkNCOphE)
+
 Verify function under the DeepFace interface is used for face recognition.
 
 ```python
