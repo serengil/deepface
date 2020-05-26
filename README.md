@@ -16,9 +16,7 @@ pip install deepface
 
 ## Face Recognition 
 
-A modern face recognition pipeline consists of 4 common stages: detect, [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), represent and verify. [`Demo`](https://youtu.be/OYialFo7Qo4)
-
-Deepface handles all these common stages in the background.
+A modern face recognition pipeline consists of 4 common stages: detect, [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), represent and verify. **deepface** handles all these common stages in the background.
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
