@@ -74,7 +74,7 @@ The complexity and response time of each face recognition model is different so 
 | Building     | 2.35 s ± 46.9 ms | 6.37 s ± 1.28 s  | 25.7 s ± 7.93 s  | 23.9 s ± 2.52 s   |
 | Verification | 897 ms ± 38.3 ms | 616 ms ± 12.1 ms | 684 ms ± 7.69 ms | 605 ms ± 13.2 ms  |
 
-**Passing pre-built models**
+**Passing pre-built face recognition models**
 
 You can build a face recognition model once and pass this to verify function as well. This might be logical if you need to call verify function several times.
 
@@ -119,7 +119,7 @@ Model building and prediction times are different for those facial analysis mode
 | Building   | 243 ms ± 15.2 ms | 2.25 s ± 34.9    | 2.25 s ± 90.9 ms | 2.23 s ± 68.6 ms |
 | Prediction | 389 ms ± 11.4 ms | 524 ms ± 16.1 ms | 516 ms ± 10.8 ms | 493 ms ± 20.3 ms |
 
-**Passing pre-built models**
+**Passing pre-built facial analysis models**
 
 You can build facial attribute analysis models once and pass these to analyze function as well. This might be logical if you need to call analyze function several times.
 
