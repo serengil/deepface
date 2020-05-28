@@ -181,7 +181,7 @@ The both face recognition and facial attribute analysis are covered in the API. 
 
 ## E-Learning
 
-Deepface is mentioned in this [playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E) as video lectures.
+Deepface is mentioned in this [playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E) as video lectures. Subscribe the channel to stay up-to-date and be informed when a new lecture is added, 
 
 ## Disclaimer
 
