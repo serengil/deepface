@@ -16,7 +16,7 @@ pip install deepface
 
 ## Face Recognition 
 
-A modern face recognition pipeline consists of 4 common stages: [detect](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). **deepface** handles all these common stages in the background.
+A modern [face recognition pipeline](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 4 common stages: [detect](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). **deepface** handles all these common stages in the background.
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
@@ -45,7 +45,7 @@ Items of resp_obj might be unsorted when you pass multiple instances to verify f
 
 **Large scale face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
-You can apply face recognition on a large scale data set as well. Face recognition requires to apply face verification multiple times. Herein, deepface offers an out-of-the-box find function to handle this action. Representations of faces photos in your database folder will be stored in a pickle file when find function is called once. Then, deepface just finds representation of the target image. In this way, finding an identity in a large scale data set will be performed in just seconds.
+You can apply face recognition on a [large scale](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) data set as well. Face recognition requires to apply face verification multiple times. Herein, deepface offers an out-of-the-box find function to handle this action. Representations of faces photos in your database folder will be stored in a pickle file when find function is called once. Then, deepface just finds representation of the target image. In this way, finding an identity in a large scale data set will be performed in just seconds.
 
 ```python
 from deepface import DeepFace
@@ -88,7 +88,9 @@ DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", model = model)
 
 **Similarity**
 
-Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent face photos as vectors. Decision of verification is based on the distance between vectors. We can classify pairs if its distance is less than a [threshold](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). Distance could be found by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration finds the **cosine similarity**. You can alternatively set the similarity metric while verification as demostratred below.
+Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent face photos as vectors. Decision of verification is based on the distance between vectors. We can classify pairs if its distance is less than a [threshold](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). 
+
+Distance could be found by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration finds the **cosine similarity**. You can alternatively set the similarity metric while verification as demostratred below.
 
 ```python
 result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = "cosine")
@@ -169,7 +171,7 @@ BTW, you should use regular slash ( / ) instead of backslash ( \ ) in Windows OS
 
 Deepface serves an API as well. 
 
-You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up. In this way, you can call deepface from an external system.
+You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
 
