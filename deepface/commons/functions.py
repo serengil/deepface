@@ -81,6 +81,18 @@ def initializeFolder():
 	"""
 	#----------------------------------
 
+"""
+TODO: C4.5 tree finds the following split points for cosine, euclidean, euclidean_l2 respectively.
+Check these thresholds in unit tests.
+vgg-face: 0.3147, 0.4764, 0.7933
+facenet: 0.4062, 11.2632, 0.9014
+openface: 0.1118, 0.4729, 0.4729
+deepface: 0.1349, 42.2178, 0.5194
+"""
+
+"""
+TODO: create an ensemble method
+"""
 def findThreshold(model_name, distance_metric):
 	
 	threshold = 0.40
