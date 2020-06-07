@@ -14,10 +14,7 @@ import keras
 import tensorflow as tf
 import pickle
 
-#from basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
-#from extendedmodels import Age, Gender, Race, Emotion
-#from commons import functions, realtime, distance as dst
-
+from deepface import DeepFace
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
@@ -35,7 +32,152 @@ def verify(img1_path, img2_path=''
 		img_list = [[img1_path, img2_path]]
 
 	#------------------------------
+	
+	resp_objects = []
+	
+	if model_name == 'Ensemble':
+		print("Ensemble learning enabled")
+		
+		import lightgbm as lgb #lightgbm==2.3.1
+		
+		if model == None:
+			model = {}
+			
+			model_pbar = tqdm(range(0, 4), desc='Face recognition models')
+			
+			for index in model_pbar:
+				
+				if index == 0:
+					model_pbar.set_description("Loading VGG-Face")
+					model["VGG-Face"] = VGGFace.loadModel()
+				elif index == 1:
+					model_pbar.set_description("Loading Google FaceNet")
+					model["Facenet"] = Facenet.loadModel()
+				elif index == 2:
+					model_pbar.set_description("Loading OpenFace")
+					model["OpenFace"] = OpenFace.loadModel()
+				elif index == 3:
+					model_pbar.set_description("Loading Facebook DeepFace")
+					model["DeepFace"] = FbDeepFace.loadModel()
+					
+		#--------------------------
+		#validate model dictionary because it might be passed from input as pre-trained
+		
+		found_models = []
+		for key, value in model.items():
+			found_models.append(key)
+		
+		if ('VGG-Face' in found_models) and ('Facenet' in found_models) and ('OpenFace' in found_models) and ('DeepFace' in found_models):
+			print("Ensemble learning will be applied for ", found_models," models")
+		else:
+			raise ValueError("You would like to apply ensemble learning and pass pre-built models but models must contain [VGG-Face, Facenet, OpenFace, DeepFace] but you passed "+found_models)
+			
+		#--------------------------
+		
+		model_names = ["VGG-Face", "Facenet", "OpenFace", "DeepFace"]
+		metrics = ["cosine", "euclidean", "euclidean_l2"]
+		
+		pbar = tqdm(range(0,len(img_list)), desc='Verification')
+		
+		#for instance in img_list:
+		for index in pbar:
+			instance = img_list[index]
+			
+			if type(instance) == list and len(instance) >= 2:
+				img1_path = instance[0]
+				img2_path = instance[1]
+				
+				ensemble_features = []; ensemble_features_string = "["
+				
+				for i in  model_names:
+					custom_model = model[i]
+					input_shape = custom_model.layers[0].input_shape[1:3]
+					
+					img1 = functions.detectFace(img1_path, input_shape, enforce_detection = enforce_detection)
+					img2 = functions.detectFace(img2_path, input_shape, enforce_detection = enforce_detection)
+					
+					img1_representation = custom_model.predict(img1)[0,:]
+					img2_representation = custom_model.predict(img2)[0,:]
+					
+					for j in metrics:
+						if j == 'cosine':
+							distance = dst.findCosineDistance(img1_representation, img2_representation)
+						elif j == 'euclidean':
+							distance = dst.findEuclideanDistance(img1_representation, img2_representation)
+						elif j == 'euclidean_l2':
+							distance = dst.findEuclideanDistance(dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation))
+						
+						if i == 'OpenFace' and j == 'euclidean': #this returns same with OpenFace - euclidean_l2
+							continue
+						else:
+							
+							ensemble_features.append(distance)
+							
+							if len(ensemble_features) > 1:
+								ensemble_features_string += ", "
+							ensemble_features_string += str(distance)
+							
+				#print("ensemble_features: ", ensemble_features)
+				ensemble_features_string += "]"
+				
+				#-------------------------------
+				#find deepface path
+				deepface_path = DeepFace.__file__
+				deepface_path = deepface_path.replace("\\", "/").replace("/deepface/DeepFace.py", "")
+				ensemble_model_path = deepface_path+"/models/face-recognition-ensemble-model.txt"
+				#print(ensemble_model_path)
+				
+				deepface_ensemble = lgb.Booster(model_file = ensemble_model_path)
+				
+				prediction = deepface_ensemble.predict(np.expand_dims(np.array(ensemble_features), axis=0))[0]
+				
+				verified = np.argmax(prediction) == 1
+				if verified: identified = "true"
+				else: identified = "false"
+				
+				score = prediction[np.argmax(prediction)]
+				
+				#print("verified: ", verified,", score: ", score)
+				
+				resp_obj = "{"
+				resp_obj += "\"verified\": "+identified
+				resp_obj += ", \"score\": "+str(score)
+				resp_obj += ", \"distance\": "+ensemble_features_string
+				resp_obj += ", \"model\": [\"VGG-Face\", \"Facenet\", \"OpenFace\", \"DeepFace\"]"
+				resp_obj += ", \"similarity_metric\": [\"cosine\", \"euclidean\", \"euclidean_l2\"]"
+				resp_obj += "}"
+				
+				#print(resp_obj)
+				
+				resp_obj = json.loads(resp_obj) #string to json
+				
+				if bulkProcess == True:
+					resp_objects.append(resp_obj)
+				else:
+					return resp_obj
+				
+				#-------------------------------
+		
+		if bulkProcess == True:
+			resp_obj = "{"
 
+			for i in range(0, len(resp_objects)):
+				resp_item = json.dumps(resp_objects[i])
+
+				if i > 0:
+					resp_obj += ", "
+
+				resp_obj += "\"pair_"+str(i+1)+"\": "+resp_item
+			resp_obj += "}"
+			resp_obj = json.loads(resp_obj)
+			return resp_obj
+		
+		return None
+		
+	#ensemble learning block end
+	#--------------------------------
+	#ensemble learning disabled
+	
 	if model == None:
 		if model_name == 'VGG-Face':
 			print("Using VGG-Face model backend and", distance_metric,"distance.")
@@ -69,8 +211,6 @@ def verify(img1_path, img2_path=''
 
 	#------------------------------
 	pbar = tqdm(range(0,len(img_list)), desc='Verification')
-	
-	resp_objects = []
 	
 	#for instance in img_list:
 	for index in pbar:

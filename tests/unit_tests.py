@@ -22,6 +22,17 @@ print(resp_obj["pair_2"]["verified"] == True)
 
 print("-----------------------------------------")
 
+print("Ensemble learning bulk")
+resp_obj = DeepFace.verify(dataset, model_name = "Ensemble")
+
+for i in range(0, len(dataset)):
+	item = resp_obj['pair_%s' % (i+1)]
+	verified = item["verified"]
+	score = item["score"]
+	print(verified)
+
+print("-----------------------------------------")
+
 print("Bulk facial analysis tests")
 
 dataset = [

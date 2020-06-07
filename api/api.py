@@ -195,6 +195,15 @@ def verify():
 			resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = openface_model)
 		elif model_name == "DeepFace":
 			resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = deepface_model)
+		elif model_name == "Ensemble":
+			models =  {}
+			models["VGG-Face"] = vggface_model
+			models["Facenet"] = facenet_model
+			models["OpenFace"] = openface_model
+			models["DeepFace"] = deepface_model
+			
+			resp_obj = DeepFace.verify(instances, model_name = model_name, model = models)
+			
 		else:
 			return jsonify({'success': False, 'error': 'You must pass a valid model name. Available models are VGG-Face, Facenet, OpenFace, DeepFace but you passed %s' % (model_name)}), 205
 		
