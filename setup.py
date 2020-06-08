@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.26",
     author="Sefik Ilkin Serengil",
     author_email="serengil@gmail.com",
-    description="Deep Face Analysis Framework for Face Recognition and Demography",
+    description="Deep Face Analysis Framework for Face Recognition and Demography (Age, Gender, Emotion, Race)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/serengil/deepface",
