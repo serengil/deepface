@@ -98,6 +98,15 @@ result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distan
 result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = "euclidean_l2")
 ```
 
+** Ensemble learning for face recognition ** - Demo
+
+A face recognition task can be handled by several models and similarity metrics. There is no either absolute better model or metric. However, we can combine the precictions of all of those models and metrics to improve the accuracy of a face recognition task. This is called [ensemble learning](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/). This approach offers a huge improvement on accuracy, precision and recall but it runs much slower than single models. You might consider to apply ensemble learning if the accuracy is a more important KPI than running time in your case. Ensemble learning can be applied for both verification and finding functions in the deepface interface.
+
+```python
+resp_obj = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Ensemble")
+df = DeepFace.find(img_path = "img1.jpg", db_path = "my_db", model_name = "Ensemble")
+```
+
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
 Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise)and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face. 

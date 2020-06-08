@@ -5,9 +5,20 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 #-----------------------------------------
 
-#TODO: add find function in unit tests
-
 print("Bulk tests")
+
+print("-----------------------------------------")
+
+print("Large scale face recognition")
+
+df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset")
+print(df.head())
+
+print("-----------------------------------------")
+
+print("Ensemble for find function")
+df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset", model_name = "Ensemble")
+print(df.head())
 
 print("-----------------------------------------")
 
