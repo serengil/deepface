@@ -498,13 +498,51 @@ def find(img_path, db_path
 			elif model_name == 'DeepFace':
 				print("Using FB DeepFace model backend", distance_metric,"distance.")
 				model = FbDeepFace.loadModel()
+			elif model_name == 'Ensemble':
+				
+				print("Ensemble learning enabled")
+				
+				import lightgbm as lgb #lightgbm==2.3.1
+				
+				model_names = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
+				metric_names = ['cosine', 'euclidean', 'euclidean_l2']
+				models = {}
+				
+				pbar = tqdm(range(0, len(model_names)), desc='Face recognition models')
+				
+				for index in pbar:
+					if index == 0:
+						pbar.set_description("Loading VGG-Face")
+						models['VGG-Face'] = VGGFace.loadModel()
+					elif index == 1:
+						pbar.set_description("Loading FaceNet")
+						models['Facenet'] = Facenet.loadModel()
+					elif index == 2:
+						pbar.set_description("Loading OpenFace")
+						models['OpenFace'] = OpenFace.loadModel()
+					elif index == 3:
+						pbar.set_description("Loading DeepFace")
+						models['DeepFace'] = FbDeepFace.loadModel()
+						
 			else:
 				raise ValueError("Invalid model_name passed - ", model_name)	
 		else: #model != None
 			print("Already built model is passed")
+			
+			if model_name == 'Ensemble':
+				
+				#validate model dictionary because it might be passed from input as pre-trained
+				
+				found_models = []
+				for key, value in model.items():
+					found_models.append(key)
+				
+				if ('VGG-Face' in found_models) and ('Facenet' in found_models) and ('OpenFace' in found_models) and ('DeepFace' in found_models):
+					print("Ensemble learning will be applied for ", found_models," models")
+				else:
+					raise ValueError("You would like to apply ensemble learning and pass pre-built models but models must contain [VGG-Face, Facenet, OpenFace, DeepFace] but you passed "+found_models)
 		
-		input_shape = model.layers[0].input_shape[1:3]
-		threshold = functions.findThreshold(model_name, distance_metric)
+		#threshold = functions.findThreshold(model_name, distance_metric)
 		
 		#---------------------------------------
 		
@@ -542,12 +580,30 @@ def find(img_path, db_path
 			#for employee in employees:
 			for index in pbar:
 				employee = employees[index]
-				img = functions.detectFace(employee, input_shape, enforce_detection = enforce_detection)
-				representation = model.predict(img)[0,:]
 				
-				instance = []
-				instance.append(employee)
-				instance.append(representation)
+				if model_name != 'Ensemble':
+				
+					input_shape = model.layers[0].input_shape[1:3]
+					img = functions.detectFace(employee, input_shape, enforce_detection = enforce_detection)
+					representation = model.predict(img)[0,:]
+					
+					instance = []
+					instance.append(employee)
+					instance.append(representation)
+					
+				else: #ensemble learning
+					
+					instance = []
+					instance.append(employee)
+					
+					for j in model_names:
+						model = models[j]
+						input_shape = model.layers[0].input_shape[1:3]
+						img = functions.detectFace(employee, input_shape, enforce_detection = enforce_detection)
+						representation = model.predict(img)[0,:]
+						instance.append(representation)
+				
+				#-------------------------------
 				
 				representations.append(instance)
 			
@@ -559,7 +615,12 @@ def find(img_path, db_path
 		
 		#----------------------------
 		#we got representations for database
-		df = pd.DataFrame(representations, columns = ["identity", "representation"])
+		
+		if model_name != 'Ensemble':
+			df = pd.DataFrame(representations, columns = ["identity", "representation"])
+		else: #ensemble learning
+			df = pd.DataFrame(representations, columns = ["identity", "VGG-Face_representation", "Facenet_representation", "OpenFace_representation", "DeepFace_representation"])
+			
 		df_base = df.copy()
 		
 		resp_obj = []
@@ -569,31 +630,106 @@ def find(img_path, db_path
 			img_path = img_paths[j]
 		
 			#find representation for passed image
-			img = functions.detectFace(img_path, input_shape, enforce_detection = enforce_detection)
-			target_representation = model.predict(img)[0,:]
-		
-			distances = []
-			for index, instance in df.iterrows():
-				source_representation = instance["representation"]
+			
+			if model_name == 'Ensemble':
+				for j in model_names:
+					model = models[j]
+					input_shape = model.layers[0].input_shape[1:3]
+					img = functions.detectFace(img_path, input_shape, enforce_detection = enforce_detection)
+					target_representation = model.predict(img)[0,:]
+					
+					for k in metric_names:
+						distances = []
+						for index, instance in df.iterrows():
+							source_representation = instance["%s_representation" % (j)]
+							
+							if k == 'cosine':
+								distance = dst.findCosineDistance(source_representation, target_representation)
+							elif k == 'euclidean':
+								distance = dst.findEuclideanDistance(source_representation, target_representation)
+							elif k == 'euclidean_l2':
+								distance = dst.findEuclideanDistance(dst.l2_normalize(source_representation), dst.l2_normalize(target_representation))
+							
+							distances.append(distance)
+						
+						if j == 'OpenFace' and k == 'euclidean':
+							continue
+						else:
+							df["%s_%s" % (j, k)] = distances
 				
-				if distance_metric == 'cosine':
-					distance = dst.findCosineDistance(source_representation, target_representation)
-				elif distance_metric == 'euclidean':
-					distance = dst.findEuclideanDistance(source_representation, target_representation)
-				elif distance_metric == 'euclidean_l2':
-					distance = dst.findEuclideanDistance(dst.l2_normalize(source_representation), dst.l2_normalize(target_representation))
-				else:
-					raise ValueError("Invalid distance_metric passed - ", distance_metric)
+				#----------------------------------
 				
-				distances.append(distance)
+				feature_names = []
+				for j in model_names:
+					for k in metric_names:
+						if j == 'OpenFace' and k == 'euclidean':
+							continue
+						else:
+							feature = '%s_%s' % (j, k)
+							feature_names.append(feature)
+				
+				#print(df[feature_names].head())
+				
+				x = df[feature_names].values
+				
+				#----------------------------------
+				#lightgbm model
+				deepface_path = DeepFace.__file__
+				deepface_path = deepface_path.replace("\\", "/").replace("/deepface/DeepFace.py", "")
+				ensemble_model_path = deepface_path+"/models/face-recognition-ensemble-model.txt"
+				deepface_ensemble = lgb.Booster(model_file = ensemble_model_path)
+				
+				y = deepface_ensemble.predict(x)
+				
+				verified_labels = []; scores = []
+				for i in y:
+					verified = np.argmax(i) == 1
+					score = i[np.argmax(i)]
+					
+					verified_labels.append(verified)
+					scores.append(score)
+				
+				df['verified'] = verified_labels
+				df['score'] = scores
+				
+				df = df[df.verified == True]
+				df = df[df.score > 0.99] #confidence score
+				df = df.sort_values(by = ["score"], ascending=False).reset_index(drop=True)
+				
+				resp_obj.append(df)
+				df = df_base.copy() #restore df for the next iteration
+				
+				#----------------------------------
+			
+			if model_name != 'Ensemble':
+				input_shape = model.layers[0].input_shape[1:3]
+				img = functions.detectFace(img_path, input_shape, enforce_detection = enforce_detection)
+				target_representation = model.predict(img)[0,:]
 		
-			df["distance"] = distances
-			df = df.drop(columns = ["representation"])
-			df = df[df.distance <= threshold]
-		
-			df = df.sort_values(by = ["distance"], ascending=True).reset_index(drop=True)
-			resp_obj.append(df)
-			df = df_base.copy() #restore df for the next iteration
+				distances = []
+				for index, instance in df.iterrows():
+					source_representation = instance["representation"]
+					
+					if distance_metric == 'cosine':
+						distance = dst.findCosineDistance(source_representation, target_representation)
+					elif distance_metric == 'euclidean':
+						distance = dst.findEuclideanDistance(source_representation, target_representation)
+					elif distance_metric == 'euclidean_l2':
+						distance = dst.findEuclideanDistance(dst.l2_normalize(source_representation), dst.l2_normalize(target_representation))
+					else:
+						raise ValueError("Invalid distance_metric passed - ", distance_metric)
+					
+					distances.append(distance)
+				
+				threshold = functions.findThreshold(model_name, distance_metric)
+				
+				df["distance"] = distances
+				df = df.drop(columns = ["representation"])
+				df = df[df.distance <= threshold]
+			
+				df = df.sort_values(by = ["distance"], ascending=True).reset_index(drop=True)
+				resp_obj.append(df)
+				df = df_base.copy() #restore df for the next iteration
 			
 		toc = time.time()
 		

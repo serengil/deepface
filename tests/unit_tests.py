@@ -5,6 +5,8 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 #-----------------------------------------
 
+#TODO: add find function in unit tests
+
 print("Bulk tests")
 
 print("-----------------------------------------")
