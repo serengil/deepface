@@ -693,7 +693,7 @@ def find(img_path, db_path
 				df['score'] = scores
 				
 				df = df[df.verified == True]
-				df = df[df.score > 0.99] #confidence score
+				#df = df[df.score > 0.99] #confidence score
 				df = df.sort_values(by = ["score"], ascending=False).reset_index(drop=True)
 				df = df[['identity', 'verified', 'score']]
 				
