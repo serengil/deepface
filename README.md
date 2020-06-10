@@ -62,11 +62,9 @@ print(df.head())
 Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) and [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
 
 ```python
-vggface_result = DeepFace.verify("img1.jpg", "img2.jpg") #default is VGG-Face
-#vggface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face") #identical to the line above
-facenet_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Facenet")
-openface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "OpenFace")
-deepface_result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "DeepFace")
+models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace"]
+for model in models:
+	result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
 ```
 
 The complexity and response time of each face recognition model is different so do accuracy scores. Mean ± std. dev. of 7 runs on CPU for each model in my experiments is illustrated in the following table.
@@ -93,9 +91,9 @@ Face recognition models are regular [convolutional neural networks](https://sefi
 Distance could be found by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration finds the **cosine similarity**. You can alternatively set the similarity metric while verification as demostratred below.
 
 ```python
-result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = "cosine")
-result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = "euclidean")
-result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = "euclidean_l2")
+metrics = ["cosine", "euclidean", "euclidean_l2"]
+for metric in metrics:
+	result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = metric)
 ```
 
 **Ensemble learning for face recognition** - Demo
