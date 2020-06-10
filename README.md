@@ -60,7 +60,7 @@ Face recognition can be handled by different models. Currently, [`VGG-Face`](htt
 ```python
 models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace"]
 for model in models:
-	result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
+   result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
 ```
 
 The complexity and response time of each face recognition model is different so do accuracy scores. Mean ± std. dev. of 7 runs on CPU for each model in my experiments is illustrated in the following table.
@@ -89,7 +89,7 @@ Distance could be found by different metrics such as [Cosine Similarity](https:/
 ```python
 metrics = ["cosine", "euclidean", "euclidean_l2"]
 for metric in metrics:
-	result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = metric)
+   result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = metric)
 ```
 
 **Ensemble learning for face recognition** - Demo
