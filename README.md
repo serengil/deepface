@@ -25,7 +25,6 @@ Verification function under the DeepFace interface offers a single face recognit
 ```python
 from deepface import DeepFace
 result = DeepFace.verify("img1.jpg", "img2.jpg")
-
 print("Is verified: ", result["verified"])
 ```
 
@@ -50,10 +49,7 @@ You can apply face recognition on a [large scale](https://sefiks.com/2020/05/25/
 ```python
 from deepface import DeepFace
 import pandas as pd
-
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
-print(df.head())
-
 #dfs = DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db")
 ```
 
@@ -111,10 +107,8 @@ Deepface also offers facial attribute analysis including [`age`](https://sefiks.
 
 ```python
 from deepface import DeepFace
-demography = DeepFace.analyze("img4.jpg") #passing nothing as 2nd argument will find everything
-#demography = DeepFace.analyze("img4.jpg", ['age', 'gender', 'race', 'emotion']) #identical to the line above
+demography = DeepFace.analyze("img4.jpg", actions = ['age', 'gender', 'race', 'emotion'])
 #demographies = DeepFace.analyze(["img1.jpg", "img2.jpg", "img3.jpg"]) #analyzing multiple faces same time
-
 print("Age: ", demography["age"])
 print("Gender: ", demography["gender"])
 print("Emotion: ", demography["dominant_emotion"])
@@ -137,13 +131,11 @@ You can build facial attribute analysis models once and pass these to analyze fu
 ```python
 import json
 from deepface.extendedmodels import Age, Gender, Race, Emotion
-
 models = {}
 models["emotion"] = Emotion.loadModel()
 models["age"] = Age.loadModel()
 models["gender"] = Gender.loadModel()
 models["race"] = Race.loadModel()
-
 DeepFace.analyze("img1.jpg", models=models)
 ```
 
