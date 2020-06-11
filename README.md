@@ -94,7 +94,9 @@ for metric in metrics:
 
 **Ensemble learning for face recognition** - Demo
 
-A face recognition task can be handled by several models and similarity metrics. There is no either absolute better model or metric. However, we can combine the precictions of all of those models and metrics to improve the accuracy of a face recognition task. This is called [ensemble learning](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/). This approach offers a huge improvement on accuracy, precision and recall but it runs much slower than single models. You might consider to apply ensemble learning if the accuracy is a more important KPI than running time in your case. Ensemble learning can be applied for both verification and finding functions in the deepface interface.
+A face recognition task can be handled by several models and similarity metrics. We can [combine](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) the precictions of all of those models and metrics to improve the accuracy of a face recognition task. This offers a huge improvement on accuracy, precision and recall but it runs much slower than single models.
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-4.png" width="95%" height="95%"></p>
 
 ```python
 resp_obj = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Ensemble")
