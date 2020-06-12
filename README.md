@@ -53,6 +53,8 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 #dfs = DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db")
 ```
 
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-5.jpg" width="95%" height="95%"></p>
+
 **Supported face recognition models**
 
 Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) and [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
@@ -96,7 +98,7 @@ for metric in metrics:
 
 A face recognition task can be handled by several models and similarity metrics. We can [combine](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) the precictions of all of those models and metrics to improve the accuracy of a face recognition task. This offers a huge improvement on accuracy, precision and recall but it runs much slower than single models.
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-4.png" width="95%" height="95%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-4.jpg" width="95%" height="95%"></p>
 
 ```python
 resp_obj = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Ensemble")
