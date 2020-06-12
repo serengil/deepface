@@ -53,7 +53,7 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 #dfs = DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db")
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-5.jpg" width="95%" height="95%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6.jpg" width="95%" height="95%"></p>
 
 **Supported face recognition models**
 
