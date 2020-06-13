@@ -210,10 +210,11 @@ Please cite deepface in your publications if it helps your research. Here is an 
 
 ```
 @misc{serengil2020deepface,
-  title={deepface},
+  abstract = {Lightweight Facial Analysis Framework for Python Including Face Recognition and Facial Attributes (Age, Gender, Emotion and Race)},
   author={Serengil, Sefik Ilkin},
-  year={2020},
-  howpublished={\url{https://github.com/serengil/deepface}},
+  title={deepface},
+  url = {https://github.com/serengil/deepface},
+  year={2020}
 }
 ```
 
