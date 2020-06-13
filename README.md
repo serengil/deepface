@@ -94,7 +94,7 @@ for metric in metrics:
    result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = metric)
 ```
 
-**Ensemble learning for face recognition** - Demo
+**Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
 
 A face recognition task can be handled by several models and similarity metrics. We can [combine](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) the precictions of all of those models and metrics to improve the accuracy of a face recognition task. This offers a huge improvement on accuracy, precision and recall but it runs much slower than single models.
 
