@@ -123,7 +123,9 @@ def verify(img1_path, img2_path=''
 				#-------------------------------
 				#find deepface path
 				deepface_path = DeepFace.__file__
-				deepface_path = deepface_path.replace("\\", "/").replace("/deepface/DeepFace.py", "")
+				#deepface_path = deepface_path.replace("\\", "/").replace("/deepface/DeepFace.py", "")
+				deepface_path = deepface_path.replace("\\", "/").replace("/DeepFace.py", "")
+				
 				ensemble_model_path = deepface_path+"/models/face-recognition-ensemble-model.txt"
 				#print(ensemble_model_path)
 				
@@ -675,7 +677,8 @@ def find(img_path, db_path
 				#----------------------------------
 				#lightgbm model
 				deepface_path = DeepFace.__file__
-				deepface_path = deepface_path.replace("\\", "/").replace("/deepface/DeepFace.py", "")
+				#deepface_path = deepface_path.replace("\\", "/").replace("/deepface/DeepFace.py", "")
+				deepface_path = deepface_path.replace("\\", "/").replace("/DeepFace.py", "")
 				ensemble_model_path = deepface_path+"/models/face-recognition-ensemble-model.txt"
 				deepface_ensemble = lgb.Booster(model_file = ensemble_model_path)
 				
