@@ -15,7 +15,7 @@ import tensorflow as tf
 import pickle
 
 from deepface import DeepFace
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -195,6 +195,10 @@ def verify(img1_path, img2_path=''
 		elif model_name == 'DeepFace':
 			print("Using FB DeepFace model backend", distance_metric,"distance.")
 			model = FbDeepFace.loadModel()
+		
+		if model_name == 'DeepID':
+			print("Using DeepID2 model backend", distance_metric,"distance.")
+			model = DeepID.loadModel()
 
 		else:
 			raise ValueError("Invalid model_name passed - ", model_name)
@@ -204,6 +208,9 @@ def verify(img1_path, img2_path=''
 	#------------------------------
 	#face recognition models have different size of inputs
 	input_shape = model.layers[0].input_shape[1:3]
+	
+	input_shape_x = input_shape[0]
+	input_shape_y = input_shape[1]
 
 	#------------------------------
 
@@ -225,8 +232,8 @@ def verify(img1_path, img2_path=''
 			#----------------------
 			#crop and align faces
 
-			img1 = functions.detectFace(img1_path, input_shape, enforce_detection = enforce_detection)
-			img2 = functions.detectFace(img2_path, input_shape, enforce_detection = enforce_detection)
+			img1 = functions.detectFace(img1_path, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
+			img2 = functions.detectFace(img2_path, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
 
 			#----------------------
 			#find embeddings
@@ -499,9 +506,13 @@ def find(img_path, db_path
 			elif model_name == 'DeepFace':
 				print("Using FB DeepFace model backend", distance_metric,"distance.")
 				model = FbDeepFace.loadModel()
+			elif model_name == 'DeepID':
+				print("Using DeepID model backend", distance_metric,"distance.")
+				model = DeepID.loadModel()
 			elif model_name == 'Ensemble':
 				
 				print("Ensemble learning enabled")
+				#TODO: include DeepID in ensemble method
 				
 				import lightgbm as lgb #lightgbm==2.3.1
 				
@@ -585,7 +596,9 @@ def find(img_path, db_path
 				if model_name != 'Ensemble':
 				
 					input_shape = model.layers[0].input_shape[1:3]
-					img = functions.detectFace(employee, input_shape, enforce_detection = enforce_detection)
+					input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
+					
+					img = functions.detectFace(employee, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
 					representation = model.predict(img)[0,:]
 					
 					instance = []
@@ -600,7 +613,9 @@ def find(img_path, db_path
 					for j in model_names:
 						model = models[j]
 						input_shape = model.layers[0].input_shape[1:3]
-						img = functions.detectFace(employee, input_shape, enforce_detection = enforce_detection)
+						input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
+						
+						img = functions.detectFace(employee, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
 						representation = model.predict(img)[0,:]
 						instance.append(representation)
 				
@@ -705,7 +720,9 @@ def find(img_path, db_path
 			
 			if model_name != 'Ensemble':
 				input_shape = model.layers[0].input_shape[1:3]
-				img = functions.detectFace(img_path, input_shape, enforce_detection = enforce_detection)
+				input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
+				
+				img = functions.detectFace(img_path, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
 				target_representation = model.predict(img)[0,:]
 		
 				distances = []

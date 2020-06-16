@@ -105,7 +105,8 @@ dataset = [
 	['dataset/img6.jpg', 'dataset/img9.jpg', False],
 ]
 
-models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
+models = ['DeepID']
+#models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace', 'DeepID']
 metrics = ['cosine', 'euclidean', 'euclidean_l2']
 
 passed_tests = 0; test_cases = 0
@@ -178,3 +179,4 @@ facial_attribute_models["gender"] = gender_model
 facial_attribute_models["race"] = race_model
 
 resp_obj = DeepFace.analyze("dataset/img1.jpg", models=facial_attribute_models)
+
