@@ -57,10 +57,10 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 
 **Supported face recognition models**
 
-Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/) and [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
+Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) and [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
 
 ```python
-models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace"]
+models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "DeepID"]
 for model in models:
    result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
 ```
@@ -77,7 +77,7 @@ The complexity and response time of each face recognition model is different so 
 You can build a face recognition model once and pass this to verify function as well. This might be logical if you need to call verify function several times.
 
 ```python
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
 model = VGGFace.loadModel() #all face recognition models have loadModel() function in their interfaces
 DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", model = model)
 ```
