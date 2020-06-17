@@ -102,7 +102,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 		employee = employees[index]
 		pbar.set_description("Finding embedding for %s" % (employee.split("/")[-1]))
 		embedding = []
-		img = functions.detectFace(employee, input_shape)
+		img = functions.detectFace(employee, (input_shape_y, input_shape_x))
 		img_representation = model.predict(img)[0,:]
 		
 		embedding.append(employee)
@@ -375,6 +375,9 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 								employee_name = candidate['employee']
 								best_distance = candidate['distance']
 								
+								#print(candidate[['employee', 'distance']])
+								
+								#if True:
 								if best_distance <= threshold:
 									#print(employee_name)
 									display_img = cv2.imread(employee_name)
