@@ -57,7 +57,7 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 
 **Supported face recognition models**
 
-Face recognition can be handled by different models. Currently, [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) and [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/) models are supported in deepface. The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
+deepface currently wraps the state-of-the-art face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) and [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
 
 ```python
 models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "DeepID"]
