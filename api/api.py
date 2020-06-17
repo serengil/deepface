@@ -9,7 +9,7 @@ from tqdm import tqdm
 import tensorflow as tf
 
 from deepface import DeepFace
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 
 #import DeepFace
@@ -26,7 +26,7 @@ tic = time.time()
 
 print("Loading Face Recognition Models...")
 
-pbar = tqdm(range(0,4), desc='Loading Face Recognition Models...')
+pbar = tqdm(range(0,5), desc='Loading Face Recognition Models...')
 
 for index in pbar:
 	if index == 0:
@@ -41,6 +41,9 @@ for index in pbar:
 	elif index == 3:
 		pbar.set_description("Loading Facebook DeepFace")
 		deepface_model = FbDeepFace.loadModel()
+	elif index == 4:
+		pbar.set_description("Loading DeepID DeepFace")
+		deepid_model = DeepID.loadModel()
 
 toc = time.time()
 
@@ -195,6 +198,8 @@ def verify():
 			resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = openface_model)
 		elif model_name == "DeepFace":
 			resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = deepface_model)
+		elif model_name == "DeepID":
+			resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = deepid_model)
 		elif model_name == "Ensemble":
 			models =  {}
 			models["VGG-Face"] = vggface_model

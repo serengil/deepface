@@ -9,11 +9,7 @@ import re
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-#from basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
-#from extendedmodels import Age, Gender, Race, Emotion
-#from commons import functions, realtime, distance as dst
-
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -57,9 +53,17 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 			model = FbDeepFace.loadModel()
 			input_shape = (152, 152)
 		
+		elif model_name == 'DeepID':
+			print("Using DeepID model backend", distance_metric,"distance.")
+			model = DeepID.loadModel()
+			input_shape = (55, 47)
+		
 		else:
 			raise ValueError("Invalid model_name passed - ", model_name)
 		#------------------------
+		
+		input_shape_x = input_shape[0]
+		input_shape_y = input_shape[1]
 		
 		#tuned thresholds for model and metric pair
 		threshold = functions.findThreshold(model_name, distance_metric)
@@ -341,7 +345,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 						#-------------------------------
 						#face recognition
 						
-						custom_face = functions.detectFace(custom_face, input_shape)
+						custom_face = functions.detectFace(custom_face, (input_shape_y, input_shape_x))
 						
 						#check detectFace function handled
 						if custom_face.shape[1:3] == input_shape:
