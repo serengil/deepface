@@ -207,10 +207,7 @@ def verify(img1_path, img2_path=''
 
 	#------------------------------
 	#face recognition models have different size of inputs
-	input_shape = model.layers[0].input_shape
-
-	if type(input_shape) is list:
-		input_shape = input_shape[0][1:3]
+	input_shape = model.layers[0].input_shape[1:3]
   
 	input_shape_x = input_shape[0]
 	input_shape_y = input_shape[1]
