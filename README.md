@@ -65,13 +65,6 @@ for model in models:
    result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
 ```
 
-The complexity and response time of each face recognition model is different so do accuracy scores. Mean ± std. dev. of 7 runs on CPU for each model in my experiments is illustrated in the following table.
-
-| Model        | VGG-Face         | OpenFace         | Google FaceNet   | Facebook DeepFace |
-| ---          | ---              | ---              | ---              | ---               |
-| Building     | 2.35 s ± 46.9 ms | 6.37 s ± 1.28 s  | 25.7 s ± 7.93 s  | 23.9 s ± 2.52 s   |
-| Verification | 897 ms ± 38.3 ms | 616 ms ± 12.1 ms | 684 ms ± 7.69 ms | 605 ms ± 13.2 ms  |
-
 **Passing pre-built face recognition models**
 
 You can build a face recognition model once and pass this to verify function as well. This might be logical if you need to call verify function several times.
@@ -120,13 +113,6 @@ print("Race: ", demography["dominant_race"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
-
-Model building and prediction times are different for those facial analysis models. Mean ± std. dev. of 7 runs on CPU for each model in my experiments is illustrated in the following table.
-
-| Model      | Emotion          | Age              | Gender           | Race             |
-| ---        | ---              | ---              | ---              | ---              |
-| Building   | 243 ms ± 15.2 ms | 2.25 s ± 34.9    | 2.25 s ± 90.9 ms | 2.23 s ± 68.6 ms |
-| Prediction | 389 ms ± 11.4 ms | 524 ms ± 16.1 ms | 516 ms ± 10.8 ms | 493 ms ± 20.3 ms |
 
 **Passing pre-built facial analysis models**
 
