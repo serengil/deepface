@@ -65,16 +65,6 @@ for model in models:
    result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
 ```
 
-**Passing pre-built face recognition models**
-
-You can build a face recognition model once and pass this to verify function as well. This might be logical if you need to call verify function several times.
-
-```python
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
-model = VGGFace.loadModel() #all face recognition models have loadModel() function in their interfaces
-DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", model = model)
-```
-
 **Similarity**
 
 Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent face photos as vectors. Decision of verification is based on the distance between vectors. We can classify pairs if its distance is less than a [threshold](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). 
@@ -114,21 +104,6 @@ print("Race: ", demography["dominant_race"])
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
 
-**Passing pre-built facial analysis models**
-
-You can build facial attribute analysis models once and pass these to analyze function as well. This might be logical if you need to call analyze function several times.
-
-```python
-import json
-from deepface.extendedmodels import Age, Gender, Race, Emotion
-models = {}
-models["emotion"] = Emotion.loadModel()
-models["age"] = Age.loadModel()
-models["gender"] = Gender.loadModel()
-models["race"] = Race.loadModel()
-DeepFace.analyze("img1.jpg", models=models)
-```
-
 **Streaming and Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
 
 You can run deepface for real time videos as well. 
@@ -137,7 +112,7 @@ Calling stream function under the DeepFace interface will access your webcam and
 
 ```python
 from deepface import DeepFace
-DeepFace.stream("/user/database")
+DeepFace.stream("C:/User/Sefik/Desktop/database")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-3.jpg" width="90%" height="90%"></p>
@@ -154,25 +129,42 @@ user
 │   │   ├── Bob.jpg
 ```
 
-BTW, you should use regular slash ( / ) instead of backslash ( \ ) in Windows OS while passing the path to stream function. E.g. `DeepFace.stream("C:/User/Sefik/Desktop/database")`.
-
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
-Deepface serves an API as well. 
-
-You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
+Deepface serves an API as well. You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
 
 ```
 python api.py
 ```
 
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
+
 The both face recognition and facial attribute analysis are covered in the API. You are expected to call these functions as http post methods. Service endpoints will be `http://127.0.0.1:5000/verify` for face recognition and `http://127.0.0.1:5000/analyze` for facial attribute analysis. You should pass input images as base64 encoded string in this case. [Here](https://github.com/serengil/deepface/tree/master/api), you can find a postman project.
+
+**Passing pre-built face recognition models**
+
+You can build models once and pass to deepface functions as well. This speeds you up if you are going to call deepface several times.
+
+```python
+#face recognition
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
+model = VGGFace.loadModel() #all face recognition models have loadModel() function in their interfaces
+DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", model = model)
+
+#facial analysis
+import json
+from deepface.extendedmodels import Age, Gender, Race, Emotion
+models = {}
+models["emotion"] = Emotion.loadModel()
+models["age"] = Age.loadModel()
+models["gender"] = Gender.loadModel()
+models["race"] = Race.loadModel()
+DeepFace.analyze("img1.jpg", models=models)
+```
 
 ## E-Learning
 
-Deepface is mentioned in this [playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E) as video lectures. Subscribe the channel to stay up-to-date and be informed when a new lecture is added, 
+Deepface package for python is mentioned in this [playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E) as video lectures. Subscribe the channel to stay up-to-date and be informed when a new lecture is added, 
 
 ## Disclaimer
 
