@@ -24,23 +24,16 @@ Verification function under the DeepFace interface offers a single face recognit
 
 ```python
 from deepface import DeepFace
-result = DeepFace.verify("img1.jpg", "img2.jpg")
+result  = DeepFace.verify("img1.jpg", "img2.jpg")
 print("Is verified: ", result["verified"])
+
+results = DeepFace.verify([['img1.jpg', 'img2.jpg'], ['img1.jpg', 'img3.jpg']])
+print(results)
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-1.jpg" width="95%" height="95%"></p>
 
-Each call of verification function builds a face recognition model from scratch and this is a costly operation. If you are going to verify multiple faces sequentially, then you should pass an array of faces to verification function to speed the operation up. In this way, complex face recognition models will be built once.
-
-```python
-dataset = [
-	['dataset/img1.jpg', 'dataset/img2.jpg'],
-	['dataset/img1.jpg', 'dataset/img3.jpg']
-]
-resp_obj = DeepFace.verify(dataset)
-```
-
-Items of resp_obj might be unsorted when you pass multiple instances to verify function. Please check the item indexes in the response object.
+Each call of the function builds a face recognition model and this is very costly. If you are going to verify several faces sequentially, then you should pass an array of faces to the function instead of calling the function in a for loop. In this way, complex face recognition models will be built once and this will speed the function up dramatically. Besides, calling the function in a for loop might cause memory problems as well.
 
 **Large scale face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
@@ -50,14 +43,14 @@ You can apply face recognition on a [large scale](https://sefiks.com/2020/05/25/
 from deepface import DeepFace
 import pandas as pd
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
-#dfs = DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db")
+#dfs = DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db") #returns list of pandas data frames
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6.jpg" width="95%" height="95%"></p>
 
 **Supported face recognition models**
 
-deepface currently wraps the state-of-the-art face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) and [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
+deepface currently wraps the **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) and [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
 
 ```python
 models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "DeepID"]
