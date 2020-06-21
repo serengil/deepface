@@ -65,7 +65,7 @@ Distance could be found by different metrics such as [Cosine Similarity](https:/
 ```python
 metrics = ["cosine", "euclidean", "euclidean_l2"]
 for metric in metrics:
-   result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "VGG-Face", distance_metric = metric)
+   result = DeepFace.verify("img1.jpg", "img2.jpg", distance_metric = metric)
 ```
 
 **Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
