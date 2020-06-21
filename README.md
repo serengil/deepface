@@ -41,7 +41,7 @@ You can apply face recognition on a [large scale](https://sefiks.com/2020/05/25/
 from deepface import DeepFace
 import pandas as pd
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
-#dfs = DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db") #returns list of pandas data frames
+#dfs = DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6.jpg" width="95%" height="95%"></p>
