@@ -20,7 +20,7 @@ A modern [face recognition pipeline](https://sefiks.com/2020/05/01/a-gentle-intr
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
-Verification function under the DeepFace interface offers a single face recognition.
+Verification function under the DeepFace interface offers a single face recognition. Each call of the function builds a face recognition model and this is very costly. If you are going to verify several faces sequentially, then you should pass an array of faces to the function instead of calling the function in a for loop. In this way, complex face recognition models will be built once and this will speed the function up dramatically. Besides, calling the function in a for loop might cause memory problems as well.
 
 ```python
 from deepface import DeepFace
@@ -32,8 +32,6 @@ print(results)
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-1.jpg" width="95%" height="95%"></p>
-
-Each call of the function builds a face recognition model and this is very costly. If you are going to verify several faces sequentially, then you should pass an array of faces to the function instead of calling the function in a for loop. In this way, complex face recognition models will be built once and this will speed the function up dramatically. Besides, calling the function in a for loop might cause memory problems as well.
 
 **Large scale face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
