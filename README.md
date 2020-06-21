@@ -8,7 +8,7 @@
 
 ## Installation
 
-The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/).
+The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). This will install dependencies as well.
 
 ```python
 pip install deepface
