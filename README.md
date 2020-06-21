@@ -70,7 +70,7 @@ for metric in metrics:
 
 **Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
 
-A face recognition task can be handled by several models and similarity metrics. We can [combine](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) the precictions of all of those models and metrics to improve the accuracy of a face recognition task. This offers a huge improvement on accuracy, precision and recall but it runs much slower than single models.
+A face recognition task can be handled by several models and similarity metrics. Herein, deepface offers a [special boosting and combination solution](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) to improve the accuracy of a face recognition task. This provides a huge improvement on accuracy metrics but it runs much slower than single models.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-4.jpg" width="95%" height="95%"></p>
 
