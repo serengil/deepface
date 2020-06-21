@@ -25,10 +25,8 @@ Verification function under the DeepFace interface offers a single face recognit
 ```python
 from deepface import DeepFace
 result  = DeepFace.verify("img1.jpg", "img2.jpg")
+#results = DeepFace.verify([['img1.jpg', 'img2.jpg'], ['img1.jpg', 'img3.jpg']])
 print("Is verified: ", result["verified"])
-
-results = DeepFace.verify([['img1.jpg', 'img2.jpg'], ['img1.jpg', 'img3.jpg']])
-print(results)
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-1.jpg" width="95%" height="95%"></p>
