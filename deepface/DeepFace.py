@@ -4,6 +4,8 @@ warnings.filterwarnings("ignore")
 import time
 import os
 from os import path
+from pathlib import Path
+import gdown
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -131,11 +133,20 @@ def verify(img1_path, img2_path=''
 				
 				#-------------------------------
 				#find deepface path
-				deepface_path = DeepFace.__file__
-				deepface_path = deepface_path.replace("\\", "/").replace("/DeepFace.py", "")
 				
-				ensemble_model_path = deepface_path+"/models/face-recognition-ensemble-model.txt"
+				home = str(Path.home())
+				
+				if os.path.isfile(home+'/.deepface/weights/face-recognition-ensemble-model.txt') != True:
+					print("face-recognition-ensemble-model.txt will be downloaded...")
+					url = 'https://raw.githubusercontent.com/serengil/deepface/master/deepface/models/face-recognition-ensemble-model.txt'
+					output = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
+					gdown.download(url, output, quiet=False)
+					
+				ensemble_model_path = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
+				
 				#print(ensemble_model_path)
+				
+				#-------------------------------
 				
 				deepface_ensemble = lgb.Booster(model_file = ensemble_model_path)
 				
@@ -732,9 +743,16 @@ def find(img_path, db_path
 				
 				#----------------------------------
 				#lightgbm model
-				deepface_path = DeepFace.__file__
-				deepface_path = deepface_path.replace("\\", "/").replace("/DeepFace.py", "")
-				ensemble_model_path = deepface_path+"/models/face-recognition-ensemble-model.txt"
+				home = str(Path.home())
+				
+				if os.path.isfile(home+'/.deepface/weights/face-recognition-ensemble-model.txt') != True:
+					print("face-recognition-ensemble-model.txt will be downloaded...")
+					url = 'https://raw.githubusercontent.com/serengil/deepface/master/deepface/models/face-recognition-ensemble-model.txt'
+					output = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
+					gdown.download(url, output, quiet=False)
+					
+				ensemble_model_path = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
+				
 				deepface_ensemble = lgb.Booster(model_file = ensemble_model_path)
 				
 				y = deepface_ensemble.predict(x)
