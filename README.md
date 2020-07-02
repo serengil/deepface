@@ -153,7 +153,11 @@ DeepFace.analyze("img1.jpg", models=models)
 
 ## E-Learning
 
-Deepface package for python is mentioned in this [playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E) as video lectures. Subscribe the channel to stay up-to-date and be informed when a new lecture is added, 
+Deepface package for python is mentioned in this [playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E) as video lectures. Subscribe the channel to stay up-to-date and be informed when a new lecture is added.
+
+## Translations
+
+You can also read a translated version of deepface tutorials in [Chinese (深臉)](https://zhuanlan.zhihu.com/p/151403935).
 
 ## Disclaimer
 
