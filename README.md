@@ -157,7 +157,7 @@ Deepface package for python is mentioned in this [playlist](https://www.youtube.
 
 ## Translations
 
-You can also read a translated version of deepface tutorials in [Chinese (深臉)](https://zhuanlan.zhihu.com/p/151403935).
+You can also read a translated version of deepface tutorials in [Chinese (深臉)](https://zhuanlan.zhihu.com/p/151403935) or [Turkish](https://bilisim.io/2020/03/26/deepface-python-icin-yuz-tanima-ve-demografi-analizi-iskeleti/).
 
 ## Disclaimer
 
