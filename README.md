@@ -16,7 +16,7 @@ pip install deepface
 
 ## Face Recognition 
 
-A modern [face recognition pipeline](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 4 common stages: [detect](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). **DeepFace** handles all these common stages in the background.
+A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 4 common stages: [detect](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). **DeepFace** handles all these common stages in the background.
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
@@ -44,15 +44,17 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%" height="95%"></p>
 
-**Supported face recognition models**
+**Face recognition models**
 
-Deepface is a hybrid face recognition package. It currently wraps the **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) and [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below. Accuracy and speed show difference based on the performing model.
+Deepface is a hybrid face recognition package. It currently wraps the **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) and [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below.
 
 ```python
 models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "DeepID"]
 for model in models:
    result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
 ```
+
+FaceNet and VGG-Face [overperforms](https://youtu.be/i_MOwvhbLdI) than OpenFace, DeepFace and DeepID based on experiments.
 
 **Similarity**
 
@@ -65,6 +67,8 @@ metrics = ["cosine", "euclidean", "euclidean_l2"]
 for metric in metrics:
    result = DeepFace.verify("img1.jpg", "img2.jpg", distance_metric = metric)
 ```
+
+Euclidean L2 form [overperforms](https://youtu.be/i_MOwvhbLdI) than cosine and regular Euclidean distance based on experiments.
 
 **Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
 
@@ -153,7 +157,7 @@ DeepFace.analyze("img1.jpg", models=models)
 
 ## E-Learning
 
-Deepface package for python is mentioned in this [playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E) as video lectures. Subscribe the channel to stay up-to-date and be informed when a new lecture is added.
+Deepface package for python is mentioned in this [playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E) as video lectures. **Subscribe** the channel to stay up-to-date and be informed when a new lecture is added.
 
 ## Translations
 
