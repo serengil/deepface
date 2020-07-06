@@ -68,7 +68,7 @@ for metric in metrics:
    result = DeepFace.verify("img1.jpg", "img2.jpg", distance_metric = metric)
 ```
 
-Euclidean L2 form [overperforms](https://youtu.be/i_MOwvhbLdI) than cosine and regular Euclidean distance based on experiments.
+Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than cosine and regular Euclidean distance based on experiments.
 
 **Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
 
