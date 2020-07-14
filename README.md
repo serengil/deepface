@@ -175,10 +175,6 @@ On the other hand, [VGG-Face](http://www.robots.ox.ac.uk/~vgg/software/vgg_face/
 
 There are many ways to support a project - starring⭐️ the GitHub repos is just one.
 
-You can also support this project through Patreon.
-
-<a href="https://www.patreon.com/bePatron?u=31795557"><img src="https://c5.patreon.com/external/logo/become_a_patron_button.png"></img></a>
-
 ## Citation
 
 Please cite deepface in your publications if it helps your research. Here is an example BibTeX entry:
