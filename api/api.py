@@ -10,6 +10,7 @@ import tensorflow as tf
 
 from deepface import DeepFace
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
+from deepface.basemodels.DlibResNet import DlibResNet
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 
 #import DeepFace
@@ -26,7 +27,7 @@ tic = time.time()
 
 print("Loading Face Recognition Models...")
 
-pbar = tqdm(range(0,5), desc='Loading Face Recognition Models...')
+pbar = tqdm(range(0,6), desc='Loading Face Recognition Models...')
 
 for index in pbar:
 	if index == 0:
@@ -44,6 +45,9 @@ for index in pbar:
 	elif index == 4:
 		pbar.set_description("Loading DeepID DeepFace")
 		deepid_model = DeepID.loadModel()
+	elif index == 5:
+		pbar.set_description("Loading Dlib ResNet DeepFace")
+		dlib_model = DlibResNet()
 
 toc = time.time()
 
@@ -200,6 +204,8 @@ def verify():
 			resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = deepface_model)
 		elif model_name == "DeepID":
 			resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = deepid_model)
+		elif model_name == "Dlib":
+			resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = dlib_model)
 		elif model_name == "Ensemble":
 			models =  {}
 			models["VGG-Face"] = vggface_model

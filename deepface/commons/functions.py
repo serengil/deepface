@@ -137,6 +137,14 @@ def findThreshold(model_name, distance_metric):
 		elif distance_metric == 'euclidean_l2':
 			threshold = 0.17
 	
+	elif model_name == 'Dlib':
+		if distance_metric == 'cosine':
+			threshold = 0.07
+		elif distance_metric == 'euclidean':
+			threshold = 0.60
+		elif distance_metric == 'euclidean_l2':
+			threshold = 0.60
+	
 	return threshold
 
 def get_opencv_path():

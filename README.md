@@ -46,10 +46,10 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 
 **Face recognition models**
 
-Deepface is a hybrid face recognition package. It currently wraps the **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/) and [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below.
+Deepface is a hybrid face recognition package. It currently wraps the **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/), [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/) and [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below.
 
 ```python
-models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "DeepID"]
+models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "DeepID", "Dlib"]
 for model in models:
    result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
 ```

@@ -11,7 +11,9 @@ print("-----------------------------------------")
 
 print("Large scale face recognition")
 
-df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset")
+df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset"
+	#, model_name = 'Dlib'
+)
 print(df.head())
 
 print("-----------------------------------------")
@@ -105,7 +107,7 @@ dataset = [
 	['dataset/img6.jpg', 'dataset/img9.jpg', False],
 ]
 
-models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace', 'DeepID']
+models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace', 'DeepID', 'Dlib']
 metrics = ['cosine', 'euclidean', 'euclidean_l2']
 
 passed_tests = 0; test_cases = 0
@@ -134,7 +136,7 @@ for model in models:
 			
 			test_cases = test_cases + 1
 			
-			print(img1, " and ", img2," are ", classified_label, " as same person based on ", model," model and ",metric," distance metric. Distance: ",distance,", Required Threshold: ", required_threshold," (",test_result_label,")")
+			print(img1.split("/")[-1], "and", img2.split("/")[-1],"are", classified_label, "as same person based on", model,"model and",metric,"distance. Distance:",distance,", Threshold:", required_threshold,"(",test_result_label,")")
 		
 		print("--------------------------")
 
@@ -178,4 +180,3 @@ facial_attribute_models["gender"] = gender_model
 facial_attribute_models["race"] = race_model
 
 resp_obj = DeepFace.analyze("dataset/img1.jpg", models=facial_attribute_models)
-

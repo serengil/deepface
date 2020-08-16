@@ -10,6 +10,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
+from deepface.basemodels.DlibResNet import DlibResNet
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -57,6 +58,11 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 			print("Using DeepID model backend", distance_metric,"distance.")
 			model = DeepID.loadModel()
 			input_shape = (55, 47)
+		
+		elif model_name == 'Dlib':
+			print("Using Dlib model backend", distance_metric,"distance.")
+			model = DlibResNet()
+			input_shape = (150, 150)
 		
 		else:
 			raise ValueError("Invalid model_name passed - ", model_name)

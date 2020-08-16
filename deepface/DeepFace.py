@@ -18,6 +18,7 @@ import pickle
 
 from deepface import DeepFace
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
+from deepface.basemodels.DlibResNet import DlibResNet
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -219,6 +220,10 @@ def verify(img1_path, img2_path=''
 		elif model_name == 'DeepID':
 			print("Using DeepID2 model backend", distance_metric,"distance.")
 			model = DeepID.loadModel()
+		
+		elif model_name == 'Dlib':
+			print("Using Dlib ResNet model backend", distance_metric,"distance.")
+			model = DlibResNet()
 
 		else:
 			raise ValueError("Invalid model_name passed - ", model_name)
@@ -227,15 +232,19 @@ def verify(img1_path, img2_path=''
 
 	#------------------------------
 	#face recognition models have different size of inputs
-	#input_shape = model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
+	#my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
+		
+	if model_name == 'Dlib': #this is not a regular keras model
+		input_shape = (150, 150, 3)
 	
-	input_shape = model.layers[0].input_shape
-	
-	if type(input_shape) == list:
-		input_shape = input_shape[0][1:3]
-	else:
-		input_shape = input_shape[1:3]
-  
+	else: #keras based models
+		input_shape = model.layers[0].input_shape
+		
+		if type(input_shape) == list:
+			input_shape = input_shape[0][1:3]
+		else:
+			input_shape = input_shape[1:3]
+	  
 	input_shape_x = input_shape[0]
 	input_shape_y = input_shape[1]
 
@@ -536,8 +545,10 @@ def find(img_path, db_path
 			elif model_name == 'DeepID':
 				print("Using DeepID model backend", distance_metric,"distance.")
 				model = DeepID.loadModel()
+			elif model_name == 'Dlib':
+				print("Using Dlib ResNet model backend", distance_metric,"distance.")
+				model = DlibResNet()
 			elif model_name == 'Ensemble':
-				
 				print("Ensemble learning enabled")
 				#TODO: include DeepID in ensemble method
 				
@@ -622,15 +633,20 @@ def find(img_path, db_path
 				
 				if model_name != 'Ensemble':
 				
-					#input_shape = model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
-	
-					input_shape = model.layers[0].input_shape
-					
-					if type(input_shape) == list:
-						input_shape = input_shape[0][1:3]
+					if model_name == 'Dlib': #non-keras model
+						input_shape = (150, 150, 3)
 					else:
-						input_shape = input_shape[1:3]
-
+						#input_shape = model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
+						
+						input_shape = model.layers[0].input_shape
+						
+						if type(input_shape) == list:
+							input_shape = input_shape[0][1:3]
+						else:
+							input_shape = input_shape[1:3]
+					
+					#---------------------
+					
 					input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 					
 					img = functions.detectFace(employee, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
@@ -779,15 +795,20 @@ def find(img_path, db_path
 				#----------------------------------
 			
 			if model_name != 'Ensemble':
-			
-				#input_shape = model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
-	
-				input_shape = model.layers[0].input_shape
 				
-				if type(input_shape) == list:
-					input_shape = input_shape[0][1:3]
+				if model_name == 'Dlib': #non-keras model
+					input_shape = (150, 150, 3)
 				else:
-					input_shape = input_shape[1:3]
+					#input_shape = model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
+					
+					input_shape = model.layers[0].input_shape
+					
+					if type(input_shape) == list:
+						input_shape = input_shape[0][1:3]
+					else:
+						input_shape = input_shape[1:3]
+				
+				#------------------------
 				
 				input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 				
