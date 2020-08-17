@@ -167,7 +167,7 @@ You can also read a translated version of deepface tutorials in [Chinese (深臉
 
 Reference face recognition models have different type of licenses. This framework is just a wrapper for those models. That's why, licence types are inherited as well. You should check the licenses for the face recognition models before use.
 
-Herein, [OpenFace](https://github.com/cmusatyalab/openface/blob/master/LICENSE) is licensed under Apache License 2.0. [FB DeepFace](https://github.com/swghosh/DeepFace) and [Facenet](https://github.com/davidsandberg/facenet/blob/master/LICENSE.md) is licensed under MIT License. [Dlib](https://github.com/davisking/dlib/blob/master/dlib/LICENSE.txt) is licensed under Boost Software License. They all allow you to use for commercial purpose. 
+Herein, [OpenFace](https://github.com/cmusatyalab/openface/blob/master/LICENSE) is licensed under Apache License 2.0. [FB DeepFace](https://github.com/swghosh/DeepFace) and [Facenet](https://github.com/davidsandberg/facenet/blob/master/LICENSE.md) is licensed under MIT License. [Dlib](https://github.com/davisking/dlib/blob/master/dlib/LICENSE.txt) is licensed under Boost Software License. They all allow you to use for personal and commercial purpose free. 
 
 On the other hand, [VGG-Face](http://www.robots.ox.ac.uk/~vgg/software/vgg_face/) is licensed under Creative Commons Attribution License. That's why, it is restricted to adopt VGG-Face for commercial use.
 
