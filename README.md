@@ -54,7 +54,7 @@ for model in models:
    result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
 ```
 
-FaceNet and VGG-Face [overperforms](https://youtu.be/i_MOwvhbLdI) than OpenFace, DeepFace and DeepID based on experiments.
+FaceNet, VGG-Face and Dlib [overperforms](https://youtu.be/i_MOwvhbLdI) than OpenFace, DeepFace and DeepID based on experiments.
 
 **Similarity**
 
