@@ -1,6 +1,7 @@
 # deepface
 
 [![Downloads](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-icon-labeled.png" width="200" height="240"></p>
 
