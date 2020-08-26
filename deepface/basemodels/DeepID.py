@@ -8,7 +8,7 @@ import zipfile
 
 #-------------------------------------
 
-def loadModel():
+def loadModel(url = 'https://drive.google.com/uc?id=1uRLtBCTQQAvHJ_KVrdbRJiCKxU8m5q2J'):
 	
 	myInput = Input(shape=(55, 47, 3))
 	
@@ -43,7 +43,6 @@ def loadModel():
 	if os.path.isfile(home+'/.deepface/weights/deepid_keras_weights.h5') != True:
 		print("deepid_keras_weights.h5 will be downloaded...")
 		
-		url = 'https://drive.google.com/uc?id=1uRLtBCTQQAvHJ_KVrdbRJiCKxU8m5q2J'
 		output = home+'/.deepface/weights/deepid_keras_weights.h5'
 		gdown.download(url, output, quiet=False)
 		
