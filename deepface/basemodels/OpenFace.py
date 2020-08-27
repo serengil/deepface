@@ -15,7 +15,7 @@ from keras import backend as K
 
 #---------------------------------------
 
-def loadModel():
+def loadModel(url = 'https://drive.google.com/uc?id=1LSe1YCV1x-BfNnfb7DFZTNpv_Q9jITxn'):
 	myInput = Input(shape=(96, 96, 3))
 
 	x = ZeroPadding2D(padding=(3, 3), input_shape=(96, 96, 3))(myInput)
@@ -237,7 +237,6 @@ def loadModel():
 	if os.path.isfile(home+'/.deepface/weights/openface_weights.h5') != True:
 		print("openface_weights.h5 will be downloaded...")
 		
-		url = 'https://drive.google.com/uc?id=1LSe1YCV1x-BfNnfb7DFZTNpv_Q9jITxn'
 		output = home+'/.deepface/weights/openface_weights.h5'
 		gdown.download(url, output, quiet=False)
 	

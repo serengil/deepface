@@ -54,7 +54,7 @@ def baseModel():
 	
 	return model
 
-def loadModel():
+def loadModel(url = 'https://drive.google.com/uc?id=1CPSeum3HpopfomUEK1gybeuIVoeJT_Eo'):
 	
 	model = baseModel()
 	
@@ -63,9 +63,8 @@ def loadModel():
 	home = str(Path.home())
 	
 	if os.path.isfile(home+'/.deepface/weights/vgg_face_weights.h5') != True:
-		print("vgg_face_weights.h5 will be downloaded...")
+		print("vgg_face_weights.h5 will be downloaded...")		
 		
-		url = 'https://drive.google.com/uc?id=1CPSeum3HpopfomUEK1gybeuIVoeJT_Eo'
 		output = home+'/.deepface/weights/vgg_face_weights.h5'
 		gdown.download(url, output, quiet=False)
 	

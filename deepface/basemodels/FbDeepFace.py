@@ -8,7 +8,7 @@ import zipfile
 
 #-------------------------------------
 
-def loadModel():
+def loadModel(url = 'https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip'):
 	base_model = Sequential()
 	base_model.add(Convolution2D(32, (11, 11), activation='relu', name='C1', input_shape=(152, 152, 3)))
 	base_model.add(MaxPooling2D(pool_size=3, strides=2, padding='same', name='M2'))
@@ -27,8 +27,6 @@ def loadModel():
 	
 	if os.path.isfile(home+'/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5') != True:
 		print("VGGFace2_DeepFace_weights_val-0.9034.h5 will be downloaded...")
-		
-		url = 'https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip'
 		
 		output = home+'/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5.zip'
 		
