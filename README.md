@@ -21,7 +21,7 @@ A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
-Verification function under the DeepFace interface offers a single face recognition. Each call of the function builds a face recognition model and this is very costly. If you are going to verify several faces sequentially, then you should pass an array of faces to the function instead of calling the function in a for loop. In this way, complex face recognition models will be built once and this will speed the function up dramatically. Besides, calling the function in a for loop might cause memory problems as well.
+Verification function under the deepface interface offers to verify face pairs as same person or different persons. You should pass face pairs as array instead of calling verify function in a for loop for the best practice. This will speed the function up dramatically and reduce the allocated memory.
 
 ```python
 from deepface import DeepFace
@@ -32,9 +32,9 @@ print("Is verified: ", result["verified"])
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-1.jpg" width="95%" height="95%"></p>
 
-**Large scale face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
+**Large scale face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s) 
 
-You can apply face recognition on a [large scale](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) data set as well. Face recognition requires to apply face verification multiple times. Herein, deepface offers an out-of-the-box find function to handle this action. Representations of faces photos in your database folder will be stored in a pickle file when find function is called once. Then, deepface just finds representation of the target image. In this way, finding an identity in a large scale data set will be performed in just seconds.
+Face recognition requires to apply face verification several times. Herein, deepface offers an out-of-the-box find function to handle this action. You can apply face recognition on a [large scale](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) data set as well.
 
 ```python
 from deepface import DeepFace
@@ -47,7 +47,7 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 
 **Face recognition models** - [`Demo`](https://youtu.be/i_MOwvhbLdI)
 
-Deepface is a hybrid face recognition package. It currently wraps the **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/), [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/) and [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below.
+Deepface is a **hybrid** face recognition package. It currently wraps the **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/), [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/) and [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below.
 
 ```python
 models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "DeepID", "Dlib"]
@@ -59,7 +59,7 @@ FaceNet, VGG-Face and Dlib [overperforms](https://youtu.be/i_MOwvhbLdI) than Ope
 
 **Similarity**
 
-Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent face photos as vectors. Decision of verification is based on the distance between vectors. We can classify pairs if its distance is less than a [threshold](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). 
+Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent faces as vectors. Decision of verification is based on the distance between vectors. We can classify pairs if its distance is less than a [threshold](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). 
 
 Distance could be found by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration finds the **cosine similarity**. You can alternatively set the similarity metric while verification as demostratred below.
 
