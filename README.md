@@ -181,11 +181,10 @@ There are many ways to support a project - starring⭐️ the GitHub repos is ju
 Please cite deepface in your publications if it helps your research. Here is an example BibTeX entry:
 
 ```
-@misc{serengil2020deepface,
-  abstract = {A Lightweight Face Recognition and Facial Attribute Analysis Framework for Python},
-  author={Serengil, Sefik Ilkin},
-  title={deepface},
-  url = {https://github.com/serengil/deepface},
+@inproceedings{serengil2020lightface,
+  title={LightFace: A Hybrid Deep Face Recognition Framework},
+  author={Serengil, Sefik Ilkin and Ozpinar, Alper},
+  booktitle={2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
   year={2020}
 }
 ```
