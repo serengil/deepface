@@ -17,6 +17,8 @@ from deepface.commons import functions, realtime, distance as dst
 def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 	
 	input_shape = (224, 224)
+	input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
+	
 	text_color = (255,255,255)
 	
 	employees = []
@@ -30,6 +32,8 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 					#print(exact_path)
 					employees.append(exact_path)
 					
+	if len(employees) == 0:
+		print("WARNING: There is no image in this path ( ", db_path,") . Face recognition will not be performed.")
 	
 	#------------------------
 	

@@ -254,7 +254,13 @@ def verify(img1_path, img2_path=''
 	threshold = functions.findThreshold(model_name, distance_metric)
 
 	#------------------------------
-	pbar = tqdm(range(0,len(img_list)), desc='Verification')
+	
+	if len(img_list) > 1:
+		disable_option = False
+	else: #calling deepface in a for loop causes lots of progress bars. this block prevents this problem.
+		disable_option = True
+	
+	pbar = tqdm(range(0,len(img_list)), desc='Verification', disable = disable_option)
 	
 	#for instance in img_list:
 	for index in pbar:
