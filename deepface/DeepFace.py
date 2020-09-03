@@ -105,8 +105,8 @@ def verify(img1_path, img2_path=''
 						input_shape = input_shape[1:3]
 					
 					
-					img1 = functions.detectFace(img1_path, input_shape, enforce_detection = enforce_detection)
-					img2 = functions.detectFace(img2_path, input_shape, enforce_detection = enforce_detection)
+					img1 = functions.preprocess_face(img1_path, input_shape, enforce_detection = enforce_detection)
+					img2 = functions.preprocess_face(img2_path, input_shape, enforce_detection = enforce_detection)
 					
 					img1_representation = custom_model.predict(img1)[0,:]
 					img2_representation = custom_model.predict(img2)[0,:]
@@ -274,8 +274,8 @@ def verify(img1_path, img2_path=''
 			#----------------------
 			#crop and align faces
 
-			img1 = functions.detectFace(img1_path, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
-			img2 = functions.detectFace(img2_path, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
+			img1 = functions.preprocess_face(img1_path, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
+			img2 = functions.preprocess_face(img2_path, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
 
 			#----------------------
 			#find embeddings
@@ -422,7 +422,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True):
 
 			if action == 'emotion':
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
-				img = functions.detectFace(img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection)
+				img = functions.preprocess_face(img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection)
 
 				emotion_predictions = emotion_model.predict(img)[0,:]
 
@@ -445,7 +445,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True):
 
 			elif action == 'age':
 				if img_224 is None:
-					img_224 = functions.detectFace(img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection) #just emotion model expects grayscale images
+					img_224 = functions.preprocess_face(img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection) #just emotion model expects grayscale images
 				#print("age prediction")
 				age_predictions = age_model.predict(img_224)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
@@ -454,7 +454,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True):
 
 			elif action == 'gender':
 				if img_224 is None:
-					img_224 = functions.detectFace(img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection) #just emotion model expects grayscale images
+					img_224 = functions.preprocess_face(img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection) #just emotion model expects grayscale images
 				#print("gender prediction")
 
 				gender_prediction = gender_model.predict(img_224)[0,:]
@@ -468,7 +468,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True):
 
 			elif action == 'race':
 				if img_224 is None:
-					img_224 = functions.detectFace(img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection) #just emotion model expects grayscale images
+					img_224 = functions.preprocess_face(img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection) #just emotion model expects grayscale images
 				race_predictions = race_model.predict(img_224)[0,:]
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
@@ -516,12 +516,15 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True):
 
 
 def detectFace(img_path):
-	img = functions.detectFace(img_path)[0] #detectFace returns (1, 224, 224, 3)
+	img = functions.preprocess_face(img_path)[0] #preprocess_face returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb
 
 def find(img_path, db_path
 	, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True):
-		
+	
+	model_names = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
+	metric_names = ['cosine', 'euclidean', 'euclidean_l2']
+	
 	tic = time.time()
 	
 	if type(img_path) == list:
@@ -560,8 +563,6 @@ def find(img_path, db_path
 				
 				import lightgbm as lgb #lightgbm==2.3.1
 				
-				model_names = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
-				metric_names = ['cosine', 'euclidean', 'euclidean_l2']
 				models = {}
 				
 				pbar = tqdm(range(0, len(model_names)), desc='Face recognition models')
@@ -586,6 +587,8 @@ def find(img_path, db_path
 			print("Already built model is passed")
 			
 			if model_name == 'Ensemble':
+			
+				import lightgbm as lgb #lightgbm==2.3.1
 				
 				#validate model dictionary because it might be passed from input as pre-trained
 				
@@ -597,6 +600,8 @@ def find(img_path, db_path
 					print("Ensemble learning will be applied for ", found_models," models")
 				else:
 					raise ValueError("You would like to apply ensemble learning and pass pre-built models but models must contain [VGG-Face, Facenet, OpenFace, DeepFace] but you passed "+found_models)
+				
+				models = model.copy()
 		
 		#threshold = functions.findThreshold(model_name, distance_metric)
 		
@@ -655,7 +660,7 @@ def find(img_path, db_path
 					
 					input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 					
-					img = functions.detectFace(employee, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
+					img = functions.preprocess_face(employee, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
 					representation = model.predict(img)[0,:]
 					
 					instance = []
@@ -668,11 +673,11 @@ def find(img_path, db_path
 					instance.append(employee)
 					
 					for j in model_names:
-						model = models[j]
+						ensemble_model = models[j]
 						
 						#input_shape = model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
 	
-						input_shape = model.layers[0].input_shape
+						input_shape = ensemble_model.layers[0].input_shape
 						
 						if type(input_shape) == list:
 							input_shape = input_shape[0][1:3]
@@ -681,8 +686,8 @@ def find(img_path, db_path
 						
 						input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 						
-						img = functions.detectFace(employee, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
-						representation = model.predict(img)[0,:]
+						img = functions.preprocess_face(employee, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
+						representation = ensemble_model.predict(img)[0,:]
 						instance.append(representation)
 				
 				#-------------------------------
@@ -715,19 +720,19 @@ def find(img_path, db_path
 			
 			if model_name == 'Ensemble':
 				for j in model_names:
-					model = models[j]
+					ensemble_model = models[j]
 					
-					#input_shape = model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
+					#input_shape = ensemble_model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
 	
-					input_shape = model.layers[0].input_shape
+					input_shape = ensemble_model.layers[0].input_shape
 					
 					if type(input_shape) == list:
 						input_shape = input_shape[0][1:3]
 					else:
 						input_shape = input_shape[1:3]
 					
-					img = functions.detectFace(img_path, input_shape, enforce_detection = enforce_detection)
-					target_representation = model.predict(img)[0,:]
+					img = functions.preprocess_face(img_path, input_shape, enforce_detection = enforce_detection)
+					target_representation = ensemble_model.predict(img)[0,:]
 					
 					for k in metric_names:
 						distances = []
@@ -818,7 +823,7 @@ def find(img_path, db_path
 				
 				input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 				
-				img = functions.detectFace(img_path, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
+				img = functions.preprocess_face(img_path, (input_shape_y, input_shape_x), enforce_detection = enforce_detection)
 				target_representation = model.predict(img)[0,:]
 		
 				distances = []

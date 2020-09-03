@@ -112,7 +112,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 		employee = employees[index]
 		pbar.set_description("Finding embedding for %s" % (employee.split("/")[-1]))
 		embedding = []
-		img = functions.detectFace(employee, (input_shape_y, input_shape_x))
+		img = functions.preprocess_face(employee, (input_shape_y, input_shape_x))
 		img_representation = model.predict(img)[0,:]
 		
 		embedding.append(employee)
@@ -222,7 +222,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 						
 						if enable_face_analysis == True:
 							
-							gray_img = functions.detectFace(custom_face, (48, 48), True)
+							gray_img = functions.preprocess_face(custom_face, (48, 48), True)
 							emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 							emotion_predictions = emotion_model.predict(gray_img)[0,:]
 							sum_of_predictions = emotion_predictions.sum()
@@ -300,7 +300,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 							
 							#-------------------------------
 							
-							face_224 = functions.detectFace(custom_face, (224, 224), False)
+							face_224 = functions.preprocess_face(custom_face, (224, 224), False)
 							
 							age_predictions = age_model.predict(face_224)[0,:]
 							apparent_age = Age.findApparentAge(age_predictions)
@@ -355,9 +355,9 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 						#-------------------------------
 						#face recognition
 						
-						custom_face = functions.detectFace(custom_face, (input_shape_y, input_shape_x))
+						custom_face = functions.preprocess_face(custom_face, (input_shape_y, input_shape_x))
 						
-						#check detectFace function handled
+						#check preprocess_face function handled
 						if custom_face.shape[1:3] == input_shape:
 							if df.shape[0] > 0: #if there are images to verify, apply face recognition
 								img1_representation = model.predict(custom_face)[0,:]

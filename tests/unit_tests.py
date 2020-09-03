@@ -5,7 +5,10 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 #-----------------------------------------
 
-print("Bulk tests")
+dataset = [
+	['dataset/img1.jpg', 'dataset/img2.jpg', True],
+	['dataset/img5.jpg', 'dataset/img6.jpg', True]
+]
 
 print("-----------------------------------------")
 
@@ -24,20 +27,7 @@ print(df.head())
 
 print("-----------------------------------------")
 
-print("Bulk face recognition tests")
-
-dataset = [
-	['dataset/img1.jpg', 'dataset/img2.jpg', True],
-	['dataset/img5.jpg', 'dataset/img6.jpg', True]
-]
-
-resp_obj = DeepFace.verify(dataset)
-print(resp_obj["pair_1"]["verified"] == True)
-print(resp_obj["pair_2"]["verified"] == True)
-
-print("-----------------------------------------")
-
-print("Ensemble learning bulk")
+print("Ensemble for verify function")
 resp_obj = DeepFace.verify(dataset, model_name = "Ensemble")
 
 for i in range(0, len(dataset)):
@@ -45,6 +35,14 @@ for i in range(0, len(dataset)):
 	verified = item["verified"]
 	score = item["score"]
 	print(verified)
+
+print("-----------------------------------------")
+
+print("Bulk face recognition tests")
+
+resp_obj = DeepFace.verify(dataset)
+print(resp_obj["pair_1"]["verified"] == True)
+print(resp_obj["pair_2"]["verified"] == True)
 
 print("-----------------------------------------")
 
@@ -159,12 +157,16 @@ else:
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 
 #-----------------------------------
+print("--------------------------")
+print("Verify function with passing pre-trained model")
 
 vggface_model = VGGFace.loadModel()
 resp_obj = DeepFace.verify("dataset/img1.jpg", "dataset/img2.jpg", model_name = "VGG-Face", model = vggface_model)
 print(resp_obj)
 
 #-----------------------------------
+print("--------------------------")
+print("Analyze function with passing pre-trained model")
 
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 
@@ -180,3 +182,8 @@ facial_attribute_models["gender"] = gender_model
 facial_attribute_models["race"] = race_model
 
 resp_obj = DeepFace.analyze("dataset/img1.jpg", models=facial_attribute_models)
+print(resp_obj)
+
+#-----------------------------------
+
+print("--------------------------")

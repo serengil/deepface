@@ -163,7 +163,7 @@ def get_opencv_path():
 	
 	return path+"/data/"
 
-def detectFace(img, target_size=(224, 224), grayscale = False, enforce_detection = True):
+def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True):
 	
 	img_path = ""
 	
