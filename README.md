@@ -185,7 +185,8 @@ Please cite deepface in your publications if it helps your research. Here is an 
   title={LightFace: A Hybrid Deep Face Recognition Framework},
   author={Serengil, Sefik Ilkin and Ozpinar, Alper},
   booktitle={2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
-  year={2020}
+  year={2020},
+  organization={IEEE}
 }
 ```
 
