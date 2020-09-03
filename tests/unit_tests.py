@@ -3,6 +3,7 @@ import json
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 #-----------------------------------------
 
 dataset = [
@@ -18,23 +19,6 @@ df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset"
 	#, model_name = 'Dlib'
 )
 print(df.head())
-
-print("-----------------------------------------")
-
-print("Ensemble for find function")
-df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset", model_name = "Ensemble")
-print(df.head())
-
-print("-----------------------------------------")
-
-print("Ensemble for verify function")
-resp_obj = DeepFace.verify(dataset, model_name = "Ensemble")
-
-for i in range(0, len(dataset)):
-	item = resp_obj['pair_%s' % (i+1)]
-	verified = item["verified"]
-	score = item["score"]
-	print(verified)
 
 print("-----------------------------------------")
 
@@ -158,6 +142,7 @@ from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 
 #-----------------------------------
 print("--------------------------")
+
 print("Verify function with passing pre-trained model")
 
 vggface_model = VGGFace.loadModel()
@@ -166,6 +151,7 @@ print(resp_obj)
 
 #-----------------------------------
 print("--------------------------")
+
 print("Analyze function with passing pre-trained model")
 
 from deepface.extendedmodels import Age, Gender, Race, Emotion
@@ -185,5 +171,45 @@ resp_obj = DeepFace.analyze("dataset/img1.jpg", models=facial_attribute_models)
 print(resp_obj)
 
 #-----------------------------------
+print("--------------------------")
 
+print("Ensemble for find function")
+df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset", model_name = "Ensemble")
+print(df.head())
+
+#-----------------------------------
+print("--------------------------")
+
+print("Ensemble for verify function")
+resp_obj = DeepFace.verify(dataset, model_name = "Ensemble")
+
+for i in range(0, len(dataset)):
+	item = resp_obj['pair_%s' % (i+1)]
+	verified = item["verified"]
+	score = item["score"]
+	print(verified)
+
+#-----------------------------------
+print("--------------------------")
+
+print("Pre-trained ensemled method")
+
+from deepface import DeepFace
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+
+model = {}
+model["VGG-Face"] = VGGFace.loadModel()
+print("VGG loaded")
+model["Facenet"] = Facenet.loadModel()
+print("Facenet loaded")
+model["OpenFace"] = OpenFace.loadModel()
+print("OpenFace loaded")
+model["DeepFace"] = FbDeepFace.loadModel()
+print("DeepFace loaded")
+
+df = DeepFace.find("dataset/img1.jpg", db_path = "dataset", model_name = 'Ensemble', model=model, enforce_detection=False)
+
+print(df)
+
+#-----------------------------------
 print("--------------------------")
