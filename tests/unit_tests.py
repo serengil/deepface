@@ -8,7 +8,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 dataset = [
 	['dataset/img1.jpg', 'dataset/img2.jpg', True],
-	['dataset/img5.jpg', 'dataset/img6.jpg', True]
+	['dataset/img1.jpg', 'dataset/img6.jpg', True]
 ]
 
 print("-----------------------------------------")
@@ -192,7 +192,7 @@ for i in range(0, len(dataset)):
 #-----------------------------------
 print("--------------------------")
 
-print("Pre-trained ensemled method")
+print("Pre-trained ensemble method")
 
 from deepface import DeepFace
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace

@@ -14,7 +14,3 @@ def findEuclideanDistance(source_representation, test_representation):
 
 def l2_normalize(x):
     return x / np.sqrt(np.sum(np.multiply(x, x)))	
-
-"""def l2_normalize(x, axis=-1, epsilon=1e-10):
-    output = x / np.sqrt(np.maximum(np.sum(np.square(x), axis=axis, keepdims=True), epsilon))
-    return output"""

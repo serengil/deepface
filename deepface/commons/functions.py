@@ -16,6 +16,7 @@ import multiprocessing
 import subprocess
 import tensorflow as tf
 import keras
+import bz2
 
 def loadBase64Img(uri):
    encoded_data = uri.split(',')[1]
@@ -29,18 +30,6 @@ def distance(a, b):
 	
 	return math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)))
 
-def findFileHash(file):
-	BLOCK_SIZE = 65536 # The size of each read from the file
-
-	file_hash = hashlib.sha256() # Create the hash object, can use something other than `.sha256()` if you wish
-	with open(file, 'rb') as f: # Open the file to read it's bytes
-		fb = f.read(BLOCK_SIZE) # Read from the file. Take in the amount declared above
-		while len(fb) > 0: # While there is still data being read from the file
-			file_hash.update(fb) # Update the hash
-			fb = f.read(BLOCK_SIZE) # Read the next block from the file
-	
-	return file_hash.hexdigest()
-
 def initializeFolder():
 	
 	home = str(Path.home())
@@ -53,46 +42,6 @@ def initializeFolder():
 		os.mkdir(home+"/.deepface/weights")
 		print("Directory ",home,"/.deepface/weights created")
 	
-	#----------------------------------
-	"""
-	#avoid interrupted file download
-	
-	weight_hashes = [
-		['age_model_weights.h5', '0aeff75734bfe794113756d2bfd0ac823d51e9422c8961125b570871d3c2b114']
-		, ['facenet_weights.h5', '90659cc97bfda5999120f95d8e122f4d262cca11715a21e59ba024bcce816d5c']
-		, ['facial_expression_model_weights.h5', 'e8e8851d3fa05c001b1c27fd8841dfe08d7f82bb786a53ad8776725b7a1e824c']
-		, ['gender_model_weights.h5', '45513ce5678549112d25ab85b1926fb65986507d49c674a3d04b2ba70dba2eb5']
-		, ['openface_weights.h5', '5b41897ec6dd762cee20575eee54ed4d719a78cb982b2080a87dc14887d88a7a']
-		, ['race_model_single_batch.h5', 'eb22b28b1f6dfce65b64040af4e86003a5edccb169a1a338470dde270b6f5e54']
-		, ['vgg_face_weights.h5', '759266b9614d0fd5d65b97bf716818b746cc77ab5944c7bffc937c6ba9455d8c']
-	]
-	
-	for i in weight_hashes:
-		
-		weight_file = home+"/.deepface/weights/"+i[0]
-		expected_hash = i[1]
-		
-		#check file exits
-		if os.path.isfile(weight_file) == True:
-			current_hash = findFileHash(weight_file)
-			if current_hash != expected_hash:
-				print("hash violated for ", i[0],". It's going to be removed.")
-				os.remove(weight_file)
-	"""
-	#----------------------------------
-
-"""
-TODO: C4.5 tree finds the following split points for cosine, euclidean, euclidean_l2 respectively.
-Check these thresholds in unit tests.
-vgg-face: 0.3147, 0.4764, 0.7933
-facenet: 0.4062, 11.2632, 0.9014
-openface: 0.1118, 0.4729, 0.4729
-deepface: 0.1349, 42.2178, 0.5194
-"""
-
-"""
-TODO: create an ensemble method
-"""
 def findThreshold(model_name, distance_metric):
 	
 	threshold = 0.40
@@ -154,20 +103,10 @@ def get_opencv_path():
 	path = folders[0]
 	for folder in folders[1:]:
 		path = path + "/" + folder
-
-	face_detector_path = path+"/data/haarcascade_frontalface_default.xml"
-	eye_detector_path = path+"/data/haarcascade_eye.xml"
-	
-	if os.path.isfile(face_detector_path) != True:
-		raise ValueError("Confirm that opencv is installed on your environment! Expected path ",face_detector_path," violated.")
 	
 	return path+"/data/"
 
-def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True):
-	
-	img_path = ""
-	
-	#-----------------------
+def load_image(img):
 	
 	exact_image = False
 	if type(img).__module__ == np.__name__:
@@ -176,56 +115,218 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 	base64_img = False
 	if len(img) > 11 and img[0:11] == "data:image/":
 		base64_img = True
-
-	#-----------------------
 	
-	opencv_path = get_opencv_path()
-	face_detector_path = opencv_path+"haarcascade_frontalface_default.xml"
-	eye_detector_path = opencv_path+"haarcascade_eye.xml"
-	
-	if os.path.isfile(face_detector_path) != True:
-		raise ValueError("Confirm that opencv is installed on your environment! Expected path ",face_detector_path," violated.")
-	
-	#--------------------------------
-	
-	face_detector = cv2.CascadeClassifier(face_detector_path)
-	eye_detector = cv2.CascadeClassifier(eye_detector_path)
+	#---------------------------
 	
 	if base64_img == True:
 		img = loadBase64Img(img)
 		
 	elif exact_image != True: #image path passed as input
-		
 		if os.path.isfile(img) != True:
 			raise ValueError("Confirm that ",img," exists")
 		
 		img = cv2.imread(img)
 	
-	img_raw = img.copy()
+	return img
 	
-	#--------------------------------
+def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_detection = True):
 	
-	faces = []
+	detectors = ['opencv', 'ssd', 'dlib', 'mtcnn']
 	
-	try:
-		faces = face_detector.detectMultiScale(img, 1.3, 5)
-	except:
-		pass
+	if detector_backend not in detectors:
+		raise ValueError("Valid backends are ", detectors," but you passed ", detector_backend)
 	
-	#print("found faces in ",image_path," is ",len(faces))
+	#---------------------------
 	
-	if len(faces) > 0:
-		x,y,w,h = faces[0]
-		detected_face = img[int(y):int(y+h), int(x):int(x+w)]
-		detected_face_gray = cv2.cvtColor(detected_face, cv2.COLOR_BGR2GRAY)
+	home = str(Path.home())
+	
+	if detector_backend == 'opencv':
+	
+		#get opencv configuration up first
+		opencv_path = get_opencv_path()
+		face_detector_path = opencv_path+"haarcascade_frontalface_default.xml"
+	
+		if os.path.isfile(face_detector_path) != True:
+			raise ValueError("Confirm that opencv is installed on your environment! Expected path ",face_detector_path," violated.")
+		
+		face_detector = cv2.CascadeClassifier(face_detector_path)
+	
+		#--------------------------
+		
+		faces = []
+		
+		try: 
+			faces = face_detector.detectMultiScale(img, 1.3, 5)
+		except:
+			pass
+		
+		if len(faces) > 0:
+			x,y,w,h = faces[0] #focus on the 1st face found in the image
+			detected_face = img[int(y):int(y+h), int(x):int(x+w)]
+			return detected_face
+		
+		else: #if no face detected
+	
+			if enforce_detection != True:			
+				return img
+	
+			else:
+				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
+
+	elif detector_backend == 'ssd':
 		
 		#---------------------------
-		#face alignment
+		#check required ssd model exists in the home/.deepface/weights folder
+		
+		#model structure
+		if os.path.isfile(home+'/.deepface/weights/deploy.prototxt') != True:
+			
+			print("deploy.prototxt will be downloaded...")
+			
+			url = "https://github.com/opencv/opencv/raw/3.4.0/samples/dnn/face_detector/deploy.prototxt"
+			
+			output = home+'/.deepface/weights/deploy.prototxt'
+			
+			gdown.download(url, output, quiet=False)
+			
+		
+		#pre-trained weights
+		if os.path.isfile(home+'/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel') != True:
+			
+			print("res10_300x300_ssd_iter_140000.caffemodel will be downloaded...")
+			
+			url = "https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel"
+			
+			output = home+'/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel'
+			
+			gdown.download(url, output, quiet=False)
+			
+		#---------------------------
+		
+		ssd_detector = cv2.dnn.readNetFromCaffe(
+			home+"/.deepface/weights/deploy.prototxt", 
+			home+"/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel"
+		)
+		
+		ssd_labels = ["img_id", "is_face", "confidence", "left", "top", "right", "bottom"]
+		
+		target_size = (300, 300)
+		
+		base_img = img.copy() #we will restore base_img to img later
+		
+		original_size = img.shape
+		
+		img = cv2.resize(img, target_size)
+		
+		aspect_ratio_x = (original_size[1] / target_size[1])
+		aspect_ratio_y = (original_size[0] / target_size[0])
+		
+		imageBlob = cv2.dnn.blobFromImage(image = img)
+		
+		ssd_detector.setInput(imageBlob)
+		detections = ssd_detector.forward()
+		
+		detections_df = pd.DataFrame(detections[0][0], columns = ssd_labels)
+		
+		detections_df = detections_df[detections_df['is_face'] == 1] #0: background, 1: face
+		detections_df = detections_df[detections_df['confidence'] >= 0.90]
+		
+		detections_df['left'] = (detections_df['left'] * 300).astype(int)
+		detections_df['bottom'] = (detections_df['bottom'] * 300).astype(int)
+		detections_df['right'] = (detections_df['right'] * 300).astype(int)
+		detections_df['top'] = (detections_df['top'] * 300).astype(int)
+		
+		if detections_df.shape[0] > 0:
+			
+			#TODO: sort detections_df
+			
+			#get the first face in the image	
+			instance = detections_df.iloc[0]
+			
+			left = instance["left"]
+			right = instance["right"]
+			bottom = instance["bottom"]
+			top = instance["top"]
+			
+			detected_face = base_img[int(top*aspect_ratio_y):int(bottom*aspect_ratio_y), int(left*aspect_ratio_x):int(right*aspect_ratio_x)]
+			
+			return detected_face
+			
+		else: #if no face detected
+	
+			if enforce_detection != True:
+				img = base_img.copy()
+				return img
+	
+			else:
+				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
+	
+	elif detector_backend == 'dlib':
+		import dlib #this is not a must library within deepface. that's why, I didn't put this import to a global level. version: 19.20.0
+		
+		detector = dlib.get_frontal_face_detector()
+		
+		detections = detector(img, 1)
+		
+		if len(detections) > 0:
+			
+			for idx, d in enumerate(detections):
+				left = d.left(); right = d.right()
+				top = d.top(); bottom = d.bottom()
+				
+				detected_face = img[top:bottom, left:right]
+				
+				return detected_face
+			
+		else: #if no face detected
+	
+			if enforce_detection != True:			
+				return img
+	
+			else:
+				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.") 
+		
+	elif detector_backend == 'mtcnn':
+		
+		from mtcnn import MTCNN #this is not a must library within deepface
+		
+		mtcnn_detector = MTCNN()
+		
+		detections = mtcnn_detector.detect_faces(img)
+		
+		if len(detections) > 0:
+			detection = detections[0]
+			x, y, w, h = detection["box"]
+			detected_face = img[int(y):int(y+h), int(x):int(x+w)]
+			return detected_face
+		
+		else: #if no face detected
+			if enforce_detection != True:			
+				return img
+	
+			else:
+				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
+	
+	return 0
+
+def align_face(img, detector_backend = 'opencv'):
+	
+	home = str(Path.home())
+	
+	if (detector_backend == 'opencv') or (detector_backend == 'ssd'):
+	
+		opencv_path = get_opencv_path()
+		eye_detector_path = opencv_path+"haarcascade_eye.xml"
+		eye_detector = cv2.CascadeClassifier(eye_detector_path)
+		
+		detected_face_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #eye detector expects gray scale image
 		
 		eyes = eye_detector.detectMultiScale(detected_face_gray)
 		
 		if len(eyes) >= 2:
+			
 			#find the largest 2 eye
+			
 			base_eyes = eyes[:, 2]
 			
 			items = []
@@ -243,11 +344,9 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 			eye_1 = eyes[0]; eye_2 = eyes[1]
 			
 			if eye_1[0] < eye_2[0]:
-				left_eye = eye_1
-				right_eye = eye_2
+				left_eye = eye_1; right_eye = eye_2
 			else:
-				left_eye = eye_2
-				right_eye = eye_1
+				left_eye = eye_2; right_eye = eye_1
 			
 			#-----------------------
 			#find center of eyes
@@ -290,49 +389,139 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 				if direction == -1:
 					angle = 90 - angle
 				
-				img = Image.fromarray(img_raw)
+				img = Image.fromarray(img)
 				img = np.array(img.rotate(direction * angle))
 				
-				#you recover the base image and face detection disappeared. apply again.
-				faces = face_detector.detectMultiScale(img, 1.3, 5)
-				if len(faces) > 0:
-					x,y,w,h = faces[0]
-					detected_face = img[int(y):int(y+h), int(x):int(x+w)]
+			return img
+		
+		else:
+			return img
+	
+	elif detector_backend == 'dlib':
+	
+		#check required file exists in the home/.deepface/weights folder
+		
+		if os.path.isfile(home+'/.deepface/weights/shape_predictor_5_face_landmarks.dat') != True:
+			
+			print("shape_predictor_5_face_landmarks.dat.bz2 is going to be downloaded") 
+			
+			url = "http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2"
+			output = home+'/.deepface/weights/'+url.split("/")[-1]
+			
+			gdown.download(url, output, quiet=False)
+			
+			zipfile = bz2.BZ2File(output)
+			data = zipfile.read()
+			newfilepath = output[:-4] #discard .bz2 extension
+			open(newfilepath, 'wb').write(data)
+		
+		#------------------------------
+		
+		import dlib
+		
+		detector = dlib.get_frontal_face_detector()
+		sp = dlib.shape_predictor(home+"/.deepface/weights/shape_predictor_5_face_landmarks.dat")
+		
+		detections = detector(img, 1)
+		
+		if len(detections) > 0:
+			detected_face = detections[0]
+			img_shape = sp(img, detected_face)
+			img_aligned = dlib.get_face_chip(img, img_shape)
+			return img_aligned
+		else:
+			return img
+	
+	elif detector_backend == 'mtcnn':
+		from mtcnn import MTCNN
+		mtcnn_detector = MTCNN()
+		detections = mtcnn_detector.detect_faces(img)
+		
+		if len(detections) > 0:
+			detection = detections[0]
+			
+			keypoints = detection["keypoints"]
+			left_eye = keypoints["left_eye"]
+			right_eye = keypoints["right_eye"]
+			
+			left_eye_x, left_eye_y = left_eye
+			right_eye_x, right_eye_y = right_eye
 			
 			#-----------------------
-		
-		#face alignment block end
-		#---------------------------
-		
-		#face alignment block needs colorful images. that's why, converting to gray scale logic moved to here.
-		if grayscale == True:
-			detected_face = cv2.cvtColor(detected_face, cv2.COLOR_BGR2GRAY)
-		
-		detected_face = cv2.resize(detected_face, target_size)
-		
-		img_pixels = image.img_to_array(detected_face)
-		img_pixels = np.expand_dims(img_pixels, axis = 0)
-		
-		#normalize input in [0, 1]
-		img_pixels /= 255
-		
-		return img_pixels
-		
-	else:
-		
-		if (exact_image == True) or (enforce_detection != True):
+			#find rotation direction
+				
+			if left_eye_y > right_eye_y:
+				point_3rd = (right_eye_x, left_eye_y)
+				direction = -1 #rotate same direction to clock
+			else:
+				point_3rd = (left_eye_x, right_eye_y)
+				direction = 1 #rotate inverse direction of clock
 			
-			if grayscale == True:
-				img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+			#-----------------------
+			#find length of triangle edges
 			
-			img = cv2.resize(img, target_size)
-			img_pixels = image.img_to_array(img)
-			img_pixels = np.expand_dims(img_pixels, axis = 0)
-			img_pixels /= 255
-			return img_pixels
+			a = distance(left_eye, point_3rd)
+			b = distance(right_eye, point_3rd)
+			c = distance(right_eye, left_eye)
+			
+			#-----------------------
+			#apply cosine rule
+			
+			if b != 0 and c != 0: #this multiplication causes division by zero in cos_a calculation
+				
+				cos_a = (b*b + c*c - a*a)/(2*b*c)
+				angle = np.arccos(cos_a) #angle in radian
+				angle = (angle * 180) / math.pi #radian to degree
+				
+				#-----------------------
+				#rotate base image
+				
+				if direction == -1:
+					angle = 90 - angle
+				
+				img = Image.fromarray(img)
+				img = np.array(img.rotate(direction * angle))
+				
+			return img #return img anyway
+			
 		else:
-			raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
-			
+			return img
+	
+def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True, detector_backend = 'opencv'):
+	
+	#img might be path, base64 or numpy array. Convert it to numpy whatever it is.
+	img = load_image(img)
+	img_base = img.copy()
+	
+	#face detection
+	img = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = enforce_detection)
+	
+	#--------------------------
+	
+	#face alignment
+	#img = align_face(img = img, detector_backend = detector_backend) 
+	img = align_face(img = img_base, detector_backend = detector_backend)
+	
+	img = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = False)
+	
+	#note: if you apply align first and detect second, it might be problematic for pictures including more than one faces. 
+	#we detected one face and align the base image based on the detected one. 
+	#pros: aligned images have many black pixels if you align detected face
+	#cons: this requires to apply detection twice.
+	
+	#--------------------------
+	
+	#post-processing
+	if grayscale == True:
+		img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		
+	img = cv2.resize(img, target_size)
+	img_pixels = image.img_to_array(img)
+	img_pixels = np.expand_dims(img_pixels, axis = 0)
+	img_pixels /= 255 #normalize input in [0, 1]
+	
+	return img_pixels
+	
 def allocateMemory():
 	
 	#find allocated memories
@@ -418,5 +607,3 @@ def allocateMemory():
 			print("DeepFace will run on CPU")
 	else:
 		print("DeepFace will run on CPU")
-	
-	#------------------------------
