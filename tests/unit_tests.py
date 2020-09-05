@@ -1,5 +1,7 @@
 from deepface import DeepFace
+from deepface.commons import functions
 import json
+import time
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -210,6 +212,23 @@ print("DeepFace loaded")
 df = DeepFace.find("dataset/img1.jpg", db_path = "dataset", model_name = 'Ensemble', model=model, enforce_detection=False)
 
 print(df)
+
+#-----------------------------------
+print("--------------------------")
+
+print("Different face detector backends")
+
+backends = ['opencv', 'ssd', 'dlib', 'mtcnn']
+
+for backend in backends:
+	
+	tic = time.time()
+	
+	processed_img = functions.preprocess_face(img = "dataset/img11.jpg", detector_backend = backend)
+	
+	toc = time.time()
+	
+	print("Backend ", backend, " is done in ", toc-tic," seconds")
 
 #-----------------------------------
 print("--------------------------")
