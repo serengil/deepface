@@ -82,18 +82,6 @@ resp_obj = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Ensemble")
 df = DeepFace.find(img_path = "img1.jpg", db_path = "my_db", model_name = "Ensemble")
 ```
 
-**Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
-
-Face detection and face alignment are early stages of a modern face recognition pipeline. [OpenCV](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [Dlib](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/) and MTCNN methods are wrapped in deepface as a detector. You can pass a custom detector to functions in deepface interface. OpenCV is the default detector for the package.
-
-```python
-backends = ['opencv', 'ssd', 'dlib', 'mtcnn']
-for backend in backends:
-   obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backend)
-   df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend)
-   demography = DeepFace.analyze("img4.jpg", , detector_backend = backend)
-```
-
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
 Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face. 
@@ -109,6 +97,18 @@ print("Race: ", demography["dominant_race"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
+
+**Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
+
+Face detection and face alignment are early stages of a modern face recognition pipeline. [OpenCV](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [Dlib](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/) and MTCNN methods are wrapped in deepface as a detector. You can pass a custom detector to functions in deepface interface. OpenCV is the default detector for the package.
+
+```python
+backends = ['opencv', 'ssd', 'dlib', 'mtcnn']
+for backend in backends:
+   obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backend)
+   df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend)
+   demography = DeepFace.analyze("img4.jpg", , detector_backend = backend)
+```
 
 **Streaming and Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
 
