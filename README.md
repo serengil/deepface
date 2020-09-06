@@ -105,9 +105,10 @@ Face detection and face alignment are early stages of a modern face recognition 
 ```python
 backends = ['opencv', 'ssd', 'dlib', 'mtcnn']
 for backend in backends:
-   obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backend)
-   df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend)
-   demography = DeepFace.analyze("img4.jpg", , detector_backend = backend)
+   detected_face = DeepFace.detectFace("img.jpg", detector_backend = backend) #detectors in face detection and alignment
+   obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backend) #detectors in verification
+   df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend) #detectors in face recognition
+   demography = DeepFace.analyze("img4.jpg", , detector_backend = backend) #detectors in facial analysis
 ```
 
 **Streaming and Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
