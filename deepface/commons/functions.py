@@ -454,23 +454,13 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 	
 	#img might be path, base64 or numpy array. Convert it to numpy whatever it is.
 	img = load_image(img)
-	img_base = img.copy()
-	
-	#face detection
-	img = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = enforce_detection)
 	
 	#--------------------------
 	
-	#face alignment
-	#img = align_face(img = img, detector_backend = detector_backend) 
-	img = align_face(img = img_base, detector_backend = detector_backend)
+	#we will align base image instead of detected face not have black pixels
 	
+	img = align_face(img = img, detector_backend = detector_backend)	
 	img = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = False)
-	
-	#note: if you apply align first and detect second, it might be problematic for pictures including more than one faces. 
-	#we detected one face and align the base image based on the detected one. 
-	#pros: aligned images have many black pixels if you align detected face
-	#cons: this requires to apply detection twice.
 	
 	#--------------------------
 	
