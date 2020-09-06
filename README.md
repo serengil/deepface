@@ -108,7 +108,7 @@ for backend in backends:
    detected_face = DeepFace.detectFace("img.jpg", detector_backend = backend) #detectors in face detection and alignment
    obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backend) #detectors in verification
    df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend) #detectors in face recognition
-   demography = DeepFace.analyze("img4.jpg", , detector_backend = backend) #detectors in facial analysis
+   demography = DeepFace.analyze("img4.jpg", detector_backend = backend) #detectors in facial analysis
 ```
 
 **Streaming and Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
