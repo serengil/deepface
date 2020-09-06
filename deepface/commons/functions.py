@@ -17,18 +17,13 @@ import subprocess
 import tensorflow as tf
 import keras
 import bz2
+from deepface.commons import distance
 
 def loadBase64Img(uri):
    encoded_data = uri.split(',')[1]
    nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
    return img
-
-def distance(a, b):
-	x1 = a[0]; y1 = a[1]
-	x2 = b[0]; y2 = b[1]
-	
-	return math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)))
 
 def initializeFolder():
 	
@@ -309,6 +304,53 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 	
 	return 0
 
+def alignment_procedure(img, left_eye, right_eye):
+		
+	#this function aligns given face in img based on left and right eye coordinates
+	
+	left_eye_x, left_eye_y = left_eye
+	right_eye_x, right_eye_y = right_eye
+	
+	#-----------------------
+	#find rotation direction
+		
+	if left_eye_y > right_eye_y:
+		point_3rd = (right_eye_x, left_eye_y)
+		direction = -1 #rotate same direction to clock
+	else:
+		point_3rd = (left_eye_x, right_eye_y)
+		direction = 1 #rotate inverse direction of clock
+	
+	#-----------------------
+	#find length of triangle edges
+	
+	a = distance.findEuclideanDistance(np.array(left_eye), np.array(point_3rd))
+	b = distance.findEuclideanDistance(np.array(right_eye), np.array(point_3rd))
+	c = distance.findEuclideanDistance(np.array(right_eye), np.array(left_eye))
+	
+	#-----------------------
+	
+	#apply cosine rule
+			
+	if b != 0 and c != 0: #this multiplication causes division by zero in cos_a calculation
+		
+		cos_a = (b*b + c*c - a*a)/(2*b*c)
+		angle = np.arccos(cos_a) #angle in radian
+		angle = (angle * 180) / math.pi #radian to degree
+		
+		#-----------------------
+		#rotate base image
+		
+		if direction == -1:
+			angle = 90 - angle
+		
+		img = Image.fromarray(img)
+		img = np.array(img.rotate(direction * angle))
+	
+	#-----------------------
+	
+	return img #return img anyway
+	
 def align_face(img, detector_backend = 'opencv'):
 	
 	home = str(Path.home())
@@ -336,7 +378,7 @@ def align_face(img, detector_backend = 'opencv'):
 			
 			df = pd.DataFrame(items, columns = ["length", "idx"]).sort_values(by=['length'], ascending=False)
 			
-			eyes = eyes[df.idx.values[0:2]]
+			eyes = eyes[df.idx.values[0:2]] #eyes variable stores the largest 2 eye
 			
 			#-----------------------
 			#decide left and right eye
@@ -351,51 +393,12 @@ def align_face(img, detector_backend = 'opencv'):
 			#-----------------------
 			#find center of eyes
 			
-			left_eye_center = (int(left_eye[0] + (left_eye[2] / 2)), int(left_eye[1] + (left_eye[3] / 2)))
-			left_eye_x = left_eye_center[0]; left_eye_y = left_eye_center[1]
+			left_eye = (int(left_eye[0] + (left_eye[2] / 2)), int(left_eye[1] + (left_eye[3] / 2)))
+			right_eye = (int(right_eye[0] + (right_eye[2]/2)), int(right_eye[1] + (right_eye[3]/2)))
 			
-			right_eye_center = (int(right_eye[0] + (right_eye[2]/2)), int(right_eye[1] + (right_eye[3]/2)))
-			right_eye_x = right_eye_center[0]; right_eye_y = right_eye_center[1]
+			img = alignment_procedure(img, left_eye, right_eye)
 			
-			#-----------------------
-			#find rotation direction
-				
-			if left_eye_y > right_eye_y:
-				point_3rd = (right_eye_x, left_eye_y)
-				direction = -1 #rotate same direction to clock
-			else:
-				point_3rd = (left_eye_x, right_eye_y)
-				direction = 1 #rotate inverse direction of clock
-			
-			#-----------------------
-			#find length of triangle edges
-			
-			a = distance(left_eye_center, point_3rd)
-			b = distance(right_eye_center, point_3rd)
-			c = distance(right_eye_center, left_eye_center)
-			
-			#-----------------------
-			#apply cosine rule
-			
-			if b != 0 and c != 0: #this multiplication causes division by zero in cos_a calculation
-			
-				cos_a = (b*b + c*c - a*a)/(2*b*c)
-				angle = np.arccos(cos_a) #angle in radian
-				angle = (angle * 180) / math.pi #radian to degree
-				
-				#-----------------------
-				#rotate base image
-				
-				if direction == -1:
-					angle = 90 - angle
-				
-				img = Image.fromarray(img)
-				img = np.array(img.rotate(direction * angle))
-				
-			return img
-		
-		else:
-			return img
+		return img #return img anyway
 	
 	elif detector_backend == 'dlib':
 	
@@ -417,7 +420,7 @@ def align_face(img, detector_backend = 'opencv'):
 		
 		#------------------------------
 		
-		import dlib
+		import dlib #this is not a must dependency in deepface
 		
 		detector = dlib.get_frontal_face_detector()
 		sp = dlib.shape_predictor(home+"/.deepface/weights/shape_predictor_5_face_landmarks.dat")
@@ -427,10 +430,9 @@ def align_face(img, detector_backend = 'opencv'):
 		if len(detections) > 0:
 			detected_face = detections[0]
 			img_shape = sp(img, detected_face)
-			img_aligned = dlib.get_face_chip(img, img_shape)
-			return img_aligned
-		else:
-			return img
+			img = dlib.get_face_chip(img, img_shape, size = img.shape[0])
+			
+		return img #return img anyway
 	
 	elif detector_backend == 'mtcnn':
 		from mtcnn import MTCNN
@@ -444,48 +446,9 @@ def align_face(img, detector_backend = 'opencv'):
 			left_eye = keypoints["left_eye"]
 			right_eye = keypoints["right_eye"]
 			
-			left_eye_x, left_eye_y = left_eye
-			right_eye_x, right_eye_y = right_eye
-			
-			#-----------------------
-			#find rotation direction
+			img = alignment_procedure(img, left_eye, right_eye)
 				
-			if left_eye_y > right_eye_y:
-				point_3rd = (right_eye_x, left_eye_y)
-				direction = -1 #rotate same direction to clock
-			else:
-				point_3rd = (left_eye_x, right_eye_y)
-				direction = 1 #rotate inverse direction of clock
-			
-			#-----------------------
-			#find length of triangle edges
-			
-			a = distance(left_eye, point_3rd)
-			b = distance(right_eye, point_3rd)
-			c = distance(right_eye, left_eye)
-			
-			#-----------------------
-			#apply cosine rule
-			
-			if b != 0 and c != 0: #this multiplication causes division by zero in cos_a calculation
-				
-				cos_a = (b*b + c*c - a*a)/(2*b*c)
-				angle = np.arccos(cos_a) #angle in radian
-				angle = (angle * 180) / math.pi #radian to degree
-				
-				#-----------------------
-				#rotate base image
-				
-				if direction == -1:
-					angle = 90 - angle
-				
-				img = Image.fromarray(img)
-				img = np.array(img.rotate(direction * angle))
-				
-			return img #return img anyway
-			
-		else:
-			return img
+		return img #return img anyway
 	
 def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True, detector_backend = 'opencv'):
 	
