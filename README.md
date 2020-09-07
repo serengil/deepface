@@ -100,14 +100,21 @@ print("Race: ", demography["dominant_race"])
 
 **Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
 
-Face detection and face alignment are early stages of a modern face recognition pipeline. [OpenCV](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [Dlib](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/) and MTCNN methods are wrapped in deepface as a detector. You can pass a custom detector to functions in deepface interface. OpenCV is the default detector for the package.
+Face detection and alignment are early stages of a modern face recognition pipeline. [OpenCV haar cascade](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [Dlib](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/) and MTCNN methods are wrapped in deepface as a detector. You can optionally pass a custom detector to functions in deepface interface. OpenCV is the default detector if you won't pass a detector.
 
 ```python
 backends = ['opencv', 'ssd', 'dlib', 'mtcnn']
 for backend in backends:
-   detected_face = DeepFace.detectFace("img.jpg", detector_backend = backend) #detectors in face detection and alignment
-   obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backend) #detectors in verification
-   df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend) #detectors in face recognition
+   #face detection and alignment
+   detected_face = DeepFace.detectFace("img.jpg", detector_backend = backend)
+   
+   #face verification
+   obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backend)
+   
+   #face recognition
+   df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend)
+   
+   #facial analysis
    demography = DeepFace.analyze("img4.jpg", detector_backend = backend) #detectors in facial analysis
 ```
 

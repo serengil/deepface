@@ -126,13 +126,6 @@ def load_image(img):
 	
 def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_detection = True):
 	
-	detectors = ['opencv', 'ssd', 'dlib', 'mtcnn']
-	
-	if detector_backend not in detectors:
-		raise ValueError("Valid backends are ", detectors," but you passed ", detector_backend)
-	
-	#---------------------------
-	
 	home = str(Path.home())
 	
 	if detector_backend == 'opencv':
@@ -301,6 +294,10 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 	
 			else:
 				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
+	
+	else:
+		detectors = ['opencv', 'ssd', 'dlib', 'mtcnn']
+		raise ValueError("Valid backends are ", detectors," but you passed ", detector_backend)
 	
 	return 0
 
