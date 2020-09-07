@@ -115,7 +115,7 @@ for backend in backends:
    df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend)
    
    #facial analysis
-   demography = DeepFace.analyze("img4.jpg", detector_backend = backend) #detectors in facial analysis
+   demography = DeepFace.analyze("img4.jpg", detector_backend = backend)
 ```
 
 **Streaming and Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
