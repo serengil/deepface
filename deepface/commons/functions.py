@@ -456,8 +456,8 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 	
 	#we will align base image instead of detected face not have black pixels
 	
-	img = align_face(img = img, detector_backend = detector_backend)	
-	img = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = False)
+	img = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = enforce_detection)
+	img = align_face(img = img, detector_backend = detector_backend)
 	
 	#--------------------------
 	
