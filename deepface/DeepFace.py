@@ -254,10 +254,8 @@ def verify(img1_path, img2_path = '', model_name ='VGG-Face', distance_metric = 
 
 	#------------------------------
 	
-	if len(img_list) > 1:
-		disable_option = False
-	else: #calling deepface in a for loop causes lots of progress bars. this block prevents this problem.
-		disable_option = True
+	#calling deepface in a for loop causes lots of progress bars. this prevents it.
+	disable_option = False len(img_list) > 1 else True
 	
 	pbar = tqdm(range(0,len(img_list)), desc='Verification', disable = disable_option)
 	
@@ -362,7 +360,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 	if len(actions) == 0:
 		actions= ['emotion', 'age', 'gender', 'race']
 
-	print("Actions to do: ", actions)
+	#print("Actions to do: ", actions)
 
 	#---------------------------------
 
@@ -375,7 +373,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 
 	if 'age' in actions:
 		if 'age' in models:
-			print("already built age model is passed")
+			#print("already built age model is passed")
 			age_model = models['age']
 		else:
 			age_model = Age.loadModel()
@@ -397,17 +395,19 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 
 	resp_objects = []
 	
-	global_pbar = tqdm(range(0,len(img_paths)), desc='Analyzing')
+	disable_option = False if len(img_paths) > 1 else True
+	
+	global_pbar = tqdm(range(0,len(img_paths)), desc='Analyzing', disable = disable_option)
 	
 	#for img_path in img_paths:
 	for j in global_pbar:
 		img_path = img_paths[j]
 
 		resp_obj = "{"
+		
+		disable_option = False if len(actions) > 1 else True
 
-		#TO-DO: do this in parallel
-
-		pbar = tqdm(range(0,len(actions)), desc='Finding actions')
+		pbar = tqdm(range(0,len(actions)), desc='Finding actions', disable = disable_option)
 
 		action_idx = 0
 		img_224 = None # Set to prevent re-detection
