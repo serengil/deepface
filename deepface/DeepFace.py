@@ -255,7 +255,7 @@ def verify(img1_path, img2_path = '', model_name ='VGG-Face', distance_metric = 
 	#------------------------------
 	
 	#calling deepface in a for loop causes lots of progress bars. this prevents it.
-	disable_option = False len(img_list) > 1 else True
+	disable_option = False if len(img_list) > 1 else True
 	
 	pbar = tqdm(range(0,len(img_list)), desc='Verification', disable = disable_option)
 	
