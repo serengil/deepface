@@ -18,6 +18,7 @@ import tensorflow as tf
 import keras
 import bz2
 from deepface.commons import distance
+from mtcnn import MTCNN
 
 def loadBase64Img(uri):
    encoded_data = uri.split(',')[1]
@@ -275,9 +276,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.") 
 		
 	elif detector_backend == 'mtcnn':
-		
-		from mtcnn import MTCNN #this is not a must library within deepface
-		
+				
 		mtcnn_detector = MTCNN()
 		
 		detections = mtcnn_detector.detect_faces(img)
@@ -432,7 +431,7 @@ def align_face(img, detector_backend = 'opencv'):
 		return img #return img anyway
 	
 	elif detector_backend == 'mtcnn':
-		from mtcnn import MTCNN
+		
 		mtcnn_detector = MTCNN()
 		detections = mtcnn_detector.detect_faces(img)
 		
