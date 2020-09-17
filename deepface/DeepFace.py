@@ -18,7 +18,6 @@ import pickle
 
 from deepface import DeepFace
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
-from deepface.basemodels.DlibResNet import DlibResNet
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -222,6 +221,7 @@ def verify(img1_path, img2_path = '', model_name ='VGG-Face', distance_metric = 
 		
 		elif model_name == 'Dlib':
 			print("Using Dlib ResNet model backend", distance_metric,"distance.")
+			from deepface.basemodels.DlibResNet import DlibResNet #this is not a must because it is very huge.
 			model = DlibResNet()
 
 		else:
@@ -554,6 +554,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 				model = DeepID.loadModel()
 			elif model_name == 'Dlib':
 				print("Using Dlib ResNet model backend", distance_metric,"distance.")
+				from deepface.basemodels.DlibResNet import DlibResNet #this is not a must because it is very huge
 				model = DlibResNet()
 			elif model_name == 'Ensemble':
 				print("Ensemble learning enabled")
