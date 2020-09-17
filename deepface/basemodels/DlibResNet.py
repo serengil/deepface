@@ -1,4 +1,4 @@
-import dlib
+import dlib #19.20.0
 import os
 import zipfile
 import bz2
