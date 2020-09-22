@@ -13,12 +13,20 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/serengil/deepface",
     packages=setuptools.find_packages(),
-	scripts=['deepface/models/face-recognition-ensemble-model.txt'],
+    scripts=['deepface/models/face-recognition-ensemble-model.txt'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+	"Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+	"Topic :: Scientific/Engineering :: Machine Learning",
+        "Topic :: Scientific/Engineering :: Image Recognition",
+        "Topic :: Software Development",
+	"Intended Audience :: Science/Research",
+        "Intended Audience :: Developers"
     ],
     python_requires='>=3.5.5',
-    install_requires=["numpy>=1.14.0", "pandas>=0.23.4", "tqdm>=4.30.0", "gdown>=3.10.1", "Pillow>=5.2.0", "opencv-python>=3.4.4", "tensorflow>=1.9.0", "keras>=2.2.0", "Flask>=1.1.2", "mtcnn>=0.1.0"]
+    install_requires=["numpy>=1.14.0", "pandas>=0.23.4", "tqdm>=4.30.0", "gdown>=3.10.1", "Pillow>=5.2.0", "opencv-python>=3.4.4", "tensorflow>=1.9.0", "keras>=2.2.0", "Flask>=1.1.2", "mtcnn>=0.1.0"],
+    keywords=["Face Recognition", "Deep Learning", "Machine Learning"]
 )
