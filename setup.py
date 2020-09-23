@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="deepface",  
-    version="0.0.38",
+    version="0.0.39",
     author="Sefik Ilkin Serengil",
     author_email="serengil@gmail.com",
     description="A Lightweight Face Recognition and Facial Attribute Analysis Framework (Age, Gender, Emotion, Race) for Python",
