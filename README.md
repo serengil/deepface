@@ -71,17 +71,6 @@ for metric in metrics:
 
 Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than cosine and regular Euclidean distance based on experiments.
 
-**Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
-
-A face recognition task can be handled by several models and similarity metrics. Herein, deepface offers a [special boosting and combination solution](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) to improve the accuracy of a face recognition task. This provides a huge improvement on accuracy metrics. Human beings could have 97.53% score for face recognition tasks whereas this ensemble method passes the human level accuracy and gets 98.57% accuracy. On the other hand, this runs much slower than single models.
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-4.jpg" width="70%" height="70%"></p>
-
-```python
-resp_obj = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Ensemble")
-df = DeepFace.find(img_path = "img1.jpg", db_path = "my_db", model_name = "Ensemble")
-```
-
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
 Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face. 
@@ -141,6 +130,17 @@ user
 │   │   ├── Alice2.jpg
 │   ├── Bob
 │   │   ├── Bob.jpg
+```
+
+**Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
+
+A face recognition task can be handled by several models and similarity metrics. Herein, deepface offers a [special boosting and combination solution](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) to improve the accuracy of a face recognition task. This provides a huge improvement on accuracy metrics. Human beings could have 97.53% score for face recognition tasks whereas this ensemble method passes the human level accuracy and gets 98.57% accuracy. On the other hand, this runs much slower than single models.
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-4.jpg" width="70%" height="70%"></p>
+
+```python
+resp_obj = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Ensemble")
+df = DeepFace.find(img_path = "img1.jpg", db_path = "my_db", model_name = "Ensemble")
 ```
 
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
