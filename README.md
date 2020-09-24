@@ -77,10 +77,9 @@ Deepface also offers facial attribute analysis including [`age`](https://sefiks.
 
 ```python
 from deepface import DeepFace
-demography = DeepFace.analyze("img4.jpg", actions = ['age', 'gender', 'race', 'emotion'])
-#demographies = DeepFace.analyze(["img1.jpg", "img2.jpg", "img3.jpg"]) #analyzing multiple faces same time
-print(demography["age"]," years old ",demography["dominant_race"]," ",demography["gender"]
-     ," in ",demography["dominant_emotion"]," mood")
+obj = DeepFace.analyze("img4.jpg", actions = ['age', 'gender', 'race', 'emotion'])
+#objs = DeepFace.analyze(["img1.jpg", "img2.jpg", "img3.jpg"]) #analyzing multiple faces same time
+print(obj["age"]," years old ",obj["dominant_race"]," ",obj["gender"]," in ",obj["dominant_emotion"]," mood")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
