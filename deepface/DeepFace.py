@@ -511,9 +511,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 	return resp_objects, orig_faces
 
 def detectFace(img_path, detector_backend='opencv'):
-	imgs = functions.preprocess_face(img=img_path, detector_backend=detector_backend)['processed'] #preprocess_face returns (1, 224, 224, 3)
-	for i in range(len(imgs)):
-		imgs[i] = imgs[i][0][:, :, ::-1] #bgr to rgb
+	imgs = functions.preprocess_face(img=img_path, detector_backend=detector_backend)['original'] #preprocess_face returns (1, 224, 224, 3)
 	return imgs
 
 def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv'):

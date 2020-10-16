@@ -470,6 +470,7 @@ def preprocess_face(img, target_size=(224, 224), grayscale=False, enforce_detect
 
     imgs = detect_face(img=img, detector_backend=detector_backend, grayscale=grayscale,
                        enforce_detection=enforce_detection)
+    orig = imgs.copy()
 
     # --------------------------
 
@@ -505,7 +506,7 @@ def preprocess_face(img, target_size=(224, 224), grayscale=False, enforce_detect
 
         pixels.append(img_pixels)
 
-    return {'processed': pixels, 'original': imgs}
+    return {'processed': pixels, 'original': orig}
 
 
 def allocateMemory():
