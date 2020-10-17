@@ -155,7 +155,6 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
         if len(faces) > 0:
             detected_faces = []
             for face in faces:
-                print(face)
                 x, y, w, h = face
                 detected_face = img[int(y):int(y + h), int(x):int(x + w)]
                 detected_faces.append(detected_face)
@@ -234,18 +233,31 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
 
             # TODO: sort detections_df
 
-            # get the first face in the image
-            instance = detections_df.iloc[0]
+            detected_faces = []
 
-            left = instance["left"]
-            right = instance["right"]
-            bottom = instance["bottom"]
-            top = instance["top"]
+            for i in range(0, len(detections_df)):
+                instance = detections_df.iloc[i]
+                left = instance["left"]
+                right = instance["right"]
+                bottom = instance["bottom"]
+                top = instance["top"]
 
-            detected_face = base_img[int(top * aspect_ratio_y):int(bottom * aspect_ratio_y),
-                            int(left * aspect_ratio_x):int(right * aspect_ratio_x)]
+                detected_face = base_img[int(top * aspect_ratio_y):int(bottom * aspect_ratio_y), int(left * aspect_ratio_x):int(right * aspect_ratio_x)]
+                detected_faces.append(detected_face)
+            return detected_faces
 
-            return detected_face
+            # # get the first face in the image
+            # instance = detections_df.iloc[0]
+            #
+            # left = instance["left"]
+            # right = instance["right"]
+            # bottom = instance["bottom"]
+            # top = instance["top"]
+            #
+            # detected_face = base_img[int(top * aspect_ratio_y):int(bottom * aspect_ratio_y),
+            #                 int(left * aspect_ratio_x):int(right * aspect_ratio_x)]
+            #
+            # return detected_face
 
         else:  # if no face detected
 
@@ -258,8 +270,7 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
                     "Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
 
     elif detector_backend == 'dlib':
-        import \
-            dlib  # this is not a must library within deepface. that's why, I didn't put this import to a global level. version: 19.20.0
+        import dlib  # this is not a must library within deepface. that's why, I didn't put this import to a global level. version: 19.20.0
 
         detector = dlib.get_frontal_face_detector()
 
@@ -267,6 +278,7 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
 
         if len(detections) > 0:
 
+            detected_faces = []
             for idx, d in enumerate(detections):
                 left = d.left();
                 right = d.right()
@@ -274,9 +286,16 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
                 bottom = d.bottom()
 
                 detected_face = img[top:bottom, left:right]
-
-                return detected_face
-
+                detected_faces.append(detected_face)
+            return detected_faces
+                # left = d.left();
+                # right = d.right()
+                # top = d.top();
+                # bottom = d.bottom()
+                #
+                # detected_face = img[top:bottom, left:right]
+                #
+                # return detected_face
         else:  # if no face detected
 
             if enforce_detection != True:
