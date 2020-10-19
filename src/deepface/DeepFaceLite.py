@@ -60,18 +60,23 @@ class DeepFaceLite(object):
 
 			sum_of_predictions = emotion_predictions.sum()
 
-			all_emotions = {}
+			all_emotions = []
 
 			for j in range(0, len(emotion_labels)):
 				emotion_label = emotion_labels[j]
 				emotion_prediction = 100 * emotion_predictions[j] / sum_of_predictions
-				all_emotions[emotion_label] = emotion_prediction
+				# all_emotions[emotion_label] = '{:.4f}'.format(emotion_prediction)
+				max_score = 100 * np.max(emotion_predictions) / sum_of_predictions
+
+				all_emotions.append('{}: {:.4f}'.format(emotion_label, emotion_prediction))
 
 			emotion = {
 				'all': all_emotions,
 				'dominant': emotion_labels[np.argmax(emotion_predictions)],
-				'dominant_score': np.max(emotion_predictions)
+				'dominant_score': '{:.4f}'.format(max_score)
 			}
+
+			print(emotion)
 
 			# --- age --- 
 			age_predictions = self.age_model.predict(imgs_224[i])[0,:]
@@ -88,7 +93,8 @@ class DeepFaceLite(object):
 			# resp_obj = json.loads(resp_obj)
 
 			resp_obj = {
-				'age': apparent_age,
+				'id': i,
+				'age': np.round(apparent_age),
 				'gender': gender,
 				'emotion': emotion
 			}

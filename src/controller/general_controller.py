@@ -9,41 +9,6 @@ import copy
 api = Namespace('general', path='/', description='general information related to app')
 
 
-# @api.route('/get-breed-info')
-# class BreedList(Resource):
-#     @api.doc('get breed information from csv')
-#     def get(self):
-#         """
-#         return the breed information, which gets from wikipedia
-#         :return: list of breed information
-#         """
-#         breed_info = {}
-#         for animal_type in CONSTANTS['ANIMAL_TYPE']:
-#             with open('wikiFile/' + animal_type + '.csv') as csv_file:
-#                 csv_reader = csv.reader(csv_file, delimiter=',')
-#                 line_count = 0
-#                 json_title = []
-#                 animal_list = []
-#                 for row in csv_reader:
-#                     if line_count == 0:
-#                         json_title = row
-#                         line_count += 1
-#                     else:
-#                         info_obj = {
-#                             json_title[0]: row[0],
-#                             json_title[1]: row[1],
-#                             json_title[2]: row[2],
-#                             json_title[3]: row[3],
-#                             json_title[4]: row[4],
-#                         }
-#                         animal_list.append(info_obj)
-#                         line_count += 1
-#                 csv_file.close()
-#                 breed_info[animal_type] = animal_list
-
-#         return send_json_response(breed_info, 200)
-
-
 @api.route('/get-app-info')
 class AppInfo(Resource):
     @api.doc('return the app developer information')
