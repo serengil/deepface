@@ -1,0 +1,59 @@
+        div.file-drop-zone{
+            height: 550px ;
+        }
+        div.file-drop-zone-title{
+            height: 520px;
+            text-align: center;
+            vertical-align: center;
+            line-height: 320px;
+        }
+        .img-thumbnail{
+            padding: 18px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        .text_box_title{
+            font-size: 35px;
+            font-weight: bold;
+        }
+        hr{
+            margin-top: 10px;
+            border-top: 1px solid darkgray;
+        }
+        .response_title{
+            font-weight: bold;
+            color: darkslategray;
+            margin-top: 15px;
+        }
+        .response_number{
+            color: dimgray;
+            margin-left: 20px;
+        }
+        .file-preview-thumbnails{
+            margin: 10%;
+            height: 80%;
+        }
+        .krajee-default.file-preview-frame{
+            margin: 2%;
+            height: 96%;
+            width: 96%;
+        }
+        .krajee-default.file-preview-frame .kv-file-content{
+            width: 100%;
+            height: 81%;
+        }
+        .krajee-default.file-preview-frame .file-thumbnail-footer{
+            height: 40px;
+        }
+        .file-preview-image{
+            width: 88% !important;
+            height: 88% !important;
+            margin: 6%;
+            object-fit: contain;
+        }
+        .krajee-default .file-footer-caption{
+         margin-bottom: 10px;
+        }
+        #predicted-img {
+            width: 100%;
+            height: 81%;
+        }

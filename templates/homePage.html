@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block mainContent %}
+<div class="container">
+   <div class="row" style="align-self: center">
+      <!--left col -->
+      <div class="col-lg-6 col-sm-12">
+         <input id="file-input" type="file" class="file input-lg" data-preview-file-type="text">
+      </div>
+      <!-- right col-->
+      <div class="col-lg-6 col-sm-12" id="div_prediction">
+         <div class="card">
+            <!--predicted image-->
+            <img class="card-img-top" id="predicted-img" alt="predicted picture">
+            <div class="card-body">
+               <!--prediction results-->
+               <div class="card-text" id="predicted-results"></div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div style="text-align: center; font-weight: lighter; margin-top: 20px">
+      <p id="app-developBy"></p>
+      <p id="app-description"></p>
+      <p id="app-contact"></p>
+   </div>
+</div>
+<!-- loading gif-->
+<img src="static/img/loading-sm.gif" id="loading_image" alt="loading"
+   style="position: absolute; left: 73%; top: 48%; z-index: 2; width: 25px">
+<script>
+   $("#file-input").fileinput({'showUpload':true, 'previewFileType':'any', 'autoOrientImage':false});
+   // hide prediction and loading image at beginning
+   $("#loading_image").fadeOut(0);
+   $("#div_prediction").fadeOut(0);
+
+
+   //when click upload
+     $('.fileinput-upload-button').click(function (event) {
+         $("#div_prediction").fadeOut(1000);
+         setTextEmpty();
+         $('#loading_image').fadeIn(1500);
+         sendMessage();
+     });
+
+   //when click remove
+   $('.fileinput-remove-button').click(function (event) {
+       $("#div_prediction").fadeOut(1000);
+       setTextEmpty();
+   });
+
+
+   // send image to server and get response
+     function sendMessage() {
+         let dataURL;
+            dataURL = $('.file-preview-image').attr("src");
+            base64Image = dataURL.replace("data:image/jpeg;base64,","");
+            base64Image = base64Image.replace("data:image/png;base64,","");
+         let message = {
+           image: base64Image
+          }
+
+     $.post("/api/predict",JSON.stringify(message), function(response){
+         let resultArea = document.getElementById('predicted-results')
+         resultArea.innerHTML = ''
+         let predictedImg = document.getElementById('predicted-img')
+         predictedImg.src = 'data:image/(jpeg|png);charset=utf-8;base64,'+response['img_str']
+         $('#loading_image').fadeOut(300);
+         $("#div_prediction").fadeIn(1500);
+         if (response['status'] === 'success') {
+             for (let i=0; i<response['results'].length; i++) {
+                 const addedId = `<div style=\"border: 1px dashed darkgrey\"><ul><li><strong>ID: </strong>${response['results'][i].id}`
+                 const emotionList = `<div style=\"margin: 10px 30px; font-weight: lighter;\"><ul><li>${response['results'][i].emotion['allEmotions'][0]}</li><li>${response['results'][i].emotion['allEmotions'][1]}</li><li>${response['results'][i].emotion['allEmotions'][2]}</li><li>${response['results'][i].emotion['allEmotions'][3]}</li><li>${response['results'][i].emotion['allEmotions'][4]}</li></ul></div>`
+                 const otherInfo = `</li><li><strong>Type: </strong>${response['results'][i].pet}</li><li><strong>Breed: </strong>${response['results'][i].breed}</li><li><strong>Emotion: </strong>${response['results'][i].emotion['mostLikely']}</li></ul>${emotionList}</div>`
+                 const addedHtml = response['isShowId'] !== 'false' ? addedId + otherInfo : otherInfo
+                 resultArea.innerHTML += addedHtml
+             }
+         } else {
+             let resultArea = document.getElementById('predicted-results')
+             resultArea.innerHTML += response['message']
+         }
+     });
+     }
+
+     //set emotion and breed text to empty
+     function setTextEmpty() {
+      let resultArea = document.getElementById('predicted-results')
+      resultArea.innerHTML = ''
+     }
+</script>
+{% endblock %}
