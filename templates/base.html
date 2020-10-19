@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pet Smile</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="/static/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="/static/css/homePage.css" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <script src="/static/js/fileinput.js"></script>
+    {#    chart js#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+</head>
+<body style="background: rgb( 246,247,249); margin-bottom: 20px">
+<!-- main -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: #e3f2fd; margin-bottom: 30px; width: 100%">
+    <a class="navbar-brand" href="/">
+        <div style="font-size: 45px; margin-left: 30px">
+            <span style="font-weight: bold">Happy</span>Pet
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link active" href="/">Home</a>
+            <a class="nav-item nav-link" href="/breed-list">Breed Info</a>
+            <a class="nav-item nav-link" href="/statistical-data">Statistical Results</a>
+        </div>
+    </div>
+</nav>
+{% block mainContent %}{% endblock %}
+<div style="text-align: center; font-weight: lighter; margin-top: 20px">
+    <div id="app-developBy"></div>
+    <div id="app-description"></div>
+    <div id="app-contact"></div>
+</div>
+<script>
+    function getAppInfo() {
+        $.get("/api/get-app-info", function (response) {
+            const appDevelopByBlock = document.getElementById('app-developBy')
+            const appDescriptionBlock = document.getElementById('app-description')
+            const appContactBlock = document.getElementById('app-contact')
+            appDevelopByBlock.innerHTML = response['developedByHTML']
+            appDescriptionBlock.innerHTML = response['descriptionHTML']
+            appContactBlock.innerHTML = response['contactHTML']
+        });
+    }
+
+    window.onload = getAppInfo
+</script>
+</body>
+</html>

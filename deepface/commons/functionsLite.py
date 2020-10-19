@@ -20,6 +20,11 @@ import bz2
 from deepface.commons import distance
 from mtcnn import MTCNN  # 0.1.0
 
+# draw bounding boxes
+from PIL import Image, ImageFont, ImageDraw
+import colorsys
+import numpy as np
+
 
 def loadBase64Img(uri):
     encoded_data = uri.split(',')[1]
@@ -128,8 +133,25 @@ def load_image(img):
     return img
 
 
-def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detection=True):
+def detect_face(img, detector_backend='opencv', enforce_detection=True):
     home = str(Path.home())
+
+    # drawing settings
+    font = ImageFont.truetype(font='font/FiraMono-Medium.otf',
+                        size=np.floor(3e-2 * img.size[1] + 0.5).astype('int32'))
+    thickness = (img.size[0] + img.size[1]) // 300
+    hsv_tuples = [(x / 50, 1., 1.)
+                      for x in range(50)]
+    colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+    colors = list(
+        map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
+    np.random.shuffle(colors)  # Shuffle colors to decorrelate adjacent classes.
+
+
+    # keep PIL image and cv2 image
+    pil_img = img
+    cv2_img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+
 
     if detector_backend == 'opencv':
 
@@ -148,22 +170,57 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
         faces = []
 
         try:
-            faces = face_detector.detectMultiScale(img, 1.3, 5)
+            faces = face_detector.detectMultiScale(cv2_img, 1.3, 5)
         except:
             pass
 
         if len(faces) > 0:
             detected_faces = []
-            for face in faces:
+
+            showid = True if len(faces) > 1 else False
+
+            for i, face in enumerate(faces):
                 x, y, w, h = face
-                detected_face = img[int(y):int(y + h), int(x):int(x + w)]
+                detected_face = cv2_img[int(y):int(y + h), int(x):int(x + w)]
                 detected_faces.append(detected_face)
-            return detected_faces
+
+                # bounding box corners
+                top, left, bottom, right = [int(y), int(x), int(y+h), int(x+w)]
+                top = max(0, np.floor(top + 0.5).astype('int32'))
+                left = max(0, np.floor(left + 0.5).astype('int32'))
+                bottom = min(pil_img.size[1], np.floor(bottom + 0.5).astype('int32'))
+                right = min(pil_img.size[0], np.floor(right + 0.5).astype('int32'))
+
+                # label
+                label = 'ID: {}'.format(i)
+                draw = ImageDraw.Draw(pil_img)
+                label_size = draw.textsize(label, font=font)
+
+                if top - label_size[1] >= 0:
+                    text_origin = np.array([left, top - label_size[1]])
+                else:
+                    text_origin = np.array([left, top + 1])
+
+                # My kingdom for a good redistributable image drawing library.
+                for i in range(thickness):
+                    draw.rectangle(
+                        [left + i, top + i, right - i, bottom - i],
+                        outline=colors[i])
+
+                if showid:
+                    draw.rectangle(
+                        [tuple(text_origin), tuple(text_origin + label_size)],
+                        fill=colors[i]
+                    )
+                    draw.text(text_origin, label, fill=(0, 0, 0), font=font)
+                del draw
+
+            return pil_img, detected_faces
 
         else:  # if no face detected
 
             if enforce_detection != True:
-                return img
+                return pil_img, cv2_img
 
             else:
                 raise ValueError(
@@ -205,16 +262,16 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
 
         target_size = (300, 300)
 
-        base_img = img.copy()  # we will restore base_img to img later
+        base_img = cv2_img.copy()  # we will restore base_img to img later
 
-        original_size = img.shape
+        original_size = cv2_img.shape
 
-        img = cv2.resize(img, target_size)
+        cv2_img = cv2.resize(cv2_img, target_size)
 
         aspect_ratio_x = (original_size[1] / target_size[1])
         aspect_ratio_y = (original_size[0] / target_size[0])
 
-        imageBlob = cv2.dnn.blobFromImage(image=img)
+        imageBlob = cv2.dnn.blobFromImage(image=cv2_img)
 
         ssd_detector.setInput(imageBlob)
         detections = ssd_detector.forward()
@@ -231,6 +288,8 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
 
         if detections_df.shape[0] > 0:
 
+            showid = True if detections_df.shape[0] > 1 else False
+
             # TODO: sort detections_df
 
             detected_faces = []
@@ -244,26 +303,46 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
 
                 detected_face = base_img[int(top * aspect_ratio_y):int(bottom * aspect_ratio_y), int(left * aspect_ratio_x):int(right * aspect_ratio_x)]
                 detected_faces.append(detected_face)
-            return detected_faces
 
-            # # get the first face in the image
-            # instance = detections_df.iloc[0]
-            #
-            # left = instance["left"]
-            # right = instance["right"]
-            # bottom = instance["bottom"]
-            # top = instance["top"]
-            #
-            # detected_face = base_img[int(top * aspect_ratio_y):int(bottom * aspect_ratio_y),
-            #                 int(left * aspect_ratio_x):int(right * aspect_ratio_x)]
-            #
-            # return detected_face
+                # bounding box corners
+                top, left, bottom, right = [int(top * aspect_ratio_y), int(left * aspect_ratio_x), int(bottom * aspect_ratio_y), int(right * aspect_ratio_x)]
+                top = max(0, np.floor(top + 0.5).astype('int32'))
+                left = max(0, np.floor(left + 0.5).astype('int32'))
+                bottom = min(pil_img.size[1], np.floor(bottom + 0.5).astype('int32'))
+                right = min(pil_img.size[0], np.floor(right + 0.5).astype('int32'))
+
+                # label
+                label = 'ID: {}'.format(i)
+                draw = ImageDraw.Draw(pil_img)
+                label_size = draw.textsize(label, font=font)
+
+                if top - label_size[1] >= 0:
+                    text_origin = np.array([left, top - label_size[1]])
+                else:
+                    text_origin = np.array([left, top + 1])
+
+                # My kingdom for a good redistributable image drawing library.
+                for i in range(thickness):
+                    draw.rectangle(
+                        [left + i, top + i, right - i, bottom - i],
+                        outline=colors[i])
+
+                if showid:
+                    draw.rectangle(
+                        [tuple(text_origin), tuple(text_origin + label_size)],
+                        fill=colors[i]
+                    )
+                    draw.text(text_origin, label, fill=(0, 0, 0), font=font)
+                del draw
+
+
+            return pil_img, detected_faces
 
         else:  # if no face detected
 
             if enforce_detection != True:
                 img = base_img.copy()
-                return img
+                return pil_img, img
 
             else:
                 raise ValueError(
@@ -274,32 +353,62 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
 
         detector = dlib.get_frontal_face_detector()
 
-        detections = detector(img, 1)
+        detections = detector(cv2_img, 1)
 
         if len(detections) > 0:
 
+            showid = True if len(detections) > 1 else False
+
             detected_faces = []
-            for idx, d in enumerate(detections):
-                left = d.left();
+            for i, d in enumerate(detections):
+
+                left = d.left()
                 right = d.right()
-                top = d.top();
+                top = d.top()
                 bottom = d.bottom()
 
-                detected_face = img[top:bottom, left:right]
+                detected_face = cv2_img[top:bottom, left:right]
                 detected_faces.append(detected_face)
-            return detected_faces
-                # left = d.left();
-                # right = d.right()
-                # top = d.top();
-                # bottom = d.bottom()
-                #
-                # detected_face = img[top:bottom, left:right]
-                #
-                # return detected_face
+
+
+                # bounding box corners
+                top = max(0, np.floor(top + 0.5).astype('int32'))
+                left = max(0, np.floor(left + 0.5).astype('int32'))
+                bottom = min(pil_img.size[1], np.floor(bottom + 0.5).astype('int32'))
+                right = min(pil_img.size[0], np.floor(right + 0.5).astype('int32'))
+
+                # label
+                label = 'ID: {}'.format(i)
+                draw = ImageDraw.Draw(pil_img)
+                label_size = draw.textsize(label, font=font)
+
+                if top - label_size[1] >= 0:
+                    text_origin = np.array([left, top - label_size[1]])
+                else:
+                    text_origin = np.array([left, top + 1])
+
+                # My kingdom for a good redistributable image drawing library.
+                for i in range(thickness):
+                    draw.rectangle(
+                        [left + i, top + i, right - i, bottom - i],
+                        outline=colors[i])
+
+                if showid:
+                    draw.rectangle(
+                        [tuple(text_origin), tuple(text_origin + label_size)],
+                        fill=colors[i]
+                    )
+                    draw.text(text_origin, label, fill=(0, 0, 0), font=font)
+                del draw
+
+
+            return pil_img, detected_faces
+
+
         else:  # if no face detected
 
             if enforce_detection != True:
-                return img
+                return pil_img, img
 
             else:
                 raise ValueError(
@@ -309,19 +418,55 @@ def detect_face(img, detector_backend='opencv', grayscale=False, enforce_detecti
 
         mtcnn_detector = MTCNN()
 
-        detections = mtcnn_detector.detect_faces(img)
+        detections = mtcnn_detector.detect_faces(cv2_img)
 
         if len(detections) > 0:
+
+            showid = True if len(detections) > 1 else False
+
             detected_faces = []
-            for detection in detections:
+            for i, detection in enumerate(detections):
                 x, y, w, h = detection["box"]
-                detected_face = img[int(y):int(y + h), int(x):int(x + w)]
+                detected_face = cv2_img[int(y):int(y + h), int(x):int(x + w)]
                 detected_faces.append(detected_face)
-            return detected_faces
+
+                # bounding box corners
+                top, left, bottom, right = [int(y), int(x), int(y+h), int(x+w)]
+                top = max(0, np.floor(top + 0.5).astype('int32'))
+                left = max(0, np.floor(left + 0.5).astype('int32'))
+                bottom = min(pil_img.size[1], np.floor(bottom + 0.5).astype('int32'))
+                right = min(pil_img.size[0], np.floor(right + 0.5).astype('int32'))
+
+                # label
+                print(i)
+                label = 'ID: {}'.format(i)
+                draw = ImageDraw.Draw(pil_img)
+                label_size = draw.textsize(label, font=font)
+
+                if top - label_size[1] >= 0:
+                    text_origin = np.array([left, top - label_size[1]])
+                else:
+                    text_origin = np.array([left, top + 1])
+
+                # My kingdom for a good redistributable image drawing library.
+                for i in range(thickness):
+                    draw.rectangle(
+                        [left + i, top + i, right - i, bottom - i],
+                        outline=colors[i])
+
+                if showid:
+                    draw.rectangle(
+                        [tuple(text_origin), tuple(text_origin + label_size)],
+                        fill=colors[i]
+                    )
+                    draw.text(text_origin, label, fill=(0, 0, 0), font=font)
+                del draw
+
+            return pil_img, detected_faces
 
         else:  # if no face detected
             if enforce_detection != True:
-                return img
+                return pil_img, img
 
             else:
                 raise ValueError(
@@ -412,14 +557,14 @@ def align_face(img, detector_backend='opencv'):
             # -----------------------
             # decide left and right eye
 
-            eye_1 = eyes[0];
+            eye_1 = eyes[0]
             eye_2 = eyes[1]
 
             if eye_1[0] < eye_2[0]:
-                left_eye = eye_1;
+                left_eye = eye_1
                 right_eye = eye_2
             else:
-                left_eye = eye_2;
+                left_eye = eye_2
                 right_eye = eye_1
 
             # -----------------------
@@ -482,60 +627,66 @@ def align_face(img, detector_backend='opencv'):
         return img  # return img anyway
 
 
-def preprocess_face(img, target_size=(224, 224), grayscale=False, enforce_detection=True, detector_backend='opencv'):
-    # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
-    img = load_image(img)
-    base_img = img.copy()
+def preprocess_face(base_img, enforce_detection=True, detector_backend='opencv'):
 
-    imgs = detect_face(img=img, detector_backend=detector_backend, grayscale=grayscale,
+    cv2_img = cv2.cvtColor(np.asarray(base_img),cv2.COLOR_RGB2BGR)
+    bbox_img, faces = detect_face(img=base_img, detector_backend=detector_backend,
                        enforce_detection=enforce_detection)
-    orig = imgs.copy()
+    orig_faces = faces.copy()
 
     # --------------------------
 
-    for i in range(len(imgs)):
+    for i in range(len(faces)):
 
-        img = imgs[i]
+        face = faces[i]
 
-        if img.shape[0] > 0 and img.shape[1] > 0:
-            imgs[i] = align_face(img=img, detector_backend=detector_backend)
+        if face.shape[0] > 0 and face.shape[1] > 0:
+            faces[i] = align_face(img=face, detector_backend=detector_backend)
         else:
 
             if enforce_detection == True:
-                raise ValueError("Detected face shape is ", img.shape,
+                raise ValueError("Detected face shape is ", face.shape,
                                  ". Consider to set enforce_detection argument to False.")
             else:  # restore base image
-                imgs[i] = base_img.copy()
+                faces[i] = cv2_img
 
     # --------------------------
 
     # post-processing
-
     pixels = []
+    pixels_gray = []
 
-    for img in imgs:
-
-        if grayscale == True:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        img = cv2.resize(img, target_size)
-        img_pixels = image.img_to_array(img)
+    for img in faces:
+        # RBG
+        target_size = (224, 224)
+        img_rgb = cv2.resize(img, target_size)
+        img_pixels = image.img_to_array(img_rgb)
         img_pixels = np.expand_dims(img_pixels, axis=0)
         img_pixels /= 255  # normalize input in [0, 1]
-
         pixels.append(img_pixels)
 
-    return {'processed': pixels, 'original': orig}
+        # gray scale
+        target_size = (48, 48)
+        img_gray = cv2.resize(img, target_size)
+        img_gray = cv2.cvtColor(img_gray, cv2.COLOR_BGR2GRAY)
+        img_pixels_gray = image.img_to_array(img_gray)
+        print(img_pixels_gray.shape)
+        img_pixels_gray = np.expand_dims(img_pixels_gray, axis=0)
+        img_pixels_gray /= 255  # normalize input in [0, 1]
+        pixels_gray.append(img_pixels_gray)
+
+    return {'processed': pixels, 'original': orig_faces, 
+            'gray': pixels_gray, 'bbox': bbox_img}
 
 
 def allocateMemory():
     # find allocated memories
     gpu_indexes = []
-    memory_usage_percentages = [];
-    available_memories = [];
-    total_memories = [];
+    memory_usage_percentages = []
+    available_memories = []
+    total_memories = []
     utilizations = []
-    power_usages = [];
+    power_usages = []
     power_capacities = []
 
     try:

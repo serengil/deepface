@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% block mainContent %}
+    <div class="container">
+    <h1>General information: </h1>
+        <div class="row">
+            <div style="width: 800px; margin: 5px auto;" class="col-lg-6 col-sm-12">
+                <canvas id="numberOfTotalPrediction" width="8" height="5"></canvas>
+            </div>
+
+            <div style="width: 800px; margin: 5px auto;" class="col-lg-6 col-sm-12">
+                <canvas id="numberOfTotalFeedback" width="8" height="5"></canvas>
+            </div>
+        </div>
+        <br/>
+        <div style="width: 800px; margin: 5px auto;">
+            <canvas id="numberOfPhotoByDate" width="8" height="5"></canvas>
+        </div>
+        <br/>
+        <h1>Cat: </h1>
+        <div style="width: 800px; margin: 5px auto">
+            <canvas id="numberOfCatBreedPredictionChart" width="8" height="5"></canvas>
+        </div>
+        <br/>
+        <div style="width: 800px; margin: 5px auto">
+            <canvas id="numberOfCatBreedFeedbackChart" width="8" height="5"></canvas>
+        </div>
+        <br/>
+        <h1>Dog: </h1>
+        <div style="overflow-x: auto">
+            <div style="width: 1300px; margin: 5px auto; overflow-x: auto">
+                <canvas id="numberOfDogBreedPredictionChart" width="9" height="5"></canvas>
+            </div>
+        </div>
+        <br/>
+        <div style="overflow-x: auto">
+            <div style="width: 1300px; margin: 5px auto; overflow-x: auto">
+                <canvas id="numberOfDogBreedFeedbackChart" width="9" height="5"></canvas>
+            </div>
+        </div>
+        <br/>
+        <h1>Emotion: </h1>
+        <div style="width: 800px; margin: 5px auto;">
+            <canvas id="numberOfEmotionPredictionChart" width="9" height="5"></canvas>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="col-lg-6 col-sm-12" style="width: 800px; margin: 5px auto;">
+                <canvas id="catEmotionFeedbackChart" width="9" height="5"></canvas>
+            </div>
+            <div class="col-lg-6 col-sm-12" style="width: 800px; margin: 5px auto;">
+                <canvas id="dogEmotionFeedbackChart" width="9" height="5"></canvas>
+            </div>
+        </div>
+    </div>
+    <script>
+        function generalBackgroundColor(number) {
+            let result = []
+            for (let i = 0; i < number; i++) {
+                let color = "rgba(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")"
+                result.push(color)
+            }
+            return result
+        }
+
+        function drawDoughunt(canvas, data, title) {
+            new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        data: Object.values(data),
+                        backgroundColor: ['rgb(255, 164, 128)', 'rgb(40, 143, 56)'],
+                    }]
+                },
+                options: {
+                    title: {display: true, text: title, fontSize: 30},
+                }
+            });
+        }
+
+        function drawLine(canvas, data, title) {
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        data: Object.values(data),
+                        label: 'Number',
+                        borderColor: "#3e95cd",
+                        fill: false
+                    }]
+                },
+                options: {
+                    title: {display: true, text: title, fontSize: 30},
+                }
+            });
+        }
+
+        function drawVerticalBar(canvas, data, title) {
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        label: 'Number',
+                        data: Object.values(data),
+                        backgroundColor:
+                            generalBackgroundColor(Object.keys(data).length),
+                    }]
+                },
+                options: {
+                    title: {display: true, text: title, fontSize: 30},
+                    legend: {display: false},
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                fontSize: 20
+                            }
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                autoSkip: false,
+                                fontSize: 20
+                            }
+                        }]
+                    },
+                }
+            });
+        }
+
+        function drawVerticalStackBar(canvas, dataA, dataB, title, labels) {
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(dataA),
+                    datasets: [{
+                        label: labels[0],
+                        data: Object.values(dataA),
+                        backgroundColor:
+                            generalBackgroundColor(1)[0],
+                    }, {
+                        label: labels[1],
+                        data: Object.values(dataB),
+                        backgroundColor:
+                            generalBackgroundColor(1)[0],
+                    }]
+                },
+                options: {
+                    title: {display: true, text: title, fontSize: 30},
+                    legend: {display: true},
+                    scales: {
+                        xAxes: [{
+                            stacked: true, ticks: {
+                                autoSkip: false,
+                                fontSize: 20
+                            }
+                        }],
+                        yAxes: [{
+                            stacked: true, ticks: {
+                                autoSkip: false,
+                                fontSize: 20
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
+        function drawComparisonBar(canvas, labels, dataA, dataB, title) {
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cat',
+                        data: Object.values(dataA),
+                        backgroundColor:
+                            'rgba(255, 99, 132, 0.2)',
+                        order: 1
+                    },
+                        {
+                            label: 'Dog',
+                            data: Object.values(dataB),
+                            type: 'bar',
+                            backgroundColor:
+                                'rgba(54, 162, 235, 0.2)',
+                            order: 2
+                        }]
+                },
+                options: {
+                    title: {display: true, text: title},
+                    legend: {display: true},
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                            }
+                        }]
+                    },
+                }
+            });
+        }
+
+        function getTotalPrediction() {
+            $.get("/api/get-statistical-results", function (response) {
+
+                {#total prediction number#}
+                let ctxForTotalPredictionNumber = document.getElementById('numberOfTotalPrediction').getContext('2d');
+                let totalPredictionNumberData = {
+                    "Cat": response['totalNumberOfCatPrediction'],
+                    "Dog": response['totalNumberOfDogPrediction']
+                }
+                let totalPredictionCount = response['totalNumberOfCatPrediction'] + response['totalNumberOfDogPrediction']
+                let totalNumberOfPhotoUploaded = response['totalNumberOfPhotoUploaded']
+                drawDoughunt(ctxForTotalPredictionNumber, totalPredictionNumberData, `Total prediction number: ${totalPredictionCount} pets / ${totalNumberOfPhotoUploaded} photos`)
+
+                {#total feedback number#}
+                let ctxForTotalFeedbackNumber = document.getElementById('numberOfTotalFeedback').getContext('2d');
+                let totalFeedbackNumberData = {
+                    "Cat": response['totalNumberOfCatFeedback'],
+                    "Dog": response['totalNumberOfDogFeedback']
+                }
+                let totalFeedbackCount = response['totalNumberOfCatFeedback'] + response['totalNumberOfDogFeedback']
+                drawDoughunt(ctxForTotalFeedbackNumber, totalFeedbackNumberData, `Total feedback number: ${totalFeedbackCount}`)
+
+                {#number of photo by date#}
+                let ctxForNumberOfPhotoByDate = document.getElementById('numberOfPhotoByDate').getContext('2d');
+                drawLine(ctxForNumberOfPhotoByDate, response['numberOfPhotoByDate'], 'Number of Photos within a week')
+
+                {#cat breed prediction#}
+                let ctxForCatBreedPredictionNumber = document.getElementById('numberOfCatBreedPredictionChart').getContext('2d');
+                drawVerticalBar(ctxForCatBreedPredictionNumber, response['totalNumberOfCatBreedPrediction'], "Cat breed prediction")
+
+                {#cat breed feedback#}
+                let ctxForCatBreedFeedback = document.getElementById('numberOfCatBreedFeedbackChart').getContext('2d');
+                drawVerticalStackBar(ctxForCatBreedFeedback, response['totalNumberOfCatBreedCorrectFeedback'], response['totalNumberOfCatBreedWrongFeedback'], "Cat breed feedback", ['Correct', 'Wrong'])
+
+                {#dog breed prediction#}
+                let ctxForDogBreedPredictionNumber = document.getElementById('numberOfDogBreedPredictionChart').getContext('2d');
+                drawVerticalBar(ctxForDogBreedPredictionNumber, response['totalNumberOfDogBreedPrediction'], "Dog breed prediction")
+
+                {#dog breed feedback#}
+                let ctxForDogBreedFeedback = document.getElementById('numberOfDogBreedFeedbackChart').getContext('2d');
+                drawVerticalStackBar(ctxForDogBreedFeedback, response['totalNumberOfDogBreedCorrectFeedback'], response['totalNumberOfDogBreedWrongFeedback'], "Dog breed feedback", ['Correct', 'Wrong'])
+
+                {#emotion prediction#}
+                let ctxForEmotionPredictionNumber = document.getElementById('numberOfEmotionPredictionChart').getContext('2d');
+                drawVerticalStackBar(ctxForEmotionPredictionNumber, response['totalNumberOfCatEmotionPrediction'], response['totalNumberOfDogEmotionPrediction'], "Emotion prediction", ['Cat', 'Dog'])
+
+                {#cat emotion feedback#}
+                let ctxForCatEmotionFeedback = document.getElementById('catEmotionFeedbackChart').getContext('2d');
+                drawVerticalStackBar(ctxForCatEmotionFeedback, response['totalNumberOfCatEmotionCorrectFeedback'], response['totalNumberOfCatEmotionWrongFeedback'], "Emotion feedback for cat", ['Correct', 'Wrong'])
+
+                {#dog emotion feedback#}
+                let ctxForDogEmotionFeedback = document.getElementById('dogEmotionFeedbackChart').getContext('2d');
+                drawVerticalStackBar(ctxForDogEmotionFeedback, response['totalNumberOfDogEmotionCorrectFeedback'], response['totalNumberOfDogEmotionWrongFeedback'], "Emotion feedback for dog", ['Correct', 'Wrong'])
+            });
+        }
+
+        getTotalPrediction()
+    </script>
+{% endblock %}

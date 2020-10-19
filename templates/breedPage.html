@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block mainContent %}
+<div id="breed-table-area" style="margin-left: 50px; margin-right: 50px;">
+</div>
+<script>
+   function getBreedList() {
+      $.get("/api/get-breed-info", function(response) {
+          let breedTableArea = document.getElementById('breed-table-area')
+          breedTableArea.innerHTML = ''
+          let htmlContent = ''
+
+          for (let animalType in response) {
+              htmlContent += '<h2 style="text-align: center">' + animalType + '</h2>' + '<table class="table table-striped"><thead><tr><th scope="col">Breed</th><th scope="col">Image</th><th scope="col">Description</th><th scope="col">URL</th></tr></thead><tbody>'
+
+              response[animalType].forEach(eachBreed => {
+                  htmlContent += '<tr>'
+                  htmlContent += '<td>' + eachBreed['breed'] + '</td>'
+                  htmlContent += `<td><img src=${eachBreed['image']} alt=${eachBreed['image']} style="height: 100px; width: 100px"></td>`
+                  htmlContent += '<td>' + eachBreed['description'] + '</td>'
+                  htmlContent += `<td><a href=${eachBreed['link']} target="_blank">wikipedia link</a></td></tr>`
+              })
+
+              htmlContent += '</tbody></table>'
+          }
+
+          htmlContent += '<p style="text-align: end">(all results are downloaded from wikipedia)</p>'
+          breedTableArea.innerHTML = htmlContent;
+   });
+   }
+   getBreedList();
+</script>
+{% endblock %}
