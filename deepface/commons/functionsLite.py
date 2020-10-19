@@ -670,7 +670,6 @@ def preprocess_face(base_img, enforce_detection=True, detector_backend='opencv')
         img_gray = cv2.resize(img, target_size)
         img_gray = cv2.cvtColor(img_gray, cv2.COLOR_BGR2GRAY)
         img_pixels_gray = image.img_to_array(img_gray)
-        print(img_pixels_gray.shape)
         img_pixels_gray = np.expand_dims(img_pixels_gray, axis=0)
         img_pixels_gray /= 255  # normalize input in [0, 1]
         pixels_gray.append(img_pixels_gray)

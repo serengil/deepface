@@ -65,7 +65,7 @@ class DeepFaceLite(object):
 			for i in range(0, len(emotion_labels)):
 				emotion_label = emotion_labels[i]
 				emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
-				emotion[emotion_label] = emotion_prediction
+				all_emotions[emotion_label] = emotion_prediction
 
 			emotion = {
 				'all': all_emotions,
