@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_mongoengine import MongoEngine
-from deepface import DeepFaceLite
+from deepface.DeepFaceLite import DeepFaceLite
 # import tensorflow as tf
 # from tensorflow.python.keras.backend import set_session
 import os

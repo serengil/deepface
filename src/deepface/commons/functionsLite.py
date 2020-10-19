@@ -138,14 +138,16 @@ def detect_face(img, detector_backend='opencv', enforce_detection=True):
 
     # drawing settings
     font = ImageFont.truetype(font='font/FiraMono-Medium.otf',
-                        size=np.floor(3e-2 * img.size[1] + 0.5).astype('int32'))
+                        size=np.floor(2e-2 * img.size[1] + 0.5).astype('int32'))
     thickness = (img.size[0] + img.size[1]) // 300
-    hsv_tuples = [(x / 50, 1., 1.)
-                      for x in range(50)]
-    colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
-    colors = list(
-        map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
-    np.random.shuffle(colors)  # Shuffle colors to decorrelate adjacent classes.
+
+    # # colors
+    # hsv_tuples = [(x / 50, 1., 1.)
+    #                   for x in range(50)]
+    # colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+    # colors = list(
+    #     map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
+    # np.random.shuffle(colors)  # Shuffle colors to decorrelate adjacent classes.
 
 
     # keep PIL image and cv2 image
@@ -205,12 +207,12 @@ def detect_face(img, detector_backend='opencv', enforce_detection=True):
                 for i in range(thickness):
                     draw.rectangle(
                         [left + i, top + i, right - i, bottom - i],
-                        outline=colors[i])
+                        outline='blue')
 
                 if showid:
                     draw.rectangle(
                         [tuple(text_origin), tuple(text_origin + label_size)],
-                        fill=colors[i]
+                        fill='blue'
                     )
                     draw.text(text_origin, label, fill=(0, 0, 0), font=font)
                 del draw
@@ -325,12 +327,12 @@ def detect_face(img, detector_backend='opencv', enforce_detection=True):
                 for i in range(thickness):
                     draw.rectangle(
                         [left + i, top + i, right - i, bottom - i],
-                        outline=colors[i])
+                        outline='blue')
 
                 if showid:
                     draw.rectangle(
                         [tuple(text_origin), tuple(text_origin + label_size)],
-                        fill=colors[i]
+                        fill='blue'
                     )
                     draw.text(text_origin, label, fill=(0, 0, 0), font=font)
                 del draw
@@ -391,12 +393,12 @@ def detect_face(img, detector_backend='opencv', enforce_detection=True):
                 for i in range(thickness):
                     draw.rectangle(
                         [left + i, top + i, right - i, bottom - i],
-                        outline=colors[i])
+                        outline='blue')
 
                 if showid:
                     draw.rectangle(
                         [tuple(text_origin), tuple(text_origin + label_size)],
-                        fill=colors[i]
+                        fill='blue'
                     )
                     draw.text(text_origin, label, fill=(0, 0, 0), font=font)
                 del draw
@@ -452,12 +454,12 @@ def detect_face(img, detector_backend='opencv', enforce_detection=True):
                 for i in range(thickness):
                     draw.rectangle(
                         [left + i, top + i, right - i, bottom - i],
-                        outline=colors[i])
+                        outline='blue')
 
                 if showid:
                     draw.rectangle(
                         [tuple(text_origin), tuple(text_origin + label_size)],
-                        fill=colors[i]
+                        fill='blue'
                     )
                     draw.text(text_origin, label, fill=(0, 0, 0), font=font)
                 del draw
