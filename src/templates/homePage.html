@@ -68,9 +68,17 @@
          $("#div_prediction").fadeIn(1500);
          if (response['status'] === 'success') {
              for (let i=0; i<response['results'].length; i++) {
-                 const addedId = `<div style=\"border: 1px dashed darkgrey\"><ul><li><strong>ID: </strong>${response['results'][i].id}`
-                 const emotionList = `<div style=\"margin: 10px 30px; font-weight: lighter;\"><ul><li>${response['results'][i].emotion['all'][0]}</li><li>${response['results'][i].emotion['all'][1]}</li><li>${response['results'][i].emotion['all'][2]}</li><li>${response['results'][i].emotion['all'][3]}</li><li>${response['results'][i].emotion['all'][4]}</li><li>${response['results'][i].emotion['all'][5]}</li><li>${response['results'][i].emotion['all'][6]}</li></ul></div>`
-                 const otherInfo = `</li><li><strong>Age: </strong>${response['results'][i].age}</li><li><strong>Gender: </strong>${response['results'][i].gender}</li><li><strong>Emotion: </strong>${response['results'][i].emotion['dominant']}</li></ul>${emotionList}</div>`
+                 const addedId = `<div style=\"border: 1px dashed darkgrey\"><ul><li><strong>ID: </strong>${response['results'][i].id}</li>`
+                 const emotionList = `<div style=\"margin: 10px 30px; font-weight: lighter;\"><ul><li>${response['results'][i].emotion['all'][0]}</li>
+                                                                                                   <li>${response['results'][i].emotion['all'][1]}</li>
+                                                                                                   <li>${response['results'][i].emotion['all'][2]}</li>
+                                                                                                   <li>${response['results'][i].emotion['all'][3]}</li>
+                                                                                                   <li>${response['results'][i].emotion['all'][4]}</li>
+                                                                                                   <li>${response['results'][i].emotion['all'][5]}</li>
+                                                                                                   <li>${response['results'][i].emotion['all'][6]}</li></ul></div>`
+                 const otherInfo = `<li><strong>Age: </strong>${response['results'][i].age}</li>
+                                    <li><strong>Gender: </strong>${response['results'][i].gender}</li>
+                                    <li><strong>Emotion: </strong>${response['results'][i].emotion['dominant']}</li></ul>${emotionList}</div>`
                  const addedHtml = response['isShowId'] !== 'false' ? addedId + otherInfo : otherInfo
                  resultArea.innerHTML += addedHtml
              }

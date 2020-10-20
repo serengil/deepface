@@ -27,7 +27,6 @@ class Prediction(Resource):
 
         img, detections = deepface.analyze(image)
 
-        # TODO: handle outputs
         # encode image and jsonify detections
         buffered = io.BytesIO()
         img.save(buffered, format="JPEG")
@@ -61,13 +60,12 @@ class Prediction(Resource):
                     'emotionScore': emotion_score
                 })
 
-        # store to db?
-
-        #     new_prediction = Prediction(**{
-        #         'predictionResults': formatted_prediction_results,
-        #         'rawPredictionResults': detections,
-        #         'date': datetime.datetime.now(),
-        #     })
-        #     new_prediction.save()
+            # store results to db
+            new_prediction = Prediction(**{
+                'predictionResults': formatted_prediction_results,
+                'rawPredictionResults': detections,
+                'date': datetime.datetime.now(),
+            })
+            new_prediction.save()
 
         return send_json_response(result, 200)
