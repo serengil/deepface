@@ -163,40 +163,40 @@
             });
         }
 
-        function drawComparisonBar(canvas, labels, dataA, dataB, title) {
-            new Chart(canvas, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Cat',
-                        data: Object.values(dataA),
-                        backgroundColor:
-                            'rgba(255, 99, 132, 0.2)',
-                        order: 1
-                    },
-                        {
-                            label: 'Dog',
-                            data: Object.values(dataB),
-                            type: 'bar',
-                            backgroundColor:
-                                'rgba(54, 162, 235, 0.2)',
-                            order: 2
-                        }]
-                },
-                options: {
-                    title: {display: true, text: title},
-                    legend: {display: true},
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true,
-                            }
-                        }]
-                    },
-                }
-            });
-        }
+        // function drawComparisonBar(canvas, labels, dataA, dataB, title) {
+        //     new Chart(canvas, {
+        //         type: 'bar',
+        //         data: {
+        //             labels: labels,
+        //             datasets: [{
+        //                 label: 'Cat',
+        //                 data: Object.values(dataA),
+        //                 backgroundColor:
+        //                     'rgba(255, 99, 132, 0.2)',
+        //                 order: 1
+        //             },
+        //                 {
+        //                     label: 'Dog',
+        //                     data: Object.values(dataB),
+        //                     type: 'bar',
+        //                     backgroundColor:
+        //                         'rgba(54, 162, 235, 0.2)',
+        //                     order: 2
+        //                 }]
+        //         },
+        //         options: {
+        //             title: {display: true, text: title},
+        //             legend: {display: true},
+        //             scales: {
+        //                 yAxes: [{
+        //                     ticks: {
+        //                         beginAtZero: true,
+        //                     }
+        //                 }]
+        //             },
+        //         }
+        //     });
+        // }
 
         function getTotalPrediction() {
             $.get("/api/get-statistical-results", function (response) {

@@ -104,7 +104,7 @@ class StatisticalData(Resource):
                     'feedback_number', 0) + 1
 
                 # age
-                if not each_content['ageCorrectness']:
+                if each_content['ageCorrectness'] == False:
                     statistical_data['feedback_data']['age']['wrong'][
                         each_content['ageFeedback']] = \
                         statistical_data['feedback_data']['age'][
@@ -116,7 +116,7 @@ class StatisticalData(Resource):
                             each_content['ageFeedback'], 0) + 1
 
                 # gender
-                if not each_content['genderCorrectness']:
+                if each_content['genderCorrectness'] == False:
                     statistical_data['feedback_data']['gender']['wrong'][
                         each_content['genderFeedback']] = \
                         statistical_data['feedback_data']['gender'][
@@ -127,7 +127,7 @@ class StatisticalData(Resource):
                         statistical_data['feedback_data']['gender']['correct'].get(
                             each_content['genderFeedback'], 0) + 1
 
-                if not each_content['emotionCorrectness']:
+                if each_content['emotionCorrectness'] == False:
                     statistical_data['feedback_data']['emotion']['wrong'][
                         each_content['emotionFeedback']] = \
                         statistical_data['feedback_data']['emotion']['wrong'].get(
@@ -150,7 +150,7 @@ class StatisticalData(Resource):
 
             'totalNumberOfGenderPrediction': statistical_data['prediction_data']['gender'],
             'totalNumberOfGenderCorrectFeedback': statistical_data['feedback_data']['gender']['correct'],
-            'totalNumberOfGenderdWrongFeedback': statistical_data['feedback_data']['gender']['wrong'],
+            'totalNumberOfGenderWrongFeedback': statistical_data['feedback_data']['gender']['wrong'],
 
             'totalNumberOfEmotionPrediction': statistical_data['prediction_data']['emotion'],
             'totalNumberOfEmotionCorrectFeedback': statistical_data['feedback_data']['emotion']['correct'],
