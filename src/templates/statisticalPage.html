@@ -27,33 +27,24 @@
         <br/>
         <h1>Gender: </h1>
         <div style="overflow-x: auto">
-            <div style="width: 1300px; margin: 5px auto; overflow-x: auto">
-                <canvas id="numberOfGenderPredictionChart" width="9" height="5"></canvas>
+            <div style="width: 800px; margin: 5px auto; overflow-x: auto">
+                <canvas id="numberOfGenderPredictionChart" width="8" height="5"></canvas>
             </div>
         </div>
         <br/>
         <div style="overflow-x: auto">
-            <div style="width: 1300px; margin: 5px auto; overflow-x: auto">
-                <canvas id="numberOfGenderFeedbackChart" width="9" height="5"></canvas>
+            <div style="width: 800px; margin: 5px auto; overflow-x: auto">
+                <canvas id="numberOfGenderFeedbackChart" width="8" height="5"></canvas>
             </div>
         </div>
         <br/>
         <h1>Emotion: </h1>
-        <div style="width: 800px; margin: 5px auto;">
-            <canvas id="numberOfEmotionPredictionChart" width="9" height="5"></canvas>
+        <div style="width: 800px; margin: 5px auto">
+            <canvas id="numberOfEmotionPredictionChart" width="8" height="5"></canvas>
         </div>
-        <!-- <br/>
-        <div class="row">
-            <div class="col-lg-6 col-sm-12" style="width: 800px; margin: 5px auto;">
-                <canvas id="catEmotionFeedbackChart" width="9" height="5"></canvas>
-            </div>
-            <div class="col-lg-6 col-sm-12" style="width: 800px; margin: 5px auto;">
-                <canvas id="dogEmotionFeedbackChart" width="9" height="5"></canvas>
-            </div>
-        </div> -->
         <br/>
-        <div style="width: 800px; margin: 5px auto;">
-            <canvas id="numberOfEmotionFeedbackChart" width="9" height="5"></canvas>
+        <div style="width: 800px; margin: 5px auto">
+            <canvas id="numberOfEmotionFeedbackChart" width="8" height="5"></canvas>
         </div>
 
     </div>
@@ -213,7 +204,7 @@
                 {#total prediction number#}
                 let ctxForTotalPredictionNumber = document.getElementById('numberOfTotalPrediction').getContext('2d');
                 let totalPredictionNumberData = {
-                    "Total": response['totalNumberOfPrediction'],
+                    "Total": response['totalNumberOfPrediction']
                 }
 
                 let totalPredictionCount = response['totalNumberOfPrediction']
@@ -223,7 +214,7 @@
                 {#total feedback number#}
                 let ctxForTotalFeedbackNumber = document.getElementById('numberOfTotalFeedback').getContext('2d');
                 let totalFeedbackNumberData = {
-                    "Total": response['totalNumberOfFeedback'],
+                    "Total": response['totalNumberOfFeedback']
                 }
 
                 let totalFeedbackCount = response['totalNumberOfFeedback']
@@ -234,7 +225,7 @@
                 drawLine(ctxForNumberOfPhotoByDate, response['numberOfPhotoByDate'], 'Number of Photos within a week')
 
                 {#age prediction#}
-                let ctxForAgePredictionNumber = document.getElementById('numberOfAgedPredictionChart').getContext('2d');
+                let ctxForAgePredictionNumber = document.getElementById('numberOfAgePredictionChart').getContext('2d');
                 drawVerticalBar(ctxForAgePredictionNumber, response['totalNumberOfAgePrediction'], "Age prediction")
 
                 {#age feedback#}
@@ -243,23 +234,30 @@
 
                 {#gender prediction#}
                 let ctxForGenderPredictionNumber = document.getElementById('numberOfGenderPredictionChart').getContext('2d');
-                drawVerticalBar(ctxForGenderPredictionNumber, response['totalNumberOfGenderPrediction'], "Gender prediction")
+                // drawVerticalBar(ctxForGenderPredictionNumber, response['totalNumberOfGenderPrediction'], "Gender prediction")
+                let genderPredictionNumberData = {
+                    "Man": response['totalNumberOfGenderPrediction']['Man'],
+                    "Woman": response['totalNumberOfGenderPrediction']['Woman']
+                }
+                drawDoughunt(ctxForGenderPredictionNumber, genderPredictionNumberData, `Gender prediction`)
 
                 {#gender feedback#}
                 let ctxForGenderFeedback = document.getElementById('numberOfGenderFeedbackChart').getContext('2d');
                 drawVerticalStackBar(ctxForGenderFeedback, response['totalNumberOfGenderCorrectFeedback'], response['totalNumberOfGenderWrongFeedback'], "Gender feedback", ['Correct', 'Wrong'])
+                // let genderFeedbackNumberData = {
+                //     "Correct": response['totalNumberOfGenderCorrectFeedback'],
+                //     "Wrong": response['totalNumberOfGenderWrongFeedback']
+                // }
+                // drawDoughunt(ctxForGenderPredictionNumber, genderPredictionNumberData, `Gender prediction`)
+
 
                 {#emotion prediction#}
                 let ctxForEmotionPredictionNumber = document.getElementById('numberOfEmotionPredictionChart').getContext('2d');
-                // drawVerticalStackBar(ctxForEmotionPredictionNumber, response['totalNumberOfEmotionPrediction'], response['totalNumberOfEmotionPrediction'], "Emotion prediction", ['Cat', 'Dog'])
+                drawVerticalBar(ctxForEmotionPredictionNumber, response['totalNumberOfEmotionPrediction'], "Emotion prediction")
 
-                // {#cat emotion feedback#}
-                // let ctxForCatEmotionFeedback = document.getElementById('catEmotionFeedbackChart').getContext('2d');
-                // drawVerticalStackBar(ctxForCatEmotionFeedback, response['totalNumberOfCatEmotionCorrectFeedback'], response['totalNumberOfCatEmotionWrongFeedback'], "Emotion feedback for cat", ['Correct', 'Wrong'])
-
-                // {#dog emotion feedback#}
-                // let ctxForDogEmotionFeedback = document.getElementById('dogEmotionFeedbackChart').getContext('2d');
-                // drawVerticalStackBar(ctxForDogEmotionFeedback, response['totalNumberOfDogEmotionCorrectFeedback'], response['totalNumberOfDogEmotionWrongFeedback'], "Emotion feedback for dog", ['Correct', 'Wrong'])
+                {#emotion feedback#}
+                let ctxForEmotionFeedback = document.getElementById('numberOfEmotionFeedbackChart').getContext('2d');
+                drawVerticalStackBar(ctxForEmotionFeedback, response['totalNumberOfEmotionCorrectFeedback'], response['totalNumberOfEmotionWrongFeedback'], "Emotion feedback", ['Correct', 'Wrong'])
             });
         }
 
