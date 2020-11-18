@@ -84,28 +84,6 @@ print(obj["age"]," years old ",obj["dominant_race"]," ",obj["dominant_emotion"],
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
 
-**Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
-
-Face detection and alignment are early stages of a modern face recognition pipeline. [OpenCV haar cascade](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [Dlib](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/) and [MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) methods are wrapped in deepface as a detector. You can optionally pass a custom detector to functions in deepface interface. OpenCV is the default detector if you won't pass a detector.
-
-```python
-backends = ['opencv', 'ssd', 'dlib', 'mtcnn']
-for backend in backends:
-   #face detection and alignment
-   detected_face = DeepFace.detectFace("img.jpg", detector_backend = backend)
-   
-   #face verification
-   obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backend)
-   
-   #face recognition
-   df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend)
-   
-   #facial analysis
-   demography = DeepFace.analyze("img4.jpg", detector_backend = backend)
-```
-
-[MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) seems to overperform in detection and alignment stages but it is slower than [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/).
-
 **Streaming and Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
 
 You can run deepface for real time videos as well. 
@@ -130,6 +108,28 @@ user
 │   ├── Bob
 │   │   ├── Bob.jpg
 ```
+
+**Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
+
+Face detection and alignment are early stages of a modern face recognition pipeline. [OpenCV haar cascade](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [Dlib](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/) and [MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) methods are wrapped in deepface as a detector. You can optionally pass a custom detector to functions in deepface interface. OpenCV is the default detector if you won't pass a detector.
+
+```python
+backends = ['opencv', 'ssd', 'dlib', 'mtcnn']
+for backend in backends:
+   #face detection and alignment
+   detected_face = DeepFace.detectFace("img.jpg", detector_backend = backend)
+   
+   #face verification
+   obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backend)
+   
+   #face recognition
+   df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend)
+   
+   #facial analysis
+   demography = DeepFace.analyze("img4.jpg", detector_backend = backend)
+```
+
+[MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) seems to overperform in detection and alignment stages but it is slower than [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/).
 
 **Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
 
