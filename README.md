@@ -175,14 +175,6 @@ models["race"] = Race.loadModel()
 DeepFace.analyze("img1.jpg", models=models)
 ```
 
-## E-Learning
-
-Deepface package for python is mentioned in this [playlist](https://www.youtube.com/watch?v=KRCvkNCOphE&list=PLsS_1RYmYQQFdWqxQggXHynP1rqaYXv_E) as video lectures. **Subscribe** the channel to stay up-to-date and be informed when a new lecture is added.
-
-## Translations
-
-You can also read a translated version of deepface tutorials in [Chinese (深臉)](https://zhuanlan.zhihu.com/p/151403935) or [Turkish](https://bilisim.io/2020/03/26/deepface-python-icin-yuz-tanima-ve-demografi-analizi-iskeleti/).
-
 ## Disclaimer
 
 Reference face recognition models have different type of licenses. This framework is just a wrapper for those models. That's why, licence types are inherited as well. You should check the licenses for the face recognition models before use.
