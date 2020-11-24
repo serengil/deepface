@@ -189,14 +189,15 @@ There are many ways to support a project - starring⭐️ the GitHub repos is ju
 
 ## Citation
 
-Please cite deepface in your publications if it helps your research. Here is an example BibTeX entry:
+Please cite [deepface](https://ieeexplore.ieee.org/document/9259802) in your publications if it helps your research. Here is an example BibTeX entry:
 
 ```
-@inproceedings{serengil2020lightface,
+@inproceedings{9259802,
   title={LightFace: A Hybrid Deep Face Recognition Framework},
   author={Serengil, Sefik Ilkin and Ozpinar, Alper},
   booktitle={2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
   year={2020},
+  doi={10.1109/ASYU50717.2020.9259802},
   organization={IEEE}
 }
 ```
