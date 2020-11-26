@@ -444,7 +444,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 
 			elif action == 'age':
 				if img_224 is None:
-					img_224 = functions.preprocess_face(img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection) #just emotion model expects grayscale images
+					img_224 = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend) #just emotion model expects grayscale images
 				#print("age prediction")
 				age_predictions = age_model.predict(img_224)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
