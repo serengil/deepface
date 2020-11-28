@@ -10,18 +10,20 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import json
-import cv2
-from keras import backend as K
-import keras
-import tensorflow as tf
 import pickle
 
-from deepface import DeepFace
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
-def verify(img1_path, img2_path = '', model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv'):
+def DlibResNet_():
+	from deepface.basemodels.DlibResNet import DlibResNet
+	return DlibResNet()
+
+def verify(img1_path, img2_path = '', model_name='VGG-Face', distance_metric='cosine', 
+		   model=None, enforce_detection=True, detector_backend = 'opencv'):
+
+	# this is not a must because it is very huge.		
 
 	tic = time.time()
 
@@ -34,6 +36,9 @@ def verify(img1_path, img2_path = '', model_name ='VGG-Face', distance_metric = 
 
 	#------------------------------
 	
+	if detector_backend == 'mtcnn':
+		functions.load_mtcnn()
+
 	resp_objects = []
 	
 	if model_name == 'Ensemble':
@@ -199,33 +204,23 @@ def verify(img1_path, img2_path = '', model_name ='VGG-Face', distance_metric = 
 	#ensemble learning disabled
 	
 	if model == None:
-		if model_name == 'VGG-Face':
-			print("Using VGG-Face model backend and", distance_metric,"distance.")
-			model = VGGFace.loadModel()
 
-		elif model_name == 'OpenFace':
-			print("Using OpenFace model backend", distance_metric,"distance.")
-			model = OpenFace.loadModel()
+		models = {
+				'VGG-Face': VGGFace.loadModel, 
+				'OpenFace': OpenFace.loadModel,
+				'Facenet': Facenet.loadModel,
+				'DeepFace': FbDeepFace.loadModel,
+				'DeepID': DeepID.loadModel,
+				'Dlib': DlibResNet_
+				}
 
-		elif model_name == 'Facenet':
-			print("Using Facenet model backend", distance_metric,"distance.")
-			model = Facenet.loadModel()
-
-		elif model_name == 'DeepFace':
-			print("Using FB DeepFace model backend", distance_metric,"distance.")
-			model = FbDeepFace.loadModel()
-		
-		elif model_name == 'DeepID':
-			print("Using DeepID2 model backend", distance_metric,"distance.")
-			model = DeepID.loadModel()
-		
-		elif model_name == 'Dlib':
-			print("Using Dlib ResNet model backend", distance_metric,"distance.")
-			from deepface.basemodels.DlibResNet import DlibResNet #this is not a must because it is very huge.
-			model = DlibResNet()
-
+		model = models.get(model_name)
+		if model:
+			model = model()
+			print('Using {} model backend and {} distance'.format(model_name, distance_metric))
 		else:
-			raise ValueError("Invalid model_name passed - ", model_name)
+			raise ValueError('Invalid model_name passed - {}'.format(model_name))
+	
 	else: #model != None
 		print("Already built model is passed")
 
@@ -343,7 +338,6 @@ def verify(img1_path, img2_path = '', model_name ='VGG-Face', distance_metric = 
 		resp_obj = json.loads(resp_obj)
 		return resp_obj
 		#return resp_objects
-
 
 def analyze(img_path, actions = [], models = {}, enforce_detection = True, detector_backend = 'opencv'):
 
@@ -512,7 +506,6 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 		resp_obj = json.loads(resp_obj)
 		return resp_obj
 		#return resp_objects
-
 
 def detectFace(img_path, detector_backend = 'opencv'):
 	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend)[0] #preprocess_face returns (1, 224, 224, 3)
