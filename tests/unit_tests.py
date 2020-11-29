@@ -15,6 +15,26 @@ dataset = [
 
 print("-----------------------------------------")
 
+print("Face detectors test")
+
+print("opencv detector")
+res = DeepFace.verify(dataset, detector_backend = 'opencv')
+print(res)
+
+print("ssd detector")
+res = DeepFace.verify(dataset, detector_backend = 'ssd')
+print(res)
+
+print("dlib detector")
+res = DeepFace.verify(dataset, detector_backend = 'dlib')
+print(res)
+
+print("mtcnn detector")
+res = DeepFace.verify(dataset, detector_backend = 'mtcnn')
+print(res)
+
+print("-----------------------------------------")
+
 print("Large scale face recognition")
 
 df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset"

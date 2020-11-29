@@ -20,10 +20,84 @@ import bz2
 from deepface.commons import distance
 from mtcnn import MTCNN #0.1.0
 
-def load_mtcnn():
-	global mtcnn_detector
-	mtcnn_detector = MTCNN()
-
+def initialize_detector(detector_backend):
+	
+	global face_detector
+	
+	home = str(Path.home())
+	
+	if detector_backend == 'opencv':
+		opencv_path = get_opencv_path()
+		
+		face_detector_path = opencv_path+"haarcascade_frontalface_default.xml"
+		eye_detector_path = opencv_path+"haarcascade_eye.xml"
+	
+		if os.path.isfile(face_detector_path) != True:
+			raise ValueError("Confirm that opencv is installed on your environment! Expected path ",face_detector_path," violated.")
+		
+		face_detector = cv2.CascadeClassifier(face_detector_path)
+		
+		global eye_detector
+		eye_detector = cv2.CascadeClassifier(eye_detector_path)
+	
+	elif detector_backend == 'ssd':
+	
+		#check required ssd model exists in the home/.deepface/weights folder
+		
+		#model structure
+		if os.path.isfile(home+'/.deepface/weights/deploy.prototxt') != True:
+			
+			print("deploy.prototxt will be downloaded...")
+			
+			url = "https://github.com/opencv/opencv/raw/3.4.0/samples/dnn/face_detector/deploy.prototxt"
+			
+			output = home+'/.deepface/weights/deploy.prototxt'
+			
+			gdown.download(url, output, quiet=False)
+		
+		#pre-trained weights
+		if os.path.isfile(home+'/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel') != True:
+			
+			print("res10_300x300_ssd_iter_140000.caffemodel will be downloaded...")
+			
+			url = "https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel"
+			
+			output = home+'/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel'
+			
+			gdown.download(url, output, quiet=False)
+		
+		face_detector = cv2.dnn.readNetFromCaffe(
+			home+"/.deepface/weights/deploy.prototxt", 
+			home+"/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel"
+		)
+		
+	elif detector_backend == 'dlib':
+		import dlib #this is not a must library within deepface. that's why, I didn't put this import to a global level. version: 19.20.0
+		
+		global sp
+		
+		face_detector = dlib.get_frontal_face_detector()
+		
+		#check required file exists in the home/.deepface/weights folder
+		if os.path.isfile(home+'/.deepface/weights/shape_predictor_5_face_landmarks.dat') != True:
+			
+			print("shape_predictor_5_face_landmarks.dat.bz2 is going to be downloaded") 
+			
+			url = "http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2"
+			output = home+'/.deepface/weights/'+url.split("/")[-1]
+			
+			gdown.download(url, output, quiet=False)
+			
+			zipfile = bz2.BZ2File(output)
+			data = zipfile.read()
+			newfilepath = output[:-4] #discard .bz2 extension
+			open(newfilepath, 'wb').write(data)
+		
+		sp = dlib.shape_predictor(home+"/.deepface/weights/shape_predictor_5_face_landmarks.dat")
+		
+	elif detector_backend == 'mtcnn':
+		face_detector = MTCNN()
+	
 def loadBase64Img(uri):
    encoded_data = uri.split(',')[1]
    nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
@@ -97,17 +171,6 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 	home = str(Path.home())
 	
 	if detector_backend == 'opencv':
-	
-		#get opencv configuration up first
-		opencv_path = get_opencv_path()
-		face_detector_path = opencv_path+"haarcascade_frontalface_default.xml"
-	
-		if os.path.isfile(face_detector_path) != True:
-			raise ValueError("Confirm that opencv is installed on your environment! Expected path ",face_detector_path," violated.")
-		
-		face_detector = cv2.CascadeClassifier(face_detector_path)
-	
-		#--------------------------
 		
 		faces = []
 		
@@ -131,39 +194,6 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 
 	elif detector_backend == 'ssd':
 		
-		#---------------------------
-		#check required ssd model exists in the home/.deepface/weights folder
-		
-		#model structure
-		if os.path.isfile(home+'/.deepface/weights/deploy.prototxt') != True:
-			
-			print("deploy.prototxt will be downloaded...")
-			
-			url = "https://github.com/opencv/opencv/raw/3.4.0/samples/dnn/face_detector/deploy.prototxt"
-			
-			output = home+'/.deepface/weights/deploy.prototxt'
-			
-			gdown.download(url, output, quiet=False)
-			
-		
-		#pre-trained weights
-		if os.path.isfile(home+'/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel') != True:
-			
-			print("res10_300x300_ssd_iter_140000.caffemodel will be downloaded...")
-			
-			url = "https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel"
-			
-			output = home+'/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel'
-			
-			gdown.download(url, output, quiet=False)
-			
-		#---------------------------
-		
-		ssd_detector = cv2.dnn.readNetFromCaffe(
-			home+"/.deepface/weights/deploy.prototxt", 
-			home+"/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel"
-		)
-		
 		ssd_labels = ["img_id", "is_face", "confidence", "left", "top", "right", "bottom"]
 		
 		target_size = (300, 300)
@@ -179,8 +209,8 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 		
 		imageBlob = cv2.dnn.blobFromImage(image = img)
 		
-		ssd_detector.setInput(imageBlob)
-		detections = ssd_detector.forward()
+		face_detector.setInput(imageBlob)
+		detections = face_detector.forward()
 		
 		detections_df = pd.DataFrame(detections[0][0], columns = ssd_labels)
 		
@@ -218,11 +248,8 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
 	
 	elif detector_backend == 'dlib':
-		import dlib #this is not a must library within deepface. that's why, I didn't put this import to a global level. version: 19.20.0
-		
-		detector = dlib.get_frontal_face_detector()
-		
-		detections = detector(img, 1)
+
+		detections = face_detector(img, 1)
 		
 		if len(detections) > 0:
 			
@@ -244,9 +271,8 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 		
 	elif detector_backend == 'mtcnn':
 		
-		# mtcnn_detector = MTCNN() #this is a global variable now
 		img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #mtcnn expects RGB but OpenCV read BGR
-		detections = mtcnn_detector.detect_faces(img_rgb)
+		detections = face_detector.detect_faces(img_rgb)
 		
 		if len(detections) > 0:
 			detection = detections[0]
@@ -264,8 +290,6 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 	else:
 		detectors = ['opencv', 'ssd', 'dlib', 'mtcnn']
 		raise ValueError("Valid backends are ", detectors," but you passed ", detector_backend)
-	
-	return 0
 
 def alignment_procedure(img, left_eye, right_eye):
 		
@@ -319,10 +343,6 @@ def align_face(img, detector_backend = 'opencv'):
 	home = str(Path.home())
 	
 	if (detector_backend == 'opencv') or (detector_backend == 'ssd'):
-	
-		opencv_path = get_opencv_path()
-		eye_detector_path = opencv_path+"haarcascade_eye.xml"
-		eye_detector = cv2.CascadeClassifier(eye_detector_path)
 		
 		detected_face_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #eye detector expects gray scale image
 		
@@ -364,31 +384,10 @@ def align_face(img, detector_backend = 'opencv'):
 		return img #return img anyway
 	
 	elif detector_backend == 'dlib':
-	
-		#check required file exists in the home/.deepface/weights folder
-		
-		if os.path.isfile(home+'/.deepface/weights/shape_predictor_5_face_landmarks.dat') != True:
-			
-			print("shape_predictor_5_face_landmarks.dat.bz2 is going to be downloaded") 
-			
-			url = "http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2"
-			output = home+'/.deepface/weights/'+url.split("/")[-1]
-			
-			gdown.download(url, output, quiet=False)
-			
-			zipfile = bz2.BZ2File(output)
-			data = zipfile.read()
-			newfilepath = output[:-4] #discard .bz2 extension
-			open(newfilepath, 'wb').write(data)
-		
-		#------------------------------
 		
 		import dlib #this is not a must dependency in deepface
 		
-		detector = dlib.get_frontal_face_detector()
-		sp = dlib.shape_predictor(home+"/.deepface/weights/shape_predictor_5_face_landmarks.dat")
-		
-		detections = detector(img, 1)
+		detections = face_detector(img, 1)
 		
 		if len(detections) > 0:
 			detected_face = detections[0]
@@ -399,9 +398,8 @@ def align_face(img, detector_backend = 'opencv'):
 	
 	elif detector_backend == 'mtcnn':
 		
-		# mtcnn_detector = MTCNN() #this is a global variable now
 		img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #mtcnn expects RGB but OpenCV read BGR
-		detections = mtcnn_detector.detect_faces(img_rgb)
+		detections = face_detector.detect_faces(img_rgb)
 		
 		if len(detections) > 0:
 			detection = detections[0]

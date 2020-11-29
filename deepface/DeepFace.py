@@ -56,8 +56,7 @@ def verify(img1_path, img2_path = '', model_name='VGG-Face', distance_metric='co
 
 	#------------------------------
 	
-	if detector_backend == 'mtcnn':
-		functions.load_mtcnn()
+	functions.initialize_detector(detector_backend = detector_backend)
 
 	resp_objects = []
 	
@@ -355,9 +354,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 
 	#---------------------------------
 	
-	#build mtcnn model once
-	if detector_backend == 'mtcnn':
-		functions.load_mtcnn()
+	functions.initialize_detector(detector_backend = detector_backend)
 	
 	#---------------------------------
 
@@ -520,9 +517,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 
 def detectFace(img_path, detector_backend = 'opencv'):
 	
-	#build mtcnn model once
-	if detector_backend == 'mtcnn':
-		functions.load_mtcnn()
+	functions.initialize_detector(detector_backend = detector_backend)
 	
 	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend)[0] #preprocess_face returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb
@@ -543,9 +538,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 	
 	#-------------------------------
 	
-	#build mtcnn model once
-	if detector_backend == 'mtcnn':
-		functions.load_mtcnn()
+	functions.initialize_detector(detector_backend = detector_backend)
 	
 	#-------------------------------
 	
