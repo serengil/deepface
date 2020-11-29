@@ -170,8 +170,6 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 	
 	home = str(Path.home())
 	
-	#TODO: what if I directly call detect_face? In this case, initialize_detector hadn't been called before...
-	
 	#if functions.preproces_face is called directly, then face_detector global variable might not been initialized.
 	if not "face_detector" in globals():
 		initialize_detector(detector_backend = detector_backend)
