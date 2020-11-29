@@ -20,6 +20,10 @@ import bz2
 from deepface.commons import distance
 from mtcnn import MTCNN #0.1.0
 
+def load_mtcnn():
+	global mtcnn_detector
+	mtcnn_detector = MTCNN()
+
 def loadBase64Img(uri):
    encoded_data = uri.split(',')[1]
    nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
@@ -40,55 +44,18 @@ def initializeFolder():
 	
 def findThreshold(model_name, distance_metric):
 	
-	threshold = 0.40
+	base_threshold = {'cosine': 0.40, 'euclidean': 0.55, 'euclidean_l2': 0.75}
 	
-	if model_name == 'VGG-Face':
-		if distance_metric == 'cosine':
-			threshold = 0.40
-		elif distance_metric == 'euclidean':
-			threshold = 0.55
-		elif distance_metric == 'euclidean_l2':
-			threshold = 0.75	
-	
-	elif model_name == 'OpenFace':
-		if distance_metric == 'cosine':
-			threshold = 0.10
-		elif distance_metric == 'euclidean':
-			threshold = 0.55
-		elif distance_metric == 'euclidean_l2':
-			threshold = 0.55
-	
-	elif model_name == 'Facenet':
-		if distance_metric == 'cosine':
-			threshold = 0.40
-		elif distance_metric == 'euclidean':
-			threshold = 10
-		elif distance_metric == 'euclidean_l2':
-			threshold = 0.80
-	
-	elif model_name == 'DeepFace':
-		if distance_metric == 'cosine':
-			threshold = 0.23
-		elif distance_metric == 'euclidean':
-			threshold = 64
-		elif distance_metric == 'euclidean_l2':
-			threshold = 0.64
-	
-	elif model_name == 'DeepID':
-		if distance_metric == 'cosine':
-			threshold = 0.015
-		elif distance_metric == 'euclidean':
-			threshold = 45
-		elif distance_metric == 'euclidean_l2':
-			threshold = 0.17
-	
-	elif model_name == 'Dlib':
-		if distance_metric == 'cosine':
-			threshold = 0.07
-		elif distance_metric == 'euclidean':
-			threshold = 0.60
-		elif distance_metric == 'euclidean_l2':
-			threshold = 0.60
+	thresholds = {
+		'VGG-Face': {'cosine': 0.40, 'euclidean': 0.55, 'euclidean_l2': 0.75},
+		'OpenFace': {'cosine': 0.10, 'euclidean': 0.55, 'euclidean_l2': 0.55},
+		'Facenet':  {'cosine': 0.40, 'euclidean': 10, 'euclidean_l2': 0.80},
+		'DeepFace': {'cosine': 0.23, 'euclidean': 64, 'euclidean_l2': 0.64},
+		'DeepID': 	{'cosine': 0.015, 'euclidean': 45, 'euclidean_l2': 0.17},
+		'Dlib': 	{'cosine': 0.07, 'euclidean': 0.6, 'euclidean_l2': 0.6}
+		}
+
+	threshold = thresholds.get(model_name, base_threshold).get(distance_metric, 0.4)
 	
 	return threshold
 
@@ -277,9 +244,9 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 		
 	elif detector_backend == 'mtcnn':
 		
-		mtcnn_detector = MTCNN()
-		
-		detections = mtcnn_detector.detect_faces(img)
+		# mtcnn_detector = MTCNN()
+		img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+		detections = mtcnn_detector.detect_faces(img_rgb)
 		
 		if len(detections) > 0:
 			detection = detections[0]
@@ -288,7 +255,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 			return detected_face
 		
 		else: #if no face detected
-			if enforce_detection != True:			
+			if not enforce_detection:			
 				return img
 	
 			else:
@@ -432,8 +399,9 @@ def align_face(img, detector_backend = 'opencv'):
 	
 	elif detector_backend == 'mtcnn':
 		
-		mtcnn_detector = MTCNN()
-		detections = mtcnn_detector.detect_faces(img)
+		# mtcnn_detector = MTCNN()
+		img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+		detections = mtcnn_detector.detect_faces(img_rgb)
 		
 		if len(detections) > 0:
 			detection = detections[0]
