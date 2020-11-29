@@ -858,11 +858,10 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 	return None
 	
 def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine', enable_face_analysis = True):
+	
+	functions.initialize_detector(detector_backend = 'opencv')
+	
 	realtime.analysis(db_path, model_name, distance_metric, enable_face_analysis)
-
-def allocateMemory():
-	print("Analyzing your system...")
-	functions.allocateMemory()
 
 def DlibResNet_():
 	#this is not a regular Keras model.
