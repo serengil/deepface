@@ -244,8 +244,8 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 		
 	elif detector_backend == 'mtcnn':
 		
-		# mtcnn_detector = MTCNN()
-		img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+		# mtcnn_detector = MTCNN() #this is a global variable now
+		img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #mtcnn expects RGB but OpenCV read BGR
 		detections = mtcnn_detector.detect_faces(img_rgb)
 		
 		if len(detections) > 0:
@@ -399,8 +399,8 @@ def align_face(img, detector_backend = 'opencv'):
 	
 	elif detector_backend == 'mtcnn':
 		
-		# mtcnn_detector = MTCNN()
-		img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+		# mtcnn_detector = MTCNN() #this is a global variable now
+		img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #mtcnn expects RGB but OpenCV read BGR
 		detections = mtcnn_detector.detect_faces(img_rgb)
 		
 		if len(detections) > 0:
