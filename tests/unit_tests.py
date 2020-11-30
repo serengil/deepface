@@ -47,6 +47,7 @@ print("-----------------------------------------")
 print("Bulk face recognition tests")
 
 resp_obj = DeepFace.verify(dataset)
+print(resp_obj)
 print(resp_obj["pair_1"]["verified"] == True)
 print(resp_obj["pair_2"]["verified"] == True)
 
@@ -124,6 +125,7 @@ for model in models:
 			result = instance[2]
 			
 			resp_obj = DeepFace.verify(img1, img2, model_name = model, distance_metric = metric)
+			
 			prediction = resp_obj["verified"]
 			distance = round(resp_obj["distance"], 2)
 			required_threshold = resp_obj["max_threshold_to_verify"]

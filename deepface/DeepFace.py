@@ -12,7 +12,7 @@ from tqdm import tqdm
 import json
 import pickle
 
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID, DlibWrapper
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -24,7 +24,7 @@ def build_model(model_name):
 		'Facenet': Facenet.loadModel,
 		'DeepFace': FbDeepFace.loadModel,
 		'DeepID': DeepID.loadModel,
-		'Dlib': DlibResNet_,
+		'Dlib': DlibWrapper.loadModel,
 		'Emotion': Emotion.loadModel,
 		'Age': Age.loadModel,
 		'Gender': Gender.loadModel,
@@ -35,15 +35,13 @@ def build_model(model_name):
 	
 	if model:
 		model = model()
-		print('Using {} model backend'.format(model_name))
+		#print('Using {} model backend'.format(model_name))
 		return model
 	else:
 		raise ValueError('Invalid model_name passed - {}'.format(model_name))
 
-def verify(img1_path, img2_path = '', model_name='VGG-Face', distance_metric='cosine', 
-		   model=None, enforce_detection=True, detector_backend = 'opencv'):
-
-	# this is not a must because it is very huge.		
+def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', 
+		   model = None, enforce_detection = True, detector_backend = 'mtcnn'):	
 
 	tic = time.time()
 
@@ -176,24 +174,18 @@ def verify(img1_path, img2_path = '', model_name='VGG-Face', distance_metric='co
 				prediction = deepface_ensemble.predict(np.expand_dims(np.array(ensemble_features), axis=0))[0]
 				
 				verified = np.argmax(prediction) == 1
-				if verified: identified = "true"
-				else: identified = "false"
 				
 				score = prediction[np.argmax(prediction)]
 				
 				#print("verified: ", verified,", score: ", score)
 				
-				resp_obj = "{"
-				resp_obj += "\"verified\": "+identified
-				resp_obj += ", \"score\": "+str(score)
-				resp_obj += ", \"distance\": "+ensemble_features_string
-				resp_obj += ", \"model\": [\"VGG-Face\", \"Facenet\", \"OpenFace\", \"DeepFace\"]"
-				resp_obj += ", \"similarity_metric\": [\"cosine\", \"euclidean\", \"euclidean_l2\"]"
-				resp_obj += "}"
-				
-				#print(resp_obj)
-				
-				resp_obj = json.loads(resp_obj) #string to json
+				resp_obj = {
+					"verified": verified
+					, "score": score
+					, "distance": ensemble_features_string
+					, "model": ["VGG-Face", "Facenet", "OpenFace", "DeepFace"]
+					, "similarity_metric": ["cosine", "euclidean", "euclidean_l2"]
+				}
 				
 				if bulkProcess == True:
 					resp_objects.append(resp_obj)
@@ -203,17 +195,12 @@ def verify(img1_path, img2_path = '', model_name='VGG-Face', distance_metric='co
 				#-------------------------------
 		
 		if bulkProcess == True:
-			resp_obj = "{"
-
+			
+			resp_obj = {}
 			for i in range(0, len(resp_objects)):
-				resp_item = json.dumps(resp_objects[i])
-
-				if i > 0:
-					resp_obj += ", "
-
-				resp_obj += "\"pair_"+str(i+1)+"\": "+resp_item
-			resp_obj += "}"
-			resp_obj = json.loads(resp_obj)
+				resp_item = resp_objects[i]
+				resp_obj["pair_%d" % (i+1)] = resp_item
+			
 			return resp_obj
 		
 		return None
@@ -295,27 +282,25 @@ def verify(img1_path, img2_path = '', model_name='VGG-Face', distance_metric='co
 			#decision
 
 			if distance <= threshold:
-				identified =  "true"
+				identified = True
 			else:
-				identified =  "false"
+				identified = False
 
 			#----------------------
 			#response object
-
-			resp_obj = "{"
-			resp_obj += "\"verified\": "+identified
-			resp_obj += ", \"distance\": "+str(distance)
-			resp_obj += ", \"max_threshold_to_verify\": "+str(threshold)
-			resp_obj += ", \"model\": \""+model_name+"\""
-			resp_obj += ", \"similarity_metric\": \""+distance_metric+"\""
-			resp_obj += "}"
-
-			resp_obj = json.loads(resp_obj) #string to json
-
+			
+			resp_obj = {
+				"verified": identified
+				, "distance": distance
+				, "max_threshold_to_verify": threshold
+				, "model": model_name
+				, "similarity_metric": distance_metric
+				
+			}
+			
 			if bulkProcess == True:
 				resp_objects.append(resp_obj)
 			else:
-				#K.clear_session()
 				return resp_obj
 			#----------------------
 
@@ -343,7 +328,8 @@ def verify(img1_path, img2_path = '', model_name='VGG-Face', distance_metric='co
 		return resp_obj
 		#return resp_objects
 
-def analyze(img_path, actions = [], models = {}, enforce_detection = True, detector_backend = 'opencv'):
+def analyze(img_path, actions = [], models = {}, enforce_detection = True
+			, detector_backend = 'mtcnn'):
 
 	if type(img_path) == list:
 		img_paths = img_path.copy()
@@ -405,7 +391,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 	for j in global_pbar:
 		img_path = img_paths[j]
 
-		resp_obj = "{"
+		resp_obj = {}
 		
 		disable_option = False if len(actions) > 1 else True
 
@@ -418,9 +404,6 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 			action = actions[index]
 			pbar.set_description("Action: %s" % (action))
 
-			if action_idx > 0:
-				resp_obj += ", "
-
 			if action == 'emotion':
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 				img = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend)
@@ -429,20 +412,14 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 
 				sum_of_predictions = emotion_predictions.sum()
 
-				emotion_obj = "\"emotion\": {"
+				resp_obj["emotion"] = {}
+				
 				for i in range(0, len(emotion_labels)):
 					emotion_label = emotion_labels[i]
 					emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
-
-					if i > 0: emotion_obj += ", "
-
-					emotion_obj += "\"%s\": %s" % (emotion_label, emotion_prediction)
-
-				emotion_obj += "}"
-
-				emotion_obj += ", \"dominant_emotion\": \"%s\"" % (emotion_labels[np.argmax(emotion_predictions)])
-
-				resp_obj += emotion_obj
+					resp_obj["emotion"][emotion_label] = emotion_prediction
+				
+				resp_obj["dominant_emotion"] = emotion_labels[np.argmax(emotion_predictions)]
 
 			elif action == 'age':
 				if img_224 is None:
@@ -451,7 +428,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 				age_predictions = age_model.predict(img_224)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
 
-				resp_obj += "\"age\": %s" % (apparent_age)
+				resp_obj["age"] = str(int(apparent_age))
 
 			elif action == 'gender':
 				if img_224 is None:
@@ -465,7 +442,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 				elif np.argmax(gender_prediction) == 1:
 					gender = "Man"
 
-				resp_obj += "\"gender\": \"%s\"" % (gender)
+				resp_obj["gender"] = gender
 
 			elif action == 'race':
 				if img_224 is None:
@@ -474,55 +451,33 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True, detec
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
 				sum_of_predictions = race_predictions.sum()
-
-				race_obj = "\"race\": {"
+				
+				resp_obj["race"] = {}
 				for i in range(0, len(race_labels)):
 					race_label = race_labels[i]
 					race_prediction = 100 * race_predictions[i] / sum_of_predictions
-
-					if i > 0: race_obj += ", "
-
-					race_obj += "\"%s\": %s" % (race_label, race_prediction)
-
-				race_obj += "}"
-				race_obj += ", \"dominant_race\": \"%s\"" % (race_labels[np.argmax(race_predictions)])
-
-				resp_obj += race_obj
+					resp_obj["race"][race_label] = race_prediction
+				
+				resp_obj["dominant_race"] = race_labels[np.argmax(race_predictions)]
 
 			action_idx = action_idx + 1
-
-		resp_obj += "}"
-
-		resp_obj = json.loads(resp_obj)
-
+		
 		if bulkProcess == True:
 			resp_objects.append(resp_obj)
 		else:
 			return resp_obj
 
 	if bulkProcess == True:
-		resp_obj = "{"
-
+		
+		resp_obj = {}
+		
 		for i in range(0, len(resp_objects)):
-			resp_item = json.dumps(resp_objects[i])
+			resp_item = resp_objects[i]
+			resp_obj["instance_%d" % (i+1)] = resp_item
 
-			if i > 0:
-				resp_obj += ", "
-
-			resp_obj += "\"instance_"+str(i+1)+"\": "+resp_item
-		resp_obj += "}"
-		resp_obj = json.loads(resp_obj)
 		return resp_obj
-		#return resp_objects
 
-def detectFace(img_path, detector_backend = 'opencv'):
-	
-	functions.initialize_detector(detector_backend = detector_backend)
-	
-	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend)[0] #preprocess_face returns (1, 224, 224, 3)
-	return img[:, :, ::-1] #bgr to rgb
-
-def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv'):
+def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'mtcnn'):
 	
 	model_names = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
 	metric_names = ['cosine', 'euclidean', 'euclidean_l2']
@@ -863,10 +818,12 @@ def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine', ena
 	
 	realtime.analysis(db_path, model_name, distance_metric, enable_face_analysis)
 
-def DlibResNet_():
-	#this is not a regular Keras model.
-	from deepface.basemodels.DlibResNet import DlibResNet
-	return DlibResNet()
+def detectFace(img_path, detector_backend = 'mtcnn'):
+	
+	functions.initialize_detector(detector_backend = detector_backend)
+	
+	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend)[0] #preprocess_face returns (1, 224, 224, 3)
+	return img[:, :, ::-1] #bgr to rgb
 #---------------------------
 #main
 
