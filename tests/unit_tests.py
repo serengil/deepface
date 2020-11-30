@@ -14,7 +14,7 @@ dataset = [
 ]
 
 print("-----------------------------------------")
-"""
+
 print("Face detectors test")
 
 print("opencv detector")
@@ -94,7 +94,7 @@ print("Race: ", demography["dominant_race"])
 print("Emotion: ", demography["dominant_emotion"])
 
 print("-----------------------------------------")
-"""
+
 print("Face recognition tests")
 
 dataset = [
