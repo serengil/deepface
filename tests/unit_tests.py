@@ -35,7 +35,7 @@ print(res)
 
 print("-----------------------------------------")
 
-print("Large scale face recognition")
+print("Single find function test")
 
 df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset"
 	#, model_name = 'Dlib'
@@ -44,7 +44,30 @@ print(df.head())
 
 print("-----------------------------------------")
 
-print("Bulk face recognition tests")
+print("Pre-built model for single find function test")
+
+model_name = "VGG-Face"
+model = DeepFace.build_model(model_name)
+print(model_name," is built")
+
+df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset"
+					, model_name = model_name, model = model
+)
+print(df.head())
+
+print("-----------------------------------------")
+
+print("Bulk find function tests")
+
+dfs = DeepFace.find(img_path = ["dataset/img1.jpg", "dataset/img2.jpg"], db_path = "dataset"
+	#, model_name = 'Dlib'
+)
+print(dfs[0].head())
+print(dfs[1].head())
+
+print("-----------------------------------------")
+
+print("Bulk verification tests")
 
 resp_obj = DeepFace.verify(dataset)
 print(resp_obj)
@@ -241,4 +264,3 @@ print(df)
 
 #-----------------------------------
 print("--------------------------")
-

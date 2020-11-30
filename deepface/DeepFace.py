@@ -50,34 +50,30 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 	#--------------------------------
 	
 	if model_name == 'Ensemble':
-		return Boosting.verify(model = model, img_list = img_list, bulkProcess = bulkProcess, enforce_detection = enforce_detection, detector_backend = detector_backend)
-		
-	#ensemble learning block end
-	
+		model_names = ["VGG-Face", "Facenet", "OpenFace", "DeepFace"]
+		metrics = ["cosine", "euclidean", "euclidean_l2"]
+	else:
+		model_names = []; metrics = []
+		model_names.append(model_name)
+		metrics.append(distance_metric)
+			
 	#--------------------------------
 	#ensemble learning disabled
 	
-	if model == None:		
-		model = build_model(model_name)
-	
-	#------------------------------
-	#face recognition models have different size of inputs
-	#my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
-		
-	input_shape = model.layers[0].input_shape
-	
-	if type(input_shape) == list:
-		input_shape = input_shape[0][1:3]
+	if model == None:
+		if model_name == 'Ensemble':
+			models = Boosting.loadModel()
+		else:
+			model = build_model(model_name)
+			models = {}
+			models[model_name] = model
 	else:
-		input_shape = input_shape[1:3]
+		if model_name == 'Ensemble':
+			Boosting.validate_model(model)
+		else:
+			models = {}
+			models[model_name] = model
 	
-	input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
-
-	#------------------------------
-
-	#tuned thresholds for model and metric pair
-	threshold = functions.findThreshold(model_name, distance_metric)
-
 	#------------------------------
 	
 	#calling deepface in a for loop causes lots of progress bars. this prevents it.
@@ -85,63 +81,113 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 	
 	pbar = tqdm(range(0,len(img_list)), desc='Verification', disable = disable_option)
 	
-	#for instance in img_list:
 	for index in pbar:
 	
 		instance = img_list[index]
 		
 		if type(instance) == list and len(instance) >= 2:
-			img1_path = instance[0]
-			img2_path = instance[1]
-
-			#----------------------
-			#crop and align faces
-
-			img1 = functions.preprocess_face(img=img1_path, target_size=(input_shape_y, input_shape_x), enforce_detection = enforce_detection, detector_backend = detector_backend)
-			img2 = functions.preprocess_face(img=img2_path, target_size=(input_shape_y, input_shape_x), enforce_detection = enforce_detection, detector_backend = detector_backend)
-
-			#----------------------
-			#find embeddings
-
-			img1_representation = model.predict(img1)[0,:]
-			img2_representation = model.predict(img2)[0,:]
-
-			#----------------------
-			#find distances between embeddings
-
-			if distance_metric == 'cosine':
-				distance = dst.findCosineDistance(img1_representation, img2_representation)
-			elif distance_metric == 'euclidean':
-				distance = dst.findEuclideanDistance(img1_representation, img2_representation)
-			elif distance_metric == 'euclidean_l2':
-				distance = dst.findEuclideanDistance(dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation))
-			else:
-				raise ValueError("Invalid distance_metric passed - ", distance_metric)
-
-			#----------------------
-			#decision
-
-			if distance <= threshold:
-				identified = True
-			else:
-				identified = False
-
-			#----------------------
-			#response object
+			img1_path = instance[0]; img2_path = instance[1]
 			
-			resp_obj = {
-				"verified": identified
-				, "distance": distance
-				, "max_threshold_to_verify": threshold
-				, "model": model_name
-				, "similarity_metric": distance_metric
+			ensemble_features = []
+			
+			for i in  model_names:
+				custom_model = models[i]
 				
-			}
+				#decide input shape
+				input_shape = functions.find_input_shape(custom_model)	
+				input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
+				
+				#----------------------
+				#detect and align faces
+				
+				img1 = functions.preprocess_face(img=img1_path
+					, target_size=(input_shape_y, input_shape_x)
+					, enforce_detection = enforce_detection
+					, detector_backend = detector_backend)
+				
+				img2 = functions.preprocess_face(img=img2_path
+					, target_size=(input_shape_y, input_shape_x)
+					, enforce_detection = enforce_detection
+					, detector_backend = detector_backend)
+				
+				#----------------------
+				#find embeddings
+				
+				img1_representation = custom_model.predict(img1)[0,:]
+				img2_representation = custom_model.predict(img2)[0,:]
+				
+				#----------------------
+				#find distances between embeddings
+				
+				for j in metrics:
+					
+					if j == 'cosine':
+						distance = dst.findCosineDistance(img1_representation, img2_representation)
+					elif j == 'euclidean':
+						distance = dst.findEuclideanDistance(img1_representation, img2_representation)
+					elif j == 'euclidean_l2':
+						distance = dst.findEuclideanDistance(dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation))
+					else:
+						raise ValueError("Invalid distance_metric passed - ", distance_metric)
+
+					#----------------------
+					#decision
+					
+					if model_name != 'Ensemble':
+						
+						threshold = functions.findThreshold(i, j)
+
+						if distance <= threshold:
+							identified = True
+						else:
+							identified = False
+						
+						resp_obj = {
+							"verified": identified
+							, "distance": distance
+							, "max_threshold_to_verify": threshold
+							, "model": model_name
+							, "similarity_metric": distance_metric
+							
+						}
+						
+						if bulkProcess == True:
+							resp_objects.append(resp_obj)
+						else:
+							return resp_obj
+					
+					else: #Ensemble
+						
+						#this returns same with OpenFace - euclidean_l2
+						if i == 'OpenFace' and j == 'euclidean':
+							continue
+						else:
+							ensemble_features.append(distance)
+					
+			#----------------------
 			
-			if bulkProcess == True:
-				resp_objects.append(resp_obj)
-			else:
-				return resp_obj
+			if model_name == 'Ensemble':
+				
+				boosted_tree = Boosting.build_gbm()
+				
+				prediction = boosted_tree.predict(np.expand_dims(np.array(ensemble_features), axis=0))[0]
+				
+				verified = np.argmax(prediction) == 1
+				score = prediction[np.argmax(prediction)]
+				
+				resp_obj = {
+					"verified": verified
+					, "score": score
+					, "distance": ensemble_features
+					, "model": ["VGG-Face", "Facenet", "OpenFace", "DeepFace"]
+					, "similarity_metric": ["cosine", "euclidean", "euclidean_l2"]
+				}
+				
+				if bulkProcess == True:
+					resp_objects.append(resp_obj)
+				else:
+					return resp_obj
+				
 			#----------------------
 
 		else:
@@ -313,15 +359,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 	
 	#-------------------------------
 	
-	#model metric pairs for ensemble
-	model_names = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
-	metric_names = ['cosine', 'euclidean', 'euclidean_l2']
-	
-	#-------------------------------
-	
 	if os.path.isdir(db_path) == True:
-		
-		#---------------------------------------
 		
 		if model == None:
 			
@@ -331,14 +369,28 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 			
 			else: #model is not ensemble
 				model = build_model(model_name)
+				models = {}
+				models[model_name] = model
 				
 		else: #model != None
 			print("Already built model is passed")
 			
 			if model_name == 'Ensemble':
-				
 				Boosting.validate_model(model)				
 				models = model.copy()
+			else:
+				models = {}
+				models[model_name] = model
+		
+		#---------------------------------------
+		
+		if model_name == 'Ensemble':
+			model_names = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
+			metric_names = ['cosine', 'euclidean', 'euclidean_l2']
+		elif model_name != 'Ensemble':
+			model_names = []; metric_names = []
+			model_names.append(model_name)
+			metric_names.append(distance_metric)
 				
 		#---------------------------------------
 		
@@ -354,7 +406,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 			
 			print("There are ", len(representations)," representations found in ",file_name)
 			
-		else:
+		else: #create representation.pkl from scratch
 			employees = []
 			
 			for r, d, f in os.walk(db_path): # r=root, d=directories, f = files
@@ -376,49 +428,28 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 			#for employee in employees:
 			for index in pbar:
 				employee = employees[index]
+									
+				instance = []
+				instance.append(employee)
 				
-				if model_name != 'Ensemble':
+				for j in model_names:
+					custom_model = models[j]
 					
-					#input_shape = model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
+					#----------------------------------
+					#decide input shape
 					
-					input_shape = model.layers[0].input_shape
-					
-					if type(input_shape) == list:
-						input_shape = input_shape[0][1:3]
-					else:
-						input_shape = input_shape[1:3]
-					
+					input_shape = functions.find_input_shape(custom_model)	
 					input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 					
-					img = functions.preprocess_face(img = employee, target_size = (input_shape_y, input_shape_x), enforce_detection = enforce_detection, detector_backend = detector_backend)
-					representation = model.predict(img)[0,:]
+					#----------------------------------
 					
-					instance = []
-					instance.append(employee)
+					img = functions.preprocess_face(img = employee
+								, target_size = (input_shape_y, input_shape_x)
+								, enforce_detection = enforce_detection
+								, detector_backend = detector_backend)
+					
+					representation = custom_model.predict(img)[0,:]
 					instance.append(representation)
-					
-				else: #ensemble learning
-					
-					instance = []
-					instance.append(employee)
-					
-					for j in model_names:
-						ensemble_model = models[j]
-						
-						#input_shape = model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
-	
-						input_shape = ensemble_model.layers[0].input_shape
-						
-						if type(input_shape) == list:
-							input_shape = input_shape[0][1:3]
-						else:
-							input_shape = input_shape[1:3]
-						
-						input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
-						
-						img = functions.preprocess_face(img = employee, target_size = (input_shape_y, input_shape_x), enforce_detection = enforce_detection, detector_backend = detector_backend)
-						representation = ensemble_model.predict(img)[0,:]
-						instance.append(representation)
 				
 				#-------------------------------
 				
@@ -431,14 +462,18 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 			print("Representations stored in ",db_path,"/",file_name," file. Please delete this file when you add new identities in your database.")
 		
 		#----------------------------
-		#we got representations for database
+		#now, we got representations for facial database
 		
 		if model_name != 'Ensemble':
-			df = pd.DataFrame(representations, columns = ["identity", "representation"])
+			df = pd.DataFrame(representations, columns = ["identity", "%s_representation" % (model_name)])
 		else: #ensemble learning
-			df = pd.DataFrame(representations, columns = ["identity", "VGG-Face_representation", "Facenet_representation", "OpenFace_representation", "DeepFace_representation"])
 			
-		df_base = df.copy()
+			columns = ['identity']
+			[columns.append('%s_representation' % i) for i in model_names]
+			
+			df = pd.DataFrame(representations, columns = columns)
+			
+		df_base = df.copy() #df will be filtered in each img. we will restore it for the next item.
 		
 		resp_obj = []
 		
@@ -448,61 +483,74 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 		
 			#find representation for passed image
 			
-			if model_name == 'Ensemble':
-				for j in model_names:
-					ensemble_model = models[j]
+			for j in model_names:
+				custom_model = models[j]
+				
+				#--------------------------------
+				#decide input shape
+				input_shape = functions.find_input_shape(custom_model)	
+				
+				#--------------------------------
+				
+				img = functions.preprocess_face(img = img_path, target_size = input_shape
+					, enforce_detection = enforce_detection
+					, detector_backend = detector_backend)
 					
-					#input_shape = ensemble_model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
-	
-					input_shape = ensemble_model.layers[0].input_shape
-					
-					if type(input_shape) == list:
-						input_shape = input_shape[0][1:3]
-					else:
-						input_shape = input_shape[1:3]
-					
-					img = functions.preprocess_face(img = img_path, target_size = input_shape, enforce_detection = enforce_detection, detector_backend = detector_backend)
-					target_representation = ensemble_model.predict(img)[0,:]
-					
-					for k in metric_names:
-						distances = []
-						for index, instance in df.iterrows():
-							source_representation = instance["%s_representation" % (j)]
-							
-							if k == 'cosine':
-								distance = dst.findCosineDistance(source_representation, target_representation)
-							elif k == 'euclidean':
-								distance = dst.findEuclideanDistance(source_representation, target_representation)
-							elif k == 'euclidean_l2':
-								distance = dst.findEuclideanDistance(dst.l2_normalize(source_representation), dst.l2_normalize(target_representation))
-							
-							distances.append(distance)
+				target_representation = custom_model.predict(img)[0,:]
+				
+				for k in metric_names:
+					distances = []
+					for index, instance in df.iterrows():
+						source_representation = instance["%s_representation" % (j)]
 						
-						if j == 'OpenFace' and k == 'euclidean':
-							continue
-						else:
-							df["%s_%s" % (j, k)] = distances
-				
-				#----------------------------------
-				
+						if k == 'cosine':
+							distance = dst.findCosineDistance(source_representation, target_representation)
+						elif k == 'euclidean':
+							distance = dst.findEuclideanDistance(source_representation, target_representation)
+						elif k == 'euclidean_l2':
+							distance = dst.findEuclideanDistance(dst.l2_normalize(source_representation), dst.l2_normalize(target_representation))
+						
+						distances.append(distance)
+					
+					#---------------------------
+					
+					if model_name == 'Ensemble' and j == 'OpenFace' and k == 'euclidean':
+						continue
+					else:
+						df["%s_%s" % (j, k)] = distances
+						
+						if model_name != 'Ensemble':
+							threshold = functions.findThreshold(j, k)
+							df = df.drop(columns = ["%s_representation" % (j)])
+							df = df[df["%s_%s" % (j, k)] <= threshold]
+							
+							df = df.sort_values(by = ["%s_%s" % (j, k)], ascending=True).reset_index(drop=True)
+							
+							resp_obj.append(df)
+							df = df_base.copy() #restore df for the next iteration
+						
+			#----------------------------------
+			
+			if model_name == 'Ensemble':
+			
 				feature_names = []
 				for j in model_names:
 					for k in metric_names:
-						if j == 'OpenFace' and k == 'euclidean':
+						if model_name == 'Ensemble' and j == 'OpenFace' and k == 'euclidean':
 							continue
 						else:
 							feature = '%s_%s' % (j, k)
 							feature_names.append(feature)
 				
-				#print(df[feature_names].head())
+				#print(df.head())
 				
 				x = df[feature_names].values
+			
+				#--------------------------------------
+			
+				boosted_tree = Boosting.build_gbm()
 				
-				#----------------------------------
-				#lightgbm model				
-				deepface_ensemble = Boosting.build_gbm()
-				
-				y = deepface_ensemble.predict(x)
+				y = boosted_tree.predict(x)
 				
 				verified_labels = []; scores = []
 				for i in y:
@@ -522,51 +570,8 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 				
 				resp_obj.append(df)
 				df = df_base.copy() #restore df for the next iteration
-				
-				#----------------------------------
 			
-			if model_name != 'Ensemble':
-				
-				#input_shape = model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
-				
-				input_shape = model.layers[0].input_shape
-				
-				if type(input_shape) == list:
-					input_shape = input_shape[0][1:3]
-				else:
-					input_shape = input_shape[1:3]
-				
-				input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
-				
-				#------------------------
-				
-				img = functions.preprocess_face(img = img_path, target_size = (input_shape_y, input_shape_x), enforce_detection = enforce_detection, detector_backend = detector_backend)
-				target_representation = model.predict(img)[0,:]
-		
-				distances = []
-				for index, instance in df.iterrows():
-					source_representation = instance["representation"]
-					
-					if distance_metric == 'cosine':
-						distance = dst.findCosineDistance(source_representation, target_representation)
-					elif distance_metric == 'euclidean':
-						distance = dst.findEuclideanDistance(source_representation, target_representation)
-					elif distance_metric == 'euclidean_l2':
-						distance = dst.findEuclideanDistance(dst.l2_normalize(source_representation), dst.l2_normalize(target_representation))
-					else:
-						raise ValueError("Invalid distance_metric passed - ", distance_metric)
-					
-					distances.append(distance)
-				
-				threshold = functions.findThreshold(model_name, distance_metric)
-				
-				df["distance"] = distances
-				df = df.drop(columns = ["representation"])
-				df = df[df.distance <= threshold]
-			
-				df = df.sort_values(by = ["distance"], ascending=True).reset_index(drop=True)
-				resp_obj.append(df)
-				df = df_base.copy() #restore df for the next iteration
+			#----------------------------------
 			
 		toc = time.time()
 		
