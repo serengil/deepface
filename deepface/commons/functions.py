@@ -447,21 +447,3 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 	img_pixels /= 255 #normalize input in [0, 1]
 	
 	return img_pixels
-
-def boosting_method():
-	
-	import lightgbm as lgb #lightgbm==2.3.1
-	
-	home = str(Path.home())
-	
-	if os.path.isfile(home+'/.deepface/weights/face-recognition-ensemble-model.txt') != True:
-		print("face-recognition-ensemble-model.txt will be downloaded...")
-		url = 'https://raw.githubusercontent.com/serengil/deepface/master/deepface/models/face-recognition-ensemble-model.txt'
-		output = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
-		gdown.download(url, output, quiet=False)
-		
-	ensemble_model_path = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
-	
-	deepface_ensemble = lgb.Booster(model_file = ensemble_model_path)
-	
-	return deepface_ensemble

@@ -4,13 +4,12 @@ warnings.filterwarnings("ignore")
 import time
 import os
 from os import path
-from pathlib import Path
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import pickle
 
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID, DlibWrapper
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID, DlibWrapper, Boosting
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -48,150 +47,19 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 	resp_objects = []
 	
-	if model_name == 'Ensemble':
-		print("Ensemble learning enabled")
-		
-		import lightgbm as lgb #lightgbm==2.3.1
-		
-		if model == None:
-			model = {}
-			
-			model_pbar = tqdm(range(0, 4), desc='Face recognition models')
-			
-			for index in model_pbar:
-				
-				if index == 0:
-					model_pbar.set_description("Loading VGG-Face")
-					model["VGG-Face"] = build_model('VGG-Face')
-				elif index == 1:
-					model_pbar.set_description("Loading Google FaceNet")
-					model["Facenet"] = build_model('Facenet')
-				elif index == 2:
-					model_pbar.set_description("Loading OpenFace")
-					model["OpenFace"] = build_model('OpenFace')
-				elif index == 3:
-					model_pbar.set_description("Loading Facebook DeepFace")
-					model["DeepFace"] = build_model('DeepFace')
-					
-		#--------------------------
-		#validate model dictionary because it might be passed from input as pre-trained
-		
-		found_models = []
-		for key, value in model.items():
-			found_models.append(key)
-		
-		if ('VGG-Face' in found_models) and ('Facenet' in found_models) and ('OpenFace' in found_models) and ('DeepFace' in found_models):
-			print("Ensemble learning will be applied for ", found_models," models")
-		else:
-			raise ValueError("You would like to apply ensemble learning and pass pre-built models but models must contain [VGG-Face, Facenet, OpenFace, DeepFace] but you passed "+found_models)
-			
-		#--------------------------
-		
-		model_names = ["VGG-Face", "Facenet", "OpenFace", "DeepFace"]
-		metrics = ["cosine", "euclidean", "euclidean_l2"]
-		
-		pbar = tqdm(range(0,len(img_list)), desc='Verification')
-		
-		#for instance in img_list:
-		for index in pbar:
-			instance = img_list[index]
-			
-			if type(instance) == list and len(instance) >= 2:
-				img1_path = instance[0]
-				img2_path = instance[1]
-				
-				ensemble_features = []; ensemble_features_string = "["
-				
-				for i in  model_names:
-					custom_model = model[i]
-					
-					#input_shape = custom_model.layers[0].input_shape[1:3] #my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
+	#--------------------------------
 	
-					input_shape = custom_model.layers[0].input_shape
-					
-					if type(input_shape) == list:
-						input_shape = input_shape[0][1:3]
-					else:
-						input_shape = input_shape[1:3]
-					
-					
-					img1 = functions.preprocess_face(img = img1_path, target_size = input_shape, enforce_detection = enforce_detection, detector_backend = detector_backend)
-					img2 = functions.preprocess_face(img = img2_path, target_size = input_shape, enforce_detection = enforce_detection, detector_backend = detector_backend)
-					
-					img1_representation = custom_model.predict(img1)[0,:]
-					img2_representation = custom_model.predict(img2)[0,:]
-					
-					for j in metrics:
-						if j == 'cosine':
-							distance = dst.findCosineDistance(img1_representation, img2_representation)
-						elif j == 'euclidean':
-							distance = dst.findEuclideanDistance(img1_representation, img2_representation)
-						elif j == 'euclidean_l2':
-							distance = dst.findEuclideanDistance(dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation))
-						
-						if i == 'OpenFace' and j == 'euclidean': #this returns same with OpenFace - euclidean_l2
-							continue
-						else:
-							
-							ensemble_features.append(distance)
-							
-							if len(ensemble_features) > 1:
-								ensemble_features_string += ", "
-							ensemble_features_string += str(distance)
-							
-				#print("ensemble_features: ", ensemble_features)
-				ensemble_features_string += "]"
-				
-				#-------------------------------
-
-				deepface_ensemble = functions.boosting_method()
-				
-				#---------------------------
-				
-				prediction = deepface_ensemble.predict(np.expand_dims(np.array(ensemble_features), axis=0))[0]
-				
-				verified = np.argmax(prediction) == 1
-				
-				score = prediction[np.argmax(prediction)]
-				
-				#print("verified: ", verified,", score: ", score)
-				
-				resp_obj = {
-					"verified": verified
-					, "score": score
-					, "distance": ensemble_features_string
-					, "model": ["VGG-Face", "Facenet", "OpenFace", "DeepFace"]
-					, "similarity_metric": ["cosine", "euclidean", "euclidean_l2"]
-				}
-				
-				if bulkProcess == True:
-					resp_objects.append(resp_obj)
-				else:
-					return resp_obj
-				
-				#-------------------------------
-		
-		if bulkProcess == True:
-			
-			resp_obj = {}
-			for i in range(0, len(resp_objects)):
-				resp_item = resp_objects[i]
-				resp_obj["pair_%d" % (i+1)] = resp_item
-			
-			return resp_obj
-		
-		return None
+	if model_name == 'Ensemble':
+		return Boosting.verify(model = model, img_list = img_list, bulkProcess = bulkProcess, enforce_detection = enforce_detection, detector_backend = detector_backend)
 		
 	#ensemble learning block end
+	
 	#--------------------------------
 	#ensemble learning disabled
 	
 	if model == None:		
 		model = build_model(model_name)
 	
-	"""else: #model != None
-		print("Already built model is passed")"""
-
 	#------------------------------
 	#face recognition models have different size of inputs
 	#my environment returns (None, 224, 224, 3) but some people mentioned that they got [(None, 224, 224, 3)]. I think this is because of version issue.
@@ -458,28 +326,8 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 		if model == None:
 			
 			if model_name == 'Ensemble':
-				print("Ensemble learning enabled")
-				#TODO: include DeepID in ensemble method
-				
-				import lightgbm as lgb #lightgbm==2.3.1
-				
-				models = {}
-				
-				pbar = tqdm(range(0, len(model_names)), desc='Face recognition models')
-				
-				for index in pbar:
-					if index == 0:
-						pbar.set_description("Loading VGG-Face")
-						models['VGG-Face'] = build_model('VGG-Face')
-					elif index == 1:
-						pbar.set_description("Loading FaceNet")
-						models['Facenet'] = build_model('Facenet')
-					elif index == 2:
-						pbar.set_description("Loading OpenFace")
-						models['OpenFace'] = build_model('OpenFace')
-					elif index == 3:
-						pbar.set_description("Loading DeepFace")
-						models['DeepFace'] = build_model('DeepFace')
+				print("Ensemble learning enabled")				
+				models = Boosting.loadModel()
 			
 			else: #model is not ensemble
 				model = build_model(model_name)
@@ -488,24 +336,10 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 			print("Already built model is passed")
 			
 			if model_name == 'Ensemble':
-			
-				import lightgbm as lgb #lightgbm==2.3.1
 				
-				#validate model dictionary because it might be passed from input as pre-trained
-				
-				found_models = []
-				for key, value in model.items():
-					found_models.append(key)
-				
-				if ('VGG-Face' in found_models) and ('Facenet' in found_models) and ('OpenFace' in found_models) and ('DeepFace' in found_models):
-					print("Ensemble learning will be applied for ", found_models," models")
-				else:
-					raise ValueError("You would like to apply ensemble learning and pass pre-built models but models must contain [VGG-Face, Facenet, OpenFace, DeepFace] but you passed "+found_models)
-				
+				Boosting.validate_model(model)				
 				models = model.copy()
-		
-		#threshold = functions.findThreshold(model_name, distance_metric)
-		
+				
 		#---------------------------------------
 		
 		file_name = "representations_%s.pkl" % (model_name)
@@ -666,7 +500,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 				
 				#----------------------------------
 				#lightgbm model				
-				deepface_ensemble = functions.boosting_method()
+				deepface_ensemble = Boosting.build_gbm()
 				
 				y = deepface_ensemble.predict(x)
 				
@@ -747,7 +581,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 		raise ValueError("Passed db_path does not exist!")
 		
 	return None
-	
+		
 def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine', enable_face_analysis = True):
 	
 	functions.initialize_detector(detector_backend = 'opencv')
@@ -790,4 +624,3 @@ def initialize_input(img1_path, img2_path = None):
 #main
 
 functions.initializeFolder()
-
