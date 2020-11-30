@@ -111,7 +111,7 @@ user
 
 **Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
 
-Face detection and alignment are early stages of a modern face recognition pipeline. [OpenCV haar cascade](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [Dlib](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/) and [MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) methods are wrapped in deepface as a detector. You can optionally pass a custom detector to functions in deepface interface. OpenCV is the default detector if you won't pass a detector.
+Face detection and alignment are early stages of a modern face recognition pipeline. [OpenCV haar cascade](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [Dlib](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/) and [MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) methods are wrapped in deepface as a detector. You can optionally pass a custom detector to functions in deepface interface. MTCNN is the default detector if you won't pass any detector.
 
 ```python
 backends = ['opencv', 'ssd', 'dlib', 'mtcnn']
