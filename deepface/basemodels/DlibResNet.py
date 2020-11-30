@@ -9,6 +9,10 @@ from pathlib import Path
 class DlibResNet:
 	
 	def __init__(self):
+	
+		self.layers = [DlibMetaData()]
+		
+		#---------------------
 		
 		home = str(Path.home())
 		weight_file = home+'/.deepface/weights/dlib_face_recognition_resnet_model_v1.dat'
@@ -60,3 +64,7 @@ class DlibResNet:
 		img_representation = np.expand_dims(img_representation, axis = 0)
 		
 		return img_representation
+
+class DlibMetaData:
+	def __init__(self):
+		self.input_shape = [[1, 150, 150, 3]]
