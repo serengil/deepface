@@ -5,11 +5,9 @@ import time
 import os
 from os import path
 from pathlib import Path
-import gdown
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import json
 import pickle
 
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID, DlibWrapper
