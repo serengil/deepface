@@ -145,23 +145,10 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 				ensemble_features_string += "]"
 				
 				#-------------------------------
-				#find deepface path
+
+				deepface_ensemble = functions.boosting_method()
 				
-				home = str(Path.home())
-				
-				if os.path.isfile(home+'/.deepface/weights/face-recognition-ensemble-model.txt') != True:
-					print("face-recognition-ensemble-model.txt will be downloaded...")
-					url = 'https://raw.githubusercontent.com/serengil/deepface/master/deepface/models/face-recognition-ensemble-model.txt'
-					output = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
-					gdown.download(url, output, quiet=False)
-					
-				ensemble_model_path = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
-				
-				#print(ensemble_model_path)
-				
-				#-------------------------------
-				
-				deepface_ensemble = lgb.Booster(model_file = ensemble_model_path)
+				#---------------------------
 				
 				prediction = deepface_ensemble.predict(np.expand_dims(np.array(ensemble_features), axis=0))[0]
 				
@@ -680,18 +667,8 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 				x = df[feature_names].values
 				
 				#----------------------------------
-				#lightgbm model
-				home = str(Path.home())
-				
-				if os.path.isfile(home+'/.deepface/weights/face-recognition-ensemble-model.txt') != True:
-					print("face-recognition-ensemble-model.txt will be downloaded...")
-					url = 'https://raw.githubusercontent.com/serengil/deepface/master/deepface/models/face-recognition-ensemble-model.txt'
-					output = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
-					gdown.download(url, output, quiet=False)
-					
-				ensemble_model_path = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
-				
-				deepface_ensemble = lgb.Booster(model_file = ensemble_model_path)
+				#lightgbm model				
+				deepface_ensemble = functions.boosting_method()
 				
 				y = deepface_ensemble.predict(x)
 				
