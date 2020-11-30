@@ -299,21 +299,16 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 	toc = time.time()
 
 	#print("identification lasts ",toc-tic," seconds")
-
+	
 	if bulkProcess == True:
-		resp_obj = "{"
+		
+		resp_obj = {}
 
 		for i in range(0, len(resp_objects)):
-			resp_item = json.dumps(resp_objects[i])
-
-			if i > 0:
-				resp_obj += ", "
-
-			resp_obj += "\"pair_"+str(i+1)+"\": "+resp_item
-		resp_obj += "}"
-		resp_obj = json.loads(resp_obj)
+			resp_item = resp_objects[i]
+			resp_obj["pair_%d" % (i+1)] = resp_item
+			
 		return resp_obj
-		#return resp_objects
 
 def analyze(img_path, actions = [], models = {}, enforce_detection = True
 			, detector_backend = 'mtcnn'):
