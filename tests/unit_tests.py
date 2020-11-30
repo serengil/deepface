@@ -14,7 +14,7 @@ dataset = [
 ]
 
 print("-----------------------------------------")
-
+"""
 print("Face detectors test")
 
 print("opencv detector")
@@ -94,7 +94,7 @@ print("Race: ", demography["dominant_race"])
 print("Emotion: ", demography["dominant_emotion"])
 
 print("-----------------------------------------")
-
+"""
 print("Face recognition tests")
 
 dataset = [
@@ -118,13 +118,17 @@ metrics = ['cosine', 'euclidean', 'euclidean_l2']
 passed_tests = 0; test_cases = 0
 
 for model in models:
+	prebuilt_model = DeepFace.build_model(model)
+	print(model," is built")
 	for metric in metrics:
 		for instance in dataset:
 			img1 = instance[0]
 			img2 = instance[1]
 			result = instance[2]
 			
-			resp_obj = DeepFace.verify(img1, img2, model_name = model, distance_metric = metric)
+			resp_obj = DeepFace.verify(img1, img2
+						, model_name = model, model = prebuilt_model
+						, distance_metric = metric)
 			
 			prediction = resp_obj["verified"]
 			distance = round(resp_obj["distance"], 2)
@@ -142,7 +146,7 @@ for model in models:
 			
 			test_cases = test_cases + 1
 			
-			print(img1.split("/")[-1], "and", img2.split("/")[-1],"are", classified_label, "as same person based on", model,"model and",metric,"distance. Distance:",distance,", Threshold:", required_threshold,"(",test_result_label,")")
+			print(img1.split("/")[-1], "-", img2.split("/")[-1], classified_label, "as same person based on", model,"and",metric,". Distance:",distance,", Threshold:", required_threshold,"(",test_result_label,")")
 		
 		print("--------------------------")
 

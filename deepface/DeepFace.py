@@ -44,16 +44,8 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 		   model = None, enforce_detection = True, detector_backend = 'mtcnn'):	
 
 	tic = time.time()
-
-	if type(img1_path) == list:
-		bulkProcess = True
-		img_list = img1_path.copy()
-	else:
-		bulkProcess = False
-		img_list = [[img1_path, img2_path]]
-
-	#------------------------------
 	
+	img_list, bulkProcess = initialize_input(img1_path, img2_path)	
 	functions.initialize_detector(detector_backend = detector_backend)
 
 	resp_objects = []
@@ -212,8 +204,8 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 	if model == None:		
 		model = build_model(model_name)
 	
-	else: #model != None
-		print("Already built model is passed")
+	"""else: #model != None
+		print("Already built model is passed")"""
 
 	#------------------------------
 	#face recognition models have different size of inputs
@@ -326,15 +318,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 def analyze(img_path, actions = [], models = {}, enforce_detection = True
 			, detector_backend = 'mtcnn'):
 
-	if type(img_path) == list:
-		img_paths = img_path.copy()
-		bulkProcess = True
-	else:
-		img_paths = [img_path]
-		bulkProcess = False
-
-	#---------------------------------
-	
+	img_paths, bulkProcess = initialize_input(img_path)
 	functions.initialize_detector(detector_backend = detector_backend)
 	
 	#---------------------------------
@@ -474,21 +458,16 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True
 
 def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'mtcnn'):
 	
-	model_names = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
-	metric_names = ['cosine', 'euclidean', 'euclidean_l2']
-	
 	tic = time.time()
 	
-	if type(img_path) == list:
-		bulkProcess = True
-		img_paths = img_path.copy()
-	else:
-		bulkProcess = False
-		img_paths = [img_path]
+	img_paths, bulkProcess = initialize_input(img_path)
+	functions.initialize_detector(detector_backend = detector_backend)
 	
 	#-------------------------------
 	
-	functions.initialize_detector(detector_backend = detector_backend)
+	#model metric pairs for ensemble
+	model_names = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
+	metric_names = ['cosine', 'euclidean', 'euclidean_l2']
 	
 	#-------------------------------
 	
@@ -811,6 +790,32 @@ def detectFace(img_path, detector_backend = 'mtcnn'):
 	
 	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend)[0] #preprocess_face returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb
+
+def initialize_input(img1_path, img2_path = None):
+	
+	"""
+	verify, analyze and find functions build complex machine learning models in every call.
+	To avoid memory problems, you can pass image pairs as array.
+	
+	This function manages this usage is enabled or not
+	
+	E.g.
+	result  = DeepFace.verify("img1.jpg", "img2.jpg")
+	results = DeepFace.verify([['img1.jpg', 'img2.jpg'], ['img1.jpg', 'img3.jpg']])
+	"""
+
+	if type(img1_path) == list:
+		bulkProcess = True
+		img_list = img1_path.copy()
+	else:
+		bulkProcess = False
+		if img2_path != None:
+			img_list = [[img1_path, img2_path]]
+		else:
+			img_list = [img1_path]
+	
+	return img_list, bulkProcess
+	
 #---------------------------
 #main
 
