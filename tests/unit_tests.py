@@ -177,13 +177,15 @@ for model in models:
 
 print("Passed unit tests: ",passed_tests," / ",test_cases)
 
+threshold = 70
+
 accuracy = 100 * passed_tests / test_cases
 accuracy = round(accuracy, 2)
 
-if accuracy > 75:
+if accuracy >= threshold:
 	print("Unit tests are completed successfully. Score: ",accuracy,"%")
 else:
-	raise ValueError("Unit test score does not satisfy the minimum required accuracy. Minimum expected score is 80% but this got ",accuracy,"%")
+	raise ValueError("Unit test score does not satisfy the minimum required accuracy. Minimum expected score is ",threshold,"% but this got ",accuracy,"%")
 
 #-----------------------------------
 

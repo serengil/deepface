@@ -97,12 +97,6 @@ def initialize_detector(detector_backend):
 		
 	elif detector_backend == 'mtcnn':
 		face_detector = MTCNN()
-	
-def loadBase64Img(uri):
-   encoded_data = uri.split(',')[1]
-   nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
-   img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-   return img
 
 def initializeFolder():
 	
@@ -115,23 +109,12 @@ def initializeFolder():
 	if not os.path.exists(home+"/.deepface/weights"):
 		os.mkdir(home+"/.deepface/weights")
 		print("Directory ",home,"/.deepface/weights created")
-	
-def findThreshold(model_name, distance_metric):
-	
-	base_threshold = {'cosine': 0.40, 'euclidean': 0.55, 'euclidean_l2': 0.75}
-	
-	thresholds = {
-		'VGG-Face': {'cosine': 0.40, 'euclidean': 0.55, 'euclidean_l2': 0.75},
-		'OpenFace': {'cosine': 0.10, 'euclidean': 0.55, 'euclidean_l2': 0.55},
-		'Facenet':  {'cosine': 0.40, 'euclidean': 10, 'euclidean_l2': 0.80},
-		'DeepFace': {'cosine': 0.23, 'euclidean': 64, 'euclidean_l2': 0.64},
-		'DeepID': 	{'cosine': 0.015, 'euclidean': 45, 'euclidean_l2': 0.17},
-		'Dlib': 	{'cosine': 0.07, 'euclidean': 0.6, 'euclidean_l2': 0.6}
-		}
 
-	threshold = thresholds.get(model_name, base_threshold).get(distance_metric, 0.4)
-	
-	return threshold
+def loadBase64Img(uri):
+   encoded_data = uri.split(',')[1]
+   nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
+   img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+   return img
 
 def get_opencv_path():
 	opencv_home = cv2.__file__

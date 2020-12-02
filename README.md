@@ -175,12 +175,6 @@ models["race"] = DeepFace.build_model('Race')
 DeepFace.analyze("img1.jpg", models=models)
 ```
 
-## Disclaimer
-
-Reference face recognition models have different type of licenses. This framework is just a wrapper for those models. That's why, licence types are inherited as well. You should check the licenses for the face recognition models before use.
-
-Herein, [OpenFace](https://github.com/cmusatyalab/openface/blob/master/LICENSE) is licensed under Apache License 2.0. [FB DeepFace](https://github.com/swghosh/DeepFace) and [Facenet](https://github.com/davidsandberg/facenet/blob/master/LICENSE.md) is licensed under MIT License. [Dlib](https://github.com/davisking/dlib/blob/master/dlib/LICENSE.txt) is licensed under Boost Software License. They all allow you to use for personal and commercial purpose free. On the other hand, [VGG-Face](http://www.robots.ox.ac.uk/~vgg/software/vgg_face/) is licensed under Creative Commons Attribution License. That's why, it is restricted to adopt VGG-Face for commercial use.
-
 ## Support
 
 There are many ways to support a project - starring⭐️ the GitHub repos is just one.
@@ -189,11 +183,12 @@ There are many ways to support a project - starring⭐️ the GitHub repos is ju
 
 Please cite [deepface](https://ieeexplore.ieee.org/document/9259802) in your publications if it helps your research. Here is an example BibTeX entry:
 
-```
-@inproceedings{9259802,
+```BibTeX
+@inproceedings{serengil2020lightface,
   title={LightFace: A Hybrid Deep Face Recognition Framework},
   author={Serengil, Sefik Ilkin and Ozpinar, Alper},
   booktitle={2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
+  pages={23--27},
   year={2020},
   doi={10.1109/ASYU50717.2020.9259802},
   organization={IEEE}
@@ -202,6 +197,6 @@ Please cite [deepface](https://ieeexplore.ieee.org/document/9259802) in your pub
 
 ## Licence
 
-Deepface is licensed under the MIT License - see [`LICENSE`](https://github.com/serengil/deepface/blob/master/LICENSE) for more details.
+Deepface is licensed under the MIT License - see [`LICENSE`](https://github.com/serengil/deepface/blob/master/LICENSE) for more details. However, the library wraps some face recognition models: [VGG-Face](http://www.robots.ox.ac.uk/~vgg/software/vgg_face/), [Facenet](https://github.com/davidsandberg/facenet/blob/master/LICENSE.md), [OpenFace](https://github.com/cmusatyalab/openface/blob/master/LICENSE), [DeepFace](https://github.com/swghosh/DeepFace) and [Dlib](https://github.com/davisking/dlib/blob/master/dlib/LICENSE.txt). Licence types will be inherited if you are going to use those models.
 
 [Logo](https://thenounproject.com/term/face-recognition/2965879/) is created by [Adrien Coquet](https://thenounproject.com/coquet_adrien/). Licensed under [Creative Commons: By Attribution 3.0 License](https://creativecommons.org/licenses/by/3.0/).

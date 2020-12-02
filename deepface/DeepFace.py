@@ -58,7 +58,6 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 		metrics.append(distance_metric)
 			
 	#--------------------------------
-	#ensemble learning disabled
 	
 	if model == None:
 		if model_name == 'Ensemble':
@@ -135,7 +134,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 					
 					if model_name != 'Ensemble':
 						
-						threshold = functions.findThreshold(i, j)
+						threshold = dst.findThreshold(i, j)
 
 						if distance <= threshold:
 							identified = True
@@ -196,8 +195,6 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 	#-------------------------
 
 	toc = time.time()
-
-	#print("identification lasts ",toc-tic," seconds")
 	
 	if bulkProcess == True:
 		
@@ -520,7 +517,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 						df["%s_%s" % (j, k)] = distances
 						
 						if model_name != 'Ensemble':
-							threshold = functions.findThreshold(j, k)
+							threshold = dst.findThreshold(j, k)
 							df = df.drop(columns = ["%s_representation" % (j)])
 							df = df[df["%s_%s" % (j, k)] <= threshold]
 							

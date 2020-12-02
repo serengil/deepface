@@ -76,7 +76,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 		input_shape_y = input_shape[1]
 		
 		#tuned thresholds for model and metric pair
-		threshold = functions.findThreshold(model_name, distance_metric)
+		threshold = dst.findThreshold(model_name, distance_metric)
 		
 	#------------------------
 	#facial attribute analysis models
