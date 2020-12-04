@@ -32,9 +32,9 @@ print("Is verified: ", result["verified"])
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-1.jpg" width="95%" height="95%"></p>
 
-**Large scale face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s) 
+**Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s) 
 
-Face recognition requires to apply face verification several times. Herein, deepface offers an out-of-the-box find function to handle this action. You can apply face recognition on a [large scale](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) data set as well.
+Face recognition requires to apply face verification several times. Herein, deepface offers an out-of-the-box find function to handle this action. It stores the representations of your facial database and you don't have to find it again and again. In this way, you can apply [face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) data set as well. The find function returns pandas data frame if a single image path is passed, and it returns list of pandas data frames if list of image paths are passed.
 
 ```python
 from deepface import DeepFace
@@ -45,6 +45,10 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%" height="95%"></p>
 
+**Large Scale Face Recognition** - [`Demo with Elasticsearch`](https://youtu.be/i4GvuOmzKzo), [`Demo with Spotify Annoy`](https://youtu.be/Jpxm914o2xk)
+
+Notice that face recognition has O(n) time complexity and this might be problematic for millions level data. Herein, approximate nearest neighbor (a-nn) algorithm reduces the time complexity dramatically. [Spotify Annoy](https://sefiks.com/2020/09/16/large-scale-face-recognition-with-spotify-annoy/), [Facebook Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) and [NMSLIB](https://sefiks.com/2020/09/19/large-scale-face-recognition-with-nmslib/) are amazing a-nn libraries. Besides, [Elasticsearch](https://sefiks.com/2020/11/27/large-scale-face-recognition-with-elasticsearch/) wraps a-nn algorithm and it offers highly scalable feature. You should run deepface within those a-nn frameworks if you have really large scale data sets.
+
 **Face recognition models** - [`Demo`](https://youtu.be/i_MOwvhbLdI)
 
 Deepface is a **hybrid** face recognition package. It currently wraps the **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/), [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/) and [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below.
@@ -53,6 +57,7 @@ Deepface is a **hybrid** face recognition package. It currently wraps the **stat
 models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "DeepID", "Dlib"]
 for model in models:
    result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
+   df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", model_name = model)
 ```
 
 FaceNet, VGG-Face and Dlib [overperforms](https://youtu.be/i_MOwvhbLdI) than OpenFace, DeepFace and DeepID based on experiments.
@@ -67,6 +72,7 @@ Distance could be found by different metrics such as [Cosine Similarity](https:/
 metrics = ["cosine", "euclidean", "euclidean_l2"]
 for metric in metrics:
    result = DeepFace.verify("img1.jpg", "img2.jpg", distance_metric = metric)
+   df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", distance_metric = metric)
 ```
 
 Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than cosine and regular Euclidean distance based on experiments.
