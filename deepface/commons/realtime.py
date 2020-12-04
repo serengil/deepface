@@ -9,14 +9,14 @@ import re
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
-from deepface.extendedmodels import Age, Gender, Race, Emotion
+from deepface import DeepFace
+from deepface.extendedmodels import Age
 from deepface.commons import functions, realtime, distance as dst
 
-def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
+def analysis(db_path, model_name, distance_metric, enable_face_analysis = True
+				, source = 0, time_threshold = 5, frame_threshold = 5):
 	
-	input_shape = (224, 224)
-	input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
+	input_shape = (224, 224); input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 	
 	text_color = (255,255,255)
 	
@@ -37,41 +37,13 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 	#------------------------
 	
 	if len(employees) > 0:
-		if model_name == 'VGG-Face':
-			print("Using VGG-Face model backend and", distance_metric,"distance.")
-			model = VGGFace.loadModel()
-			input_shape = (224, 224)	
 		
-		elif model_name == 'OpenFace':
-			print("Using OpenFace model backend", distance_metric,"distance.")
-			model = OpenFace.loadModel()
-			input_shape = (96, 96)
+		model = DeepFace.build_model(model_name)
+		print(model_name," is built")
 		
-		elif model_name == 'Facenet':
-			print("Using Facenet model backend", distance_metric,"distance.")
-			model = Facenet.loadModel()
-			input_shape = (160, 160)
-		
-		elif model_name == 'DeepFace':
-			print("Using FB DeepFace model backend", distance_metric,"distance.")
-			model = FbDeepFace.loadModel()
-			input_shape = (152, 152)
-		
-		elif model_name == 'DeepID':
-			print("Using DeepID model backend", distance_metric,"distance.")
-			model = DeepID.loadModel()
-			input_shape = (55, 47)
-		
-		elif model_name == 'Dlib':
-			print("Using Dlib model backend", distance_metric,"distance.")
-			from deepface.basemodels.DlibResNet import DlibResNet
-			model = DlibResNet()
-			input_shape = (150, 150)
-		
-		else:
-			raise ValueError("Invalid model_name passed - ", model_name)
 		#------------------------
 		
+		input_shape = functions.find_input_shape(model)
 		input_shape_x = input_shape[0]
 		input_shape_y = input_shape[1]
 		
@@ -84,14 +56,14 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 	if enable_face_analysis == True:
 		
 		tic = time.time()
-		
-		emotion_model = Emotion.loadModel()
+				
+		emotion_model = DeepFace.build_model('Emotion')
 		print("Emotion model loaded")
 		
-		age_model = Age.loadModel()
+		age_model = DeepFace.build_model('Age')
 		print("Age model loaded")
 		
-		gender_model = Gender.loadModel()
+		gender_model = DeepFace.build_model('Gender')
 		print("Gender model loaded")
 		
 		toc = time.time()
@@ -128,7 +100,6 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 	
 	#-----------------------
 
-	time_threshold = 5; frame_threshold = 5
 	pivot_img_size = 112 #face recognition result image
 
 	#-----------------------
@@ -145,8 +116,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True):
 	freezed_frame = 0
 	tic = time.time()
 
-	cap = cv2.VideoCapture(0) #webcam
-	#cap = cv2.VideoCapture("C:/Users/IS96273/Desktop/skype-video-1.mp4") #video
+	cap = cv2.VideoCapture(source) #webcam
 
 	while(True):
 		ret, img = cap.read()

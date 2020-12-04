@@ -584,11 +584,20 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 		
 	return None
 		
-def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine', enable_face_analysis = True):
+def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine'
+			, enable_face_analysis = True
+			, source = 0, time_threshold = 5, frame_threshold = 5):
 	
+	if time_threshold < 1:
+		raise ValueError("time_threshold must be greater than the value 1 but you passed "+str(time_threshold))
+	
+	if frame_threshold < 1:
+		raise ValueError("frame_threshold must be greater than the value 1 but you passed "+str(frame_threshold))
+		
 	functions.initialize_detector(detector_backend = 'opencv')
 	
-	realtime.analysis(db_path, model_name, distance_metric, enable_face_analysis)
+	realtime.analysis(db_path, model_name, distance_metric, enable_face_analysis
+						, source = source, time_threshold = time_threshold, frame_threshold = frame_threshold)
 
 def detectFace(img_path, detector_backend = 'mtcnn'):
 	
