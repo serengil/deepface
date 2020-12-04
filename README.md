@@ -177,7 +177,7 @@ for model_name in models:
 models = {}
 actions = ['Age', 'Gender', 'Emotion', 'Race']
 for action in actions:
-	models[action.lower()] = DeepFace.build_model(action)
+   models[action.lower()] = DeepFace.build_model(action)
 DeepFace.analyze("img1.jpg", models=models)
 ```
 
