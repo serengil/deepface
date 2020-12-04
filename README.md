@@ -45,10 +45,6 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%" height="95%"></p>
 
-**Large Scale Face Recognition** - [`Demo with Elasticsearch`](https://youtu.be/i4GvuOmzKzo), [`Demo with Spotify Annoy`](https://youtu.be/Jpxm914o2xk)
-
-Notice that face recognition has O(n) time complexity and this might be problematic for millions level data. Herein, approximate nearest neighbor (a-nn) algorithm reduces the time complexity dramatically. [Spotify Annoy](https://sefiks.com/2020/09/16/large-scale-face-recognition-with-spotify-annoy/), [Facebook Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) and [NMSLIB](https://sefiks.com/2020/09/19/large-scale-face-recognition-with-nmslib/) are amazing a-nn libraries. Besides, [Elasticsearch](https://sefiks.com/2020/11/27/large-scale-face-recognition-with-elasticsearch/) wraps an a-nn algorithm and it offers highly scalable feature. You should run deepface within those a-nn frameworks if you have really large scale data sets.
-
 **Face recognition models** - [`Demo`](https://youtu.be/i_MOwvhbLdI)
 
 Deepface is a **hybrid** face recognition package. It currently wraps the **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/), [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/) and [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/). The default configuration verifies faces with **VGG-Face** model. You can set the base model while verification as illustared below.
@@ -114,6 +110,12 @@ user
 │   ├── Bob
 │   │   ├── Bob.jpg
 ```
+
+**Large Scale Face Recognition** - [`Demo with Elasticsearch`](https://youtu.be/i4GvuOmzKzo), [`Demo with Spotify Annoy`](https://youtu.be/Jpxm914o2xk)
+
+Notice that face recognition has O(n) time complexity and this might be problematic for millions level data. Herein, approximate nearest neighbor (a-nn) algorithm reduces the time complexity dramatically. [Spotify Annoy](https://sefiks.com/2020/09/16/large-scale-face-recognition-with-spotify-annoy/), [Facebook Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) and [NMSLIB](https://sefiks.com/2020/09/19/large-scale-face-recognition-with-nmslib/) are amazing a-nn libraries. Besides, [Elasticsearch](https://sefiks.com/2020/11/27/large-scale-face-recognition-with-elasticsearch/) wraps an a-nn algorithm and it offers highly scalable feature. You should run deepface within those a-nn frameworks if you have really large scale data sets.
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/elastic-face.jpg" width="95%" height="95%"></p>
 
 **Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
 
