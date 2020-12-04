@@ -1,4 +1,3 @@
-import dlib #19.20.0
 import os
 import zipfile
 import bz2
@@ -9,6 +8,9 @@ from pathlib import Path
 class DlibResNet:
 	
 	def __init__(self):
+		
+		#this is not a must dependency
+		import dlib #19.20.0
 	
 		self.layers = [DlibMetaData()]
 		

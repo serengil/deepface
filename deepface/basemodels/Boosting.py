@@ -4,8 +4,6 @@ import os
 from os import path
 from pathlib import Path
 import numpy as np
-import lightgbm as lgb #lightgbm==2.3.1
-
 from deepface.commons import functions, distance as dst
 
 def loadModel():
@@ -35,9 +33,15 @@ def validate_model(model):
 		#print("Ensemble learning will be applied for ", found_models," models")
 		valid = True
 	else:
-		raise ValueError("You would like to apply ensemble learning and pass pre-built models but models must contain [VGG-Face, Facenet, OpenFace, DeepFace] but you passed "+found_models)
+		
+		missing_ones = set(['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']) - set(found_models)
+		
+		raise ValueError("You'd like to apply ensemble method and pass pre-built models but models must contain [VGG-Face, Facenet, OpenFace, DeepFace] but you passed "+str(found_models)+". So, you need to pass "+str(missing_ones)+" models as well.")
 
 def build_gbm():
+	
+	#this is not a must dependency
+	import lightgbm as lgb #lightgbm==2.3.1
 	
 	home = str(Path.home())
 	
