@@ -172,12 +172,10 @@ for model_name in models:
    DeepFace.verify("img1.jpg", "img2.jpg", model_name = model_name, model = model)
 
 #facial analysis
-import json
 models = {}
-models["emotion"] = DeepFace.build_model('Emotion')
-models["age"] = DeepFace.build_model('Age')
-models["gender"] = DeepFace.build_model('Gender')
-models["race"] = DeepFace.build_model('Race')
+actions = ['Age', 'Gender', 'Emotion', 'Race']
+for action in actions:
+	models[action.lower()] = DeepFace.build_model(action)
 DeepFace.analyze("img1.jpg", models=models)
 ```
 
