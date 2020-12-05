@@ -60,7 +60,7 @@ for model in models:
    df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", model_name = model)
 ```
 
-FaceNet, VGG-Face and Dlib [overperforms](https://youtu.be/i_MOwvhbLdI) than OpenFace, DeepFace and DeepID based on experiments.
+FaceNet, VGG-Face and Dlib [overperforms](https://youtu.be/i_MOwvhbLdI) than OpenFace, DeepFace and DeepID based on experiments. Supportively, VGG-Face got 98.78%; FaceNet got 99.65%; OpenFace got 92.92%; Dlib got 99.38% accuracy on [LFW data set](https://sefiks.com/2020/08/27/labeled-faces-in-the-wild-for-face-recognition/).
 
 **Similarity**
 
