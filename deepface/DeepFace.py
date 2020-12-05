@@ -15,6 +15,17 @@ from deepface.commons import functions, realtime, distance as dst
 
 def build_model(model_name):
 	
+	"""
+	This function builds a deepface model
+	Parameters:
+		model_name (string): face recognition or facial attribute model
+			VGG-Face, Facenet, OpenFace, DeepFace, DeepID for face recognition
+			Age, Gender, Emotion, Race for facial attributes
+	
+	Returns:
+		built deepface model
+	"""
+	
 	models = {
 		'VGG-Face': VGGFace.loadModel, 
 		'OpenFace': OpenFace.loadModel,
@@ -39,7 +50,43 @@ def build_model(model_name):
 
 def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', 
 		   model = None, enforce_detection = True, detector_backend = 'mtcnn'):	
-
+	
+	"""
+	This function verifies an image pair is same person or different persons.	
+	
+	Parameters:
+		img1_path, img2_path: exact image path, numpy array or based64 encoded images could be passed. If you are going to call verify function for a list of image pairs, then you should pass an array instead of calling the function in for loops.
+		
+		e.g. img1_path = [
+			['img1.jpg', 'img2.jpg'], 
+			['img2.jpg', 'img3.jpg']
+		]
+		
+		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib or Ensemble
+		
+		distance_metric (string): cosine, euclidean, euclidean_l2
+		
+		model: Built deepface model. A face recognition model is built every call of verify function. You can pass pre-built face recognition model optionally if you will call verify function several times.
+		
+			model = DeepFace.build_model('VGG-Face')
+		
+		enforce_detection (boolean): If any face could not be detected in an image, then verify function will return exception. Set this to False not to have this exception. This might be convenient for low resolution images.
+		
+		detector_backend (string): set face detector backend as mtcnn, opencv, ssd or dlib
+	
+	Returns:
+		Verify function returns a dictionary. If img1_path is a list of image pairs, then the function will return list of dictionary.
+		
+		{
+			"verified": True
+			, "distance": 0.2563
+			, "max_threshold_to_verify": 0.40
+			, "model": "VGG-Face"
+			, "similarity_metric": "cosine"
+		}
+		
+	"""
+	
 	tic = time.time()
 	
 	img_list, bulkProcess = initialize_input(img1_path, img2_path)	
@@ -208,6 +255,54 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 def analyze(img_path, actions = [], models = {}, enforce_detection = True
 			, detector_backend = 'mtcnn'):
+	
+	"""
+	This function analyzes facial attributes including age, gender, emotion and race
+	
+	Parameters:
+		img_path: exact image path, numpy array or base64 encoded image could be passed. If you are going to analyze lots of images, then set this to list. e.g. img_path = ['img1.jpg', 'img2.jpg']
+		
+		actions (list): The default is ['age', 'gender', 'emotion', 'race']. You can drop some of those attributes.
+		
+		models: facial attribute analysis models are built in every call of analyze function. You can pass pre-built models to speed the function up.
+		
+			models = {}
+			models['age'] = DeepFace.build_model('Age')
+			models['gender'] = DeepFace.build_model('Gender')
+			models['emotion'] = DeepFace.build_model('Emotion')
+			models['race'] = DeepFace.build_model('race')
+		
+		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
+		
+		detector_backend (string): set face detector backend as mtcnn, opencv, ssd or dlib.
+	Returns:
+		The function returns a dictionary. If img_path is a list, then it will return list of dictionary.
+		
+		{
+			"age": 28.66,
+			"gender": "woman",
+			"dominant_emotion": "neutral",
+			"emotion": {
+				'sad': 37.65260875225067, 
+				'angry': 0.15512987738475204, 
+				'surprise': 0.0022171278033056296, 
+				'fear': 1.2489334680140018, 
+				'happy': 4.609785228967667, 
+				'disgust': 9.698561953541684e-07, 
+				'neutral': 56.33133053779602
+			}
+			"dominant_race": "white",
+			"race": {
+				'indian': 0.5480832420289516, 
+				'asian': 0.7830780930817127, 
+				'latino hispanic': 2.0677512511610985, 
+				'black': 0.06337375962175429, 
+				'middle eastern': 3.088453598320484, 
+				'white': 93.44925880432129
+			}
+		}
+		
+	"""
 
 	img_paths, bulkProcess = initialize_input(img_path)
 	functions.initialize_detector(detector_backend = detector_backend)
@@ -348,6 +443,30 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True
 		return resp_obj
 
 def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'mtcnn'):
+	
+	"""
+	This function applies verification several times and find an identity in a database
+	
+	Parameters:
+		img_path: exact image path, numpy array or based64 encoded image. If you are going to find several identities, then you should pass img_path as array instead of calling find function in a for loop. e.g. img_path = ["img1.jpg", "img2.jpg"]
+		
+		db_path (string): You should store some .jpg files in a folder and pass the exact folder path to this.
+		
+		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib or Ensemble
+		
+		distance_metric (string): cosine, euclidean, euclidean_l2
+		
+		model: built deepface model. A face recognition models are built in every call of find function. You can pass pre-built models to speed the function up.
+		
+			model = DeepFace.build_model('VGG-Face')
+		
+		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
+		
+		detector_backend (string): set face detector backend as mtcnn, opencv, ssd or dlib
+		
+	Returns:
+		This function returns pandas data frame. If a list of images is passed to img_path, then it will return list of pandas data frame.
+	"""
 	
 	tic = time.time()
 	
@@ -588,6 +707,26 @@ def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine'
 			, enable_face_analysis = True
 			, source = 0, time_threshold = 5, frame_threshold = 5):
 	
+	"""
+	This function applies real time face recognition and facial attribute analysis
+	
+	Parameters:
+		db_path (string): facial database path. You should store some .jpg files in this folder.
+		
+		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib or Ensemble
+		
+		distance_metric (string): cosine, euclidean, euclidean_l2
+		
+		enable_facial_analysis (boolean): Set this to False to just run face recognition
+		
+		source: Set this to 0 for access web cam. Otherwise, pass exact video path.
+		
+		time_threshold (int): how many second analyzed image will be displayed
+		
+		frame_threshold (int): how many frames required to focus on face
+		
+	"""
+	
 	if time_threshold < 1:
 		raise ValueError("time_threshold must be greater than the value 1 but you passed "+str(time_threshold))
 	
@@ -601,6 +740,18 @@ def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine'
 
 def detectFace(img_path, detector_backend = 'mtcnn'):
 	
+	"""
+	This function applies pre-processing stages of a face recognition pipeline including detection and alignment	
+	
+	Parameters:
+		img_path: exact image path, numpy array or base64 encoded image
+		
+		detector_backend (string): face detection backends are mtcnn, opencv, ssd or dlib
+	
+	Returns:
+		deteced and aligned face in numpy format
+	"""
+	
 	functions.initialize_detector(detector_backend = detector_backend)
 	
 	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend)[0] #preprocess_face returns (1, 224, 224, 3)
@@ -610,9 +761,7 @@ def initialize_input(img1_path, img2_path = None):
 	
 	"""
 	verify, analyze and find functions build complex machine learning models in every call.
-	To avoid memory problems, you can pass image pairs as array.
-	
-	This function manages this usage is enabled or not
+	To avoid memory problems, you can pass image pairs as array. This function manages this usage is enabled or not
 	
 	E.g.
 	result  = DeepFace.verify("img1.jpg", "img2.jpg")
