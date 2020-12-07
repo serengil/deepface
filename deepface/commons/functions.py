@@ -20,6 +20,20 @@ import bz2
 from deepface.commons import distance
 from mtcnn import MTCNN #0.1.0
 
+def initialize_input(img1_path, img2_path = None):
+	
+	if type(img1_path) == list:
+		bulkProcess = True
+		img_list = img1_path.copy()
+	else:
+		bulkProcess = False
+		if img2_path != None:
+			img_list = [[img1_path, img2_path]]
+		else:
+			img_list = [img1_path]
+	
+	return img_list, bulkProcess
+
 def initialize_detector(detector_backend):
 	
 	global face_detector

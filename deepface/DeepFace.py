@@ -89,7 +89,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 	
 	tic = time.time()
 	
-	img_list, bulkProcess = initialize_input(img1_path, img2_path)	
+	img_list, bulkProcess = functions.initialize_input(img1_path, img2_path)	
 	functions.initialize_detector(detector_backend = detector_backend)
 
 	resp_objects = []
@@ -304,7 +304,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True
 		
 	"""
 
-	img_paths, bulkProcess = initialize_input(img_path)
+	img_paths, bulkProcess = functions.initialize_input(img_path)
 	functions.initialize_detector(detector_backend = detector_backend)
 	
 	#---------------------------------
@@ -470,7 +470,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 	
 	tic = time.time()
 	
-	img_paths, bulkProcess = initialize_input(img_path)
+	img_paths, bulkProcess = functions.initialize_input(img_path)
 	functions.initialize_detector(detector_backend = detector_backend)
 	
 	#-------------------------------
@@ -756,29 +756,6 @@ def detectFace(img_path, detector_backend = 'mtcnn'):
 	
 	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend)[0] #preprocess_face returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb
-
-def initialize_input(img1_path, img2_path = None):
-	
-	"""
-	verify, analyze and find functions build complex machine learning models in every call.
-	To avoid memory problems, you can pass image pairs as array. This function manages this usage is enabled or not
-	
-	E.g.
-	result  = DeepFace.verify("img1.jpg", "img2.jpg")
-	results = DeepFace.verify([['img1.jpg', 'img2.jpg'], ['img1.jpg', 'img3.jpg']])
-	"""
-
-	if type(img1_path) == list:
-		bulkProcess = True
-		img_list = img1_path.copy()
-	else:
-		bulkProcess = False
-		if img2_path != None:
-			img_list = [[img1_path, img2_path]]
-		else:
-			img_list = [img1_path]
-	
-	return img_list, bulkProcess
 	
 #---------------------------
 #main
