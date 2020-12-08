@@ -40,19 +40,27 @@ def initialize_detector(detector_backend):
 	
 	home = str(Path.home())
 	
+	#eye detector is common for opencv and ssd
+	if detector_backend == 'opencv' or detector_backend == 'ssd':
+		opencv_path = get_opencv_path()
+		eye_detector_path = opencv_path+"haarcascade_eye.xml"
+		
+		if os.path.isfile(eye_detector_path) != True:
+			raise ValueError("Confirm that opencv is installed on your environment! Expected path ",eye_detector_path," violated.")
+		
+		global eye_detector
+		eye_detector = cv2.CascadeClassifier(eye_detector_path)
+		
+	#------------------------------
+	#face detectors
 	if detector_backend == 'opencv':
 		opencv_path = get_opencv_path()
-		
 		face_detector_path = opencv_path+"haarcascade_frontalface_default.xml"
-		eye_detector_path = opencv_path+"haarcascade_eye.xml"
-	
+		
 		if os.path.isfile(face_detector_path) != True:
 			raise ValueError("Confirm that opencv is installed on your environment! Expected path ",face_detector_path," violated.")
 		
 		face_detector = cv2.CascadeClassifier(face_detector_path)
-		
-		global eye_detector
-		eye_detector = cv2.CascadeClassifier(eye_detector_path)
 	
 	elif detector_backend == 'ssd':
 	

@@ -17,12 +17,12 @@ print("-----------------------------------------")
 
 print("Face detectors test")
 
-print("opencv detector")
-res = DeepFace.verify(dataset, detector_backend = 'opencv')
-print(res)
-
 print("ssd detector")
 res = DeepFace.verify(dataset, detector_backend = 'ssd')
+print(res)
+
+print("opencv detector")
+res = DeepFace.verify(dataset, detector_backend = 'opencv')
 print(res)
 
 print("dlib detector")
