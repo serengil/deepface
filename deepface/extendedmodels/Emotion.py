@@ -1,10 +1,20 @@
 import os
 import gdown
 from pathlib import Path
-from keras.models import Model, Sequential
-from keras.layers import Conv2D, MaxPooling2D, AveragePooling2D, Flatten, Dense, Dropout
 import zipfile
 
+import tensorflow as tf
+tf_version = int(tf.__version__.split(".")[0])
+
+if tf_version == 1:
+	import keras
+	from keras.models import Model, Sequential
+	from keras.layers import Conv2D, MaxPooling2D, AveragePooling2D, Flatten, Dense, Dropout
+elif tf_version == 2:
+	from tensorflow import keras
+	from tensorflow.keras.models import Model, Sequential
+	from tensorflow.keras.layers import Conv2D, MaxPooling2D, AveragePooling2D, Flatten, Dense, Dropout
+	
 def loadModel():
 	
 	num_classes = 7

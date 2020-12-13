@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
 import gdown
-import keras
-from keras.models import Model, Sequential
-from keras.layers import Convolution2D, LocallyConnected2D, MaxPooling2D, Flatten, Dense, Dropout
 import zipfile
+
+from tensorflow import keras
+from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.layers import Convolution2D, LocallyConnected2D, MaxPooling2D, Flatten, Dense, Dropout
 
 #-------------------------------------
 

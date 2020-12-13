@@ -3,19 +3,19 @@ from pathlib import Path
 import gdown
 from functools import partial
 
-from keras.models import Model
-from keras.layers import Activation
-from keras.layers import BatchNormalization
-from keras.layers import Concatenate
-from keras.layers import Conv2D
-from keras.layers import Dense
-from keras.layers import Dropout
-from keras.layers import GlobalAveragePooling2D
-from keras.layers import Input
-from keras.layers import Lambda
-from keras.layers import MaxPooling2D
-from keras.layers import add
-from keras import backend as K
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import Concatenate
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import GlobalAveragePooling2D
+from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Lambda
+from tensorflow.keras.layers import MaxPooling2D
+from tensorflow.keras.layers import add
+from tensorflow.keras import backend as K
 
 def scaling(x, scale):
 	return x * scale

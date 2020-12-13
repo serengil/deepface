@@ -1,9 +1,17 @@
 import os
 from pathlib import Path
-from keras.models import Model, Sequential
-from keras.layers import Input, Convolution2D, ZeroPadding2D, MaxPooling2D, Flatten, Dense, Dropout, Activation
 import gdown
 
+import tensorflow as tf
+
+if int(tf.__version__.split(".")[0]) == 1:
+	from keras.models import Model, Sequential
+	from keras.layers import Input, Convolution2D, ZeroPadding2D, MaxPooling2D, Flatten, Dense, Dropout, Activation
+else:
+	from tensorflow import keras
+	from tensorflow.keras.models import Model, Sequential
+	from tensorflow.keras.layers import Input, Convolution2D, ZeroPadding2D, MaxPooling2D, Flatten, Dense, Dropout, Activation
+	
 #---------------------------------------
 
 def baseModel():

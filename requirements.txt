@@ -9,3 +9,4 @@ keras>=2.2.0
 Flask>=1.1.2
 mtcnn>=0.1.0
 lightgbm>=2.3.1
+dlib>=19.20.0

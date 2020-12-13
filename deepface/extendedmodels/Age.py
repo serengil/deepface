@@ -1,12 +1,20 @@
-#from basemodels import VGGFace
 from deepface.basemodels import VGGFace
-
 import os
 from pathlib import Path
 import gdown
 import numpy as np
-from keras.models import Model, Sequential
-from keras.layers import Convolution2D, Flatten, Activation
+
+import tensorflow as tf
+tf_version = int(tf.__version__.split(".")[0])
+
+if tf_version == 1:
+	import keras
+	from keras.models import Model, Sequential
+	from keras.layers import Convolution2D, Flatten, Activation	
+elif tf_version == 2:
+	from tensorflow import keras
+	from tensorflow.keras.models import Model, Sequential
+	from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 
 def loadModel():
 	

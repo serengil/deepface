@@ -1,10 +1,20 @@
+import warnings
+warnings.filterwarnings("ignore")
+
+import os
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 from deepface import DeepFace
 from deepface.commons import functions
 import json
 import time
 
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+
+#-----------------------------------------
+
+tf_version = int(tf.__version__.split(".")[0])
 
 #-----------------------------------------
 
@@ -136,7 +146,8 @@ dataset = [
 ]
 
 models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace', 'DeepID', 'Dlib']
-metrics = ['cosine', 'euclidean', 'euclidean_l2']
+#metrics = ['cosine', 'euclidean', 'euclidean_l2']
+metrics = ['cosine']
 
 passed_tests = 0; test_cases = 0
 

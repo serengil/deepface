@@ -3,15 +3,13 @@ from pathlib import Path
 import gdown
 
 import tensorflow as tf
-import keras
-from keras.models import Model, Sequential
-from keras.layers import Conv2D, ZeroPadding2D, Activation, Input, concatenate
-from keras.layers.core import Dense, Activation, Lambda, Flatten
-from keras.layers.pooling import MaxPooling2D, AveragePooling2D
-from keras.layers.merge import Concatenate
-from keras.layers.normalization import BatchNormalization
-from keras.models import load_model
-from keras import backend as K
+from tensorflow import keras
+from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.layers import Conv2D, ZeroPadding2D, Activation, Input, concatenate
+from tensorflow.keras.layers import Dense, Activation, Lambda, Flatten, BatchNormalization
+from tensorflow.keras.layers import MaxPooling2D, AveragePooling2D
+from tensorflow.keras.models import load_model
+from tensorflow.keras import backend as K
 
 #---------------------------------------
 

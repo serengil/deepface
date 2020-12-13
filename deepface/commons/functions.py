@@ -1,9 +1,6 @@
 import os
 import numpy as np
 import pandas as pd
-from keras.preprocessing.image import load_img, save_img, img_to_array
-from keras.applications.imagenet_utils import preprocess_input
-from keras.preprocessing import image
 import cv2
 from pathlib import Path
 import gdown
@@ -14,11 +11,25 @@ import copy
 import base64
 import multiprocessing
 import subprocess
-import tensorflow as tf
-import keras
 import bz2
 from deepface.commons import distance
 from mtcnn import MTCNN #0.1.0
+
+import tensorflow as tf
+tf_version = int(tf.__version__.split(".")[0])
+
+if tf_version == 1:
+	import keras
+	from keras.preprocessing.image import load_img, save_img, img_to_array
+	from keras.applications.imagenet_utils import preprocess_input
+	from keras.preprocessing import image
+elif tf_version == 2:
+	from tensorflow import keras
+	from tensorflow.keras.preprocessing.image import load_img, save_img, img_to_array
+	from tensorflow.keras.applications.imagenet_utils import preprocess_input
+	from tensorflow.keras.preprocessing import image
+
+#--------------------------------------------------
 
 def initialize_input(img1_path, img2_path = None):
 	
