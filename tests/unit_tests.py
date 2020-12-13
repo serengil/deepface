@@ -11,10 +11,8 @@ import json
 import time
 
 import tensorflow as tf
-
-#-----------------------------------------
-
-tf_version = int(tf.__version__.split(".")[0])
+import logging
+tf.get_logger().setLevel(logging.ERROR)
 
 #-----------------------------------------
 
