@@ -10,9 +10,14 @@ from deepface.commons import functions
 import json
 import time
 
+#-----------------------------------------
+
 import tensorflow as tf
-import logging
-tf.get_logger().setLevel(logging.ERROR)
+tf_version = int(tf.__version__.split(".")[0])
+
+if tf_version == 2:
+	import logging
+	tf.get_logger().setLevel(logging.ERROR)
 
 #-----------------------------------------
 
@@ -144,8 +149,7 @@ dataset = [
 ]
 
 models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace', 'DeepID', 'Dlib']
-#metrics = ['cosine', 'euclidean', 'euclidean_l2']
-metrics = ['cosine']
+metrics = ['cosine', 'euclidean', 'euclidean_l2']
 
 passed_tests = 0; test_cases = 0
 
