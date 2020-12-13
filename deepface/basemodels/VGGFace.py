@@ -3,8 +3,9 @@ from pathlib import Path
 import gdown
 
 import tensorflow as tf
+tf_version = int(tf.__version__.split(".")[0])
 
-if int(tf.__version__.split(".")[0]) == 1:
+if tf_version == 1:
 	from keras.models import Model, Sequential
 	from keras.layers import Input, Convolution2D, ZeroPadding2D, MaxPooling2D, Flatten, Dense, Dropout, Activation
 else:
