@@ -25,7 +25,8 @@ def findThreshold(model_name, distance_metric):
 		'Facenet':  {'cosine': 0.40, 'euclidean': 10, 'euclidean_l2': 0.80},
 		'DeepFace': {'cosine': 0.23, 'euclidean': 64, 'euclidean_l2': 0.64},
 		'DeepID': 	{'cosine': 0.015, 'euclidean': 45, 'euclidean_l2': 0.17},
-		'Dlib': 	{'cosine': 0.07, 'euclidean': 0.6, 'euclidean_l2': 0.6}
+		'Dlib': 	{'cosine': 0.07, 'euclidean': 0.6, 'euclidean_l2': 0.6},
+		'ArcFace':  {'cosine': 0.6871912959056619, 'euclidean': 4.1591468986978075, 'euclidean_l2': 1.1315718048269017}
 		}
 
 	threshold = thresholds.get(model_name, base_threshold).get(distance_metric, 0.4)

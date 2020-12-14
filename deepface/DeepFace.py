@@ -9,7 +9,7 @@ import pandas as pd
 from tqdm import tqdm
 import pickle
 
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID, DlibWrapper, Boosting
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID, DlibWrapper, ArcFace, Boosting
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -33,6 +33,7 @@ def build_model(model_name):
 		'DeepFace': FbDeepFace.loadModel,
 		'DeepID': DeepID.loadModel,
 		'Dlib': DlibWrapper.loadModel,
+		'ArcFace': ArcFace.loadModel,
 		'Emotion': Emotion.loadModel,
 		'Age': Age.loadModel,
 		'Gender': Gender.loadModel,
@@ -62,7 +63,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 			['img2.jpg', 'img3.jpg']
 		]
 		
-		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib or Ensemble
+		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib, ArcFace or Ensemble
 		
 		distance_metric (string): cosine, euclidean, euclidean_l2
 		

@@ -10,13 +10,6 @@ import tensorflow as tf
 tf_version = int(tf.__version__.split(".")[0])
 
 from deepface import DeepFace
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID
-from deepface.basemodels.DlibResNet import DlibResNet
-from deepface.extendedmodels import Age, Gender, Race, Emotion
-
-#import DeepFace
-#from basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
-#from extendedmodels import Age, Gender, Race, Emotion
 
 #------------------------------
 
@@ -28,28 +21,29 @@ tic = time.time()
 
 print("Loading Face Recognition Models...")
 
-pbar = tqdm(range(0,6), desc='Loading Face Recognition Models...')
+pbar = tqdm(range(0, 6), desc='Loading Face Recognition Models...')
 
 for index in pbar:
+	
 	if index == 0:
 		pbar.set_description("Loading VGG-Face")
-		vggface_model = VGGFace.loadModel()
+		vggface_model = DeepFace.build_model("VGG-Face")
 	elif index == 1:
 		pbar.set_description("Loading OpenFace")
-		openface_model = OpenFace.loadModel()
+		openface_model = DeepFace.build_model("OpenFace")
 	elif index == 2:
 		pbar.set_description("Loading Google FaceNet")
-		facenet_model = Facenet.loadModel()
+		facenet_model = DeepFace.build_model("Facenet")
 	elif index == 3:
 		pbar.set_description("Loading Facebook DeepFace")
-		deepface_model = FbDeepFace.loadModel()
+		deepface_model = DeepFace.build_model("DeepFace")
 	elif index == 4:
 		pbar.set_description("Loading DeepID DeepFace")
-		deepid_model = DeepID.loadModel()
+		deepid_model = DeepFace.build_model("DeepID")
 	elif index == 5:
-		pbar.set_description("Loading Dlib ResNet DeepFace")
-		dlib_model = DlibResNet()
-
+		pbar.set_description("Loading ArcFace DeepFace")
+		arcface_model = DeepFace.build_model("ArcFace")
+		
 toc = time.time()
 
 print("Face recognition models are built in ", toc-tic," seconds")
@@ -65,16 +59,16 @@ pbar = tqdm(range(0,4), desc='Loading Facial Attribute Analysis Models...')
 for index in pbar:
 	if index == 0:
 		pbar.set_description("Loading emotion analysis model")
-		emotion_model = Emotion.loadModel()
+		emotion_model = DeepFace.build_model('Emotion')
 	elif index == 1:
 		pbar.set_description("Loading age prediction model")
-		age_model = Age.loadModel()
+		age_model = DeepFace.build_model('Age')
 	elif index == 2:
 		pbar.set_description("Loading gender prediction model")
-		gender_model = Gender.loadModel()
+		gender_model = DeepFace.build_model('Gender')
 	elif index == 3:
 		pbar.set_description("Loading race prediction model")
-		race_model = Race.loadModel()
+		race_model = DeepFace.build_model('Race')
 
 toc = time.time()
 
@@ -231,19 +225,17 @@ def verifyWrapper(req, trx_id = 0):
 		resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = deepface_model)
 	elif model_name == "DeepID":
 		resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = deepid_model)
-	elif model_name == "Dlib":
-		resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = dlib_model)
+	elif model_name == "ArcFace":
+		resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = arcface_model)
 	elif model_name == "Ensemble":
 		models =  {}
 		models["VGG-Face"] = vggface_model
 		models["Facenet"] = facenet_model
 		models["OpenFace"] = openface_model
 		models["DeepFace"] = deepface_model
-		
 		resp_obj = DeepFace.verify(instances, model_name = model_name, model = models)
-		
 	else:
-		resp_obj = jsonify({'success': False, 'error': 'You must pass a valid model name. Available models are VGG-Face, Facenet, OpenFace, DeepFace but you passed %s' % (model_name)}), 205
+		resp_obj = jsonify({'success': False, 'error': 'You must pass a valid model name. You passed %s' % (model_name)}), 205
 	
 	return resp_obj
 

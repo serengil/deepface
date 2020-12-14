@@ -148,7 +148,7 @@ dataset = [
 	['dataset/img6.jpg', 'dataset/img9.jpg', False],
 ]
 
-models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace', 'DeepID', 'Dlib']
+models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace', 'DeepID', 'Dlib', 'ArcFace']
 metrics = ['cosine', 'euclidean', 'euclidean_l2']
 
 passed_tests = 0; test_cases = 0

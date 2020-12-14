@@ -70,16 +70,20 @@ def loadModel(url = 'https://drive.google.com/uc?id=1CPSeum3HpopfomUEK1gybeuIVoe
 	#-----------------------------------
 	
 	home = str(Path.home())
+	output = home+'/.deepface/weights/vgg_face_weights.h5'
 	
-	if os.path.isfile(home+'/.deepface/weights/vgg_face_weights.h5') != True:
+	if os.path.isfile(output) != True:
 		print("vgg_face_weights.h5 will be downloaded...")		
-		
-		output = home+'/.deepface/weights/vgg_face_weights.h5'
 		gdown.download(url, output, quiet=False)
 	
 	#-----------------------------------
 	
-	model.load_weights(home+'/.deepface/weights/vgg_face_weights.h5')
+	try:
+		model.load_weights(output)
+	except Exception as err:
+		print(str(err))
+		print("Pre-trained weight could not be loaded.")
+		print("You might try to download the pre-trained weights from the url ", url, " and copy it to the ", output)
 	
 	#-----------------------------------
 	
