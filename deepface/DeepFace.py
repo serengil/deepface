@@ -254,7 +254,8 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 			
 		return resp_obj
 
-def analyze(img_path, actions = [], models = {}, enforce_detection = True
+def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race']
+			, models = {}, enforce_detection = True
 			, detector_backend = 'mtcnn'):
 	
 	"""
@@ -309,42 +310,39 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True
 	functions.initialize_detector(detector_backend = detector_backend)
 	
 	#---------------------------------
-
-	#if a specific target is not passed, then find them all
-	if len(actions) == 0:
-		actions= ['emotion', 'age', 'gender', 'race']
-
-	#print("Actions to do: ", actions)
-
+	
+	built_models = list(models.keys())
+	
+	#---------------------------------
+	
+	#pre-trained models passed but it doesn't exist in actions
+	if len(built_models) > 0:
+		if 'emotion' in built_models and 'emotion' not in actions:
+			actions.append('emotion')
+			
+		if 'age' in built_models and 'age' not in actions:
+			actions.append('age')
+		
+		if 'gender' in built_models and 'gender' not in actions:
+			actions.append('gender')
+		
+		if 'race' in built_models and 'race' not in actions:
+			actions.append('race')
+	
 	#---------------------------------
 
-	if 'emotion' in actions:
-		if 'emotion' in models:
-			print("already built emotion model is passed")
-			emotion_model = models['emotion']
-		else:
-			emotion_model = build_model('Emotion')
+	if 'emotion' in actions and 'emotion' not in built_models:
+		models['emotion'] = build_model('Emotion')
 
-	if 'age' in actions:
-		if 'age' in models:
-			#print("already built age model is passed")
-			age_model = models['age']
-		else:
-			age_model = build_model('Age')
+	if 'age' in actions and 'age' not in built_models:
+		models['age'] = build_model('Age')
 
-	if 'gender' in actions:
-		if 'gender' in models:
-			print("already built gender model is passed")
-			gender_model = models['gender']
-		else:
-			gender_model = build_model('Gender')
+	if 'gender' in actions and 'gender' not in built_models:
+		models['gender'] = build_model('Gender')
 
-	if 'race' in actions:
-		if 'race' in models:
-			print("already built race model is passed")
-			race_model = models['race']
-		else:
-			race_model = build_model('Race')
+	if 'race' in actions and 'race' not in built_models:
+		models['race'] = build_model('Race')
+		
 	#---------------------------------
 
 	resp_objects = []
@@ -353,7 +351,6 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True
 	
 	global_pbar = tqdm(range(0,len(img_paths)), desc='Analyzing', disable = disable_option)
 	
-	#for img_path in img_paths:
 	for j in global_pbar:
 		img_path = img_paths[j]
 
@@ -363,18 +360,18 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True
 
 		pbar = tqdm(range(0,len(actions)), desc='Finding actions', disable = disable_option)
 
-		action_idx = 0
 		img_224 = None # Set to prevent re-detection
-		#for action in actions:
+		
+		#facial attribute analysis
 		for index in pbar:
 			action = actions[index]
 			pbar.set_description("Action: %s" % (action))
-
+			
 			if action == 'emotion':
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 				img = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend)
 
-				emotion_predictions = emotion_model.predict(img)[0,:]
+				emotion_predictions = models['emotion'].predict(img)[0,:]
 
 				sum_of_predictions = emotion_predictions.sum()
 
@@ -389,19 +386,17 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True
 
 			elif action == 'age':
 				if img_224 is None:
-					img_224 = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend) #just emotion model expects grayscale images
-				#print("age prediction")
-				age_predictions = age_model.predict(img_224)[0,:]
+					img_224 = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend)
+				age_predictions = models['age'].predict(img_224)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
 
-				resp_obj["age"] = str(int(apparent_age))
+				resp_obj["age"] = int(apparent_age)
 
 			elif action == 'gender':
 				if img_224 is None:
-					img_224 = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend) #just emotion model expects grayscale images
-				#print("gender prediction")
+					img_224 = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend)
 
-				gender_prediction = gender_model.predict(img_224)[0,:]
+				gender_prediction = models['gender'].predict(img_224)[0,:]
 
 				if np.argmax(gender_prediction) == 0:
 					gender = "Woman"
@@ -413,7 +408,7 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True
 			elif action == 'race':
 				if img_224 is None:
 					img_224 = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend) #just emotion model expects grayscale images
-				race_predictions = race_model.predict(img_224)[0,:]
+				race_predictions = models['race'].predict(img_224)[0,:]
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
 				sum_of_predictions = race_predictions.sum()
@@ -425,8 +420,8 @@ def analyze(img_path, actions = [], models = {}, enforce_detection = True
 					resp_obj["race"][race_label] = race_prediction
 				
 				resp_obj["dominant_race"] = race_labels[np.argmax(race_predictions)]
-
-			action_idx = action_idx + 1
+			
+		#---------------------------------
 		
 		if bulkProcess == True:
 			resp_objects.append(resp_obj)
