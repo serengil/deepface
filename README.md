@@ -17,7 +17,7 @@ pip install deepface
 
 ## Face Recognition 
 
-A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 4 common stages: [detect](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). Deepface handles all these common stages in the background. Herein, face pairs could be exact image paths, numpy array or base64 encoded images.
+A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 4 common stages: [detect](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). Deepface handles all these common stages in the background.
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
@@ -31,6 +31,8 @@ print("Is verified: ", result["verified"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-1.jpg" width="95%" height="95%"></p>
+
+Herein, face pairs could be exact image paths, numpy array or base64 encoded images.
 
 **Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s) 
 
