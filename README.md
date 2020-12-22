@@ -47,6 +47,8 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%" height="95%"></p>
 
+Herein, image path argument could be exact image path, numpy array or base64 encoded image.
+
 **Large Scale Face Recognition** - [`Demo with Elasticsearch`](https://youtu.be/i4GvuOmzKzo), [`Demo with Spotify Annoy`](https://youtu.be/Jpxm914o2xk)
 
 Notice that face recognition has O(n) time complexity and this would be problematic for millions level data. Herein, approximate nearest neighbor (a-nn) algorithm reduces the time complexity dramatically. [Spotify Annoy](https://sefiks.com/2020/09/16/large-scale-face-recognition-with-spotify-annoy/), [Facebook Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) and [NMSLIB](https://sefiks.com/2020/09/19/large-scale-face-recognition-with-nmslib/) are amazing a-nn libraries. Besides, [Elasticsearch](https://sefiks.com/2020/11/27/large-scale-face-recognition-with-elasticsearch/) wraps an a-nn algorithm and it offers highly scalability feature. You should run deepface within those a-nn frameworks if you have really large scale data sets.
@@ -85,14 +87,16 @@ Deepface also offers facial attribute analysis including [`age`](https://sefiks.
 
 ```python
 from deepface import DeepFace
-obj = DeepFace.analyze("img4.jpg", actions = ['age', 'gender', 'race', 'emotion'])
+obj = DeepFace.analyze(img_path = "img4.jpg", actions = ['age', 'gender', 'race', 'emotion'])
 #objs = DeepFace.analyze(["img1.jpg", "img2.jpg", "img3.jpg"]) #analyzing multiple faces same time
 print(obj["age"]," years old ",obj["dominant_race"]," ",obj["dominant_emotion"]," ", obj["gender"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
 
-Herein, age model got ± 4.65 MAE; gender model got 97.44% accuracy, 96.29% precision and 95.05% recall as mentioned in its [tutorial](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/).
+Age model got ± 4.65 MAE; gender model got 97.44% accuracy, 96.29% precision and 95.05% recall as mentioned in its [tutorial](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/).
+
+Herein, image path argument could be exact image path, numpy array or base64 encoded image.
 
 **Streaming and Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
 
