@@ -38,9 +38,13 @@ def initialize_input(img1_path, img2_path = None):
 		img_list = img1_path.copy()
 	else:
 		bulkProcess = False
-		if img2_path != None:
+		
+		if (
+			(type(img2_path) == str and img2_path != None) #exact image path, base64 image
+			or (isinstance(img2_path, np.ndarray) and img2_path.any()) #numpy array
+		):
 			img_list = [[img1_path, img2_path]]
-		else:
+		else: #analyze function passes just img1_path
 			img_list = [img1_path]
 	
 	return img_list, bulkProcess

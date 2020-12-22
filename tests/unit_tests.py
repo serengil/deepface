@@ -104,10 +104,7 @@ print(resp_obj["instance_2"]["age"]," years old ", resp_obj["instance_2"]["domin
 print(resp_obj["instance_3"]["age"]," years old ", resp_obj["instance_3"]["dominant_emotion"], " ",resp_obj["instance_3"]["gender"])
 print(resp_obj["instance_4"]["age"]," years old ", resp_obj["instance_4"]["dominant_emotion"], " ",resp_obj["instance_4"]["gender"])
 
-
 print("-----------------------------------------")
-
-#-----------------------------------------
 
 print("Facial analysis test. Passing nothing as an action")
 
@@ -277,5 +274,34 @@ df = DeepFace.find("dataset/img1.jpg", db_path = "dataset", model_name = 'Ensemb
 
 print(df)
 
-#-----------------------------------
+print("--------------------------")
+
+import cv2
+
+print("Passing numpy array to analyze function")
+
+img = cv2.imread("dataset/img1.jpg")
+resp_obj = DeepFace.analyze(img)
+print(resp_obj)
+
+print("--------------------------")
+
+print("Passing numpy array to verify function")
+
+img1 = cv2.imread("dataset/img1.jpg")
+img2 = cv2.imread("dataset/img2.jpg")
+
+res = DeepFace.verify(img1, img2)
+print(res)
+
+print("--------------------------")
+
+print("Passing numpy array to find function")
+
+img1 = cv2.imread("dataset/img1.jpg")
+
+df = DeepFace.find(img1, db_path = "dataset")
+
+print(df.head())
+
 print("--------------------------")
