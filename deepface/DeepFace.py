@@ -1,4 +1,3 @@
-from keras.preprocessing import image
 import warnings
 warnings.filterwarnings("ignore")
 import time
