@@ -187,7 +187,7 @@ for action in actions:
 DeepFace.analyze("img1.jpg", models=models)
 ```
 
-## Troubleshooting
+## FAQ and Troubleshooting
 
 Pre-trained weights of custom models will be downloaded from Google Drive source to your environment once. Download limit of my Google Drive account might be exceeded sometimes. In this case, you might have an exception like "Too many users have viewed or downloaded this file recently. Please try accessing the file again later". You can still download the pre-trained weights from Google Drive manually. You should then download the pre-trained weights to {HOME_FOLDER}/.deepface/weights folder. It won't try to download the weight file if it exists in the weights folder. You can find out your HOME_FOLDER as shown below.
 
@@ -196,6 +196,10 @@ from pathlib import Path
 home = str(Path.home())
 print("HOME_FOLDER is ",home)
 ```
+
+## Contribution
+
+Pull requests are welcome. You should run the unit tests locally by running [`test/unit_tests.py`](https://github.com/serengil/deepface/blob/master/tests/unit_tests.py). Please share the unit test result logs in the PR. Deepface is currently compatible with TF 1 and 2 versions.
 
 ## Support
 
