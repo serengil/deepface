@@ -19,6 +19,8 @@ if tf_version == 2:
 	import logging
 	tf.get_logger().setLevel(logging.ERROR)
 
+print("Running unit tests for TF ", tf.__version__)
+
 #-----------------------------------------
 
 dataset = [
