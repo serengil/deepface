@@ -600,10 +600,11 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 				#--------------------------------
 				#decide input shape
 				input_shape = functions.find_input_shape(custom_model)	
+				input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 				
 				#--------------------------------
 				
-				img = functions.preprocess_face(img = img_path, target_size = input_shape
+				img = functions.preprocess_face(img = img_path, target_size = (input_shape_y, input_shape_x)
 					, enforce_detection = enforce_detection
 					, detector_backend = detector_backend)
 					
