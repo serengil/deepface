@@ -365,6 +365,7 @@ def alignment_procedure(img, left_eye, right_eye):
 def align_face(img, detector_backend = 'opencv'):
 	
 	home = str(Path.home())
+	initialize_detector(detector_backend)
 	
 	if (detector_backend == 'opencv') or (detector_backend == 'ssd'):
 		
