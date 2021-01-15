@@ -21,10 +21,12 @@ print("model output shape: ", model.layers[-1].input_shape[-1])
 #----------------------------------------------
 #load images and find embeddings
 
-img1 = functions.detectFace("dataset/img1.jpg", input_shape)
+#img1 = functions.detectFace("dataset/img1.jpg", input_shape)
+img1 = functions.preprocess_face("dataset/img1.jpg", input_shape)
 img1_representation = model.predict(img1)[0,:]
 
-img2 = functions.detectFace("dataset/img3.jpg", input_shape)
+#img2 = functions.detectFace("dataset/img3.jpg", input_shape)
+img2 = functions.preprocess_face("dataset/img3.jpg", input_shape)
 img2_representation = model.predict(img2)[0,:]
 
 #----------------------------------------------
