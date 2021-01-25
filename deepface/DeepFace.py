@@ -175,7 +175,8 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 						distance = dst.findEuclideanDistance(dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation))
 					else:
 						raise ValueError("Invalid distance_metric passed - ", distance_metric)
-
+					
+					distance = np.float64(distance) #causes trobule for euclideans in api calls if this is not set (issue #175)
 					#----------------------
 					#decision
 					
