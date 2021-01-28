@@ -51,6 +51,8 @@ Herein, image path argument could be exact image path, numpy array or base64 enc
 
 **Large Scale Face Recognition** - [`Demo with Elasticsearch`](https://youtu.be/i4GvuOmzKzo), [`Demo with Spotify Annoy`](https://youtu.be/Jpxm914o2xk)
 
+You can store facial embeddings in nosql databases. Here, you can find some implementation experiments with [mongoDb](https://sefiks.com/2021/01/22/deep-face-recognition-with-mongodb/) and [Cassandra](https://sefiks.com/2021/01/24/deep-face-recognition-with-cassandra/). In this way, you can have the power of the map reduce of nosql databases.
+
 Notice that face recognition has O(n) time complexity and this would be problematic for millions level data. Herein, approximate nearest neighbor (a-nn) algorithm reduces the time complexity dramatically. [Spotify Annoy](https://sefiks.com/2020/09/16/large-scale-face-recognition-with-spotify-annoy/), [Facebook Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) and [NMSLIB](https://sefiks.com/2020/09/19/large-scale-face-recognition-with-nmslib/) are amazing a-nn libraries. Besides, [Elasticsearch](https://sefiks.com/2020/11/27/large-scale-face-recognition-with-elasticsearch/) wraps an a-nn algorithm and it offers highly scalability feature. You should run deepface within those a-nn frameworks if you have really large scale data sets.
 
 **Face recognition models** - [`Demo`](https://youtu.be/i_MOwvhbLdI)
