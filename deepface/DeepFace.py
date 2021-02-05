@@ -137,7 +137,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 			ensemble_features = []
 			
 			for i in  model_names:
-				custom_model = models[i]
+				custom_model = model[i]
 				
 				#decide input shape
 				input_shape = functions.find_input_shape(custom_model)	
