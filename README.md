@@ -205,7 +205,7 @@ Pull requests are welcome. You should run the unit tests locally by running [`te
 
 ## Support
 
-There are many ways to support a project - starring⭐️ the GitHub repos is just one.
+There are many ways to support a project - starring⭐️ the GitHub repos is just one🙏.
 
 ## Citation
 
