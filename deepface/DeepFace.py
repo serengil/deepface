@@ -116,6 +116,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 	else:
 		if model_name == 'Ensemble':
 			Boosting.validate_model(model)
+			models = model.copy()
 		else:
 			models = {}
 			models[model_name] = model
@@ -137,7 +138,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 			ensemble_features = []
 			
 			for i in  model_names:
-				custom_model = model[i]
+				custom_model = models[i]
 				
 				#decide input shape
 				input_shape = functions.find_input_shape(custom_model)	
