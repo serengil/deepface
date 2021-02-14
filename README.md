@@ -209,7 +209,7 @@ There are many ways to support a project - starring⭐️ the GitHub repos is ju
 
 You can also support this project on [Patreon](https://www.patreon.com/serengil) 🙏
 
-<p align="left"><a href="https://www.patreon.com/serengil"><img src="https://github.com/serengil/deepface/blob/master/icon/patreon.png" width="30%"></a></p>
+<p align="left"><a href="https://www.patreon.com/bePatron?u=31795557&redirect_uri=https%3A%2F%2Fgithub.com%2Fserengil%2Fdeepface"><img src="https://github.com/serengil/deepface/blob/master/icon/patreon.png" width="30%"></a></p>
 
 ## Citation
 
