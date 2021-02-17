@@ -282,6 +282,12 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race']
 		The function returns a dictionary. If img_path is a list, then it will return list of dictionary.
 		
 		{
+			"region": {
+				'x': 230,
+				'y': 120,
+				'w': 36,
+				'h': 45
+			}
 			"age": 28.66,
 			"gender": "woman",
 			"dominant_emotion": "neutral",
@@ -362,6 +368,10 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race']
 		pbar = tqdm(range(0,len(actions)), desc='Finding actions', disable = disable_option)
 
 		img_224 = None # Set to prevent re-detection
+
+		region = [] # x, y, w, h of the detected face region
+
+		region_labels = ['x', 'y', 'w', 'h']
 		
 		#facial attribute analysis
 		for index in pbar:
@@ -370,7 +380,12 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race']
 			
 			if action == 'emotion':
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
-				img = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend)
+				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
+
+				resp_obj["region"] = {}
+
+				for i, parameter in enumerate(region_labels):
+					resp_obj["region"][parameter] = region[i]
 
 				emotion_predictions = models['emotion'].predict(img)[0,:]
 
@@ -387,7 +402,13 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race']
 
 			elif action == 'age':
 				if img_224 is None:
-					img_224 = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend)
+					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
+				
+				resp_obj["region"] = {}
+
+				for i, parameter in enumerate(region_labels):
+					resp_obj["region"][parameter] = region[i]
+				
 				age_predictions = models['age'].predict(img_224)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
 
@@ -395,8 +416,13 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race']
 
 			elif action == 'gender':
 				if img_224 is None:
-					img_224 = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend)
+					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
+				resp_obj["region"] = {}
+
+				for i, parameter in enumerate(region_labels):
+					resp_obj["region"][parameter] = region[i]
+				
 				gender_prediction = models['gender'].predict(img_224)[0,:]
 
 				if np.argmax(gender_prediction) == 0:
@@ -408,10 +434,15 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race']
 
 			elif action == 'race':
 				if img_224 is None:
-					img_224 = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend) #just emotion model expects grayscale images
+					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True) #just emotion model expects grayscale images
 				race_predictions = models['race'].predict(img_224)[0,:]
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
+				resp_obj["region"] = {}
+
+				for i, parameter in enumerate(region_labels):
+					resp_obj["region"][parameter] = region[i]
+				
 				sum_of_predictions = race_predictions.sum()
 				
 				resp_obj["race"] = {}

@@ -206,7 +206,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 		if len(faces) > 0:
 			x,y,w,h = faces[0] #focus on the 1st face found in the image
 			detected_face = img[int(y):int(y+h), int(x):int(x+w)]
-			return detected_face
+			return detected_face, [x, y, w, h]
 		
 		else: #if no face detected
 	
@@ -260,7 +260,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 			
 			detected_face = base_img[int(top*aspect_ratio_y):int(bottom*aspect_ratio_y), int(left*aspect_ratio_x):int(right*aspect_ratio_x)]
 			
-			return detected_face
+			return detected_face, [int(left*aspect_ratio_x), int(top*aspect_ratio_y), int(right*aspect_ratio_y) - int(left*aspect_ratio_x), int(bottom*aspect_ratio_y) - int(top*aspect_ratio_y)]
 			
 		else: #if no face detected
 	
@@ -283,7 +283,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 				
 				detected_face = img[top:bottom, left:right]
 				
-				return detected_face
+				return detected_face, [left, right, right - left, bottom - top]
 			
 		else: #if no face detected
 	
@@ -302,7 +302,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 			detection = detections[0]
 			x, y, w, h = detection["box"]
 			detected_face = img[int(y):int(y+h), int(x):int(x+w)]
-			return detected_face
+			return detected_face, [x, y, w, h]
 		
 		else: #if no face detected
 			if not enforce_detection:			
@@ -436,7 +436,7 @@ def align_face(img, detector_backend = 'opencv'):
 				
 		return img #return img anyway
 	
-def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True, detector_backend = 'opencv'):
+def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True, detector_backend = 'opencv', return_region = False):
 	
 	#img_path = copy.copy(img)
 	
@@ -444,7 +444,7 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 	img = load_image(img)
 	base_img = img.copy()
 	
-	img = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = enforce_detection)
+	img, region = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = enforce_detection)
 	
 	#--------------------------
 	
@@ -468,7 +468,10 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 	img_pixels = np.expand_dims(img_pixels, axis = 0)
 	img_pixels /= 255 #normalize input in [0, 1]
 	
-	return img_pixels
+	if return_region == True:
+		return img_pixels, region
+	else:
+		return img_pixels
 
 def find_input_shape(model):
 	
