@@ -260,7 +260,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 			
 			detected_face = base_img[int(top*aspect_ratio_y):int(bottom*aspect_ratio_y), int(left*aspect_ratio_x):int(right*aspect_ratio_x)]
 			
-			return detected_face, [int(left*aspect_ratio_x), int(top*aspect_ratio_y), int(right*aspect_ratio_y) - int(left*aspect_ratio_x), int(bottom*aspect_ratio_y) - int(top*aspect_ratio_y)]
+			return detected_face, [int(left*aspect_ratio_x), int(top*aspect_ratio_y), int(right*aspect_ratio_x) - int(left*aspect_ratio_x), int(bottom*aspect_ratio_y) - int(top*aspect_ratio_y)]
 			
 		else: #if no face detected
 	
