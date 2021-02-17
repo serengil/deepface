@@ -21,6 +21,9 @@ if tf_version == 2:
 
 print("Running unit tests for TF ", tf.__version__)
 
+from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+from deepface.extendedmodels import Age, Gender, Race, Emotion
+
 #-----------------------------------------
 
 dataset = [
@@ -200,26 +203,9 @@ else:
 	raise ValueError("Unit test score does not satisfy the minimum required accuracy. Minimum expected score is ",threshold,"% but this got ",accuracy,"%")
 
 #-----------------------------------
-
-# api tests - already built models will be passed to the functions
-
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
-
 #-----------------------------------
-print("--------------------------")
-
-print("Verify function with passing pre-trained model")
-
-vggface_model = VGGFace.loadModel()
-resp_obj = DeepFace.verify("dataset/img1.jpg", "dataset/img2.jpg", model_name = "VGG-Face", model = vggface_model)
-print(resp_obj)
-
-#-----------------------------------
-print("--------------------------")
 
 print("Analyze function with passing pre-trained model")
-
-from deepface.extendedmodels import Age, Gender, Race, Emotion
 
 emotion_model = Emotion.loadModel()
 age_model = Age.loadModel()
@@ -257,7 +243,7 @@ for i in range(0, len(dataset)):
 #-----------------------------------
 print("--------------------------")
 
-print("Pre-trained ensemble method")
+print("Pre-trained ensemble method - find")
 
 from deepface import DeepFace
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
@@ -272,10 +258,18 @@ print("OpenFace loaded")
 model["DeepFace"] = FbDeepFace.loadModel()
 print("DeepFace loaded")
 
-df = DeepFace.find("dataset/img1.jpg", db_path = "dataset", model_name = 'Ensemble', model=model, enforce_detection=False)
+df = DeepFace.find("dataset/img1.jpg", db_path = "dataset", model_name = 'Ensemble', model = model, enforce_detection=False)
 
 print(df)
 
+#-----------------------------------
+print("--------------------------")
+
+print("Pre-trained ensemble method - verify")
+res = DeepFace.verify(dataset, model_name = "Ensemble", model = model)
+print(res)
+
+#-----------------------------------
 print("--------------------------")
 
 import cv2

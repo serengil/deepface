@@ -190,6 +190,8 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 	
 	home = str(Path.home())
 	
+	img_region = [0, 0, img.shape[0], img.shape[1]]
+	
 	#if functions.preproces_face is called directly, then face_detector global variable might not been initialized.
 	if not "face_detector" in globals():
 		initialize_detector(detector_backend = detector_backend)
@@ -211,7 +213,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 		else: #if no face detected
 	
 			if enforce_detection != True:			
-				return img
+				return img, img_region
 	
 			else:
 				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
@@ -266,7 +268,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 	
 			if enforce_detection != True:
 				img = base_img.copy()
-				return img
+				return img, img_region
 	
 			else:
 				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
@@ -288,7 +290,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 		else: #if no face detected
 	
 			if enforce_detection != True:			
-				return img
+				return img, img_region
 	
 			else:
 				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.") 
@@ -306,7 +308,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 		
 		else: #if no face detected
 			if not enforce_detection:			
-				return img
+				return img, img_region
 	
 			else:
 				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")

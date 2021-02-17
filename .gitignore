@@ -15,4 +15,3 @@ deepface/basemodels/__pycache__/*
 deepface/extendedmodels/__pycache__/*
 deepface/subsidiarymodels/__pycache__/*
 tests/dataset/*.pkl
-Age_Gender_Retail_Analysis.ipynb

@@ -282,12 +282,7 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race']
 		The function returns a dictionary. If img_path is a list, then it will return list of dictionary.
 		
 		{
-			"region": {
-				'x': 230,
-				'y': 120,
-				'w': 36,
-				'h': 45
-			}
+			"region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
 			"age": 28.66,
 			"gender": "woman",
 			"dominant_emotion": "neutral",
@@ -370,7 +365,6 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race']
 		img_224 = None # Set to prevent re-detection
 
 		region = [] # x, y, w, h of the detected face region
-
 		region_labels = ['x', 'y', 'w', 'h']
 		
 		#facial attribute analysis
