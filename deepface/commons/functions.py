@@ -486,6 +486,9 @@ def find_input_shape(model):
 		input_shape = input_shape[0][1:3]
 	else:
 		input_shape = input_shape[1:3]
+		
+	if type(input_shape) == list: #issue 197: some people got array here instead of tuple
+		input_shape = tuple(input_shape)
 	
 	return input_shape
 	
