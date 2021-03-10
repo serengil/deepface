@@ -1,3 +1,11 @@
+import warnings
+warnings.filterwarnings("ignore")
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+#------------------------------
+
 from flask import Flask, jsonify, request, make_response
 
 import argparse
@@ -6,8 +14,18 @@ import json
 import time
 from tqdm import tqdm
 
+#------------------------------
+
 import tensorflow as tf
 tf_version = int(tf.__version__.split(".")[0])
+
+#------------------------------
+
+if tf_version == 2:
+	import logging
+	tf.get_logger().setLevel(logging.ERROR)
+
+#------------------------------
 
 from deepface import DeepFace
 
@@ -234,6 +252,10 @@ def verifyWrapper(req, trx_id = 0):
 		models["OpenFace"] = openface_model
 		models["DeepFace"] = deepface_model
 		resp_obj = DeepFace.verify(instances, model_name = model_name, model = models)
+		
+		for key in resp_obj: #issue 198.
+			resp_obj[key]['verified'] = bool(resp_obj[key]['verified'])
+				
 	else:
 		resp_obj = jsonify({'success': False, 'error': 'You must pass a valid model name. You passed %s' % (model_name)}), 205
 	
