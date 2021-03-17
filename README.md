@@ -1,6 +1,7 @@
 # deepface
 
 [![Downloads](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
+[![Stars](https://img.shields.io/github/stars/serengil/deepface)](https://github.com/serengil/deepface)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![Patreon](https://img.shields.io/:support-patreon-orange.svg?style=flat)](https://www.patreon.com/bePatron?u=31795557&redirect_uri=https%3A%2F%2Fgithub.com%2Fserengil%2Fdeepface)
 
