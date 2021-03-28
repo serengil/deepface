@@ -184,7 +184,7 @@ for backend in backends:
 
 **Passing pre-built face recognition models**
 
-You can build models once and pass to deepface functions as well. This speeds you up if you are going to call deepface several times.
+You can build models once and pass to deepface functions as well. This speeds you up if you are going to call deepface several times. Consider this approach if you are going to call deepface functions in a for loop.
 
 ```python
 #face recognition
