@@ -51,12 +51,6 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 
 Herein, image path argument could be exact image path, numpy array or base64 encoded image. Also, you are expected to store your facial image data base in the folder that you passed to the db_path argument with .jpg or .png extension. 
 
-**Large Scale Face Recognition** - [`Demo with Elasticsearch`](https://youtu.be/i4GvuOmzKzo), [`Demo with Spotify Annoy`](https://youtu.be/Jpxm914o2xk)
-
-Notice that face recognition has O(n) time complexity and this becomes problematic for millions level data and limited hardware. If you have a really strong database, then you use [relational databases and regular SQL](https://sefiks.com/2021/02/06/deep-face-recognition-with-sql/). Besides, you can store facial embeddings in nosql databases. That's a better way. In this way, you can have the power of the map reduce technology. Here, you can find some implementation experiments with [mongoDb](https://sefiks.com/2021/01/22/deep-face-recognition-with-mongodb/), [Cassandra](https://sefiks.com/2021/01/24/deep-face-recognition-with-cassandra/) and [Hadoop](https://sefiks.com/2021/01/31/deep-face-recognition-with-hadoop-and-spark/).
-
-Herein, approximate nearest neighbor (a-nn) algorithm reduces the time complexity dramatically. [Spotify Annoy](https://sefiks.com/2020/09/16/large-scale-face-recognition-with-spotify-annoy/), [Facebook Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) and [NMSLIB](https://sefiks.com/2020/09/19/large-scale-face-recognition-with-nmslib/) are amazing a-nn libraries. Besides, [Elasticsearch](https://sefiks.com/2020/11/27/large-scale-face-recognition-with-elasticsearch/) wraps an a-nn algorithm and it offers highly scalability feature. You should run deepface within those a-nn frameworks if you have really large scale data sets.
-
 **Face recognition models** - [`Demo`](https://youtu.be/i_MOwvhbLdI)
 
 Deepface is a **hybrid** face recognition package. It currently wraps the **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/), [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/), [`ArcFace`](https://sefiks.com/2020/12/14/deep-face-recognition-with-arcface-in-keras-and-python/) and [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/). The default configuration verifies faces with VGG-Face model. You can set the base model while verification as illustared below.
@@ -84,6 +78,20 @@ for metric in metrics:
 ```
 
 Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than cosine and regular Euclidean distance based on experiments.
+
+**Tech Stack** - [`Vlog`](https://youtu.be/R8fHsL7u3eE)
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/tech-stack.png" width="90%" height="90%"></p>
+
+Recommended tech stack for face verification is mainly based on [relational databases and regular SQL](https://sefiks.com/2021/02/06/deep-face-recognition-with-sql/) or key-value stores such as [Redis](https://sefiks.com/2021/03/02/deep-face-recognition-with-redis/) or [Cassandra](https://sefiks.com/2021/01/24/deep-face-recognition-with-cassandra/). Herein, key-value stores overperform than regular relational databases.
+
+Face verification is a subset of face recognition. In other words, you can run any face verification tool for face recognition as well. However, face verification has O(1) and face recognition has O(n) time complexity. That's why, face recognition becomes problematic with regular face verification tools on millions/billions level data and limited hardware.
+
+You should use some big data solutions in face recognition when the data becomes huge. NoSQL databases comes with the power of map reduce technology. Here, [Hadoop](https://sefiks.com/2021/01/31/deep-face-recognition-with-hadoop-and-spark/) with Spark or Hive will overperform if you have lots of datanodes and clusters. Besides, [mongoDb](https://sefiks.com/2021/01/22/deep-face-recognition-with-mongodb/) is a document database and it is highly scalable as well.
+
+On the other hand, approximate nearest neighbor (a-nn) algorithm reduces the time complexity dramatically. [Spotify Annoy](https://sefiks.com/2020/09/16/large-scale-face-recognition-with-spotify-annoy/), [Facebook Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) and [NMSLIB](https://sefiks.com/2020/09/19/large-scale-face-recognition-with-nmslib/) are amazing a-nn libraries. Besides, [Elasticsearch](https://sefiks.com/2020/11/27/large-scale-face-recognition-with-elasticsearch/) wraps an a-nn algorithm and it offers highly scalability feature. You should run deepface within those a-nn frameworks if you have really large scale data sets. Those libraries come with high speed but they don't guarantee to find the closest ones always in contrast to k-nn algorithm run in nosql databases.
+
+Here, you can find some implementation demos of deepface with a-nn libraries: [`Elasticsearch`](https://youtu.be/i4GvuOmzKzo) and [`Spotify Annoy`](https://youtu.be/Jpxm914o2xk); key-value stores: [`Redis`](https://youtu.be/eo-fTv4eYzo).
 
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
