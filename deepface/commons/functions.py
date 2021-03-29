@@ -285,7 +285,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 				
 				detected_face = img[top:bottom, left:right]
 				
-				return detected_face, [left, right, right - left, bottom - top]
+				return detected_face, [left, top, right - left, bottom - top]
 			
 		else: #if no face detected
 	
