@@ -93,7 +93,9 @@ You should use some big data solutions in face recognition when the data becomes
 
 On the other hand, approximate nearest neighbor (a-nn) algorithm reduces the time complexity dramatically. [Spotify Annoy](https://sefiks.com/2020/09/16/large-scale-face-recognition-with-spotify-annoy/), [Facebook Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) and [NMSLIB](https://sefiks.com/2020/09/19/large-scale-face-recognition-with-nmslib/) are amazing a-nn libraries. Besides, [Elasticsearch](https://sefiks.com/2020/11/27/large-scale-face-recognition-with-elasticsearch/) wraps an a-nn algorithm and it offers highly scalability feature. You should run deepface within those a-nn frameworks if you have really large scale data sets. Those libraries come with high speed but they don't guarantee to find the closest ones always in contrast to k-nn algorithm run in nosql databases.
 
-Here, you can find some implementation demos of deepface with a-nn libraries: [`Elasticsearch`](https://youtu.be/i4GvuOmzKzo) and [`Spotify Annoy`](https://youtu.be/Jpxm914o2xk); key-value stores: [`Redis`](https://youtu.be/eo-fTv4eYzo).
+Finally, graph databases offer to discover relations hard to find. [Neo4j](https://sefiks.com/2021/04/03/deep-face-recognition-with-neo4j/) is a pretty graph database exploring indirect relations between facial images.
+
+Here, you can find some implementation demos of deepface with a-nn libraries: [`Elasticsearch`](https://youtu.be/i4GvuOmzKzo) and [`Spotify Annoy`](https://youtu.be/Jpxm914o2xk); key-value stores: [`Redis`](https://youtu.be/eo-fTv4eYzo), [`Cassandra`](https://youtu.be/VQqHs6-4Ylg); and graph databases: [`Neo4j`](https://youtu.be/X-hB2kBFBXs).
 
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
