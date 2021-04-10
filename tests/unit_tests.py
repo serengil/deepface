@@ -26,6 +26,18 @@ from deepface.extendedmodels import Age, Gender, Race, Emotion
 
 #-----------------------------------------
 
+img_path = "dataset/img1.jpg"
+embedding = DeepFace.represent(img_path)
+print("Function returned ", len(embedding), "dimensional vector")
+
+model_name = "VGG-Face"
+model = DeepFace.build_model(model_name)
+print(model_name," is built")
+embedding = DeepFace.represent(img_path, model = model)
+print("Represent function returned ", len(embedding), "dimensional vector")
+
+#-----------------------------------------
+
 dataset = [
 	['dataset/img1.jpg', 'dataset/img2.jpg', True],
 	['dataset/img1.jpg', 'dataset/img6.jpg', True]
@@ -64,9 +76,9 @@ print("-----------------------------------------")
 
 print("Pre-built model for single find function test")
 
-model_name = "VGG-Face"
-model = DeepFace.build_model(model_name)
-print(model_name," is built")
+#model_name = "VGG-Face"
+#model = DeepFace.build_model(model_name)
+#print(model_name," is built")
 
 df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset"
 					, model_name = model_name, model = model
@@ -140,10 +152,10 @@ dataset = [
 	['dataset/img5.jpg', 'dataset/img6.jpg', True],
 	['dataset/img6.jpg', 'dataset/img7.jpg', True],
 	['dataset/img8.jpg', 'dataset/img9.jpg', True],
-	
+
 	['dataset/img1.jpg', 'dataset/img11.jpg', True],
 	['dataset/img2.jpg', 'dataset/img11.jpg', True],
-	
+
 	['dataset/img1.jpg', 'dataset/img3.jpg', False],
 	['dataset/img2.jpg', 'dataset/img3.jpg', False],
 	['dataset/img6.jpg', 'dataset/img8.jpg', False],
@@ -163,29 +175,29 @@ for model in models:
 			img1 = instance[0]
 			img2 = instance[1]
 			result = instance[2]
-			
+
 			resp_obj = DeepFace.verify(img1, img2
 						, model_name = model, model = prebuilt_model
 						, distance_metric = metric)
-			
+
 			prediction = resp_obj["verified"]
 			distance = round(resp_obj["distance"], 2)
 			required_threshold = resp_obj["max_threshold_to_verify"]
-			
+
 			test_result_label = "failed"
 			if prediction == result:
 				passed_tests = passed_tests + 1
 				test_result_label = "passed"
-			
+
 			if prediction == True:
 				classified_label = "verified"
 			else:
 				classified_label = "unverified"
-			
+
 			test_cases = test_cases + 1
-			
+
 			print(img1.split("/")[-1], "-", img2.split("/")[-1], classified_label, "as same person based on", model,"and",metric,". Distance:",distance,", Threshold:", required_threshold,"(",test_result_label,")")
-		
+
 		print("--------------------------")
 
 #-----------------------------------------
