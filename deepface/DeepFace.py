@@ -139,28 +139,14 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 			for i in  model_names:
 				custom_model = models[i]
 
-				#decide input shape
-				input_shape = functions.find_input_shape(custom_model)
-				input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
+				#img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'mtcnn'
+				img1_representation = represent(img_path = img1_path
+						, model_name = model_name, model = custom_model
+						, enforce_detection = enforce_detection, detector_backend = detector_backend)
 
-				#----------------------
-				#detect and align faces
-
-				img1 = functions.preprocess_face(img=img1_path
-					, target_size=(input_shape_y, input_shape_x)
-					, enforce_detection = enforce_detection
-					, detector_backend = detector_backend)
-
-				img2 = functions.preprocess_face(img=img2_path
-					, target_size=(input_shape_y, input_shape_x)
-					, enforce_detection = enforce_detection
-					, detector_backend = detector_backend)
-
-				#----------------------
-				#find embeddings
-
-				img1_representation = custom_model.predict(img1)[0,:]
-				img2_representation = custom_model.predict(img2)[0,:]
+				img2_representation = represent(img_path = img2_path
+						, model_name = model_name, model = custom_model
+						, enforce_detection = enforce_detection, detector_backend = detector_backend)
 
 				#----------------------
 				#find distances between embeddings
@@ -570,20 +556,10 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 				for j in model_names:
 					custom_model = models[j]
 
-					#----------------------------------
-					#decide input shape
+					representation = represent(img_path = employee
+						, model_name = model_name, model = custom_model
+						, enforce_detection = enforce_detection, detector_backend = detector_backend)
 
-					input_shape = functions.find_input_shape(custom_model)
-					input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
-
-					#----------------------------------
-
-					img = functions.preprocess_face(img = employee
-								, target_size = (input_shape_y, input_shape_x)
-								, enforce_detection = enforce_detection
-								, detector_backend = detector_backend)
-
-					representation = custom_model.predict(img)[0,:]
 					instance.append(representation)
 
 				#-------------------------------
@@ -620,19 +596,10 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 			for j in model_names:
 				custom_model = models[j]
-
-				#--------------------------------
-				#decide input shape
-				input_shape = functions.find_input_shape(custom_model)
-				input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
-
-				#--------------------------------
-
-				img = functions.preprocess_face(img = img_path, target_size = (input_shape_y, input_shape_x)
-					, enforce_detection = enforce_detection
-					, detector_backend = detector_backend)
-
-				target_representation = custom_model.predict(img)[0,:]
+				
+				target_representation = represent(img_path = img_path
+					, model_name = model_name, model = custom_model
+					, enforce_detection = enforce_detection, detector_backend =detector_backend)
 
 				for k in metric_names:
 					distances = []
@@ -723,7 +690,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 	return None
 
-def represent(img_path, model_name = 'VGG-Face', distance_metric = 'euclidean', model = None, enforce_detection = True, detector_backend = 'mtcnn'):
+def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'mtcnn'):
 
 	"""
 	This function represents facial images as vectors.
@@ -732,8 +699,6 @@ def represent(img_path, model_name = 'VGG-Face', distance_metric = 'euclidean', 
 		img_path: exact image path, numpy array or based64 encoded images could be passed.
 
 		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib, ArcFace.
-
-		distance_metric (string): cosine, euclidean, euclidean_l2
 
 		model: Built deepface model. A face recognition model is built every call of verify function. You can pass pre-built face recognition model optionally if you will call verify function several times. Consider to pass model if you are going to call represent function in a for loop.
 
