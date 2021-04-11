@@ -1,7 +1,11 @@
 import warnings
 warnings.filterwarnings("ignore")
-import time
+
 import os
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+import time
 from os import path
 import numpy as np
 import pandas as pd
@@ -11,6 +15,12 @@ import pickle
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID, DlibWrapper, ArcFace, Boosting
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
+
+import tensorflow as tf
+tf_version = int(tf.__version__.split(".")[0])
+if tf_version == 2:
+	import logging
+	tf.get_logger().setLevel(logging.ERROR)
 
 def build_model(model_name):
 
@@ -596,7 +606,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 			for j in model_names:
 				custom_model = models[j]
-				
+
 				target_representation = represent(img_path = img_path
 					, model_name = model_name, model = custom_model
 					, enforce_detection = enforce_detection, detector_backend =detector_backend)
@@ -720,11 +730,13 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	#decide input shape
 	input_shape =  input_shape_x, input_shape_y= functions.find_input_shape(model)
 
+	#detect and align
 	img = functions.preprocess_face(img = img_path
 		, target_size=(input_shape_y, input_shape_x)
 		, enforce_detection = enforce_detection
 		, detector_backend = detector_backend)
 
+	#represent
 	embedding = model.predict(img)[0].tolist()
 
 	return embedding
