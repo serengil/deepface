@@ -85,6 +85,12 @@ Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than c
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/tech-stack.png" width="90%" height="90%"></p>
 
+The question is that where to store facial representations. You can find vector embeddings of facial images with the represent function.
+
+```python
+embedding = DeepFace.represent("img.jpg", model_name = 'Facenet')
+```
+
 Recommended tech stack for face verification is mainly based on [relational databases and regular SQL](https://sefiks.com/2021/02/06/deep-face-recognition-with-sql/) or key-value stores such as [Redis](https://sefiks.com/2021/03/02/deep-face-recognition-with-redis/) or [Cassandra](https://sefiks.com/2021/01/24/deep-face-recognition-with-cassandra/). Herein, key-value stores overperform than regular relational databases.
 
 Face verification is a subset of face recognition. In other words, you can run any face verification tool for face recognition as well. However, face verification has O(1) and face recognition has O(n) time complexity. That's why, face recognition becomes problematic with regular face verification tools on millions/billions level data and limited hardware.
