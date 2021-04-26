@@ -47,6 +47,10 @@ print("-----------------------------------------")
 
 print("Face detectors test")
 
+print("retinaface detector")
+res = DeepFace.verify(dataset, detector_backend = 'retinaface')
+print(res)
+
 print("ssd detector")
 res = DeepFace.verify(dataset, detector_backend = 'ssd')
 print(res)
