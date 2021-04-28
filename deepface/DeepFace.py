@@ -774,7 +774,7 @@ def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine', ena
 	realtime.analysis(db_path, model_name, distance_metric, enable_face_analysis
 						, source = source, time_threshold = time_threshold, frame_threshold = frame_threshold)
 
-def detectFace(img_path, detector_backend = 'mtcnn'):
+def detectFace(img_path, detector_backend = 'mtcnn', enforce_detection = True):
 
 	"""
 	This function applies pre-processing stages of a face recognition pipeline including detection and alignment
@@ -790,7 +790,8 @@ def detectFace(img_path, detector_backend = 'mtcnn'):
 
 	functions.initialize_detector(detector_backend = detector_backend)
 
-	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend)[0] #preprocess_face returns (1, 224, 224, 3)
+	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend
+		, enforce_detection = enforce_detection)[0] #preprocess_face returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb
 
 #---------------------------

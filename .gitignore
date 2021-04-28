@@ -14,6 +14,7 @@ deepface/commons/__pycache__/*
 deepface/basemodels/__pycache__/*
 deepface/extendedmodels/__pycache__/*
 deepface/subsidiarymodels/__pycache__/*
+deepface/detectors/__pycache__/*
 tests/dataset/*.pkl
 .DS_Store
 deepface/.DS_Store
