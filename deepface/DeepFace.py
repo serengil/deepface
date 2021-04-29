@@ -43,6 +43,7 @@ def build_model(model_name):
 		'DeepID': DeepID.loadModel,
 		'Dlib': DlibWrapper.loadModel,
 		'ArcFace': ArcFace.loadModel,
+
 		'Emotion': Emotion.loadModel,
 		'Age': Age.loadModel,
 		'Gender': Gender.loadModel,
@@ -724,6 +725,8 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 
 	if model is None:
 		model = build_model(model_name)
+
+	functions.initialize_detector(detector_backend = detector_backend)
 
 	#---------------------------------
 
