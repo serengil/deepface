@@ -25,19 +25,25 @@ def build_model():
 		open(newfilepath, 'wb').write(data)
 
 	face_detector = dlib.get_frontal_face_detector()
-	return face_detector
+	sp = dlib.shape_predictor(home+"/.deepface/weights/shape_predictor_5_face_landmarks.dat")
 
-def detect_face(face_detector, img):
+	detector = {}
+	detector["face_detector"] = face_detector
+	detector["sp"] = sp
+	return detector
+
+def detect_face(detector, img):
 
 	import dlib #this requirement is not a must that's why imported here
 
 	home = str(Path.home())
 
-	sp = dlib.shape_predictor(home+"/.deepface/weights/shape_predictor_5_face_landmarks.dat")
+	sp = detector["sp"]
 
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
 
+	face_detector = detector["face_detector"]
 	detections = face_detector(img, 1)
 
 	if len(detections) > 0:

@@ -37,9 +37,15 @@ def build_model():
 		home+"/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel"
 	)
 
-	return face_detector
+	eye_detector = OpenCvWrapper.build_cascade("haarcascade_eye")
 
-def detect_face(face_detector, img):
+	detector = {}
+	detector["face_detector"] = face_detector
+	detector["eye_detector"] = eye_detector
+
+	return detector
+
+def detect_face(detector, img):
 
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
@@ -59,6 +65,7 @@ def detect_face(face_detector, img):
 
 	imageBlob = cv2.dnn.blobFromImage(image = img)
 
+	face_detector = detector["face_detector"]
 	face_detector.setInput(imageBlob)
 	detections = face_detector.forward()
 
@@ -87,6 +94,6 @@ def detect_face(face_detector, img):
 		detected_face = base_img[int(top*aspect_ratio_y):int(bottom*aspect_ratio_y), int(left*aspect_ratio_x):int(right*aspect_ratio_x)]
 		img_region = [int(left*aspect_ratio_x), int(top*aspect_ratio_y), int(right*aspect_ratio_x) - int(left*aspect_ratio_x), int(bottom*aspect_ratio_y) - int(top*aspect_ratio_y)]
 
-		detected_face = OpenCvWrapper.align_face(detected_face)	
+		detected_face = OpenCvWrapper.align_face(detector["eye_detector"], detected_face)
 
 	return detected_face, img_region

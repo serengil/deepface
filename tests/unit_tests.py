@@ -26,6 +26,19 @@ from deepface.extendedmodels import Age, Gender, Race, Emotion
 
 #-----------------------------------------
 
+if False:
+	print("Detector tests")
+	import matplotlib.pyplot as plt
+	detectors = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
+	for detector in detectors:
+		img = DeepFace.detectFace("dataset/img11.jpg", detector_backend = detector)
+		plt.imshow(img)
+		plt.show()
+
+#-----------------------------------------
+print("-----------------------------------------")
+
+
 img_path = "dataset/img1.jpg"
 embedding = DeepFace.represent(img_path)
 print("Function returned ", len(embedding), "dimensional vector")
@@ -42,18 +55,6 @@ dataset = [
 	['dataset/img1.jpg', 'dataset/img2.jpg', True],
 	['dataset/img1.jpg', 'dataset/img6.jpg', True]
 ]
-
-print("-----------------------------------------")
-
-if False:
-	print("Detector tests")
-	import matplotlib.pyplot as plt
-	detectors = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
-	#detectors = ['retinaface']
-	for detector in detectors:
-		img = DeepFace.detectFace("dataset/img1.jpg", detector_backend = detector)
-		plt.imshow(img)
-		plt.show()
 
 print("-----------------------------------------")
 

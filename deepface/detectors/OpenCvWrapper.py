@@ -3,7 +3,16 @@ import os
 import pandas as pd
 from deepface.detectors import FaceDetector
 
-def build_model(model_name = 'haarcascade'):
+def build_model():
+
+	detector ={}
+
+	detector["face_detector"] = build_cascade('haarcascade')
+	detector["eye_detector"] = build_cascade('haarcascade_eye')
+
+	return detector
+
+def build_cascade(model_name = 'haarcascade'):
 	opencv_path = get_opencv_path()
 
 	if model_name == 'haarcascade':
@@ -16,6 +25,7 @@ def build_model(model_name = 'haarcascade'):
 
 		face_detector = cv2.CascadeClassifier(face_detector_path)
 		return face_detector
+
 	elif model_name == 'haarcascade_eye':
 		eye_detector_path = opencv_path+"haarcascade_eye.xml"
 
@@ -25,15 +35,14 @@ def build_model(model_name = 'haarcascade'):
 		eye_detector = cv2.CascadeClassifier(eye_detector_path)
 		return eye_detector
 
-
-def detect_face(face_detector, img):
+def detect_face(detector, img):
 
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
 
 	faces = []
 	try:
-		faces = face_detector.detectMultiScale(img, 1.3, 5)
+		faces = detector["face_detector"].detectMultiScale(img, 1.3, 5)
 	except:
 		pass
 
@@ -41,15 +50,13 @@ def detect_face(face_detector, img):
 		x,y,w,h = faces[0] #focus on the 1st face found in the image
 		detected_face = img[int(y):int(y+h), int(x):int(x+w)]
 
-		detected_face = align_face(detected_face)
+		detected_face = align_face(detector["eye_detector"], detected_face)
 		img_region = [x, y, w, h]
 
 	return detected_face, img_region
 
-def align_face(img):
-
-	eye_detector = build_model(model_name = 'haarcascade_eye')
-
+def align_face(eye_detector, img):
+	
 	detected_face_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #eye detector expects gray scale image
 
 	eyes = eye_detector.detectMultiScale(detected_face_gray)
