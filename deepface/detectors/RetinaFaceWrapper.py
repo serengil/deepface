@@ -12,7 +12,7 @@ def detect_face(face_detector, img):
 
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #retinaface expects RGB but OpenCV read BGR
 
-    faces = RetinaFace.extract_faces(img_rgb, align = True)
+    faces = RetinaFace.extract_faces(img_rgb, model = face_detector, align = True)
 
     if len(faces) > 0:
         face = faces[0][:, :, ::-1]

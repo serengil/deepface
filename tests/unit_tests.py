@@ -45,6 +45,18 @@ dataset = [
 
 print("-----------------------------------------")
 
+if False:
+	print("Detector tests")
+	import matplotlib.pyplot as plt
+	detectors = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
+	#detectors = ['retinaface']
+	for detector in detectors:
+		img = DeepFace.detectFace("dataset/img1.jpg", detector_backend = detector)
+		plt.imshow(img)
+		plt.show()
+
+print("-----------------------------------------")
+
 print("Face detectors test")
 
 print("retinaface detector")
