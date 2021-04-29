@@ -45,7 +45,7 @@ def build_model():
 
 	return detector
 
-def detect_face(detector, img):
+def detect_face(detector, img, align = True):
 
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
@@ -94,6 +94,7 @@ def detect_face(detector, img):
 		detected_face = base_img[int(top*aspect_ratio_y):int(bottom*aspect_ratio_y), int(left*aspect_ratio_x):int(right*aspect_ratio_x)]
 		img_region = [int(left*aspect_ratio_x), int(top*aspect_ratio_y), int(right*aspect_ratio_x) - int(left*aspect_ratio_x), int(bottom*aspect_ratio_y) - int(top*aspect_ratio_y)]
 
-		detected_face = OpenCvWrapper.align_face(detector["eye_detector"], detected_face)
+		if align:
+			detected_face = OpenCvWrapper.align_face(detector["eye_detector"], detected_face)
 
 	return detected_face, img_region

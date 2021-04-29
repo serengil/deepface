@@ -32,7 +32,7 @@ def build_model():
 	detector["sp"] = sp
 	return detector
 
-def detect_face(detector, img):
+def detect_face(detector, img, align = True):
 
 	import dlib #this requirement is not a must that's why imported here
 
@@ -55,7 +55,8 @@ def detect_face(detector, img):
 			img_region = [left, top, right - left, bottom - top]
 			break #get the first one
 
-		img_shape = sp(img, detections[0])
-		detected_face = dlib.get_face_chip(img, img_shape, size = detected_face.shape[0])
+		if align:
+			img_shape = sp(img, detections[0])
+			detected_face = dlib.get_face_chip(img, img_shape, size = detected_face.shape[0])
 
 	return detected_face, img_region

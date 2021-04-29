@@ -59,7 +59,7 @@ def build_model(model_name):
 	else:
 		raise ValueError('Invalid model_name passed - {}'.format(model_name))
 
-def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'mtcnn'):
+def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'mtcnn', align = True):
 
 	"""
 	This function verifies an image pair is same person or different persons.
@@ -153,11 +153,13 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 				#img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'mtcnn'
 				img1_representation = represent(img_path = img1_path
 						, model_name = model_name, model = custom_model
-						, enforce_detection = enforce_detection, detector_backend = detector_backend)
+						, enforce_detection = enforce_detection, detector_backend = detector_backend
+						, align = align)
 
 				img2_representation = represent(img_path = img2_path
 						, model_name = model_name, model = custom_model
-						, enforce_detection = enforce_detection, detector_backend = detector_backend)
+						, enforce_detection = enforce_detection, detector_backend = detector_backend
+						, align = align)
 
 				#----------------------
 				#find distances between embeddings
@@ -458,7 +460,7 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 		return resp_obj
 
-def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'mtcnn'):
+def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'mtcnn', align = True):
 
 	"""
 	This function applies verification several times and find an identity in a database
@@ -569,7 +571,8 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 					representation = represent(img_path = employee
 						, model_name = model_name, model = custom_model
-						, enforce_detection = enforce_detection, detector_backend = detector_backend)
+						, enforce_detection = enforce_detection, detector_backend = detector_backend
+						, align = align)
 
 					instance.append(representation)
 
@@ -610,7 +613,8 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 				target_representation = represent(img_path = img_path
 					, model_name = model_name, model = custom_model
-					, enforce_detection = enforce_detection, detector_backend =detector_backend)
+					, enforce_detection = enforce_detection, detector_backend = detector_backend
+					, align = align)
 
 				for k in metric_names:
 					distances = []
@@ -701,7 +705,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 	return None
 
-def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'mtcnn'):
+def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'mtcnn', align = True):
 
 	"""
 	This function represents facial images as vectors.
@@ -737,7 +741,8 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	img = functions.preprocess_face(img = img_path
 		, target_size=(input_shape_y, input_shape_x)
 		, enforce_detection = enforce_detection
-		, detector_backend = detector_backend)
+		, detector_backend = detector_backend
+		, align = align)
 
 	#represent
 	embedding = model.predict(img)[0].tolist()

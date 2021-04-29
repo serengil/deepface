@@ -35,7 +35,7 @@ def build_cascade(model_name = 'haarcascade'):
 		eye_detector = cv2.CascadeClassifier(eye_detector_path)
 		return eye_detector
 
-def detect_face(detector, img):
+def detect_face(detector, img, align = True):
 
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
@@ -50,13 +50,14 @@ def detect_face(detector, img):
 		x,y,w,h = faces[0] #focus on the 1st face found in the image
 		detected_face = img[int(y):int(y+h), int(x):int(x+w)]
 
-		detected_face = align_face(detector["eye_detector"], detected_face)
+		if align:
+			detected_face = align_face(detector["eye_detector"], detected_face)
 		img_region = [x, y, w, h]
 
 	return detected_face, img_region
 
 def align_face(eye_detector, img):
-	
+
 	detected_face_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #eye detector expects gray scale image
 
 	eyes = eye_detector.detectMultiScale(detected_face_gray)

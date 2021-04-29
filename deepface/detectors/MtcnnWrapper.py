@@ -6,7 +6,7 @@ def build_model():
 	face_detector = MTCNN()
 	return face_detector
 
-def detect_face(face_detector, img):
+def detect_face(face_detector, img, align = True):
 
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
@@ -24,6 +24,7 @@ def detect_face(face_detector, img):
 		left_eye = keypoints["left_eye"]
 		right_eye = keypoints["right_eye"]
 
-		detected_face = FaceDetector.alignment_procedure(detected_face, left_eye, right_eye)
+		if align:
+			detected_face = FaceDetector.alignment_procedure(detected_face, left_eye, right_eye)
 
 	return detected_face, img_region

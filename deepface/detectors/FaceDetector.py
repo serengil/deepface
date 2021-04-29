@@ -23,7 +23,7 @@ def build_model(detector_backend):
 
     return face_detector
 
-def detect_face(face_detector, detector_backend, img):
+def detect_face(face_detector, detector_backend, img, align = True):
 
     backends = {
         'opencv': OpenCvWrapper.detect_face,
@@ -36,7 +36,7 @@ def detect_face(face_detector, detector_backend, img):
     detect_face = backends.get(detector_backend)
 
     if detect_face:
-        face, region = detect_face(face_detector, img)
+        face, region = detect_face(face_detector, img, align)
     else:
         raise ValueError("invalid detector_backend passed - " + detector_backend)
 

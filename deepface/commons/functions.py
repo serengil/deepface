@@ -87,7 +87,7 @@ def load_image(img):
 
 	return img
 
-def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_detection = True):
+def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_detection = True, align = True):
 
 	img_region = [0, 0, img.shape[0], img.shape[1]]
 
@@ -95,7 +95,7 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 	if not "face_detector" in globals():
 		initialize_detector(detector_backend = detector_backend)
 
-	detected_face, img_region = FaceDetector.detect_face(face_detector, detector_backend, img)
+	detected_face, img_region = FaceDetector.detect_face(face_detector, detector_backend, img, align)
 
 	if (isinstance(detected_face, np.ndarray)):
 		return detected_face, img_region
@@ -106,13 +106,13 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 			else:
 			  raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
 
-def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True, detector_backend = 'opencv', return_region = False):
+def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True, detector_backend = 'opencv', return_region = False, align = True):
 
 	#img might be path, base64 or numpy array. Convert it to numpy whatever it is.
 	img = load_image(img)
 	base_img = img.copy()
 
-	img, region = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = enforce_detection)
+	img, region = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = enforce_detection, align = align)
 
 	#--------------------------
 
