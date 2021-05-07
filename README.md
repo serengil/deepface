@@ -215,10 +215,6 @@ Pull requests are welcome. You should run the unit tests locally by running [`te
 
 There are many ways to support a project - starring⭐️ the GitHub repos is just one.
 
-You can also support this project on [Patreon](https://www.patreon.com/bePatron?u=31795557&redirect_uri=https%3A%2F%2Fgithub.com%2Fserengil%2Fdeepface) 🙏
-
-<p align="left"><a href="https://www.patreon.com/bePatron?u=31795557&redirect_uri=https%3A%2F%2Fgithub.com%2Fserengil%2Fdeepface"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/patreon.png" width="30%"></a></p>
-
 ## Citation
 
 Please cite [deepface](https://ieeexplore.ieee.org/document/9259802) in your publications if it helps your research. Here is an example BibTeX entry:
