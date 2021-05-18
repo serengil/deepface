@@ -1,0 +1,31 @@
+DeepFace is cited by the following papers.
+
+[1] Ghosh, Avijit, Ritam Dutt, and Christo Wilson. "When Fair Ranking Meets Uncertain Inference." arXiv preprint arXiv:2105.02091 (2021).
+
+[2] Yüksel, Oğuz Kaan, et al. "LatentCLR: A Contrastive Learning Approach for Unsupervised Discovery of Interpretable Directions." arXiv preprint arXiv:2104.00820 (2021).
+
+[3] Karduni, Alireza, et al. "Images, Emotions, and Credibility: Effect of Emotional Facial Images on Perceptions of News Content Bias and Source Credibility in Social Media." arXiv preprint arXiv:2102.13167 (2021).
+
+[4] Pu, Jiameng, et al. "Deepfake Videos in the Wild: Analysis and Detection." arXiv preprint arXiv:2103.04263 (2021).
+
+[5] Hazirbas, Caner, et al. "Towards measuring fairness in AI: the Casual Conversations dataset." arXiv preprint arXiv:2104.02821 (2021).
+
+[6] Mugalu, Ben Wycliff, et al. "Face Recognition as a Method of Authentication in a Web-Based System." arXiv preprint arXiv:2103.15144 (2021).
+
+[7] Lyu, Hanjia, et al. "State-level Racially Motivated Hate Crimes Contrast Public Opinion on the# StopAsianHate and# StopAAPIHate Movement." arXiv preprint arXiv:2104.14536 (2021).
+
+[8] YADAV, NAND. "TVA-GAN: Attention Guided Generative Adversarial Network For Thermal To Visible Face Transformations." (2021).
+
+[9] Atanassov, Atanas, and Dimitar Pilev. "Pre-trained Deep Learning Models for Facial Emotions Recognition." 2020 International Conference Automatics and Informatics (ICAI). IEEE, 2020.
+
+[10] Greco, Antonio, et al. "Benchmarking deep network architectures for ethnicity recognition using a new large face dataset." Machine Vision and Applications 31.7 (2020): 1-13.
+
+[11] de Almeida, João Carlos Miranda. "Automatic Emotion Identification: Analysis and Detection of Facial Expressions in Movies." (2020).
+
+[12] Morcillo Vizuete, Francisco. Desarrollo de un sistema de reconocimiento facial utilizando Deep Learning con OpenCV. Diss. Universitat Politècnia de València, 2020.
+
+Based on the following academic repositories
+
+[1] Google Scholar: https://scholar.google.com/scholar?oi=bibs&hl=tr&cites=17652496388087594988
+
+[2] Semantic Scholar: https://www.semanticscholar.org/paper/LightFace%3A-A-Hybrid-Deep-Face-Recognition-Framework-Serengil-Ozpinar/657618c55d8d592551954b1f394f76b576bbed14#citing-papers
