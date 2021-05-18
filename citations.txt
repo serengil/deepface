@@ -41,3 +41,5 @@ Based on the following academic repositories
 [1] Google Scholar: https://scholar.google.com/scholar?oi=bibs&hl=tr&cites=17652496388087594988
 
 [2] Semantic Scholar: https://www.semanticscholar.org/paper/LightFace%3A-A-Hybrid-Deep-Face-Recognition-Framework-Serengil-Ozpinar/657618c55d8d592551954b1f394f76b576bbed14#citing-papers
+
+[3] https://www.researchgate.net/publication/346308816_LightFace_A_Hybrid_Deep_Face_Recognition_Framework?_sg=jdvZXW3uDQ6jROYw8Q24fN3U5DSWjUU39K9QAOWdgWnWTgUgXKOM6WyIH2Cs_AKaRd3gs4gJX3V3giu7V8USOwbE7CSTUOB5Su2GqufK.XKE1deAE7iiB67Kz6ydoA9TGPl4qVqAEFs8N5vxKE1PZhFcu-na4yQHi62gd0TKehI8KFjMfeTRyyJvtqqj3wA
