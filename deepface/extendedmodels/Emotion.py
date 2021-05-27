@@ -14,11 +14,11 @@ elif tf_version == 2:
 	from tensorflow import keras
 	from tensorflow.keras.models import Model, Sequential
 	from tensorflow.keras.layers import Conv2D, MaxPooling2D, AveragePooling2D, Flatten, Dense, Dropout
-	
-def loadModel():
-	
+
+def loadModel(url = 'https://drive.google.com/uc?id=13iUHHP3SlNg53qSuQZDdHDSDNdBP9nwy'):
+
 	num_classes = 7
-	
+
 	model = Sequential()
 
 	#1st convolution layer
@@ -44,29 +44,24 @@ def loadModel():
 	model.add(Dropout(0.2))
 
 	model.add(Dense(num_classes, activation='softmax'))
-	
+
 	#----------------------------
-	
+
 	home = str(Path.home())
-	
+
 	if os.path.isfile(home+'/.deepface/weights/facial_expression_model_weights.h5') != True:
 		print("facial_expression_model_weights.h5 will be downloaded...")
-		
+
 		#TO-DO: upload weights to google drive
-		
+
 		#zip
-		url = 'https://drive.google.com/uc?id=13iUHHP3SlNg53qSuQZDdHDSDNdBP9nwy'
 		output = home+'/.deepface/weights/facial_expression_model_weights.zip'
 		gdown.download(url, output, quiet=False)
-		
+
 		#unzip facial_expression_model_weights.zip
 		with zipfile.ZipFile(output, 'r') as zip_ref:
 			zip_ref.extractall(home+'/.deepface/weights/')
-		
+
 	model.load_weights(home+'/.deepface/weights/facial_expression_model_weights.h5')
-	
+
 	return model
-	
-	#----------------------------
-	
-	return 0
