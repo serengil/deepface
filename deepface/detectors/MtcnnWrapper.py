@@ -1,8 +1,8 @@
-from mtcnn import MTCNN
 import cv2
 from deepface.detectors import FaceDetector
 
 def build_model():
+	from mtcnn import MTCNN
 	face_detector = MTCNN()
 	return face_detector
 
