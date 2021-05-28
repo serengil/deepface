@@ -12,6 +12,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from deepface import DeepFace
 from deepface.extendedmodels import Age
 from deepface.commons import functions, realtime, distance as dst
+from deepface.detectors import OpenCvWrapper
 
 def analysis(db_path, model_name, distance_metric, enable_face_analysis = True
 				, source = 0, time_threshold = 5, frame_threshold = 5):
@@ -104,7 +105,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True
 
 	#-----------------------
 
-	opencv_path = functions.get_opencv_path()
+	opencv_path = OpenCvWrapper.get_opencv_path()
 	face_detector_path = opencv_path+"haarcascade_frontalface_default.xml"
 	face_cascade = cv2.CascadeClassifier(face_detector_path)
 
