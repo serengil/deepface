@@ -164,7 +164,7 @@ for backend in backends:
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-detectors.png" width="90%" height="90%"></p>
 
-[MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) seems to overperform in detection and alignment stages but it is slower than [SSD](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/).
+[RetinaFace](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/) and [MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) seem to overperform in detection and alignment stages they are slower than others.
 
 **Tech Stack** - [`Vlog`](https://youtu.be/R8fHsL7u3eE)
 
