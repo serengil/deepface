@@ -59,7 +59,7 @@ def build_model(model_name):
 	else:
 		raise ValueError('Invalid model_name passed - {}'.format(model_name))
 
-def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'mtcnn', align = True):
+def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'retinaface', align = True):
 
 	"""
 	This function verifies an image pair is same person or different persons.
@@ -82,7 +82,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 		enforce_detection (boolean): If any face could not be detected in an image, then verify function will return exception. Set this to False not to have this exception. This might be convenient for low resolution images.
 
-		detector_backend (string): set face detector backend as mtcnn, opencv, ssd or dlib
+		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib
 
 	Returns:
 		Verify function returns a dictionary. If img1_path is a list of image pairs, then the function will return list of dictionary.
@@ -253,7 +253,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 		return resp_obj
 
-def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = {}, enforce_detection = True, detector_backend = 'mtcnn'):
+def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = {}, enforce_detection = True, detector_backend = 'retinaface'):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -273,7 +273,7 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
 
-		detector_backend (string): set face detector backend as mtcnn, opencv, ssd or dlib.
+		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib.
 	Returns:
 		The function returns a dictionary. If img_path is a list, then it will return list of dictionary.
 
@@ -460,7 +460,7 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 		return resp_obj
 
-def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'mtcnn', align = True):
+def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'retinaface', align = True):
 
 	"""
 	This function applies verification several times and find an identity in a database
@@ -480,7 +480,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
 
-		detector_backend (string): set face detector backend as mtcnn, opencv, ssd or dlib
+		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib
 
 	Returns:
 		This function returns pandas data frame. If a list of images is passed to img_path, then it will return list of pandas data frame.
@@ -705,7 +705,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 	return None
 
-def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'mtcnn', align = True):
+def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'retinaface', align = True):
 
 	"""
 	This function represents facial images as vectors.
@@ -721,7 +721,7 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 
 		enforce_detection (boolean): If any face could not be detected in an image, then verify function will return exception. Set this to False not to have this exception. This might be convenient for low resolution images.
 
-		detector_backend (string): set face detector backend as mtcnn, opencv, ssd or dlib
+		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib
 
 	Returns:
 		Represent function returns a multidimensional vector. The number of dimensions is changing based on the reference model. E.g. FaceNet returns 128 dimensional vector; VGG-Face returns 2622 dimensional vector.
@@ -777,12 +777,12 @@ def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine', ena
 	if frame_threshold < 1:
 		raise ValueError("frame_threshold must be greater than the value 1 but you passed "+str(frame_threshold))
 
-	functions.initialize_detector(detector_backend = 'opencv')
+	functions.initialize_detector(detector_backend = 'opencv') #stream uses opencv by default!
 
 	realtime.analysis(db_path, model_name, distance_metric, enable_face_analysis
 						, source = source, time_threshold = time_threshold, frame_threshold = frame_threshold)
 
-def detectFace(img_path, detector_backend = 'mtcnn', enforce_detection = True):
+def detectFace(img_path, detector_backend = 'retinaface', enforce_detection = True):
 
 	"""
 	This function applies pre-processing stages of a face recognition pipeline including detection and alignment
@@ -790,7 +790,7 @@ def detectFace(img_path, detector_backend = 'mtcnn', enforce_detection = True):
 	Parameters:
 		img_path: exact image path, numpy array or base64 encoded image
 
-		detector_backend (string): face detection backends are mtcnn, opencv, ssd or dlib
+		detector_backend (string): face detection backends are retinaface, mtcnn, opencv, ssd or dlib
 
 	Returns:
 		deteced and aligned face in numpy format
