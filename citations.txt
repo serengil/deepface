@@ -42,6 +42,8 @@ DeepFace is cited by the following papers.
 
 [15] Pelkonen, Riku. "Holmes–virtuaalinen ovimies." (2021).
 
+[16] Kit, Oleg. "Face Biometrics as a Potential Predictor for COVID-19 Susceptibility." (2021).
+
 Based on the following academic repositories
 
 [1] Google Scholar: https://scholar.google.com/scholar?oi=bibs&hl=tr&cites=17652496388087594988
