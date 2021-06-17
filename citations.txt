@@ -46,6 +46,8 @@ DeepFace is cited by the following papers.
 
 [17] Xu, Shusong, Zixuan Zhou, and Make Tao. "Accuracy Improvement of Age Prediction Model Based on AutoML." Journal of Physics: Conference Series. Vol. 1748. No. 3. IOP Publishing, 2021.
 
+[18] Hazirbas, Caner, et al. "Casual Conversations: A Dataset for Measuring Fairness in AI." Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
+
 Based on the following academic repositories
 
 [1] Google Scholar: https://scholar.google.com/scholar?oi=bibs&hl=tr&cites=17652496388087594988
