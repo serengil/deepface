@@ -48,7 +48,8 @@ def build_model(model_name):
 		'Emotion': Emotion.loadModel,
 		'Age': Age.loadModel,
 		'Gender': Gender.loadModel,
-		'Race': Race.loadModel
+		'Race': Race.loadModel,
+		'Ensemble': Boosting.loadModel
 	}
 
 	if not "model_obj" in globals() or model_label != model_name:
@@ -105,7 +106,6 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 	tic = time.time()
 
 	img_list, bulkProcess = functions.initialize_input(img1_path, img2_path)
-	functions.initialize_detector(detector_backend = detector_backend)
 
 	resp_objects = []
 
@@ -123,7 +123,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 	if model == None:
 		if model_name == 'Ensemble':
-			models = Boosting.loadModel()
+			models = build_model(model_name)
 		else:
 			model = build_model(model_name)
 			models = {}
@@ -310,7 +310,6 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 	"""
 
 	img_paths, bulkProcess = functions.initialize_input(img_path)
-	functions.initialize_detector(detector_backend = detector_backend)
 
 	#---------------------------------
 
@@ -494,7 +493,6 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 	tic = time.time()
 
 	img_paths, bulkProcess = functions.initialize_input(img_path)
-	functions.initialize_detector(detector_backend = detector_backend)
 
 	#-------------------------------
 
@@ -504,7 +502,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 			if model_name == 'Ensemble':
 				print("Ensemble learning enabled")
-				models = Boosting.loadModel()
+				models = build_model(model_name)
 
 			else: #model is not ensemble
 				model = build_model(model_name)
@@ -735,8 +733,6 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	if model is None:
 		model = build_model(model_name)
 
-	functions.initialize_detector(detector_backend = detector_backend)
-
 	#---------------------------------
 
 	#decide input shape
@@ -781,8 +777,6 @@ def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine', ena
 
 	if frame_threshold < 1:
 		raise ValueError("frame_threshold must be greater than the value 1 but you passed "+str(frame_threshold))
-
-	functions.initialize_detector(detector_backend = 'opencv') #stream uses opencv by default!
 
 	realtime.analysis(db_path, model_name, distance_metric, enable_face_analysis
 						, source = source, time_threshold = time_threshold, frame_threshold = frame_threshold)

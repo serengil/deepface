@@ -279,16 +279,7 @@ print("Pre-trained ensemble method - find")
 from deepface import DeepFace
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 
-model = {}
-model["VGG-Face"] = VGGFace.loadModel()
-print("VGG loaded")
-model["Facenet"] = Facenet.loadModel()
-print("Facenet loaded")
-model["OpenFace"] = OpenFace.loadModel()
-print("OpenFace loaded")
-model["DeepFace"] = FbDeepFace.loadModel()
-print("DeepFace loaded")
-
+model = DeepFace.build_model("Ensemble")
 df = DeepFace.find("dataset/img1.jpg", db_path = "dataset", model_name = 'Ensemble', model = model, enforce_detection=False)
 
 print(df)

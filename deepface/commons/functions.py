@@ -41,11 +41,6 @@ def initialize_input(img1_path, img2_path = None):
 
 	return img_list, bulkProcess
 
-def initialize_detector(detector_backend):
-
-	global face_detector
-	face_detector = FaceDetector.build_model(detector_backend)
-
 def initializeFolder():
 
 	home = str(Path.home())
@@ -91,9 +86,10 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 
 	img_region = [0, 0, img.shape[0], img.shape[1]]
 
-	#if functions.preproces_face is called directly, then face_detector global variable might not been initialized.
-	if not "face_detector" in globals():
-		initialize_detector(detector_backend = detector_backend)
+	#detector stored in a global variable in FaceDetector object.
+	#this call should be completed very fast because it will return found in memory
+	#it will not build face detector model in each call (consider for loops)
+	face_detector = FaceDetector.build_model(detector_backend)
 
 	detected_face, img_region = FaceDetector.detect_face(face_detector, detector_backend, img, align)
 
