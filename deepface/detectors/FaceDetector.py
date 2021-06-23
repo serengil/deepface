@@ -6,6 +6,8 @@ from deepface.commons import distance
 
 def build_model(detector_backend):
 
+    global face_detector_obj, face_detector_label
+
     backends = {
         'opencv': OpenCvWrapper.build_model,
         'ssd': SsdWrapper.build_model,
@@ -14,14 +16,16 @@ def build_model(detector_backend):
         'retinaface': RetinaFaceWrapper.build_model
     }
 
-    face_detector = backends.get(detector_backend)
+    if not "face_detector_obj" in globals() or face_detector_label != detector_backend:
+        face_detector_obj = backends.get(detector_backend)
+        face_detector_label = detector_backend
 
-    if face_detector:
-        face_detector = face_detector()
-    else:
-        raise ValueError("invalid detector_backend passed - " + detector_backend)
+        if face_detector_obj:
+            face_detector_obj = face_detector_obj()
+        else:
+            raise ValueError("invalid detector_backend passed - " + detector_backend)
 
-    return face_detector
+    return face_detector_obj
 
 def detect_face(face_detector, detector_backend, img, align = True):
 
