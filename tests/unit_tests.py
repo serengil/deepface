@@ -186,8 +186,8 @@ metrics = ['cosine', 'euclidean', 'euclidean_l2']
 passed_tests = 0; test_cases = 0
 
 for model in models:
-	prebuilt_model = DeepFace.build_model(model)
-	print(model," is built")
+	#prebuilt_model = DeepFace.build_model(model)
+	#print(model," is built")
 	for metric in metrics:
 		for instance in dataset:
 			img1 = instance[0]
@@ -195,7 +195,8 @@ for model in models:
 			result = instance[2]
 
 			resp_obj = DeepFace.verify(img1, img2
-						, model_name = model, model = prebuilt_model
+						, model_name = model
+						#, model = prebuilt_model
 						, distance_metric = metric)
 
 			prediction = resp_obj["verified"]

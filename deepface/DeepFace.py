@@ -35,6 +35,8 @@ def build_model(model_name):
 		built deepface model
 	"""
 
+	global model_obj, model_label
+
 	models = {
 		'VGG-Face': VGGFace.loadModel,
 		'OpenFace': OpenFace.loadModel,
@@ -43,21 +45,24 @@ def build_model(model_name):
 		'DeepID': DeepID.loadModel,
 		'Dlib': DlibWrapper.loadModel,
 		'ArcFace': ArcFace.loadModel,
-
 		'Emotion': Emotion.loadModel,
 		'Age': Age.loadModel,
 		'Gender': Gender.loadModel,
 		'Race': Race.loadModel
 	}
 
-	model = models.get(model_name)
+	if not "model_obj" in globals() or model_label != model_name:
 
-	if model:
-		model = model()
-		#print('Using {} model backend'.format(model_name))
-		return model
-	else:
-		raise ValueError('Invalid model_name passed - {}'.format(model_name))
+		model_obj = models.get(model_name)
+
+		if model_obj:
+			model_obj = model_obj()
+			model_label = model_name
+			#print('Using {} model backend'.format(model_name))
+		else:
+			raise ValueError('Invalid model_name passed - {}'.format(model_name))
+
+	return model_obj
 
 def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True):
 
