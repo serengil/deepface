@@ -59,7 +59,7 @@ def build_model(model_name):
 	else:
 		raise ValueError('Invalid model_name passed - {}'.format(model_name))
 
-def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'retinaface', align = True):
+def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True):
 
 	"""
 	This function verifies an image pair is same person or different persons.
@@ -253,7 +253,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 		return resp_obj
 
-def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = {}, enforce_detection = True, detector_backend = 'retinaface'):
+def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = {}, enforce_detection = True, detector_backend = 'opencv'):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -460,7 +460,7 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 		return resp_obj
 
-def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'retinaface', align = True):
+def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True):
 
 	"""
 	This function applies verification several times and find an identity in a database
@@ -705,7 +705,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 	return None
 
-def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'retinaface', align = True):
+def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'opencv', align = True):
 
 	"""
 	This function represents facial images as vectors.
@@ -782,7 +782,7 @@ def stream(db_path = '', model_name ='VGG-Face', distance_metric = 'cosine', ena
 	realtime.analysis(db_path, model_name, distance_metric, enable_face_analysis
 						, source = source, time_threshold = time_threshold, frame_threshold = frame_threshold)
 
-def detectFace(img_path, detector_backend = 'retinaface', enforce_detection = True):
+def detectFace(img_path, detector_backend = 'opencv', enforce_detection = True):
 
 	"""
 	This function applies pre-processing stages of a face recognition pipeline including detection and alignment
