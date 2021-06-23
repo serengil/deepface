@@ -198,14 +198,6 @@ home = str(Path.home())
 print("HOME_FOLDER is ",home)
 ```
 
-If you are going to call deepface functions in a for loop, then you should build the model once and pass to the functions. This avoids to cause a memory problem and also it will speed you up.
-
-```python
-model_name = "Facenet"
-model = DeepFace.build_model(model_name)
-DeepFace.verify("img1.jpg", "img2.jpg", model_name = model_name, model = model)
-```
-
 ## Contribution
 
 Pull requests are welcome. You should run the unit tests locally by running [`test/unit_tests.py`](https://github.com/serengil/deepface/blob/master/tests/unit_tests.py). Please share the unit test result logs in the PR. Deepface is currently compatible with TF 1 and 2 versions. Change requests should satisfy those requirements both.
