@@ -168,7 +168,7 @@ dataset = [
 	['dataset/img1.jpg', 'dataset/img2.jpg', True],
 	['dataset/img5.jpg', 'dataset/img6.jpg', True],
 	['dataset/img6.jpg', 'dataset/img7.jpg', True],
-	['dataset/img8.jpg', 'dataset/img9.jpg', True],
+	#['dataset/img8.jpg', 'dataset/img9.jpg', True],
 
 	['dataset/img1.jpg', 'dataset/img11.jpg', True],
 	['dataset/img2.jpg', 'dataset/img11.jpg', True],
@@ -238,10 +238,10 @@ else:
 
 print("Analyze function with passing pre-trained model")
 
-emotion_model = Emotion.loadModel()
-age_model = Age.loadModel()
-gender_model = Gender.loadModel()
-race_model = Race.loadModel()
+emotion_model = DeepFace.build_model("Emotion")
+age_model = DeepFace.build_model("Age")
+gender_model = DeepFace.build_model("Gender")
+race_model = DeepFace.build_model("Race")
 
 facial_attribute_models = {}
 facial_attribute_models["emotion"] = emotion_model
@@ -277,9 +277,9 @@ print("--------------------------")
 print("Pre-trained ensemble method - find")
 
 from deepface import DeepFace
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
+from deepface.basemodels import Boosting
 
-model = DeepFace.build_model("Ensemble")
+model = Boosting.loadModel()
 df = DeepFace.find("dataset/img1.jpg", db_path = "dataset", model_name = 'Ensemble', model = model, enforce_detection=False)
 
 print(df)

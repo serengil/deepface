@@ -35,7 +35,7 @@ def build_model(model_name):
 		built deepface model
 	"""
 
-	global model_obj, model_label
+	global model_obj
 
 	models = {
 		'VGG-Face': VGGFace.loadModel,
@@ -48,22 +48,22 @@ def build_model(model_name):
 		'Emotion': Emotion.loadModel,
 		'Age': Age.loadModel,
 		'Gender': Gender.loadModel,
-		'Race': Race.loadModel,
-		'Ensemble': Boosting.loadModel
+		'Race': Race.loadModel
 	}
 
-	if not "model_obj" in globals() or model_label != model_name:
+	if not "model_obj" in globals():
+		model_obj = {}
 
-		model_obj = models.get(model_name)
-
-		if model_obj:
-			model_obj = model_obj()
-			model_label = model_name
-			#print('Using {} model backend'.format(model_name))
+	if not model_name in model_obj.keys():
+		model = models.get(model_name)
+		if model:
+			model = model()
+			model_obj[model_name] = model
+			#print(model_name," built")
 		else:
 			raise ValueError('Invalid model_name passed - {}'.format(model_name))
 
-	return model_obj
+	return model_obj[model_name]
 
 def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True):
 
@@ -123,7 +123,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 	if model == None:
 		if model_name == 'Ensemble':
-			models = build_model(model_name)
+			models = Boosting.loadModel()
 		else:
 			model = build_model(model_name)
 			models = {}
@@ -502,7 +502,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 			if model_name == 'Ensemble':
 				print("Ensemble learning enabled")
-				models = build_model(model_name)
+				models = Boosting.loadModel()
 
 			else: #model is not ensemble
 				model = build_model(model_name)
