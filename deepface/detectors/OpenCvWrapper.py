@@ -67,7 +67,7 @@ def align_face(eye_detector, img):
 	if len(eyes) >= 2:
 
 		#find the largest 2 eye
-
+		"""
 		base_eyes = eyes[:, 2]
 
 		items = []
@@ -78,7 +78,7 @@ def align_face(eye_detector, img):
 		df = pd.DataFrame(items, columns = ["length", "idx"]).sort_values(by=['length'], ascending=False)
 
 		eyes = eyes[df.idx.values[0:2]] #eyes variable stores the largest 2 eye
-
+		"""
 		#eyes = eyes[0:2]
 
 		#-----------------------
