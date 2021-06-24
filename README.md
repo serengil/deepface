@@ -24,7 +24,7 @@ A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
-Verification function under the deepface interface offers to verify face pairs as same person or different persons. You should pass face pairs as array instead of calling verify function in a for loop for the best practice. This will speed the function up dramatically and reduce the allocated memory.
+Verification function under the deepface interface offers to verify face pairs as same person or different persons.
 
 ```python
 from deepface import DeepFace
@@ -119,29 +119,6 @@ user
 │   │   ├── Bob.jpg
 ```
 
-**Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
-
-A face recognition task can be handled by several models and similarity metrics. Herein, deepface offers a [special boosting and combination solution](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) to improve the accuracy of a face recognition task. This provides a huge improvement on accuracy metrics. Human beings could have 97.53% score for face recognition tasks whereas this ensemble method passes the human level accuracy and gets 98.57% accuracy. On the other hand, this runs much slower than single models.
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-4.jpg" width="70%" height="70%"></p>
-
-```python
-resp_obj = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Ensemble")
-df = DeepFace.find(img_path = "img1.jpg", db_path = "my_db", model_name = "Ensemble")
-```
-
-**API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
-
-Deepface serves an API as well. You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
-
-```
-python api.py
-```
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
-
-The both face recognition and facial attribute analysis are covered in the API. You are expected to call these functions as http post methods. Service endpoints will be `http://127.0.0.1:5000/verify` for face recognition and `http://127.0.0.1:5000/analyze` for facial attribute analysis. You should pass input images as base64 encoded string in this case. [Here](https://github.com/serengil/deepface/tree/master/api), you can find a postman project.
-
 **Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
 
 Face detection and alignment are early stages of a modern face recognition pipeline. [`OpenCV`](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [`SSD`](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/),  [`MTCNN`](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) and [`RetinaFace`](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/) methods are wrapped in deepface as a facial detector. You can optionally pass a custom detector to functions in deepface interface. OpenCV is the default detector if you won't pass any detector.
@@ -164,7 +141,30 @@ for backend in backends:
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-detectors.png" width="90%" height="90%"></p>
 
-[RetinaFace](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/) and [MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) seem to overperform in detection and alignment stages but they are slower than others. If the speed of your pipeline is more important, then you should use opencv or ssd. On the other hand, accuracy is more important than the speed, then you should use retinaface or mtcnn.
+[RetinaFace](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/) and [MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) seem to overperform in detection and alignment stages but they are slower than others. If the speed of your pipeline is more important, then you should use opencv or ssd. On the other hand, if the accuracy is more important than the speed, then you should use retinaface or mtcnn.
+
+**Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
+
+A face recognition task can be handled by several models and similarity metrics. Herein, deepface offers a [special boosting and combination solution](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) to improve the accuracy of a face recognition task. This provides a huge improvement on accuracy metrics. On the other hand, this runs much slower than single models.
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-4.jpg" width="70%" height="70%"></p>
+
+```python
+resp_obj = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Ensemble")
+df = DeepFace.find(img_path = "img1.jpg", db_path = "my_db", model_name = "Ensemble")
+```
+
+**API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
+
+Deepface serves an API as well. You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
+
+```
+python api.py
+```
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
+
+The both face recognition and facial attribute analysis are covered in the API. You are expected to call these functions as http post methods. Service endpoints will be `http://127.0.0.1:5000/verify` for face recognition and `http://127.0.0.1:5000/analyze` for facial attribute analysis. You should pass input images as base64 encoded string in this case. [Here](https://github.com/serengil/deepface/tree/master/api), you can find a postman project.
 
 **Tech Stack** - [`Vlog`](https://youtu.be/R8fHsL7u3eE)
 
