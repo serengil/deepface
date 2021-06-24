@@ -24,7 +24,7 @@ A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
-Verification function under the deepface interface offers to verify face pairs as same person or different persons. You should pass face pairs as array instead of calling verify function in a for loop for the best practice. This will speed the function up dramatically and reduce the allocated memory.
+Verification function under the deepface interface offers to verify face pairs as same person or different persons.
 
 ```python
 from deepface import DeepFace
