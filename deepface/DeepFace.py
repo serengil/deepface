@@ -794,9 +794,7 @@ def detectFace(img_path, detector_backend = 'opencv', enforce_detection = True):
 	Returns:
 		deteced and aligned face in numpy format
 	"""
-
-	functions.initialize_detector(detector_backend = detector_backend)
-
+	
 	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend
 		, enforce_detection = enforce_detection)[0] #preprocess_face returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb

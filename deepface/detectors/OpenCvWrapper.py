@@ -42,7 +42,8 @@ def detect_face(detector, img, align = True):
 
 	faces = []
 	try:
-		faces = detector["face_detector"].detectMultiScale(img, 1.3, 5)
+		#faces = detector["face_detector"].detectMultiScale(img, 1.3, 5)
+		faces = detector["face_detector"].detectMultiScale(img, 1.1, 10)
 	except:
 		pass
 
@@ -60,7 +61,8 @@ def align_face(eye_detector, img):
 
 	detected_face_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #eye detector expects gray scale image
 
-	eyes = eye_detector.detectMultiScale(detected_face_gray, 1.3, 5)
+	#eyes = eye_detector.detectMultiScale(detected_face_gray, 1.3, 5)
+	eyes = eye_detector.detectMultiScale(detected_face_gray, 1.1, 10)
 
 	if len(eyes) >= 2:
 
@@ -76,7 +78,7 @@ def align_face(eye_detector, img):
 		df = pd.DataFrame(items, columns = ["length", "idx"]).sort_values(by=['length'], ascending=False)
 
 		eyes = eyes[df.idx.values[0:2]] #eyes variable stores the largest 2 eye
-		
+
 		#eyes = eyes[0:2]
 
 		#-----------------------

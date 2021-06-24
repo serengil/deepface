@@ -24,16 +24,17 @@ print("Running unit tests for TF ", tf.__version__)
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 
+print("-----------------------------------------")
 #-----------------------------------------
 
-if False:
-	print("Detector tests")
-	import matplotlib.pyplot as plt
-	detectors = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
-	for detector in detectors:
-		img = DeepFace.detectFace("dataset/img11.jpg", detector_backend = detector)
-		plt.imshow(img)
-		plt.show()
+print("DeepFace.detectFace test")
+detectors = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
+for detector in detectors:
+	img = DeepFace.detectFace("dataset/img11.jpg", detector_backend = detector)
+	print(detector," test is done")
+#import matplotlib.pyplot as plt
+#plt.imshow(img)
+#plt.show()
 
 #-----------------------------------------
 print("-----------------------------------------")
@@ -168,7 +169,7 @@ dataset = [
 	['dataset/img1.jpg', 'dataset/img2.jpg', True],
 	['dataset/img5.jpg', 'dataset/img6.jpg', True],
 	['dataset/img6.jpg', 'dataset/img7.jpg', True],
-	#['dataset/img8.jpg', 'dataset/img9.jpg', True],
+	['dataset/img8.jpg', 'dataset/img9.jpg', True],
 
 	['dataset/img1.jpg', 'dataset/img11.jpg', True],
 	['dataset/img2.jpg', 'dataset/img11.jpg', True],
