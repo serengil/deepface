@@ -360,12 +360,14 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 		disable_option = False if len(actions) > 1 else True
 
-		pbar = tqdm(range(0,len(actions)), desc='Finding actions', disable = disable_option)
+		pbar = tqdm(range(0, len(actions)), desc='Finding actions', disable = disable_option)
 
 		img_224 = None # Set to prevent re-detection
 
 		region = [] # x, y, w, h of the detected face region
 		region_labels = ['x', 'y', 'w', 'h']
+
+		is_region_set = False
 
 		#facial attribute analysis
 		for index in pbar:
@@ -376,10 +378,11 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-				resp_obj["region"] = {}
-
-				for i, parameter in enumerate(region_labels):
-					resp_obj["region"][parameter] = region[i]
+				if is_region_set != True:
+					resp_obj["region"] = {}
+					is_region_set = True
+					for i, parameter in enumerate(region_labels):
+						resp_obj["region"][parameter] = int(region[i]) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 				emotion_predictions = models['emotion'].predict(img)[0,:]
 
@@ -398,24 +401,27 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 				if img_224 is None:
 					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-				resp_obj["region"] = {}
-
-				for i, parameter in enumerate(region_labels):
-					resp_obj["region"][parameter] = region[i]
+				if is_region_set != True:
+					resp_obj["region"] = {}
+					is_region_set = True
+					for i, parameter in enumerate(region_labels):
+						resp_obj["region"][parameter] = int(region[i]) # #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 				age_predictions = models['age'].predict(img_224)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
 
 				resp_obj["age"] = int(apparent_age)
+				#int cast is for the exception - object of type 'float32' is not JSON serializable
 
 			elif action == 'gender':
 				if img_224 is None:
 					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-				resp_obj["region"] = {}
-
-				for i, parameter in enumerate(region_labels):
-					resp_obj["region"][parameter] = region[i]
+				if is_region_set != True:
+					resp_obj["region"] = {}
+					is_region_set = True
+					for i, parameter in enumerate(region_labels):
+						resp_obj["region"][parameter] = int(region[i]) ##int cast is for the exception - object of type 'float32' is not JSON serializable
 
 				gender_prediction = models['gender'].predict(img_224)[0,:]
 
@@ -432,10 +438,11 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 				race_predictions = models['race'].predict(img_224)[0,:]
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
-				resp_obj["region"] = {}
-
-				for i, parameter in enumerate(region_labels):
-					resp_obj["region"][parameter] = region[i]
+				if is_region_set != True:
+					resp_obj["region"] = {}
+					is_region_set = True
+					for i, parameter in enumerate(region_labels):
+						resp_obj["region"][parameter] = int(region[i]) ##int cast is for the exception - object of type 'float32' is not JSON serializable
 
 				sum_of_predictions = race_predictions.sum()
 
@@ -794,7 +801,7 @@ def detectFace(img_path, detector_backend = 'opencv', enforce_detection = True):
 	Returns:
 		deteced and aligned face in numpy format
 	"""
-	
+
 	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend
 		, enforce_detection = enforce_detection)[0] #preprocess_face returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb

@@ -35,71 +35,6 @@ app = Flask(__name__)
 
 #------------------------------
 
-tic = time.time()
-
-print("Loading Face Recognition Models...")
-
-pbar = tqdm(range(0, 6), desc='Loading Face Recognition Models...')
-
-for index in pbar:
-
-	if index == 0:
-		pbar.set_description("Loading VGG-Face")
-		vggface_model = DeepFace.build_model("VGG-Face")
-	elif index == 1:
-		pbar.set_description("Loading OpenFace")
-		openface_model = DeepFace.build_model("OpenFace")
-	elif index == 2:
-		pbar.set_description("Loading Google FaceNet")
-		facenet_model = DeepFace.build_model("Facenet")
-	elif index == 3:
-		pbar.set_description("Loading Facebook DeepFace")
-		deepface_model = DeepFace.build_model("DeepFace")
-	elif index == 4:
-		pbar.set_description("Loading DeepID DeepFace")
-		deepid_model = DeepFace.build_model("DeepID")
-	elif index == 5:
-		pbar.set_description("Loading ArcFace DeepFace")
-		arcface_model = DeepFace.build_model("ArcFace")
-
-toc = time.time()
-
-print("Face recognition models are built in ", toc-tic," seconds")
-
-#------------------------------
-
-tic = time.time()
-
-print("Loading Facial Attribute Analysis Models...")
-
-pbar = tqdm(range(0,4), desc='Loading Facial Attribute Analysis Models...')
-
-for index in pbar:
-	if index == 0:
-		pbar.set_description("Loading emotion analysis model")
-		emotion_model = DeepFace.build_model('Emotion')
-	elif index == 1:
-		pbar.set_description("Loading age prediction model")
-		age_model = DeepFace.build_model('Age')
-	elif index == 2:
-		pbar.set_description("Loading gender prediction model")
-		gender_model = DeepFace.build_model('Gender')
-	elif index == 3:
-		pbar.set_description("Loading race prediction model")
-		race_model = DeepFace.build_model('Race')
-
-toc = time.time()
-
-facial_attribute_models = {}
-facial_attribute_models["emotion"] = emotion_model
-facial_attribute_models["age"] = age_model
-facial_attribute_models["gender"] = gender_model
-facial_attribute_models["race"] = race_model
-
-print("Facial attribute analysis models are built in ", toc-tic," seconds")
-
-#------------------------------
-
 if tf_version == 1:
 	graph = tf.get_default_graph()
 
@@ -153,15 +88,26 @@ def analyzeWrapper(req, trx_id = 0):
 
 	#---------------------------
 
+	detector_backend = 'opencv'
+
 	actions= ['emotion', 'age', 'gender', 'race']
+
 	if "actions" in list(req.keys()):
 		actions = req["actions"]
 
+	if "detector_backend" in list(req.keys()):
+		detector_backend = req["detector_backend"]
+
 	#---------------------------
 
-	#resp_obj = DeepFace.analyze(instances, actions=actions)
-	resp_obj = DeepFace.analyze(instances, actions=actions, models=facial_attribute_models)
+	try:
+		resp_obj = DeepFace.analyze(instances, actions = actions)
+	except Exception as err:
+		print("Exception: ", str(err))
+		return jsonify({'success': False, 'error': str(err)}), 205
 
+	#---------------
+	#print(resp_obj)
 	return resp_obj
 
 @app.route('/verify', methods=['POST'])
@@ -194,11 +140,13 @@ def verifyWrapper(req, trx_id = 0):
 
 	resp_obj = jsonify({'success': False})
 
-	model_name = "VGG-Face"; distance_metric = "cosine"
+	model_name = "VGG-Face"; distance_metric = "cosine"; detector_backend = "opencv"
 	if "model_name" in list(req.keys()):
 		model_name = req["model_name"]
 	if "distance_metric" in list(req.keys()):
 		distance_metric = req["distance_metric"]
+	if "detector_backend" in list(req.keys()):
+		detector_backend = req["detector_backend"]
 
 	#----------------------
 
@@ -233,31 +181,19 @@ def verifyWrapper(req, trx_id = 0):
 
 	#--------------------------
 
-	if model_name == "VGG-Face":
-		resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = vggface_model)
-	elif model_name == "Facenet":
-		resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = facenet_model)
-	elif model_name == "OpenFace":
-		resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = openface_model)
-	elif model_name == "DeepFace":
-		resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = deepface_model)
-	elif model_name == "DeepID":
-		resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = deepid_model)
-	elif model_name == "ArcFace":
-		resp_obj = DeepFace.verify(instances, model_name = model_name, distance_metric = distance_metric, model = arcface_model)
-	elif model_name == "Ensemble":
-		models =  {}
-		models["VGG-Face"] = vggface_model
-		models["Facenet"] = facenet_model
-		models["OpenFace"] = openface_model
-		models["DeepFace"] = deepface_model
-		resp_obj = DeepFace.verify(instances, model_name = model_name, model = models)
+	try:
+		resp_obj = DeepFace.verify(instances
+			, model_name = model_name
+			, distance_metric = distance_metric
+			, detector_backend = detector_backend
+		)
 
-		for key in resp_obj: #issue 198.
-			resp_obj[key]['verified'] = bool(resp_obj[key]['verified'])
+		if model_name == "Ensemble": #issue 198.
+			for key in resp_obj: #issue 198.
+				resp_obj[key]['verified'] = bool(resp_obj[key]['verified'])
 
-	else:
-		resp_obj = jsonify({'success': False, 'error': 'You must pass a valid model name. You passed %s' % (model_name)}), 205
+	except Exception as err:
+		resp_obj = jsonify({'success': False, 'error': str(err)}), 205
 
 	return resp_obj
 
@@ -281,7 +217,7 @@ def represent():
 	#--------------------------
 
 	toc =  time.time()
-	
+
 	resp_obj["trx_id"] = trx_id
 	resp_obj["seconds"] = toc-tic
 
@@ -294,10 +230,13 @@ def representWrapper(req, trx_id = 0):
 	#-------------------------------------
 	#find out model
 
-	model_name = "VGG-Face"; distance_metric = "cosine"
+	model_name = "VGG-Face"; distance_metric = "cosine"; detector_backend = 'opencv'
 
 	if "model_name" in list(req.keys()):
 		model_name = req["model_name"]
+
+	if "detector_backend" in list(req.keys()):
+		detector_backend = req["detector_backend"]
 
 	#-------------------------------------
 	#retrieve images from request
@@ -316,27 +255,25 @@ def representWrapper(req, trx_id = 0):
 		return jsonify({'success': False, 'error': 'you must pass img as base64 encoded string'}), 205
 
 	#-------------------------------------
-	#cal represent function from the interface
+	#call represent function from the interface
 
-	embedding = []
-	if model_name == "VGG-Face":
-		embedding = DeepFace.represent(img, model_name = model_name, model = vggface_model)
-	elif model_name == "Facenet":
-		embedding = DeepFace.represent(img, model_name = model_name, model = facenet_model)
-	elif model_name == "OpenFace":
-		embedding = DeepFace.represent(img, model_name = model_name, model = openface_model)
-	elif model_name == "DeepFace":
-		embedding = DeepFace.represent(img, model_name = model_name, model = deepface_model)
-	elif model_name == "DeepID":
-		embedding = DeepFace.represent(img, model_name = model_name, model = deepid_model)
-	elif model_name == "ArcFace":
-		embedding = DeepFace.represent(img, model_name = model_name, model = arcface_model)
-	else:
-		resp_obj = jsonify({'success': False, 'error': 'You must pass a valid model name. You passed %s' % (model_name)}), 205
+	try:
+
+		embedding = DeepFace.represent(img
+			, model_name = model_name
+			, detector_backend = detector_backend
+		)
+
+	except Exception as err:
+		print("Exception: ",str(err))
+		resp_obj = jsonify({'success': False, 'error': str(err)}), 205
+
+	#-------------------------------------
 
 	#print("embedding is ", len(embedding)," dimensional vector")
 	resp_obj = {}
 	resp_obj["embedding"] = embedding
+
 	#-------------------------------------
 
 	return resp_obj
