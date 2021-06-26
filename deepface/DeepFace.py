@@ -378,12 +378,6 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-				if is_region_set != True:
-					resp_obj["region"] = {}
-					is_region_set = True
-					for i, parameter in enumerate(region_labels):
-						resp_obj["region"][parameter] = int(region[i]) #int cast is for the exception - object of type 'float32' is not JSON serializable
-
 				emotion_predictions = models['emotion'].predict(img)[0,:]
 
 				sum_of_predictions = emotion_predictions.sum()
@@ -401,27 +395,14 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 				if img_224 is None:
 					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-				if is_region_set != True:
-					resp_obj["region"] = {}
-					is_region_set = True
-					for i, parameter in enumerate(region_labels):
-						resp_obj["region"][parameter] = int(region[i]) # #int cast is for the exception - object of type 'float32' is not JSON serializable
-
 				age_predictions = models['age'].predict(img_224)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
 
-				resp_obj["age"] = int(apparent_age)
-				#int cast is for the exception - object of type 'float32' is not JSON serializable
+				resp_obj["age"] = int(apparent_age) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 			elif action == 'gender':
 				if img_224 is None:
 					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
-
-				if is_region_set != True:
-					resp_obj["region"] = {}
-					is_region_set = True
-					for i, parameter in enumerate(region_labels):
-						resp_obj["region"][parameter] = int(region[i]) ##int cast is for the exception - object of type 'float32' is not JSON serializable
 
 				gender_prediction = models['gender'].predict(img_224)[0,:]
 
@@ -438,12 +419,6 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 				race_predictions = models['race'].predict(img_224)[0,:]
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
-				if is_region_set != True:
-					resp_obj["region"] = {}
-					is_region_set = True
-					for i, parameter in enumerate(region_labels):
-						resp_obj["region"][parameter] = int(region[i]) ##int cast is for the exception - object of type 'float32' is not JSON serializable
-
 				sum_of_predictions = race_predictions.sum()
 
 				resp_obj["race"] = {}
@@ -453,6 +428,14 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 					resp_obj["race"][race_label] = race_prediction
 
 				resp_obj["dominant_race"] = race_labels[np.argmax(race_predictions)]
+
+			#-----------------------------
+
+			if is_region_set != True:
+				resp_obj["region"] = {}
+				is_region_set = True
+				for i, parameter in enumerate(region_labels):
+					resp_obj["region"][parameter] = int(region[i]) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 		#---------------------------------
 
