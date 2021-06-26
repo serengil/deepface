@@ -35,7 +35,7 @@ def build_model(model_name):
 		built deepface model
 	"""
 
-	global model_obj
+	global model_obj #singleton design pattern
 
 	models = {
 		'VGG-Face': VGGFace.loadModel,

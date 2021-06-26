@@ -6,7 +6,7 @@ from deepface.commons import distance
 
 def build_model(detector_backend):
 
-    global face_detector_obj
+    global face_detector_obj #singleton design pattern
 
     backends = {
         'opencv': OpenCvWrapper.build_model,
