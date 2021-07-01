@@ -124,9 +124,22 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 	if grayscale == True:
 		img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-	img = cv2.resize(img, target_size)
-	#TODO: resize causes transformation on base image, you should add black pixels to rezie it to target_size
+	# img = cv2.resize(img, target_size)
+	
+	# First resize the longer side to the target size
+	factor = target_size[0] / max(img.shape) # Suppose target_size[0] == target_size[1]
+	dsize = (int(img.shape[1] * factor), int(img.shape[0] * factor))
+	img = cv2.resize(img, dsize)
 
+	# Then pad the other side to the target size by adding black pixels
+	diff_0 = target_size[0] - img.shape[0]
+	diff_1 = target_size[1] - img.shape[1]
+	if grayscale == False:
+		# Put the base image in the middle of the padded image
+		img = np.pad(img, ((diff_0 // 2, diff_0 - diff_0 // 2), (diff_1 // 2, diff_1 - diff_1 // 2), (0, 0)), 'constant')
+	else:
+		img = np.pad(img, ((diff_0 // 2, diff_0 - diff_0 // 2), (diff_1 // 2, diff_1 - diff_1 // 2)), 'constant')
+	
 	img_pixels = image.img_to_array(img)
 	img_pixels = np.expand_dims(img_pixels, axis = 0)
 	img_pixels /= 255 #normalize input in [0, 1]
