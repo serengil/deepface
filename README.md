@@ -54,9 +54,8 @@ Deepface is a **hybrid** face recognition package. It currently wraps the **stat
 
 ```python
 models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib"]
-for model in models:
-   result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = model)
-   df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", model_name = model)
+result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = models[1])
+df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", model_name = models[1])
 ```
 
 FaceNet, VGG-Face, ArcFace and Dlib [overperforms](https://youtu.be/i_MOwvhbLdI) than OpenFace, DeepFace and DeepID based on experiments. Supportively, FaceNet got 99.65%; ArcFace got 99.40%; Dlib got 99.38%; VGG-Face got 98.78%; OpenFace got 93.80% accuracy scores on [LFW data set](https://sefiks.com/2020/08/27/labeled-faces-in-the-wild-for-face-recognition/) whereas human beings could have just 97.53%.
@@ -69,9 +68,8 @@ Distance could be found by different metrics such as [Cosine Similarity](https:/
 
 ```python
 metrics = ["cosine", "euclidean", "euclidean_l2"]
-for metric in metrics:
-   result = DeepFace.verify("img1.jpg", "img2.jpg", distance_metric = metric)
-   df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", distance_metric = metric)
+result = DeepFace.verify("img1.jpg", "img2.jpg", distance_metric = metrics[1])
+df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", distance_metric = metrics[1])
 ```
 
 Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than cosine and regular Euclidean distance based on experiments.
@@ -81,7 +79,6 @@ Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than c
 Deepface also offers facial attribute analysis including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Analysis function under the DeepFace interface is used to find demography of a face.
 
 ```python
-from deepface import DeepFace
 obj = DeepFace.analyze(img_path = "img4.jpg", actions = ['age', 'gender', 'race', 'emotion'])
 ```
 
@@ -122,18 +119,18 @@ Face detection and alignment are early stages of a modern face recognition pipel
 
 ```python
 backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
-for backend in backends:
-   #face detection and alignment
-   detected_face = DeepFace.detectFace("img.jpg", detector_backend = backend)
 
-   #face verification
-   obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backend)
+#face detection and alignment
+detected_face = DeepFace.detectFace("img.jpg", detector_backend = backends[4])
 
-   #face recognition
-   df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backend)
+#face verification
+obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backends[4])
 
-   #facial analysis
-   demography = DeepFace.analyze("img4.jpg", detector_backend = backend)
+#face recognition
+df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backends[4])
+
+#facial analysis
+demography = DeepFace.analyze("img4.jpg", detector_backend = backends[4])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-detectors.png" width="90%" height="90%"></p>
