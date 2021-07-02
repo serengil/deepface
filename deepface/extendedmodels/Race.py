@@ -16,7 +16,9 @@ elif tf_version == 2:
 	from tensorflow.keras.models import Model, Sequential
 	from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 
-def loadModel(url = 'https://drive.google.com/uc?id=1nz-WDhghGQBC4biwShQ9kYjvQMpO6smj'):
+#url = 'https://drive.google.com/uc?id=1nz-WDhghGQBC4biwShQ9kYjvQMpO6smj'
+
+def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5'):
 
 	model = VGGFace.baseModel()
 
@@ -41,13 +43,18 @@ def loadModel(url = 'https://drive.google.com/uc?id=1nz-WDhghGQBC4biwShQ9kYjvQMp
 	if os.path.isfile(home+'/.deepface/weights/race_model_single_batch.h5') != True:
 		print("race_model_single_batch.h5 will be downloaded...")
 
-		#zip
+		output = home+'/.deepface/weights/race_model_single_batch.h5'
+		gdown.download(url, output, quiet=False)
+
+		"""
+		#google drive source downloads zip
 		output = home+'/.deepface/weights/race_model_single_batch.zip'
 		gdown.download(url, output, quiet=False)
 
 		#unzip race_model_single_batch.zip
 		with zipfile.ZipFile(output, 'r') as zip_ref:
 			zip_ref.extractall(home+'/.deepface/weights/')
+		"""
 
 	race_model.load_weights(home+'/.deepface/weights/race_model_single_batch.h5')
 

@@ -14,7 +14,9 @@ elif tf_version == 2:
 	from tensorflow.keras.models import Model, Sequential
 	from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 
-def loadModel(url = 'https://drive.google.com/uc?id=1wUXRVlbsni2FN9-jkS_f4UTUrm1bRLyk'):
+#url = 'https://drive.google.com/uc?id=1wUXRVlbsni2FN9-jkS_f4UTUrm1bRLyk'
+
+def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.h5'):
 
 	model = VGGFace.baseModel()
 

@@ -12,7 +12,7 @@ else:
 	from tensorflow import keras
 	from tensorflow.keras.models import Model, Sequential
 	from tensorflow.keras.layers import Input, Convolution2D, ZeroPadding2D, MaxPooling2D, Flatten, Dense, Dropout, Activation
-	
+
 #---------------------------------------
 
 def baseModel():
@@ -60,34 +60,31 @@ def baseModel():
 	model.add(Convolution2D(2622, (1, 1)))
 	model.add(Flatten())
 	model.add(Activation('softmax'))
-	
+
 	return model
 
-def loadModel(url = 'https://drive.google.com/uc?id=1CPSeum3HpopfomUEK1gybeuIVoeJT_Eo'):
-	
+#url = 'https://drive.google.com/uc?id=1CPSeum3HpopfomUEK1gybeuIVoeJT_Eo'
+
+def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.h5'):
+
 	model = baseModel()
-	
+
 	#-----------------------------------
-	
+
 	home = str(Path.home())
 	output = home+'/.deepface/weights/vgg_face_weights.h5'
-	
+
 	if os.path.isfile(output) != True:
-		print("vgg_face_weights.h5 will be downloaded...")		
+		print("vgg_face_weights.h5 will be downloaded...")
 		gdown.download(url, output, quiet=False)
-	
+
 	#-----------------------------------
 	
-	try:
-		model.load_weights(output)
-	except Exception as err:
-		print(str(err))
-		print("Pre-trained weight could not be loaded.")
-		print("You might try to download the pre-trained weights from the url ", url, " and copy it to the ", output)
-	
+	model.load_weights(output)
+
 	#-----------------------------------
-	
+
 	#TO-DO: why?
 	vgg_face_descriptor = Model(inputs=model.layers[0].input, outputs=model.layers[-2].output)
-	
+
 	return vgg_face_descriptor

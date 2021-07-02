@@ -13,7 +13,9 @@ from tensorflow.keras import backend as K
 
 #---------------------------------------
 
-def loadModel(url = 'https://drive.google.com/uc?id=1LSe1YCV1x-BfNnfb7DFZTNpv_Q9jITxn'):
+#url = 'https://drive.google.com/uc?id=1LSe1YCV1x-BfNnfb7DFZTNpv_Q9jITxn'
+
+def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5'):
 	myInput = Input(shape=(96, 96, 3))
 
 	x = ZeroPadding2D(padding=(3, 3), input_shape=(96, 96, 3))(myInput)
@@ -229,19 +231,19 @@ def loadModel(url = 'https://drive.google.com/uc?id=1LSe1YCV1x-BfNnfb7DFZTNpv_Q9
 	model = Model(inputs=[myInput], outputs=norm_layer)
 	
 	#-----------------------------------
-	
+
 	home = str(Path.home())
-	
+
 	if os.path.isfile(home+'/.deepface/weights/openface_weights.h5') != True:
 		print("openface_weights.h5 will be downloaded...")
-		
+
 		output = home+'/.deepface/weights/openface_weights.h5'
 		gdown.download(url, output, quiet=False)
-	
+
 	#-----------------------------------
-	
+
 	model.load_weights(home+'/.deepface/weights/openface_weights.h5')
-	
+
 	#-----------------------------------
-	
+
 	return model

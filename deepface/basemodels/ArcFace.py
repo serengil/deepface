@@ -10,7 +10,9 @@ import os
 from pathlib import Path
 import gdown
 
-def loadModel():
+#url = "https://drive.google.com/uc?id=1LVB3CdVejpmGHM28BpqqkbZP5hDEcdZY"
+
+def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.h5'):
 	base_model = ResNet34()
 	inputs = base_model.inputs[0]
 	arcface_model = base_model.outputs[0]
@@ -20,41 +22,36 @@ def loadModel():
 	arcface_model = keras.layers.Dense(512, activation=None, use_bias=True, kernel_initializer="glorot_normal")(arcface_model)
 	embedding = keras.layers.BatchNormalization(momentum=0.9, epsilon=2e-5, name="embedding", scale=True)(arcface_model)
 	model = keras.models.Model(inputs, embedding, name=base_model.name)
-	
+
 	#---------------------------------------
 	#check the availability of pre-trained weights
-	
+
 	home = str(Path.home())
-	
-	url = "https://drive.google.com/uc?id=1LVB3CdVejpmGHM28BpqqkbZP5hDEcdZY"
+
 	file_name = "arcface_weights.h5"
 	output = home+'/.deepface/weights/'+file_name
-	
+
 	if os.path.isfile(output) != True:
 
 		print(file_name," will be downloaded to ",output)
-		gdown.download(url, output, quiet=False)	
-	
+		gdown.download(url, output, quiet=False)
+
 	#---------------------------------------
 	
-	try:
-		model.load_weights(output)
-	except:
-		print("pre-trained weights could not be loaded.")
-		print("You might try to download it from the url ", url," and copy to ",output," manually")
-	
+	model.load_weights(output)
+
 	return model
-	
+
 def ResNet34():
-	
+
 	img_input = tensorflow.keras.layers.Input(shape=(112, 112, 3))
-	
+
 	x = tensorflow.keras.layers.ZeroPadding2D(padding=1, name='conv1_pad')(img_input)
 	x = tensorflow.keras.layers.Conv2D(64, 3, strides=1, use_bias=False, kernel_initializer='glorot_normal', name='conv1_conv')(x)
 	x = tensorflow.keras.layers.BatchNormalization(axis=3, epsilon=2e-5, momentum=0.9, name='conv1_bn')(x)
 	x = tensorflow.keras.layers.PReLU(shared_axes=[1, 2], name='conv1_prelu')(x)
 	x = stack_fn(x)
-		
+
 	model = training.Model(img_input, x, name='ResNet34')
 
 	return model

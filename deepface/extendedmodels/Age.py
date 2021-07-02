@@ -16,7 +16,9 @@ elif tf_version == 2:
 	from tensorflow.keras.models import Model, Sequential
 	from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 
-def loadModel(url = 'https://drive.google.com/uc?id=1YCox_4kJ-BYeXq27uUbasu--yz28zUMV'):
+#url = 'https://drive.google.com/uc?id=1YCox_4kJ-BYeXq27uUbasu--yz28zUMV'
+
+def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/age_model_weights.h5'):
 
 	model = VGGFace.baseModel()
 
