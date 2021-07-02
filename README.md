@@ -29,7 +29,6 @@ Verification function under the deepface interface offers to verify face pairs a
 ```python
 from deepface import DeepFace
 result  = DeepFace.verify("img1.jpg", "img2.jpg")
-print("Is verified: ", result["verified"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-1.jpg" width="95%" height="95%"></p>
@@ -42,7 +41,6 @@ Face recognition requires to apply face verification several times. Herein, deep
 
 ```python
 from deepface import DeepFace
-import pandas as pd
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 ```
 
@@ -85,7 +83,6 @@ Deepface also offers facial attribute analysis including [`age`](https://sefiks.
 ```python
 from deepface import DeepFace
 obj = DeepFace.analyze(img_path = "img4.jpg", actions = ['age', 'gender', 'race', 'emotion'])
-print(obj["age"]," years old ",obj["dominant_race"]," ",obj["dominant_emotion"]," ", obj["gender"])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
