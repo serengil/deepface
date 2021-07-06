@@ -170,7 +170,7 @@ Face recognition models represent facial images as vector embeddings. The idea b
 embedding = DeepFace.represent("img.jpg", model_name = 'Facenet')
 ```
 
-Tech stack is vast to store vector embeddings. You should consider your task such as face verification or face recognition, priority such as speed or confidence to determine the right tool.
+Tech stack is vast to store vector embeddings. To determine the right tool, you should consider your task such as face verification or face recognition, priority such as speed or confidence, and also data size.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/tech-stack.png" width="90%" height="90%"></p>
 
