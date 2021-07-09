@@ -258,7 +258,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 		return resp_obj
 
-def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = {}, enforce_detection = True, detector_backend = 'opencv'):
+def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = {}, enforce_detection = True, detector_backend = 'opencv', prog_bar = True):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -279,6 +279,8 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
 
 		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib.
+		
+		prog_bar (boolean): enable/disable a progress bar
 	Returns:
 		The function returns a dictionary. If img_path is a list, then it will return list of dictionary.
 
@@ -349,7 +351,7 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 	resp_objects = []
 
-	disable_option = False if len(img_paths) > 1 else True
+	disable_option = (False if len(img_paths) > 1 else True) or not prog_bar
 
 	global_pbar = tqdm(range(0,len(img_paths)), desc='Analyzing', disable = disable_option)
 
@@ -358,7 +360,7 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 		resp_obj = {}
 
-		disable_option = False if len(actions) > 1 else True
+		disable_option = (False if len(actions) > 1 else True) or not prog_bar
 
 		pbar = tqdm(range(0, len(actions)), desc='Finding actions', disable = disable_option)
 
