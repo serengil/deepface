@@ -65,7 +65,7 @@ def build_model(model_name):
 
 	return model_obj[model_name]
 
-def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True):
+def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, prog_bar = True):
 
 	"""
 	This function verifies an image pair is same person or different persons.
@@ -89,6 +89,8 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 		enforce_detection (boolean): If any face could not be detected in an image, then verify function will return exception. Set this to False not to have this exception. This might be convenient for low resolution images.
 
 		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib
+
+		prog_bar (boolean): enable/disable a progress bar
 
 	Returns:
 		Verify function returns a dictionary. If img1_path is a list of image pairs, then the function will return list of dictionary.
@@ -138,8 +140,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 	#------------------------------
 
-	#calling deepface in a for loop causes lots of progress bars. this prevents it.
-	disable_option = False if len(img_list) > 1 else True
+	disable_option = (False if len(img_list) > 1 else True) or not prog_bar
 
 	pbar = tqdm(range(0,len(img_list)), desc='Verification', disable = disable_option)
 
@@ -279,7 +280,7 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
 
 		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib.
-		
+
 		prog_bar (boolean): enable/disable a progress bar
 	Returns:
 		The function returns a dictionary. If img_path is a list, then it will return list of dictionary.
@@ -456,7 +457,7 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 		return resp_obj
 
-def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True):
+def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, prog_bar = True):
 
 	"""
 	This function applies verification several times and find an identity in a database
@@ -477,6 +478,8 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
 
 		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib
+
+		prog_bar (boolean): enable/disable a progress bar
 
 	Returns:
 		This function returns pandas data frame. If a list of images is passed to img_path, then it will return list of pandas data frame.
@@ -552,7 +555,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 			representations = []
 
-			pbar = tqdm(range(0,len(employees)), desc='Finding representations')
+			pbar = tqdm(range(0,len(employees)), desc='Finding representations', disable = prog_bar)
 
 			#for employee in employees:
 			for index in pbar:
@@ -597,7 +600,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 		resp_obj = []
 
-		global_pbar = tqdm(range(0,len(img_paths)), desc='Analyzing')
+		global_pbar = tqdm(range(0, len(img_paths)), desc='Analyzing', disable = prog_bar)
 		for j in global_pbar:
 			img_path = img_paths[j]
 
