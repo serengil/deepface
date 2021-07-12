@@ -3,24 +3,42 @@ from pathlib import Path
 import gdown
 from functools import partial
 
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import BatchNormalization
-from tensorflow.keras.layers import Concatenate
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import GlobalAveragePooling2D
-from tensorflow.keras.layers import Input
-from tensorflow.keras.layers import Lambda
-from tensorflow.keras.layers import MaxPooling2D
-from tensorflow.keras.layers import add
-from tensorflow.keras import backend as K
+import tensorflow as tf
+tf_version = int(tf.__version__.split(".")[0])
+
+if tf_version == 1:
+	from keras.models import Model
+	from keras.layers import Activation
+	from keras.layers import BatchNormalization
+	from keras.layers import Concatenate
+	from keras.layers import Conv2D
+	from keras.layers import Dense
+	from keras.layers import Dropout
+	from keras.layers import GlobalAveragePooling2D
+	from keras.layers import Input
+	from keras.layers import Lambda
+	from keras.layers import MaxPooling2D
+	from keras.layers import add
+	from keras import backend as K
+else:
+	from tensorflow.keras.models import Model
+	from tensorflow.keras.layers import Activation
+	from tensorflow.keras.layers import BatchNormalization
+	from tensorflow.keras.layers import Concatenate
+	from tensorflow.keras.layers import Conv2D
+	from tensorflow.keras.layers import Dense
+	from tensorflow.keras.layers import Dropout
+	from tensorflow.keras.layers import GlobalAveragePooling2D
+	from tensorflow.keras.layers import Input
+	from tensorflow.keras.layers import Lambda
+	from tensorflow.keras.layers import MaxPooling2D
+	from tensorflow.keras.layers import add
+	from tensorflow.keras import backend as K
 
 def scaling(x, scale):
 	return x * scale
 
-def InceptionResNetV2():
+def InceptionResNetV2(dimension = 128):
 
 	inputs = Input(shape=(160, 160, 3))
 	x = Conv2D(32, 3, strides=2, padding='valid', use_bias=False, name= 'Conv2d_1a_3x3') (inputs)
@@ -522,7 +540,7 @@ def InceptionResNetV2():
 	x = GlobalAveragePooling2D(name='AvgPool')(x)
 	x = Dropout(1.0 - 0.8, name='Dropout')(x)
 	# Bottleneck
-	x = Dense(128, use_bias=False, name='Bottleneck')(x)
+	x = Dense(dimension, use_bias=False, name='Bottleneck')(x)
 	x = BatchNormalization(momentum=0.995, epsilon=0.001, scale=False, name='Bottleneck_BatchNorm')(x)
 
 	# Create model

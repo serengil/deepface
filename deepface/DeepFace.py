@@ -12,7 +12,7 @@ import pandas as pd
 from tqdm import tqdm
 import pickle
 
-from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace, DeepID, DlibWrapper, ArcFace, Boosting
+from deepface.basemodels import VGGFace, OpenFace, Facenet, Facenet512, FbDeepFace, DeepID, DlibWrapper, ArcFace, Boosting
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -41,6 +41,7 @@ def build_model(model_name):
 		'VGG-Face': VGGFace.loadModel,
 		'OpenFace': OpenFace.loadModel,
 		'Facenet': Facenet.loadModel,
+		'Facenet512': Facenet512.loadModel,
 		'DeepFace': FbDeepFace.loadModel,
 		'DeepID': DeepID.loadModel,
 		'Dlib': DlibWrapper.loadModel,

@@ -182,7 +182,7 @@ dataset = [
 
 #models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace', 'DeepID', 'Dlib', 'ArcFace']
 metrics = ['cosine', 'euclidean', 'euclidean_l2']
-models = ['VGG-Face', 'Facenet', 'Dlib', 'ArcFace'] #those are robust models
+models = ['VGG-Face', 'Facenet', 'Facenet512', 'Dlib', 'ArcFace'] #those are robust models
 #metrics = ['cosine']
 
 passed_tests = 0; test_cases = 0
