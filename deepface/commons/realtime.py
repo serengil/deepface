@@ -12,10 +12,16 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from deepface import DeepFace
 from deepface.extendedmodels import Age
 from deepface.commons import functions, realtime, distance as dst
-from deepface.detectors import OpenCvWrapper
+from deepface.detectors import FaceDetector
 
-def analysis(db_path, model_name, distance_metric, enable_face_analysis = True
-				, source = 0, time_threshold = 5, frame_threshold = 5):
+def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', distance_metric = 'cosine', enable_face_analysis = True, source = 0, time_threshold = 5, frame_threshold = 5):
+
+	#------------------------
+
+	face_detector = FaceDetector.build_model(detector_backend)
+	print("Detector backend is ", detector_backend)
+
+	#------------------------
 
 	input_shape = (224, 224); input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 
@@ -45,8 +51,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True
 		#------------------------
 
 		input_shape = functions.find_input_shape(model)
-		input_shape_x = input_shape[0]
-		input_shape_y = input_shape[1]
+		input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 
 		#tuned thresholds for model and metric pair
 		threshold = dst.findThreshold(model_name, distance_metric)
@@ -77,7 +82,11 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True
 
 	tic = time.time()
 
+	#-----------------------
+
 	pbar = tqdm(range(0, len(employees)), desc='Finding embeddings')
+
+	#TODO: why don't you store those embeddings in a pickle file similar to find function?
 
 	embeddings = []
 	#for employee in employees:
@@ -85,7 +94,9 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True
 		employee = employees[index]
 		pbar.set_description("Finding embedding for %s" % (employee.split("/")[-1]))
 		embedding = []
-		img = functions.preprocess_face(img = employee, target_size = (input_shape_y, input_shape_x), enforce_detection = False, detector_backend = 'opencv')
+
+		#preprocess_face returns single face. this is expected for source images in db.
+		img = functions.preprocess_face(img = employee, target_size = (input_shape_y, input_shape_x), enforce_detection = False, detector_backend = detector_backend)
 		img_representation = model.predict(img)[0,:]
 
 		embedding.append(employee)
@@ -102,12 +113,6 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True
 	#-----------------------
 
 	pivot_img_size = 112 #face recognition result image
-
-	#-----------------------
-
-	opencv_path = OpenCvWrapper.get_opencv_path()
-	face_detector_path = opencv_path+"haarcascade_frontalface_default.xml"
-	face_cascade = cv2.CascadeClassifier(face_detector_path)
 
 	#-----------------------
 
@@ -129,12 +134,13 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True
 		#cv2.setWindowProperty('img', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
 		raw_img = img.copy()
-		resolution = img.shape
-
-		resolution_x = img.shape[1]; resolution_y = img.shape[0]
+		resolution = img.shape; resolution_x = img.shape[1]; resolution_y = img.shape[0]
 
 		if freeze == False:
-			faces = face_cascade.detectMultiScale(img, 1.3, 5)
+			#faces = face_cascade.detectMultiScale(img, 1.3, 5)
+
+			#faces stores list of detected_face and region pair
+			faces = FaceDetector.detect_faces(face_detector, detector_backend, img, align = False)
 
 			if len(faces) == 0:
 				face_included_frames = 0
@@ -143,7 +149,7 @@ def analysis(db_path, model_name, distance_metric, enable_face_analysis = True
 
 		detected_faces = []
 		face_index = 0
-		for (x,y,w,h) in faces:
+		for face, (x, y, w, h) in faces:
 			if w > 130: #discard small detected faces
 
 				face_detected = True

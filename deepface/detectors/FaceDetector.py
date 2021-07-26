@@ -33,6 +33,18 @@ def build_model(detector_backend):
 
 def detect_face(face_detector, detector_backend, img, align = True):
 
+    obj = detect_faces(face_detector, detector_backend, img, align)
+
+    if len(obj) > 0:
+        face, region = obj[0] #discard multiple faces
+    else: #len(obj) == 0
+        face = None
+        region = [0, 0, img.shape[0], img.shape[1]]
+
+    return face, region
+
+def detect_faces(face_detector, detector_backend, img, align = True):
+
     backends = {
         'opencv': OpenCvWrapper.detect_face,
         'ssd': SsdWrapper.detect_face,
@@ -44,11 +56,12 @@ def detect_face(face_detector, detector_backend, img, align = True):
     detect_face = backends.get(detector_backend)
 
     if detect_face:
-        face, region = detect_face(face_detector, img, align)
+        obj = detect_face(face_detector, img, align)
+        #obj stores list of detected_face and region pair
+
+        return obj
     else:
         raise ValueError("invalid detector_backend passed - " + detector_backend)
-
-    return face, region
 
 def alignment_procedure(img, left_eye, right_eye):
 

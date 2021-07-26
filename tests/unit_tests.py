@@ -170,7 +170,6 @@ dataset = [
 	['dataset/img5.jpg', 'dataset/img6.jpg', True],
 	['dataset/img6.jpg', 'dataset/img7.jpg', True],
 	['dataset/img8.jpg', 'dataset/img9.jpg', True],
-
 	['dataset/img1.jpg', 'dataset/img11.jpg', True],
 	['dataset/img2.jpg', 'dataset/img11.jpg', True],
 

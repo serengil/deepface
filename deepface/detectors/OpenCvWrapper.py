@@ -37,6 +37,8 @@ def build_cascade(model_name = 'haarcascade'):
 
 def detect_face(detector, img, align = True):
 
+	resp = []
+
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
 
@@ -48,14 +50,18 @@ def detect_face(detector, img, align = True):
 		pass
 
 	if len(faces) > 0:
-		x,y,w,h = faces[0] #focus on the 1st face found in the image
-		detected_face = img[int(y):int(y+h), int(x):int(x+w)]
 
-		if align:
-			detected_face = align_face(detector["eye_detector"], detected_face)
-		img_region = [x, y, w, h]
+		for x,y,w,h in faces:
+			detected_face = img[int(y):int(y+h), int(x):int(x+w)]
 
-	return detected_face, img_region
+			if align:
+				detected_face = align_face(detector["eye_detector"], detected_face)
+
+			img_region = [x, y, w, h]
+
+			resp.append((detected_face, img_region))
+
+	return resp
 
 def align_face(eye_detector, img):
 

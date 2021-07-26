@@ -36,6 +36,8 @@ def detect_face(detector, img, align = True):
 
 	import dlib #this requirement is not a must that's why imported here
 
+	resp = []
+
 	home = str(Path.home())
 
 	sp = detector["sp"]
@@ -53,10 +55,12 @@ def detect_face(detector, img, align = True):
 			top = d.top(); bottom = d.bottom()
 			detected_face = img[top:bottom, left:right]
 			img_region = [left, top, right - left, bottom - top]
-			break #get the first one
 
-		if align:
-			img_shape = sp(img, detections[0])
-			detected_face = dlib.get_face_chip(img, img_shape, size = detected_face.shape[0])
+			if align:
+				img_shape = sp(img, detections[idx])
+				detected_face = dlib.get_face_chip(img, img_shape, size = detected_face.shape[0])
 
-	return detected_face, img_region
+			resp.append((detected_face, img_region))
+
+
+	return resp

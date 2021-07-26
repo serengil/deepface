@@ -47,6 +47,8 @@ def build_model():
 
 def detect_face(detector, img, align = True):
 
+	resp = []
+
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
 
@@ -81,20 +83,19 @@ def detect_face(detector, img, align = True):
 
 	if detections_df.shape[0] > 0:
 
-		#TODO: sort detections_df
+		for index, instance in detections_df.iterrows():
 
-		#get the first face in the image
-		instance = detections_df.iloc[0]
+			left = instance["left"]
+			right = instance["right"]
+			bottom = instance["bottom"]
+			top = instance["top"]
 
-		left = instance["left"]
-		right = instance["right"]
-		bottom = instance["bottom"]
-		top = instance["top"]
+			detected_face = base_img[int(top*aspect_ratio_y):int(bottom*aspect_ratio_y), int(left*aspect_ratio_x):int(right*aspect_ratio_x)]
+			img_region = [int(left*aspect_ratio_x), int(top*aspect_ratio_y), int(right*aspect_ratio_x) - int(left*aspect_ratio_x), int(bottom*aspect_ratio_y) - int(top*aspect_ratio_y)]
 
-		detected_face = base_img[int(top*aspect_ratio_y):int(bottom*aspect_ratio_y), int(left*aspect_ratio_x):int(right*aspect_ratio_x)]
-		img_region = [int(left*aspect_ratio_x), int(top*aspect_ratio_y), int(right*aspect_ratio_x) - int(left*aspect_ratio_x), int(bottom*aspect_ratio_y) - int(top*aspect_ratio_y)]
+			if align:
+				detected_face = OpenCvWrapper.align_face(detector["eye_detector"], detected_face)
 
-		if align:
-			detected_face = OpenCvWrapper.align_face(detector["eye_detector"], detected_face)
+			resp.append((detected_face, img_region))
 
-	return detected_face, img_region
+	return resp
