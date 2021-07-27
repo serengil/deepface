@@ -132,6 +132,7 @@ demography = DeepFace.analyze("img4.jpg", detector_backend = backends[4])
 
 [RetinaFace](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/) and [MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) seem to overperform in detection and alignment stages but they are slower than others. If the speed of your pipeline is more important, then you should use opencv or ssd. On the other hand, if you consider the accuracy, then you should use retinaface or mtcnn.
 
+<!--
 **Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
 
 A face recognition task can be handled by several models and similarity metrics. Herein, deepface offers a [special boosting and combination solution](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) to improve the accuracy of a face recognition task. This provides a huge improvement on accuracy metrics. On the other hand, this runs much slower than single models.
@@ -142,6 +143,7 @@ A face recognition task can be handled by several models and similarity metrics.
 resp_obj = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Ensemble")
 df = DeepFace.find(img_path = "img1.jpg", db_path = "my_db", model_name = "Ensemble")
 ```
+-->
 
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
