@@ -8,14 +8,16 @@ from pathlib import Path
 from deepface.detectors import FaceDetector
 
 import tensorflow as tf
-tf_version = int(tf.__version__.split(".")[0])
+tf_version = tf.__version__
+tf_major_version = int(tf_version.split(".")[0])
+tf_minor_version = int(tf_version.split(".")[1])
 
-if tf_version == 1:
+if tf_major_version == 1:
 	import keras
 	from keras.preprocessing.image import load_img, save_img, img_to_array
 	from keras.applications.imagenet_utils import preprocess_input
 	from keras.preprocessing import image
-elif tf_version == 2:
+elif tf_major_version == 2:
 	from tensorflow import keras
 	from tensorflow.keras.preprocessing.image import load_img, save_img, img_to_array
 	from tensorflow.keras.applications.imagenet_utils import preprocess_input
@@ -171,6 +173,16 @@ def find_input_shape(model):
 		input_shape = input_shape[0][1:3]
 	else:
 		input_shape = input_shape[1:3]
+
+	#----------------------
+	#issue 289: it seems that tf 2.5 expects you to resize images with (x, y)
+	#whereas its older versions expect (y, x)
+
+	if tf_major_version == 2 and tf_minor_version >= 5:
+		x = input_shape[0]; y = input_shape[1]
+		input_shape = (y, x)
+
+	#----------------------
 
 	if type(input_shape) == list: #issue 197: some people got array here instead of tuple
 		input_shape = tuple(input_shape)

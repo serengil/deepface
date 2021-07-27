@@ -732,7 +732,7 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	#---------------------------------
 
 	#decide input shape
-	input_shape =  input_shape_x, input_shape_y= functions.find_input_shape(model)
+	input_shape_x, input_shape_y = functions.find_input_shape(model)
 
 	#detect and align
 	img = functions.preprocess_face(img = img_path
