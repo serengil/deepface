@@ -153,9 +153,13 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 
 	#---------------------------------------------------
 
+	#normalizing the image pixels
+
 	img_pixels = image.img_to_array(img)
 	img_pixels = np.expand_dims(img_pixels, axis = 0)
 	img_pixels /= 255 #normalize input in [0, 1]
+
+	#---------------------------------------------------
 
 	if return_region == True:
 		return img_pixels, region
