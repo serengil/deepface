@@ -66,7 +66,7 @@ def build_model(model_name):
 
 	return model_obj[model_name]
 
-def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, prog_bar = True):
+def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, prog_bar = True, normalization = 'base'):
 
 	"""
 	This function verifies an image pair is same person or different persons.
@@ -161,12 +161,16 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 				img1_representation = represent(img_path = img1_path
 						, model_name = model_name, model = custom_model
 						, enforce_detection = enforce_detection, detector_backend = detector_backend
-						, align = align)
+						, align = align
+						, normalization = normalization
+						)
 
 				img2_representation = represent(img_path = img2_path
 						, model_name = model_name, model = custom_model
 						, enforce_detection = enforce_detection, detector_backend = detector_backend
-						, align = align)
+						, align = align
+						, normalization = normalization
+						)
 
 				#----------------------
 				#find distances between embeddings
@@ -458,7 +462,7 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 		return resp_obj
 
-def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, prog_bar = True):
+def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, prog_bar = True, normalization = 'base'):
 
 	"""
 	This function applies verification several times and find an identity in a database
@@ -571,7 +575,9 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 					representation = represent(img_path = employee
 						, model_name = model_name, model = custom_model
 						, enforce_detection = enforce_detection, detector_backend = detector_backend
-						, align = align)
+						, align = align
+						, normalization = normalization
+						)
 
 					instance.append(representation)
 
@@ -613,7 +619,9 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 				target_representation = represent(img_path = img_path
 					, model_name = model_name, model = custom_model
 					, enforce_detection = enforce_detection, detector_backend = detector_backend
-					, align = align)
+					, align = align
+					, normalization = normalization
+					)
 
 				for k in metric_names:
 					distances = []
@@ -704,7 +712,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 	return None
 
-def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'opencv', align = True):
+def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, normalization = 'base'):
 
 	"""
 	This function represents facial images as vectors.
@@ -721,6 +729,8 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 		enforce_detection (boolean): If any face could not be detected in an image, then verify function will return exception. Set this to False not to have this exception. This might be convenient for low resolution images.
 
 		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib
+
+		normalization (string): normalize the input image before feeding to model
 
 	Returns:
 		Represent function returns a multidimensional vector. The number of dimensions is changing based on the reference model. E.g. FaceNet returns 128 dimensional vector; VGG-Face returns 2622 dimensional vector.
@@ -740,6 +750,13 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 		, enforce_detection = enforce_detection
 		, detector_backend = detector_backend
 		, align = align)
+
+	#---------------------------------
+	#custom normalization
+
+	img = functions.normalize_input(img = img, normalization = normalization)
+
+	#---------------------------------
 
 	#represent
 	embedding = model.predict(img)[0].tolist()

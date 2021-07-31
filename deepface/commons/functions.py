@@ -104,6 +104,57 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 			else:
 			  raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
 
+def normalize_input(img, normalization = 'base'):
+
+	#issue 131 declares that some normalization techniques improves the accuracy
+
+	if normalization == 'base':
+		return img
+	else: #@trevorgribble recommend the following idea
+		
+		img *= 255 #restore input in scale of [0, 255] because it was normalized in scale of  [0, 1] in preprocess_face
+
+		if normalization == 'Facenet':
+			mean, std = img.mean(), img.std()
+			img = (img - mean) / std
+
+		elif normalization == 'v1':
+			#BGR mean subtraction / 255 normalization
+			img[..., 0]-= 131.0912
+			img[..., 1] -= 103.8827
+			img[..., 2] -= 91.4953
+			img = img[..., ::-1]
+			img /= 255
+
+		elif(normalization =="v2"):
+			#RGB mean subtraction / 255 normalization
+			img[..., 0]-= 131.0912
+			img[..., 1] -= 103.8827
+			img[..., 2] -= 91.4953
+			img /= 255
+
+		elif(normalization =="v3"):
+			#BGR mean subtraction normalization
+			img[..., 0]-= 131.0912
+			img[..., 1] -= 103.8827
+			img[..., 2] -= 91.4953
+			img = img[..., ::-1]
+
+		elif(normalization =="v4"):
+			#RGB mean subtraction normalization
+			img[..., 0]-= 131.0912
+			img[..., 1] -= 103.8827
+			img[..., 2] -= 91.4953
+
+		elif(normalization=="v6"):
+			# simply / 127.5 - 1 (similar to facenet 2018 model preprocessing step as @iamrishab posted)
+			img /= 127.5
+			img -= 1
+
+	#-----------------------------
+
+	return img
+
 def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True, detector_backend = 'opencv', return_region = False, align = True):
 
 	#img might be path, base64 or numpy array. Convert it to numpy whatever it is.
@@ -155,7 +206,7 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 
 	#normalizing the image pixels
 
-	img_pixels = image.img_to_array(img)
+	img_pixels = image.img_to_array(img) #what this line doing? must?
 	img_pixels = np.expand_dims(img_pixels, axis = 0)
 	img_pixels /= 255 #normalize input in [0, 1]
 
