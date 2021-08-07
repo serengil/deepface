@@ -54,34 +54,34 @@ img2_graph = np.array(img2_graph)
 distance_graph = np.array(distance_graph)
 
 #----------------------------------------------
-#plotting
+# plotting
 
-# fig = plt.figure()
+fig = plt.figure()
 
-# ax1 = fig.add_subplot(3,2,1)
-# plt.imshow(img1[0][:,:,::-1])
-# plt.axis('off')
+ax1 = fig.add_subplot(3,2,1)
+plt.imshow(img1[0][:,:,::-1])
+plt.axis('off')
 
-# ax2 = fig.add_subplot(3,2,2)
-# im = plt.imshow(img1_graph, interpolation='nearest', cmap=plt.cm.ocean)
-# plt.colorbar()
+ax2 = fig.add_subplot(3,2,2)
+im = plt.imshow(img1_graph, interpolation='nearest', cmap=plt.cm.ocean)
+plt.colorbar()
 
-# ax3 = fig.add_subplot(3,2,3)
-# plt.imshow(img2[0][:,:,::-1])
-# plt.axis('off')
+ax3 = fig.add_subplot(3,2,3)
+plt.imshow(img2[0][:,:,::-1])
+plt.axis('off')
 
-# ax4 = fig.add_subplot(3,2,4)
-# im = plt.imshow(img2_graph, interpolation='nearest', cmap=plt.cm.ocean)
-# plt.colorbar()
+ax4 = fig.add_subplot(3,2,4)
+im = plt.imshow(img2_graph, interpolation='nearest', cmap=plt.cm.ocean)
+plt.colorbar()
 
-# ax5 = fig.add_subplot(3,2,5)
-# plt.text(0.35, 0, "Distance: %s" % (distance))
-# plt.axis('off')
+ax5 = fig.add_subplot(3,2,5)
+plt.text(0.35, 0, "Distance: %s" % (distance))
+plt.axis('off')
 
-# ax6 = fig.add_subplot(3,2,6)
-# im = plt.imshow(distance_graph, interpolation='nearest', cmap=plt.cm.ocean)
-# plt.colorbar()
+ax6 = fig.add_subplot(3,2,6)
+im = plt.imshow(distance_graph, interpolation='nearest', cmap=plt.cm.ocean)
+plt.colorbar()
 
-# plt.show()
+plt.show()
 
 #----------------------------------------------
