@@ -12,6 +12,7 @@ model = VGGFace.loadModel()
 #model = Facenet.loadModel()
 #model = OpenFace.loadModel()
 #model = FbDeepFace.loadModel()
+model.summary()
 
 input_shape = model.layers[0].input_shape[1:3]
 
@@ -22,11 +23,11 @@ print("model output shape: ", model.layers[-1].input_shape[-1])
 #load images and find embeddings
 
 #img1 = functions.detectFace("dataset/img1.jpg", input_shape)
-img1 = functions.preprocess_face("dataset/img1.jpg", input_shape)
+img1 = functions.preprocess_face("test/dataset/img1.jpg", input_shape)
 img1_representation = model.predict(img1)[0,:]
 
 #img2 = functions.detectFace("dataset/img3.jpg", input_shape)
-img2 = functions.preprocess_face("dataset/img3.jpg", input_shape)
+img2 = functions.preprocess_face("test/dataset/img3.jpg", input_shape)
 img2_representation = model.predict(img2)[0,:]
 
 #----------------------------------------------
@@ -53,7 +54,7 @@ img2_graph = np.array(img2_graph)
 distance_graph = np.array(distance_graph)
 
 #----------------------------------------------
-#plotting
+# plotting
 
 fig = plt.figure()
 
