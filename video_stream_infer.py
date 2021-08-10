@@ -14,7 +14,7 @@ from deepface.extendedmodels import Age
 from deepface.commons import functions, realtime, distance as dst
 from deepface.detectors import FaceDetector
 
-def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', distance_metric = 'cosine', enable_face_analysis = True, source = 0, time_threshold = 5, frame_threshold = 5):
+def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', distance_metric = 'cosine', source = 0, time_threshold = 5, frame_threshold = 5):
 
 	#------------------------
 
@@ -55,26 +55,6 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 
 		#tuned thresholds for model and metric pair
 		threshold = dst.findThreshold(model_name, distance_metric)
-
-	#------------------------
-	#facial attribute analysis models
-
-	if enable_face_analysis == True:
-
-		tic = time.time()
-
-		emotion_model = DeepFace.build_model('Emotion')
-		print("Emotion model loaded")
-
-		age_model = DeepFace.build_model('Age')
-		print("Age model loaded")
-
-		gender_model = DeepFace.build_model('Gender')
-		print("Gender model loaded")
-
-		toc = time.time()
-
-		print("Facial attibute analysis models loaded in ",toc-tic," seconds")
 
 	#------------------------
 
@@ -196,141 +176,6 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 						#apply deep learning for custom_face
 
 						custom_face = base_img[y:y+h, x:x+w]
-
-						#-------------------------------
-						#facial attribute analysis
-
-						if enable_face_analysis == True:
-
-							gray_img = functions.preprocess_face(img = custom_face, target_size = (48, 48), grayscale = True, enforce_detection = False, detector_backend = 'opencv')
-							emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
-							emotion_predictions = emotion_model.predict(gray_img)[0,:]
-							sum_of_predictions = emotion_predictions.sum()
-
-							mood_items = []
-							for i in range(0, len(emotion_labels)):
-								mood_item = []
-								emotion_label = emotion_labels[i]
-								emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
-								mood_item.append(emotion_label)
-								mood_item.append(emotion_prediction)
-								mood_items.append(mood_item)
-
-							emotion_df = pd.DataFrame(mood_items, columns = ["emotion", "score"])
-							emotion_df = emotion_df.sort_values(by = ["score"], ascending=False).reset_index(drop=True)
-
-							#background of mood box
-
-							#transparency
-							overlay = freeze_img.copy()
-							opacity = 0.4
-
-							if x+w+pivot_img_size < resolution_x:
-								#right
-								cv2.rectangle(freeze_img
-									#, (x+w,y+20)
-									, (x+w,y)
-									, (x+w+pivot_img_size, y+h)
-									, (64,64,64),cv2.FILLED)
-
-								cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
-
-							elif x-pivot_img_size > 0:
-								#left
-								cv2.rectangle(freeze_img
-									#, (x-pivot_img_size,y+20)
-									, (x-pivot_img_size,y)
-									, (x, y+h)
-									, (64,64,64),cv2.FILLED)
-
-								cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
-
-							for index, instance in emotion_df.iterrows():
-								emotion_label = "%s " % (instance['emotion'])
-								emotion_score = instance['score']/100
-
-								bar_x = 35 #this is the size if an emotion is 100%
-								bar_x = int(bar_x * emotion_score)
-
-								if x+w+pivot_img_size < resolution_x:
-
-									text_location_y = y + 20 + (index+1) * 20
-									text_location_x = x+w
-
-									if text_location_y < y + h:
-										cv2.putText(freeze_img, emotion_label, (text_location_x, text_location_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-
-										cv2.rectangle(freeze_img
-											, (x+w+70, y + 13 + (index+1) * 20)
-											, (x+w+70+bar_x, y + 13 + (index+1) * 20 + 5)
-											, (255,255,255), cv2.FILLED)
-
-								elif x-pivot_img_size > 0:
-
-									text_location_y = y + 20 + (index+1) * 20
-									text_location_x = x-pivot_img_size
-
-									if text_location_y <= y+h:
-										cv2.putText(freeze_img, emotion_label, (text_location_x, text_location_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-
-										cv2.rectangle(freeze_img
-											, (x-pivot_img_size+70, y + 13 + (index+1) * 20)
-											, (x-pivot_img_size+70+bar_x, y + 13 + (index+1) * 20 + 5)
-											, (255,255,255), cv2.FILLED)
-
-							#-------------------------------
-
-							face_224 = functions.preprocess_face(img = custom_face, target_size = (224, 224), grayscale = False, enforce_detection = False, detector_backend = 'opencv')
-
-							age_predictions = age_model.predict(face_224)[0,:]
-							apparent_age = Age.findApparentAge(age_predictions)
-
-							#-------------------------------
-
-							gender_prediction = gender_model.predict(face_224)[0,:]
-
-							if np.argmax(gender_prediction) == 0:
-								gender = "W"
-							elif np.argmax(gender_prediction) == 1:
-								gender = "M"
-
-							#print(str(int(apparent_age))," years old ", dominant_emotion, " ", gender)
-
-							analysis_report = str(int(apparent_age))+" "+gender
-
-							#-------------------------------
-
-							info_box_color = (46,200,255)
-
-							#top
-							if y - pivot_img_size + int(pivot_img_size/5) > 0:
-
-								triangle_coordinates = np.array( [
-									(x+int(w/2), y)
-									, (x+int(w/2)-int(w/10), y-int(pivot_img_size/3))
-									, (x+int(w/2)+int(w/10), y-int(pivot_img_size/3))
-								] )
-
-								cv2.drawContours(freeze_img, [triangle_coordinates], 0, info_box_color, -1)
-
-								cv2.rectangle(freeze_img, (x+int(w/5), y-pivot_img_size+int(pivot_img_size/5)), (x+w-int(w/5), y-int(pivot_img_size/3)), info_box_color, cv2.FILLED)
-
-								cv2.putText(freeze_img, analysis_report, (x+int(w/3.5), y - int(pivot_img_size/2.1)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 111, 255), 2)
-
-							#bottom
-							elif y + h + pivot_img_size - int(pivot_img_size/5) < resolution_y:
-
-								triangle_coordinates = np.array( [
-									(x+int(w/2), y+h)
-									, (x+int(w/2)-int(w/10), y+h+int(pivot_img_size/3))
-									, (x+int(w/2)+int(w/10), y+h+int(pivot_img_size/3))
-								] )
-
-								cv2.drawContours(freeze_img, [triangle_coordinates], 0, info_box_color, -1)
-
-								cv2.rectangle(freeze_img, (x+int(w/5), y + h + int(pivot_img_size/3)), (x+w-int(w/5), y+h+pivot_img_size-int(pivot_img_size/5)), info_box_color, cv2.FILLED)
-
-								cv2.putText(freeze_img, analysis_report, (x+int(w/3.5), y + h + int(pivot_img_size/1.5)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 111, 255), 2)
 
 						#-------------------------------
 						#face recognition
@@ -463,3 +308,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 	#kill open cv things
 	cap.release()
 	cv2.destroyAllWindows()
+
+
+if __name__ == '__main__':
+	analysis("D:/face/320_database/", detector_backend = 'ssd')
