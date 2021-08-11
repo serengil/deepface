@@ -139,7 +139,6 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
                     if best_distance <= 0.25: 
                         label = employee_name.split("/")[-1].replace(".jpg", "")
                         # label = re.sub('[0-9]', '', label)
-                        print(label)
                         cv2.putText(img, label, (x, y+h+10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1)
                     else:
                         label = 'unknown'
