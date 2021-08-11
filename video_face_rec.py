@@ -14,7 +14,7 @@ from deepface.commons import functions, realtime, distance as dst
 from deepface.detectors import FaceDetector
 
 
-def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', distance_metric = 'cosine', source = 0, time_threshold = 5, frame_threshold = 5, smallest_faces=30):
+def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', distance_metric = 'cosine', source = 0, smallest_faces=30):
 
     face_detector = FaceDetector.build_model(detector_backend)
     print("Detector backend is ", detector_backend)
@@ -68,31 +68,28 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
     while True:
         frame_count += 1
         ret, img = cap.read()
+        
         if img is None:
             break
 
         raw_img = img.copy()
-        resolution = img.shape; resolution_x = img.shape[1]; resolution_y = img.shape[0]
         faces = []
 
         if frame_count % 10 == 0:
             faces = FaceDetector.detect_faces(face_detector, detector_backend, img, align = False)
         detected_faces = []
-        face_index = 0
+
         
         for face, (x, y, w, h) in faces:
-            # if w > smallest_faces:
+            if w > smallest_faces:
 
-            cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 1) #draw rectangle to main image
+                cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 1) #draw rectangle to main image
 
-            detected_face = img[int(y):int(y+h), int(x):int(x+w)] #crop detected face
+                detected_face = img[int(y):int(y+h), int(x):int(x+w)] #crop detected face
 
-            detected_faces.append((x,y,w,h))
-            # else:
-            #     cv2.imshow('img', raw_img)
-        # faces = np.stack(detected_face)
+                detected_faces.append((x,y,w,h))
+            
         base_img = raw_img.copy()
-        freeze_img = raw_img.copy()
         for detected_face in detected_faces:
             x = detected_face[0]; y = detected_face[1]
             w = detected_face[2]; h = detected_face[3]
@@ -125,8 +122,6 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
                     employee_name = candidate['employee']
                     best_distance = candidate['distance']
 
-                    #print(candidate[['employee', 'distance']].values)
-                    
                     # if best_distance <= threshold: 
                     if best_distance <= 0.25: 
                         label = employee_name.split("/")[-1].replace(".jpg", "")
@@ -147,7 +142,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
     print(end_time - start_time)
 
 if __name__ == '__main__':
-    analysis("D:/face/320_no_mask/", model_name = 'VGG-Face', distance_metric='cosine', frame_threshold=1,
+    analysis("D:/face/320_no_mask/", model_name = 'VGG-Face', detector_backend = 'ssd', 
             # source='rtsp://admin:123456@192.168.123.235:554/stream1', 
             source="C:/Users/DELL/Desktop/face_det/yg.mp4", 
-            detector_backend = 'ssd', time_threshold=1, smallest_faces=20)
+            distance_metric='cosine', smallest_faces=20)
