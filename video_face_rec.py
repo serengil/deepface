@@ -62,18 +62,21 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
     toc = time.time()
     print("Embeddings found for given data set in ", toc-tic," seconds")
     frame_count = 0
+    start_time = time.time()
+
     cap = cv2.VideoCapture(source)
     while True:
         frame_count += 1
         ret, img = cap.read()
-
         if img is None:
             break
 
         raw_img = img.copy()
         resolution = img.shape; resolution_x = img.shape[1]; resolution_y = img.shape[0]
+        faces = []
 
-        faces = FaceDetector.detect_faces(face_detector, detector_backend, img, align = False)
+        if frame_count % 10 == 0:
+            faces = FaceDetector.detect_faces(face_detector, detector_backend, img, align = False)
         detected_faces = []
         face_index = 0
         
@@ -123,24 +126,28 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
                     best_distance = candidate['distance']
 
                     #print(candidate[['employee', 'distance']].values)
-
-                    #if True:
-                    if best_distance <= threshold: 
+                    
+                    # if best_distance <= threshold: 
+                    if best_distance <= 0.25: 
                         label = employee_name.split("/")[-1].replace(".jpg", "")
                         # label = re.sub('[0-9]', '', label)
                         print(label)
                         cv2.putText(img, label, (x, y+h+10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1)
                     else:
-                        cv2.putText(img, 'unknown', (x, y+h+10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1)
+                        label = 'unknown'
+                        cv2.putText(img, label, (x, y+h+10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1)
+                    print("best_distance:{}, threshhold:{}, label:{}".format(best_distance, threshold, label))
                         
         cv2.imshow('img', img)
         if cv2.waitKey(1) & 0xFF == ord('q'): #press q to quit
             break
     cap.release()
     cv2.destroyAllWindows()
+    end_time = time.time()
+    print(end_time - start_time)
 
 if __name__ == '__main__':
-    analysis("D:/face/320_no_mask/", model_name = 'VGG-Face', distance_metric='euclidean', frame_threshold=1,
+    analysis("D:/face/320_no_mask/", model_name = 'VGG-Face', distance_metric='cosine', frame_threshold=1,
             # source='rtsp://admin:123456@192.168.123.235:554/stream1', 
-            source="C:/Users/DELL/Desktop/face_det/320.mp4", 
-            detector_backend = 'ssd', time_threshold=1, smallest_faces=30)
+            source="C:/Users/DELL/Desktop/face_det/yg.mp4", 
+            detector_backend = 'ssd', time_threshold=1, smallest_faces=20)
