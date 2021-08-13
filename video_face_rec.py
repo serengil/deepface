@@ -21,7 +21,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
     model = DeepFace.build_model(model_name)
     print(model_name, "is built")    
     threshold = dst.findThreshold(model_name, distance_metric)
-    input_shape = (224, 224); input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
+    input_shape = functions.find_input_shape(model); input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 
     text_color = (255, 255, 255)
 
