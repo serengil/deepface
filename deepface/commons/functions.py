@@ -88,6 +88,13 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 
 	img_region = [0, 0, img.shape[0], img.shape[1]]
 
+	#----------------------------------------------
+	#people would like to skip detection and alignment if they already have pre-processed images
+	if detector_backend == 'skip':
+		return img, img_region
+
+	#----------------------------------------------
+
 	#detector stored in a global variable in FaceDetector object.
 	#this call should be completed very fast because it will return found in memory
 	#it will not build face detector model in each call (consider for loops)
