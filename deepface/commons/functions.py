@@ -93,7 +93,10 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 	#it will not build face detector model in each call (consider for loops)
 	face_detector = FaceDetector.build_model(detector_backend)
 
-	detected_face, img_region = FaceDetector.detect_face(face_detector, detector_backend, img, align)
+	try:
+		detected_face, img_region = FaceDetector.detect_face(face_detector, detector_backend, img, align)
+	except: #if detected face shape is (0, 0) and alignment cannot be performed, this block will be run
+		detected_face = None
 
 	if (isinstance(detected_face, np.ndarray)):
 		return detected_face, img_region
