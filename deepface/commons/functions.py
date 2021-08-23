@@ -43,7 +43,7 @@ def initialize_input(img1_path, img2_path = None):
 
 	return img_list, bulkProcess
 
-def initializeFolder():
+def initialize_folder():
 
 	home = str(Path.home())
 
