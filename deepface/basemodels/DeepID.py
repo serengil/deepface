@@ -7,6 +7,8 @@ from tensorflow import keras
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, Activation, Input, Add, MaxPooling2D, Flatten, Dense, Dropout
 
+from deepface.commons import functions
+
 #-------------------------------------
 
 #url = 'https://drive.google.com/uc?id=1uRLtBCTQQAvHJ_KVrdbRJiCKxU8m5q2J'
@@ -41,7 +43,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
 	#---------------------------------
 
-	home = str(Path.home())
+	home = functions.get_deepface_home()
 
 	if os.path.isfile(home+'/.deepface/weights/deepid_keras_weights.h5') != True:
 		print("deepid_keras_weights.h5 will be downloaded...")

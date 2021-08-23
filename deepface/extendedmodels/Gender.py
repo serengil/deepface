@@ -4,6 +4,8 @@ from pathlib import Path
 import gdown
 import numpy as np
 
+from deepface.commons import functions
+
 import tensorflow as tf
 tf_version = int(tf.__version__.split(".")[0])
 
@@ -36,7 +38,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
 	#load weights
 
-	home = str(Path.home())
+	home = functions.get_deepface_home()
 
 	if os.path.isfile(home+'/.deepface/weights/gender_model_weights.h5') != True:
 		print("gender_model_weights.h5 will be downloaded...")

@@ -11,6 +11,8 @@ from tensorflow.keras.layers import MaxPooling2D, AveragePooling2D
 from tensorflow.keras.models import load_model
 from tensorflow.keras import backend as K
 
+from deepface.commons import functions
+
 #---------------------------------------
 
 #url = 'https://drive.google.com/uc?id=1LSe1YCV1x-BfNnfb7DFZTNpv_Q9jITxn'
@@ -232,7 +234,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 	
 	#-----------------------------------
 
-	home = str(Path.home())
+	home = functions.get_deepface_home()
 
 	if os.path.isfile(home+'/.deepface/weights/openface_weights.h5') != True:
 		print("openface_weights.h5 will be downloaded...")
