@@ -7,6 +7,8 @@ from tensorflow import keras
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Convolution2D, LocallyConnected2D, MaxPooling2D, Flatten, Dense, Dropout
 
+from deepface.commons import functions
+
 #-------------------------------------
 
 def loadModel(url = 'https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip'):
@@ -24,7 +26,7 @@ def loadModel(url = 'https://github.com/swghosh/DeepFace/releases/download/weigh
 	
 	#---------------------------------
 	
-	home = str(Path.home())
+	home = functions.get_deepface_home()
 	
 	if os.path.isfile(home+'/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5') != True:
 		print("VGGFace2_DeepFace_weights_val-0.9034.h5 will be downloaded...")

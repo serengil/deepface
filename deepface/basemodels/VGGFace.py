@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 import gdown
 
+from deepface.commons import functions
+
 import tensorflow as tf
 tf_version = int(tf.__version__.split(".")[0])
 
@@ -71,7 +73,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
 	#-----------------------------------
 
-	home = str(Path.home())
+	home = functions.get_deepface_home()
 	output = home+'/.deepface/weights/vgg_face_weights.h5'
 
 	if os.path.isfile(output) != True:

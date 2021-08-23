@@ -44,7 +44,7 @@ def build_gbm():
 	#this is not a must dependency
 	import lightgbm as lgb #lightgbm==2.3.1
 	
-	home = str(Path.home())
+	home = functions.get_deepface_home()
 	
 	if os.path.isfile(home+'/.deepface/weights/face-recognition-ensemble-model.txt') != True:
 		print("face-recognition-ensemble-model.txt will be downloaded...")

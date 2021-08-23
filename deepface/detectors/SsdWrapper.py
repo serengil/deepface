@@ -5,10 +5,11 @@ import cv2
 import pandas as pd
 
 from deepface.detectors import OpenCvWrapper
+from deepface.commons import functions
 
 def build_model():
 
-	home = str(Path.home())
+	home = functions.get_deepface_home()
 
 	#model structure
 	if os.path.isfile(home+'/.deepface/weights/deploy.prototxt') != True:

@@ -3,9 +3,11 @@ import gdown
 import bz2
 import os
 
+from deepface.commons import functions
+
 def build_model():
 
-	home = str(Path.home())
+	home = functions.get_deepface_home()
 
 	import dlib #this requirement is not a must that's why imported here
 

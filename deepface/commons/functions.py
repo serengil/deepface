@@ -43,17 +43,19 @@ def initialize_input(img1_path, img2_path = None):
 
 	return img_list, bulkProcess
 
-def initializeFolder():
-
-	home = str(Path.home())
+def initialize_folder():
+	home = get_deepface_home()
 
 	if not os.path.exists(home+"/.deepface"):
-		os.mkdir(home+"/.deepface")
-		print("Directory ",home,"/.deepface created")
+		os.makedirs(home+"/.deepface")
+		print("Directory ", home, "/.deepface created")
 
 	if not os.path.exists(home+"/.deepface/weights"):
-		os.mkdir(home+"/.deepface/weights")
-		print("Directory ",home,"/.deepface/weights created")
+		os.makedirs(home+"/.deepface/weights")
+		print("Directory ", home, "/.deepface/weights created")
+
+def get_deepface_home():
+	return str(os.getenv('DEEPFACE_HOME', default=Path.home()))
 
 def loadBase64Img(uri):
    encoded_data = uri.split(',')[1]

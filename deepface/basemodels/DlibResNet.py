@@ -5,6 +5,8 @@ import gdown
 import numpy as np
 from pathlib import Path
 
+from deepface.commons import functions
+
 class DlibResNet:
 	
 	def __init__(self):
@@ -16,7 +18,7 @@ class DlibResNet:
 		
 		#---------------------
 		
-		home = str(Path.home())
+		home = functions.get_deepface_home()
 		weight_file = home+'/.deepface/weights/dlib_face_recognition_resnet_model_v1.dat'
 		
 		#---------------------

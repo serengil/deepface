@@ -10,6 +10,8 @@ import os
 from pathlib import Path
 import gdown
 
+from deepface.commons import functions
+
 #url = "https://drive.google.com/uc?id=1LVB3CdVejpmGHM28BpqqkbZP5hDEcdZY"
 
 def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.h5'):
@@ -26,7 +28,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 	#---------------------------------------
 	#check the availability of pre-trained weights
 
-	home = str(Path.home())
+	home = functions.get_deepface_home()
 
 	file_name = "arcface_weights.h5"
 	output = home+'/.deepface/weights/'+file_name
