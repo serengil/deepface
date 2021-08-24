@@ -87,7 +87,7 @@ def load_image(img):
 	return img
 
 def detect_face(img, detector_backend = 'opencv', enforce_detection = True, align = True):
-	img_region = [0, 0, img.shape[0], img.shape[1]]
+	detected_face, img_region = None, [0, 0, img.shape[0], img.shape[1]] # Assume by default that nothing is detected.
 
 	# ----------------------------------------------
 	# people would like to skip detection and alignment if they already have pre-processed images
@@ -101,9 +101,12 @@ def detect_face(img, detector_backend = 'opencv', enforce_detection = True, alig
 	face_detector = FaceDetector.build_model(detector_backend)
 
 	try:
-		detected_face, img_region = FaceDetector.detect_face(face_detector, detector_backend, img, align)
+		faces = FaceDetector.detect_faces(face_detector, detector_backend, img, align)
+		if len(faces) > 0:
+			detected_face, img_region = faces[0]
+
 	except:  # if detected face shape is (0, 0) and alignment cannot be performed, this block will be run
-		detected_face = None
+		pass
 
 	if isinstance(detected_face, np.ndarray):
 		return detected_face, img_region
