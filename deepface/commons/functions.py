@@ -86,7 +86,7 @@ def load_image(img):
 
 	return img
 
-def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_detection = True, align = True):
+def detect_face(img, detector_backend = 'opencv', enforce_detection = True, align = True):
 	img_region = [0, 0, img.shape[0], img.shape[1]]
 
 	# ----------------------------------------------
@@ -166,7 +166,7 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 	img = load_image(img)
 	base_img = img.copy()
 
-	img, region = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = enforce_detection, align = align)
+	img, region = detect_face(img = img, detector_backend = detector_backend, enforce_detection = enforce_detection, align = align)
 
 	#--------------------------
 
