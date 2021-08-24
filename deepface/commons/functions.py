@@ -162,7 +162,7 @@ def normalize_input(img, normalization = 'base'):
 
 	return img
 
-def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True, detector_backend = 'opencv', return_region = False, align = True):
+def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True, detector_backend = 'opencv', align = True):
 
 	#img might be path, base64 or numpy array. Convert it to numpy whatever it is.
 	img = load_image(img)
@@ -219,10 +219,7 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 
 	#---------------------------------------------------
 
-	if return_region == True:
-		return img_pixels, region
-	else:
-		return img_pixels
+	return img_pixels, region
 
 def find_input_shape(model):
 
