@@ -90,13 +90,13 @@ def load_image(img):
     return img
 
 
-def detect_face(img, detector_backend='opencv', enforce_detection=True, align=True):
-    detected_face, img_region = None, [0, 0, img.shape[0], img.shape[1]]  # Assume by default that nothing is detected.
+def detect_faces(img, detector_backend='opencv', enforce_detection=True, align=True, allow_multiple=False):
+    img_region = [0, 0, img.shape[0], img.shape[1]]
 
     # ----------------------------------------------
     # people would like to skip detection and alignment if they already have pre-processed images
     if detector_backend == 'skip':
-        return img, img_region
+        return [(img, img_region)]
 
     # ----------------------------------------------
     # Detector stored in a global variable in FaceDetector object.
@@ -106,21 +106,17 @@ def detect_face(img, detector_backend='opencv', enforce_detection=True, align=Tr
 
     try:
         faces = FaceDetector.detect_faces(face_detector, detector_backend, img, align)
-        if len(faces) > 0:
-            detected_face, img_region = faces[0]
-
     except:  # if detected face shape is (0, 0) and alignment cannot be performed, this block will be run
-        pass
+        faces = []
 
-    if isinstance(detected_face, np.ndarray):
-        return detected_face, img_region
+    if len(faces) == 0 and not enforce_detection:
+        raise ValueError(
+            "Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
+
+    if allow_multiple:
+        return faces
     else:
-        if detected_face is None:
-            if not enforce_detection:
-                return img, img_region
-            else:
-                raise ValueError(
-                    "Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
+        return [faces[0]]
 
 
 def normalize_input(img, normalization='base'):
@@ -175,8 +171,8 @@ def preprocess_face(img, target_size=(224, 224), grayscale=False, enforce_detect
     img = load_image(img)
     base_img = img.copy()
 
-    img, region = detect_face(img=img, detector_backend=detector_backend, enforce_detection=enforce_detection,
-                              align=align)
+    [(img, region)] = detect_faces(img=img, detector_backend=detector_backend, enforce_detection=enforce_detection,
+                                   align=align, allow_multiple=False)
 
     # --------------------------
 
