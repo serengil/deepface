@@ -87,34 +87,32 @@ def load_image(img):
 	return img
 
 def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_detection = True, align = True):
-
 	img_region = [0, 0, img.shape[0], img.shape[1]]
 
-	#----------------------------------------------
-	#people would like to skip detection and alignment if they already have pre-processed images
+	# ----------------------------------------------
+	# people would like to skip detection and alignment if they already have pre-processed images
 	if detector_backend == 'skip':
 		return img, img_region
 
-	#----------------------------------------------
-
-	#detector stored in a global variable in FaceDetector object.
-	#this call should be completed very fast because it will return found in memory
-	#it will not build face detector model in each call (consider for loops)
+	# ----------------------------------------------
+	# Detector stored in a global variable in FaceDetector object.
+	# this call should be completed very fast because it will return found in memory
+	# it will not build face detector model in each call (consider for loops)
 	face_detector = FaceDetector.build_model(detector_backend)
 
 	try:
 		detected_face, img_region = FaceDetector.detect_face(face_detector, detector_backend, img, align)
-	except: #if detected face shape is (0, 0) and alignment cannot be performed, this block will be run
+	except:  # if detected face shape is (0, 0) and alignment cannot be performed, this block will be run
 		detected_face = None
 
-	if (isinstance(detected_face, np.ndarray)):
+	if isinstance(detected_face, np.ndarray):
 		return detected_face, img_region
 	else:
-		if detected_face == None:
-			if enforce_detection != True:
-			  return img, img_region
+		if detected_face is None:
+			if not enforce_detection:
+				return img, img_region
 			else:
-			  raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
+				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
 
 def normalize_input(img, normalization = 'base'):
 
