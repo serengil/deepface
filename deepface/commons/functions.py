@@ -90,7 +90,10 @@ def load_image(img):
     return img
 
 
-def detect_faces(img, detector_backend='opencv', align=True):
+def detect_faces(img, enforce_detection=True, detector_backend='opencv', align=True):
+    # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
+    img = load_image(img)
+
     img_region = [0, 0, img.shape[0], img.shape[1]]
 
     # ----------------------------------------------
@@ -108,6 +111,18 @@ def detect_faces(img, detector_backend='opencv', align=True):
         faces = FaceDetector.detect_faces(face_detector, detector_backend, img, align)
     except:  # if detected face shape is (0, 0) and alignment cannot be performed, this block will be run
         faces = []
+
+    if len(faces) == 0:
+        if not enforce_detection:
+            raise ValueError(
+                "No face could be detected. Please confirm that the picture is a face photo or consider "
+                "to set enforce_detection param to False.")
+        else:
+            faces = [(img, [0, 0, img.shape[0], img.shape[1]])]  # Set whole image as the detected face
+
+    for img, region in faces:
+        if (img.shape[0] == 0 or img.shape[1] == 0) and enforce_detection:
+            raise ValueError(f'Detected face shape is {img.shape}, Consider to set enforce_detection argument to False.')
 
     return faces
 
@@ -158,34 +173,19 @@ def normalize_input(img, normalization='base'):
     return img
 
 
-def preprocess_face(img, target_size=(224, 224), grayscale=False, enforce_detection=True, detector_backend='opencv', align=True, allow_multiple=False):
+def preprocess_face(img, target_size=(224, 224), grayscale=False, enforce_detection=True, detector_backend='opencv', align=True):
     # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
     img = load_image(img)
     base_img = img.copy()
 
-    detected_faces = detect_faces(img=img, detector_backend=detector_backend, align=align)
+    detected_faces = detect_faces(img=img, enforce_detection=enforce_detection, detector_backend=detector_backend, align=align)
 
-    if len(detected_faces) == 0:
-        if not enforce_detection:
-            raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider "
-                             "to set enforce_detection param to False.")
-        else:
-            detected_faces = [(img, [0, 0, img.shape[0], img.shape[1]])]
+    # only take first detected face
+    img, region = detected_faces[0]
+    if img.shape[0] == 0 or img.shape[1] == 0:
+        img = base_img.copy()
 
-    results = []
-    for img, region in detected_faces:
-        if img.shape[0] == 0 or img.shape[1] == 0:
-            if enforce_detection:
-                raise ValueError(f'Detected face shape is {img.shape}, Consider to set enforce_detection argument to False.')
-            else:  # restore base image
-                img = base_img.copy()
-
-        results.append(reshape_face(img, region, target_size, grayscale))
-
-        if not allow_multiple:  # if a single result is desired, return
-            return results[0]
-
-    return results
+    return reshape_face(img, region, target_size, grayscale)
 
 
 def reshape_face(img, region, target_size=(224, 224), grayscale=False):
