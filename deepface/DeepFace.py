@@ -806,7 +806,9 @@ def detectFace(img_path, detector_backend = 'opencv', enforce_detection = True, 
 	"""
 
 	img, _ = functions.preprocess_face(img = img_path, detector_backend = detector_backend
-		, enforce_detection = enforce_detection, align = align) #preprocess_face returns (1, 224, 224, 3)
+		, enforce_detection = enforce_detection, align = align)
+
+	img = img[0]  # preprocess_face returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb
 
 #---------------------------
