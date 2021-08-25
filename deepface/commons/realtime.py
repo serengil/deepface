@@ -96,7 +96,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 		embedding = []
 
 		#preprocess_face returns single face. this is expected for source images in db.
-		img, _ = functions.preprocess_face(img = employee, target_size = (input_shape_y, input_shape_x), enforce_detection = False, detector_backend = detector_backend)
+		img = functions.preprocess_face(img = employee, target_size = (input_shape_y, input_shape_x), enforce_detection = False, detector_backend = detector_backend)
 		img_representation = model.predict(img)[0,:]
 
 		embedding.append(employee)
@@ -202,7 +202,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 
 						if enable_face_analysis == True:
 
-							gray_img, _ = functions.preprocess_face(img = custom_face, target_size = (48, 48), grayscale = True, enforce_detection = False, detector_backend = 'opencv')
+							gray_img = functions.preprocess_face(img = custom_face, target_size = (48, 48), grayscale = True, enforce_detection = False, detector_backend = 'opencv')
 							emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 							emotion_predictions = emotion_model.predict(gray_img)[0,:]
 							sum_of_predictions = emotion_predictions.sum()
@@ -280,7 +280,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 
 							#-------------------------------
 
-							face_224, _ = functions.preprocess_face(img = custom_face, target_size = (224, 224), grayscale = False, enforce_detection = False, detector_backend = 'opencv')
+							face_224 = functions.preprocess_face(img = custom_face, target_size = (224, 224), grayscale = False, enforce_detection = False, detector_backend = 'opencv')
 
 							age_predictions = age_model.predict(face_224)[0,:]
 							apparent_age = Age.findApparentAge(age_predictions)
@@ -335,7 +335,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 						#-------------------------------
 						#face recognition
 
-						custom_face, _ = functions.preprocess_face(img = custom_face, target_size = (input_shape_y, input_shape_x), enforce_detection = False, detector_backend = 'opencv')
+						custom_face = functions.preprocess_face(img = custom_face, target_size = (input_shape_y, input_shape_x), enforce_detection = False, detector_backend = 'opencv')
 
 						#check preprocess_face function handled
 						if custom_face.shape[1:3] == input_shape:

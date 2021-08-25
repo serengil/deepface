@@ -185,7 +185,8 @@ def preprocess_face(img, target_size=(224, 224), grayscale=False, enforce_detect
     if img.shape[0] == 0 or img.shape[1] == 0:
         img = base_img.copy()
 
-    return reshape_face(img, region, target_size, grayscale)
+    img, _ = reshape_face(img, region, target_size, grayscale)
+    return img
 
 
 def reshape_face(img, region, target_size=(224, 224), grayscale=False):

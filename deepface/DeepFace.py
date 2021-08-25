@@ -754,7 +754,7 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	input_shape_x, input_shape_y = functions.find_input_shape(model)
 
 	#detect and align
-	img, _ = functions.preprocess_face(img = img_path
+	img = functions.preprocess_face(img = img_path
 		, target_size=(input_shape_y, input_shape_x)
 		, enforce_detection = enforce_detection
 		, detector_backend = detector_backend
@@ -819,10 +819,9 @@ def detectFace(img_path, detector_backend = 'opencv', enforce_detection = True, 
 		deteced and aligned face in numpy format
 	"""
 
-	img, _ = functions.preprocess_face(img = img_path, detector_backend = detector_backend
-		, enforce_detection = enforce_detection, align = align)
+	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend
+		, enforce_detection = enforce_detection, align = align)[0]  # preprocess_face returns (1, 224, 224, 3)
 
-	img = img[0]  # preprocess_face returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb
 
 #---------------------------
