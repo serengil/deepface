@@ -134,10 +134,10 @@ dataset = [
 ]
 
 resp_obj = DeepFace.analyze(dataset)
-print(resp_obj["instance_1"]["age"]," years old ", resp_obj["instance_1"]["dominant_emotion"], " ",resp_obj["instance_1"]["gender"])
-print(resp_obj["instance_2"]["age"]," years old ", resp_obj["instance_2"]["dominant_emotion"], " ",resp_obj["instance_2"]["gender"])
-print(resp_obj["instance_3"]["age"]," years old ", resp_obj["instance_3"]["dominant_emotion"], " ",resp_obj["instance_3"]["gender"])
-print(resp_obj["instance_4"]["age"]," years old ", resp_obj["instance_4"]["dominant_emotion"], " ",resp_obj["instance_4"]["gender"])
+print(resp_obj["image_1"]["age"]," years old ", resp_obj["image_1"]["dominant_emotion"], " ",resp_obj["image_1"]["gender"])
+print(resp_obj["image_2"]["age"]," years old ", resp_obj["image_2"]["dominant_emotion"], " ",resp_obj["image_2"]["gender"])
+print(resp_obj["image_3"]["age"]," years old ", resp_obj["image_3"]["dominant_emotion"], " ",resp_obj["image_3"]["gender"])
+print(resp_obj["image_4"]["age"]," years old ", resp_obj["image_4"]["dominant_emotion"], " ",resp_obj["image_4"]["gender"])
 
 print("-----------------------------------------")
 

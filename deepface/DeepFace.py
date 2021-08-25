@@ -1,3 +1,4 @@
+import math
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -264,7 +265,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 		return resp_obj
 
-def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = {}, enforce_detection = True, detector_backend = 'opencv', prog_bar = True):
+def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'], models = {}, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, enable_multiple=False):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -287,8 +288,12 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib.
 
 		prog_bar (boolean): enable/disable a progress bar
+
+		enable_multiple (boolean): whether to allow detecting multiple faces. If this is set to True, the output will
+								   contain all analyses for every face in found in the input.
 	Returns:
 		The function returns a dictionary. If img_path is a list, then it will return list of dictionary.
+		If enable_multiple is set, each face within each image will have a separate result set.
 
 		{
 			"region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
@@ -357,56 +362,64 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 	resp_objects = []
 
-	disable_option = (False if len(img_paths) > 1 else True) or not prog_bar
+	disable_option = len(img_paths) <= 1 or not prog_bar
 
 	global_pbar = tqdm(range(0,len(img_paths)), desc='Analyzing', disable = disable_option)
 
 	for j in global_pbar:
 		img_path = img_paths[j]
 
-		resp_obj = {}
+		faces = functions.detect_faces(img=img_path, enforce_detection=enforce_detection, detector_backend=detector_backend)
 
-		disable_option = (False if len(actions) > 1 else True) or not prog_bar
-
-		pbar = tqdm(range(0, len(actions)), desc='Finding actions', disable = disable_option)
+		num_faces = 1 if not enable_multiple else len(faces)
+		num_actions = len(actions)
+		num_checks = num_actions * num_faces
+		disable_option = num_checks <= 1 or not prog_bar
+		pbar = tqdm(range(0, num_checks), desc='Processing Faces', disable=disable_option)
 
 		is_region_set = False
 
-		faces = functions.detect_faces(img=img_path, enforce_detection=enforce_detection, detector_backend=detector_backend)
-		face_img, face_region = faces[0]  # for now, take first face
+		face_response_obj = {}
 
 		#facial attribute analysis
-		for index in pbar:  # iterates over actions
-			action = actions[index]
-			pbar.set_description("Action: %s" % (action))
+		for index in pbar:
+			action_index = index % num_actions
+			face_index = math.floor(index / num_actions)
+			face_img, face_region = faces[face_index]
+			face = f'face_{face_index + 1}'
+			action = actions[action_index]
+			pbar.set_description(f'{face} - action: {action}')
+
+			if face not in face_response_obj:
+				face_response_obj[face] = {}
 
 			if action == 'emotion':
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
-				img, region = functions.reshape_face(img=face_img.copy(), region=face_region, target_size=(48, 48), grayscale=True)
+				img, region = functions.reshape_face(img=face_img.copy(), region=face_region.copy(), target_size=(48, 48), grayscale=True)
 
 				emotion_predictions = models['emotion'].predict(img)[0,:]
 
 				sum_of_predictions = emotion_predictions.sum()
 
-				resp_obj["emotion"] = {}
+				face_response_obj[face]["emotion"] = {}
 
 				for i in range(0, len(emotion_labels)):
 					emotion_label = emotion_labels[i]
 					emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
-					resp_obj["emotion"][emotion_label] = emotion_prediction
+					face_response_obj[face]["emotion"][emotion_label] = emotion_prediction
 
-				resp_obj["dominant_emotion"] = emotion_labels[np.argmax(emotion_predictions)]
+				face_response_obj[face]["dominant_emotion"] = emotion_labels[np.argmax(emotion_predictions)]
 
 			elif action == 'age':
-				img, _ = functions.reshape_face(img=face_img.copy(), region=face_region, target_size=(224, 224), grayscale=False)
+				img, _ = functions.reshape_face(img=face_img.copy(), region=face_region.copy(), target_size=(224, 224), grayscale=False)
 
 				age_predictions = models['age'].predict(img)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
 
-				resp_obj["age"] = int(apparent_age) #int cast is for the exception - object of type 'float32' is not JSON serializable
+				face_response_obj[face]["age"] = int(apparent_age) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 			elif action == 'gender':
-				img, _ = functions.reshape_face(img=face_img.copy(), region=face_region, target_size=(224, 224), grayscale=False)
+				img, _ = functions.reshape_face(img=face_img.copy(), region=face_region.copy(), target_size=(224, 224), grayscale=False)
 
 				gender_prediction = models['gender'].predict(img)[0,:]
 
@@ -415,47 +428,48 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 				elif np.argmax(gender_prediction) == 1:
 					gender = "Man"
 
-				resp_obj["gender"] = gender
+				face_response_obj[face]["gender"] = gender
 
 			elif action == 'race':
-				img, _ = functions.reshape_face(img=face_img.copy(), region=face_region, target_size=(224, 224), grayscale=False) #just emotion model expects grayscale images
+				img, _ = functions.reshape_face(img=face_img.copy(), region=face_region.copy(), target_size=(224, 224), grayscale=False) #just emotion model expects grayscale images
 				race_predictions = models['race'].predict(img)[0,:]
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
 				sum_of_predictions = race_predictions.sum()
 
-				resp_obj["race"] = {}
+				face_response_obj[face]["race"] = {}
 				for i in range(0, len(race_labels)):
 					race_label = race_labels[i]
 					race_prediction = 100 * race_predictions[i] / sum_of_predictions
-					resp_obj["race"][race_label] = race_prediction
+					face_response_obj[face]["race"][race_label] = race_prediction
 
-				resp_obj["dominant_race"] = race_labels[np.argmax(race_predictions)]
+				face_response_obj[face]["dominant_race"] = race_labels[np.argmax(race_predictions)]
 
 			#-----------------------------
 
-			if is_region_set != True:
-				resp_obj["region"] = {}
+			if not is_region_set:
+				face_response_obj[face]["region"] = {}
 				is_region_set = True
 				for i, parameter in enumerate(['x', 'y', 'w', 'h']):
-					resp_obj["region"][parameter] = int(face_region[i]) #int cast is for the exception - object of type 'float32' is not JSON serializable
+					face_response_obj[face]["region"][parameter] = int(face_region[i]) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 		#---------------------------------
+		resp_objects.append(face_response_obj)
 
-		if bulkProcess == True:
-			resp_objects.append(resp_obj)
-		else:
-			return resp_obj
+	if not enable_multiple:
+		for i, resp_object in enumerate(resp_objects):
+			resp_objects[i] = resp_object['face_1']
 
-	if bulkProcess == True:
+	if bulkProcess:
+		result = {}
 
-		resp_obj = {}
+		for i, obj in enumerate(resp_objects):
+			result["image_%d" % (i+1)] = obj
 
-		for i in range(0, len(resp_objects)):
-			resp_item = resp_objects[i]
-			resp_obj["instance_%d" % (i+1)] = resp_item
+		return result
+	else:
+		return resp_objects[0]
 
-		return resp_obj
 
 def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, prog_bar = True, normalization = 'base'):
 
