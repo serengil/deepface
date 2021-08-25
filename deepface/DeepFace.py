@@ -370,21 +370,19 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 
 		pbar = tqdm(range(0, len(actions)), desc='Finding actions', disable = disable_option)
 
-		img_224 = None # Set to prevent re-detection
-
-		region = [] # x, y, w, h of the detected face region
-		region_labels = ['x', 'y', 'w', 'h']
-
 		is_region_set = False
 
+		faces = functions.detect_faces(img=img_path, enforce_detection=enforce_detection, detector_backend=detector_backend)
+		face_img, face_region = faces[0]  # for now, take first face
+
 		#facial attribute analysis
-		for index in pbar:
+		for index in pbar:  # iterates over actions
 			action = actions[index]
 			pbar.set_description("Action: %s" % (action))
 
 			if action == 'emotion':
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
-				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend)
+				img, region = functions.reshape_face(img=face_img.copy(), region=face_region, target_size=(48, 48), grayscale=True)
 
 				emotion_predictions = models['emotion'].predict(img)[0,:]
 
@@ -400,19 +398,17 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 				resp_obj["dominant_emotion"] = emotion_labels[np.argmax(emotion_predictions)]
 
 			elif action == 'age':
-				if img_224 is None:
-					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend)
+				img, _ = functions.reshape_face(img=face_img.copy(), region=face_region, target_size=(224, 224), grayscale=False)
 
-				age_predictions = models['age'].predict(img_224)[0,:]
+				age_predictions = models['age'].predict(img)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
 
 				resp_obj["age"] = int(apparent_age) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 			elif action == 'gender':
-				if img_224 is None:
-					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend)
+				img, _ = functions.reshape_face(img=face_img.copy(), region=face_region, target_size=(224, 224), grayscale=False)
 
-				gender_prediction = models['gender'].predict(img_224)[0,:]
+				gender_prediction = models['gender'].predict(img)[0,:]
 
 				if np.argmax(gender_prediction) == 0:
 					gender = "Woman"
@@ -422,9 +418,8 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 				resp_obj["gender"] = gender
 
 			elif action == 'race':
-				if img_224 is None:
-					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend) #just emotion model expects grayscale images
-				race_predictions = models['race'].predict(img_224)[0,:]
+				img, _ = functions.reshape_face(img=face_img.copy(), region=face_region, target_size=(224, 224), grayscale=False) #just emotion model expects grayscale images
+				race_predictions = models['race'].predict(img)[0,:]
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
 				sum_of_predictions = race_predictions.sum()
@@ -442,8 +437,8 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 			if is_region_set != True:
 				resp_obj["region"] = {}
 				is_region_set = True
-				for i, parameter in enumerate(region_labels):
-					resp_obj["region"][parameter] = int(region[i]) #int cast is for the exception - object of type 'float32' is not JSON serializable
+				for i, parameter in enumerate(['x', 'y', 'w', 'h']):
+					resp_obj["region"][parameter] = int(face_region[i]) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 		#---------------------------------
 
