@@ -377,8 +377,6 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'], models = {
 		disable_option = num_checks <= 1 or not prog_bar
 		pbar = tqdm(range(0, num_checks), desc='Processing Faces', disable=disable_option)
 
-		is_region_set = False
-
 		face_response_obj = {}
 
 		#facial attribute analysis
@@ -391,7 +389,9 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'], models = {
 			pbar.set_description(f'{face} - action: {action}')
 
 			if face not in face_response_obj:
-				face_response_obj[face] = {}
+				face_response_obj[face] = {"region": {}}
+				for i, parameter in enumerate(['x', 'y', 'w', 'h']):
+					face_response_obj[face]["region"][parameter] = int(face_region[i])  # int cast is for the exception - object of type 'float32' is not JSON serializable
 
 			if action == 'emotion':
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
@@ -444,14 +444,6 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'], models = {
 					face_response_obj[face]["race"][race_label] = race_prediction
 
 				face_response_obj[face]["dominant_race"] = race_labels[np.argmax(race_predictions)]
-
-			#-----------------------------
-
-			if not is_region_set:
-				face_response_obj[face]["region"] = {}
-				is_region_set = True
-				for i, parameter in enumerate(['x', 'y', 'w', 'h']):
-					face_response_obj[face]["region"][parameter] = int(face_region[i]) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 		#---------------------------------
 		resp_objects.append(face_response_obj)
