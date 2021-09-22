@@ -163,6 +163,17 @@ print("Emotion: ", demography["dominant_emotion"])
 
 print("-----------------------------------------")
 
+print("Facial analysis test 2. Remove some actions and check they are not computed")
+demography = DeepFace.analyze(img, ['age', 'gender'])
+
+print("Age: ", demography.get("age"))
+print("Gender: ", demography.get("gender"))
+print("Race: ", demography.get("dominant_race"))
+print("Emotion: ", demography.get("dominant_emotion"))
+
+
+print("-----------------------------------------")
+
 print("Face recognition tests")
 
 dataset = [
