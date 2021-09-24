@@ -264,7 +264,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 		return resp_obj
 
-def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = {}, enforce_detection = True, detector_backend = 'opencv', prog_bar = True):
+def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -272,9 +272,9 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 	Parameters:
 		img_path: exact image path, numpy array or base64 encoded image could be passed. If you are going to analyze lots of images, then set this to list. e.g. img_path = ['img1.jpg', 'img2.jpg']
 
-		actions (list): The default is ['age', 'gender', 'emotion', 'race']. You can drop some of those attributes.
+		actions (tuple): The default is ('age', 'gender', 'emotion', 'race'). You can drop some of those attributes.
 
-		models: facial attribute analysis models are built in every call of analyze function. You can pass pre-built models to speed the function up.
+		models: (Optional[dict]) facial attribute analysis models are built in every call of analyze function. You can pass pre-built models to speed the function up.
 
 			models = {}
 			models['age'] = DeepFace.build_model('Age')
@@ -316,6 +316,10 @@ def analyze(img_path, actions = ['emotion', 'age', 'gender', 'race'] , models = 
 		}
 
 	"""
+
+	actions = list(actions)
+	if not models:
+		models = {}
 
 	img_paths, bulkProcess = functions.initialize_input(img_path)
 
