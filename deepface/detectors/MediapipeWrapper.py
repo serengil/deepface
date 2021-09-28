@@ -63,8 +63,8 @@ def detect_face(face_detector, img, align=True):
                 if align:
                     left_eye=(leye_x,leye_y)
                     right_eye=(reye_x,reye_y)
-                    print(left_eye)
-                    print(right_eye)
+                    #print(left_eye)
+                    #print(right_eye)
                     detected_face = FaceDetector.alignment_procedure(detected_face, left_eye, right_eye)
                 resp.append((detected_face,img_region))
             else:
