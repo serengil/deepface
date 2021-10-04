@@ -32,7 +32,7 @@ A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-
 This function verifies face pairs as same person or different persons. It expects exact image paths as inputs. Passing numpy or based64 encoded images is also welcome.
 
 ```python
-result = DeepFace.verify("img1.jpg", "img2.jpg")
+result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-1.jpg" width="95%" height="95%"></p>
@@ -53,7 +53,7 @@ Deepface is a **hybrid** face recognition package. It currently wraps many **sta
 
 ```python
 models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib"]
-result = DeepFace.verify("img1.jpg", "img2.jpg", model_name = models[1])
+result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", model_name = models[1])
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", model_name = models[1])
 ```
 
@@ -69,7 +69,7 @@ Similarity could be calculated by different metrics such as [Cosine Similarity](
 
 ```python
 metrics = ["cosine", "euclidean", "euclidean_l2"]
-result = DeepFace.verify("img1.jpg", "img2.jpg", distance_metric = metrics[1])
+result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1])
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", distance_metric = metrics[1])
 ```
 
@@ -117,16 +117,16 @@ Face detection and alignment are early stages of a modern face recognition pipel
 backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
 
 #face detection and alignment
-detected_face = DeepFace.detectFace("img.jpg", detector_backend = backends[4])
+detected_face = DeepFace.detectFace(img_path = "img.jpg", detector_backend = backends[4])
 
 #face verification
-obj = DeepFace.verify("img1.jpg", "img2.jpg", detector_backend = backends[4])
+obj = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", detector_backend = backends[4])
 
 #face recognition
 df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backends[4])
 
 #facial analysis
-demography = DeepFace.analyze("img4.jpg", detector_backend = backends[4])
+demography = DeepFace.analyze(img_path = "img4.jpg", detector_backend = backends[4])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-detectors.png" width="90%" height="90%"></p>
@@ -163,7 +163,7 @@ Face recognition, facial attribute analysis and vector representation functions 
 Face recognition models represent facial images as vector embeddings. The idea behind facial recognition is that vectors should be more similar for same person than different persons. The question is that where and how to store facial embeddings in a large scale system. Herein, deepface offers a represention function to find vector embeddings from facial images.
 
 ```python
-embedding = DeepFace.represent("img.jpg", model_name = 'Facenet')
+embedding = DeepFace.represent(img_path = "img.jpg", model_name = 'Facenet')
 ```
 
 Tech stack is vast to store vector embeddings. To determine the right tool, you should consider your task such as face verification or face recognition, priority such as speed or confidence, and also data size.
