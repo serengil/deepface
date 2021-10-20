@@ -199,7 +199,7 @@ Please cite [deepface](https://ieeexplore.ieee.org/document/9259802) in your pub
 @inproceedings{serengil2021lightface,
   title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
   author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-  booktitle    = {7th International Conference on Engineering and Emerging Technologies},
+  booktitle    = {2021 International Conference on Engineering and Emerging Technologies (ICEET)},
   year         = {2021},
   organization = {IEEE}
 }
