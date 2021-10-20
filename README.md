@@ -180,7 +180,7 @@ There are many ways to support a project - starring⭐️ the GitHub repo is jus
 
 ## Citation
 
-Please cite [deepface](https://ieeexplore.ieee.org/document/9259802) in your publications if it helps your research. Here is an example BibTeX entry:
+Please cite [deepface](https://ieeexplore.ieee.org/document/9259802) in your publications if it helps your research. Here are examples of BibTeX entries:
 
 ```BibTeX
 @inproceedings{serengil2020lightface,
@@ -190,6 +190,17 @@ Please cite [deepface](https://ieeexplore.ieee.org/document/9259802) in your pub
   pages        = {23-27},
   year         = {2020},
   doi          = {10.1109/ASYU50717.2020.9259802},
+  url          = {https://doi.org/10.1109/ASYU50717.2020.9259802}
+  organization = {IEEE}
+}
+```
+
+```BibTeX
+@inproceedings{serengil2021lightface,
+  title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
+  author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+  booktitle    = {7th International Conference on Engineering and Emerging Technologies},
+  year         = {2021},
   organization = {IEEE}
 }
 ```
