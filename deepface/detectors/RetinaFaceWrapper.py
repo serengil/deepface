@@ -15,7 +15,8 @@ def detect_face(face_detector, img, align = True):
 
     resp = []
 
-    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #retinaface expects RGB but OpenCV read BGR
+    # The BGR2RGB conversion will be done in the preprocessing step of retinaface.
+    # img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #retinaface expects RGB but OpenCV read BGR
 
     """
     face = None
