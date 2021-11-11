@@ -32,7 +32,7 @@ def detect_face(face_detector, img, align = True):
 
     #--------------------------
 
-    obj = RetinaFace.detect_faces(img_rgb, model = face_detector, threshold = 0.9)
+    obj = RetinaFace.detect_faces(img, model = face_detector, threshold = 0.9)
 
     if type(obj) == dict:
         for key in obj:
