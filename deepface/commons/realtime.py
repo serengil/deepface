@@ -137,10 +137,12 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 		resolution = img.shape; resolution_x = img.shape[1]; resolution_y = img.shape[0]
 
 		if freeze == False:
-			#faces = face_cascade.detectMultiScale(img, 1.3, 5)
 
-			#faces stores list of detected_face and region pair
-			faces = FaceDetector.detect_faces(face_detector, detector_backend, img, align = False)
+			try:
+				#faces store list of detected_face and region pair
+				faces = FaceDetector.detect_faces(face_detector, detector_backend, img, align = False)
+			except: #to avoid exception if no face detected
+				faces = []
 
 			if len(faces) == 0:
 				face_included_frames = 0
