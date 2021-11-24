@@ -190,7 +190,7 @@ Please cite deepface in your publications if it helps your research. Here are ex
   pages        = {23-27},
   year         = {2020},
   doi          = {10.1109/ASYU50717.2020.9259802},
-  url          = {https://doi.org/10.1109/ASYU50717.2020.9259802}
+  url          = {https://doi.org/10.1109/ASYU50717.2020.9259802},
   organization = {IEEE}
 }
 ```
