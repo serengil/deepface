@@ -4,6 +4,8 @@ import pandas as pd
 import cv2
 import base64
 from pathlib import Path
+from PIL import Image
+import requests
 
 from deepface.detectors import FaceDetector
 
@@ -64,7 +66,6 @@ def loadBase64Img(uri):
    return img
 
 def load_image(img):
-
 	exact_image = False
 	if type(img).__module__ == np.__name__:
 		exact_image = True
@@ -73,10 +74,17 @@ def load_image(img):
 	if len(img) > 11 and img[0:11] == "data:image/":
 		base64_img = True
 
+	url_img = False
+	if len(img) > 11 and img.startswith("http"):
+		url_img = True
+
 	#---------------------------
 
 	if base64_img == True:
 		img = loadBase64Img(img)
+	
+	elif url_img:
+		img = np.array(Image.open(requests.get(img, stream=True).raw))
 
 	elif exact_image != True: #image path passed as input
 		if os.path.isfile(img) != True:
@@ -112,9 +120,9 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 	else:
 		if detected_face == None:
 			if enforce_detection != True:
-			  return img, img_region
+				return img, img_region
 			else:
-			  raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
+				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
 
 def normalize_input(img, normalization = 'base'):
 
