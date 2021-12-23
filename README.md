@@ -25,6 +25,8 @@ Then you will be able to import the library and use its functionalities.
 from deepface import DeepFace
 ```
 
+If you are going to use deepface in a kaggle competition, then please consider [this kernel](https://www.kaggle.com/serengil/deepface-framework-for-python). You will be able to use GPU as well.
+
 **Facial Recognition** - [`Demo`](https://youtu.be/WnUVYQP4h44)
 
 A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 5 common stages: [detect](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [normalize](https://sefiks.com/2020/11/20/facial-landmarks-for-face-recognition-with-dlib/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). Deepface handles all these common stages in the background. You can just call its verification, find or analysis function with a single line of code.
