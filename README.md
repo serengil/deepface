@@ -141,7 +141,7 @@ Face recognition models are actually CNN models and they expect standard sized i
 
 [RetinaFace](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/) and [MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) seem to overperform in detection and alignment stages but they are much slower. If the speed of your pipeline is more important, then you should use opencv or ssd. On the other hand, if you consider the accuracy, then you should use retinaface or mtcnn.
 
-The performance of RetinaFace is very satisfactory even in the crowd as seen in the following illustration.
+The performance of RetinaFace is very satisfactory even in the crowd as seen in the following illustration. Besides, it comes with incredible facial landmark detection performance. Please notice that the landmarks in the detected face areas highlighted with red points. This will improve the alignment score as well.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/retinaface-results.jpeg" width="90%" height="90%"></p>
 
