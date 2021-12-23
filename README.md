@@ -117,7 +117,7 @@ Face detection and alignment are important early stages of a modern face recogni
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/detector-portfolio.png" width="95%" height="95%"></p>
 
-All functions in the deepface interface accept an optional detector backend input argument. You can switch among those detectors with this argument. OpenCV is the default detector.
+All deepface functions accept an optional detector backend input argument. You can switch among those detectors with this argument. OpenCV is the default detector.
 
 ```python
 backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
