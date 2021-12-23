@@ -55,7 +55,11 @@ Deepface is a **hybrid** face recognition package. It currently wraps many **sta
 
 ```python
 models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib"]
+
+#face verification
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", model_name = models[1])
+
+#face recognition
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", model_name = models[1])
 ```
 
@@ -71,7 +75,11 @@ Similarity could be calculated by different metrics such as [Cosine Similarity](
 
 ```python
 metrics = ["cosine", "euclidean", "euclidean_l2"]
+
+#face verification
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1])
+
+#face recognition
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", distance_metric = metrics[1])
 ```
 
@@ -144,19 +152,6 @@ Face recognition models are actually CNN models and they expect standard sized i
 The performance of RetinaFace is very satisfactory even in the crowd as seen in the following illustration. Besides, it comes with an incredible facial landmark detection performance. Please notice that the landmarks in the detected face areas highlighted with red points. This will improve the alignment score as well.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/retinaface-results.jpeg" width="90%" height="90%"></p>
-
-<!--
-**Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
-
-A face recognition task can be handled by several models and similarity metrics. Herein, deepface offers a [special boosting and combination solution](https://sefiks.com/2020/06/03/mastering-face-recognition-with-ensemble-learning/) to improve the accuracy of a face recognition task. This provides a huge improvement on accuracy metrics. On the other hand, this runs much slower than single models.
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-4.jpg" width="70%" height="70%"></p>
-
-```python
-resp_obj = DeepFace.verify("img1.jpg", "img2.jpg", model_name = "Ensemble")
-df = DeepFace.find(img_path = "img1.jpg", db_path = "my_db", model_name = "Ensemble")
-```
--->
 
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
