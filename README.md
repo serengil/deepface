@@ -143,7 +143,7 @@ Face recognition models are actually CNN models and they expect standard sized i
 
 The performance of RetinaFace is very satisfactory even in the crowd as seen in the following illustration.
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/retinaface-results.jpeg" width="70%" height="70%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/retinaface-results.jpeg" width="90%" height="90%"></p>
 
 <!--
 **Ensemble learning for face recognition** - [`Demo`](https://youtu.be/EIBJJJ0ECXU)
