@@ -180,7 +180,7 @@ embedding = DeepFace.represent(img_path = "img.jpg", model_name = 'Facenet')
 
 Tech stack is vast to store vector embeddings. To determine the right tool, you should consider your task such as face verification or face recognition, priority such as speed or confidence, and also data size.
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/tech-stack.png" width="90%" height="90%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/tech-stack-v2.jpg" width="90%" height="90%"></p>
 
 ## Contribution
 
