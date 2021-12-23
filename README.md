@@ -122,9 +122,6 @@ All deepface functions accept an optional detector backend input argument. You c
 ```python
 backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
 
-#face detection and alignment
-detected_face = DeepFace.detectFace(img_path = "img.jpg", detector_backend = backends[4])
-
 #face verification
 obj = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", detector_backend = backends[4])
 
@@ -133,6 +130,9 @@ df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = b
 
 #facial analysis
 demography = DeepFace.analyze(img_path = "img4.jpg", detector_backend = backends[4])
+
+#face detection and alignment
+face = DeepFace.detectFace(img_path = "img.jpg", detector_backend = backends[4])
 ```
 
 Face recognition models are actually CNN models and they expect standard sized inputs. So, resizing is required before representation. To avoid deformation, deepface adds black padding pixels after detection and alignment.
