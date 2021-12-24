@@ -800,7 +800,7 @@ def stream(db_path = '', model_name ='VGG-Face', detector_backend = 'opencv', di
 	realtime.analysis(db_path, model_name, detector_backend, distance_metric, enable_face_analysis
 						, source = source, time_threshold = time_threshold, frame_threshold = frame_threshold)
 
-def detectFace(img_path, detector_backend = 'opencv', enforce_detection = True, align = True):
+def detectFace(img_path, target_size = (224, 224), detector_backend = 'opencv', enforce_detection = True, align = True):
 
 	"""
 	This function applies pre-processing stages of a face recognition pipeline including detection and alignment
@@ -814,7 +814,7 @@ def detectFace(img_path, detector_backend = 'opencv', enforce_detection = True, 
 		deteced and aligned face in numpy format
 	"""
 
-	img = functions.preprocess_face(img = img_path, detector_backend = detector_backend
+	img = functions.preprocess_face(img = img_path, target_size = target_size, detector_backend = detector_backend
 		, enforce_detection = enforce_detection, align = align)[0] #preprocess_face returns (1, 224, 224, 3)
 	return img[:, :, ::-1] #bgr to rgb
 
