@@ -151,7 +151,7 @@ df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = b
 demography = DeepFace.analyze(img_path = "img4.jpg", detector_backend = backends[4])
 
 #face detection and alignment
-face = DeepFace.detectFace(img_path = "img.jpg", detector_backend = backends[4])
+face = DeepFace.detectFace(img_path = "img.jpg", target_size = (224, 224), detector_backend = backends[4])
 ```
 
 Face recognition models are actually CNN models and they expect standard sized inputs. So, resizing is required before representation. To avoid deformation, deepface adds black padding pixels after detection and alignment.
