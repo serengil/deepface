@@ -31,7 +31,7 @@ A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
-This function verifies face pairs as same person or different persons. It expects exact image paths as inputs. Passing numpy or based64 encoded images is also welcome.
+This function verifies face pairs as same person or different persons. It expects exact image paths as inputs. Passing numpy or based64 encoded images is also welcome. Then, it is going to return a dictionary and you should check just its verified key.
 
 ```python
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
