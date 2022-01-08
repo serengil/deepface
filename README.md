@@ -232,7 +232,7 @@ Please cite deepface in your publications if it helps your research. Here are it
   pages        = {1-4},
   year         = {2021},
   doi          = {10.1109/ICEET53442.2021.9659697},
-  url         = {https://doi.org/10.1109/ICEET53442.2021.9659697},
+  url          = {https://doi.org/10.1109/ICEET53442.2021.9659697},
   organization = {IEEE}
 }
 ```
