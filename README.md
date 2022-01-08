@@ -4,6 +4,7 @@
 [![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow)](https://github.com/serengil/deepface/stargazers)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802)
+[![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697)
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-icon-labeled.png" width="200" height="240"></p>
 
@@ -198,7 +199,7 @@ There are many ways to support a project - starring⭐️ the GitHub repo is jus
 
 ## Citation
 
-Please cite deepface in your publications if it helps your research. Here are examples of its BibTeX entries:
+Please cite deepface in your publications if it helps your research. Here are its BibTeX entries:
 
 ```BibTeX
 @inproceedings{serengil2020lightface,
@@ -218,7 +219,10 @@ Please cite deepface in your publications if it helps your research. Here are ex
   title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
   author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
   booktitle    = {2021 International Conference on Engineering and Emerging Technologies (ICEET)},
+  pages        = {1-4},
   year         = {2021},
+  doi          = {10.1109/ICEET53442.2021.9659697},
+  url.         = {https://doi.org/10.1109/ICEET53442.2021.9659697},
   organization = {IEEE}
 }
 ```
