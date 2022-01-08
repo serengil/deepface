@@ -66,23 +66,22 @@ def loadBase64Img(uri):
    return img
 
 def load_image(img):
-	exact_image = False
+	exact_image = False; base64_img = False; url_img = False
+
 	if type(img).__module__ == np.__name__:
 		exact_image = True
 
-	base64_img = False
-	if len(img) > 11 and img[0:11] == "data:image/":
+	elif len(img) > 11 and img[0:11] == "data:image/":
 		base64_img = True
 
-	url_img = False
-	if len(img) > 11 and img.startswith("http"):
+	elif len(img) > 11 and img.startswith("http"):
 		url_img = True
 
 	#---------------------------
 
 	if base64_img == True:
 		img = loadBase64Img(img)
-	
+
 	elif url_img:
 		img = np.array(Image.open(requests.get(img, stream=True).raw))
 
@@ -196,15 +195,15 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 	#resize image to expected shape
 
 	# img = cv2.resize(img, target_size) #resize causes transformation on base image, adding black pixels to resize will not deform the base image
-	
+
 	if img.shape[0] > 0 and img.shape[1] > 0:
 		factor_0 = target_size[0] / img.shape[0]
 		factor_1 = target_size[1] / img.shape[1]
 		factor = min(factor_0, factor_1)
-		
+
 		dsize = (int(img.shape[1] * factor), int(img.shape[0] * factor))
 		img = cv2.resize(img, dsize)
-		
+
 		# Then pad the other side to the target size by adding black pixels
 		diff_0 = target_size[0] - img.shape[0]
 		diff_1 = target_size[1] - img.shape[1]
@@ -213,9 +212,9 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 			img = np.pad(img, ((diff_0 // 2, diff_0 - diff_0 // 2), (diff_1 // 2, diff_1 - diff_1 // 2), (0, 0)), 'constant')
 		else:
 			img = np.pad(img, ((diff_0 // 2, diff_0 - diff_0 // 2), (diff_1 // 2, diff_1 - diff_1 // 2)), 'constant')
-	
+
 	#------------------------------------------
-	
+
 	#double check: if target image is not still the same size with target.
 	if img.shape[0:2] != target_size:
 		img = cv2.resize(img, target_size)
