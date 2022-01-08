@@ -165,6 +165,8 @@ The performance of RetinaFace is very satisfactory even in the crowd as seen in 
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/retinaface-results.jpeg" width="90%" height="90%"></p>
 
+You can find out more about RetinaFace on this [repo](https://github.com/serengil/retinaface).
+
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
 Deepface serves an API as well. You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
