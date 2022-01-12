@@ -202,10 +202,10 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 						resp_obj = {
 							"verified": identified
 							, "distance": distance
-							, "max_threshold_to_verify": threshold
+							, "threshold": threshold
 							, "model": model_name
+							, "detector_backend": detector_backend
 							, "similarity_metric": distance_metric
-
 						}
 
 						if bulkProcess == True:
