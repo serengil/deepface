@@ -213,7 +213,7 @@ for model in models:
 
 			prediction = resp_obj["verified"]
 			distance = round(resp_obj["distance"], 2)
-			required_threshold = resp_obj["max_threshold_to_verify"]
+			threshold = resp_obj["threshold"]
 
 			test_result_label = "failed"
 			if prediction == result:
@@ -227,7 +227,7 @@ for model in models:
 
 			test_cases = test_cases + 1
 
-			print(img1.split("/")[-1], "-", img2.split("/")[-1], classified_label, "as same person based on", model,"and",metric,". Distance:",distance,", Threshold:", required_threshold,"(",test_result_label,")")
+			print(img1.split("/")[-1], "-", img2.split("/")[-1], classified_label, "as same person based on", model,"and",metric,". Distance:",distance,", Threshold:", threshold,"(",test_result_label,")")
 
 		print("--------------------------")
 
@@ -235,15 +235,15 @@ for model in models:
 
 print("Passed unit tests: ",passed_tests," / ",test_cases)
 
-threshold = 70
+min_score = 70
 
 accuracy = 100 * passed_tests / test_cases
 accuracy = round(accuracy, 2)
 
-if accuracy >= threshold:
+if accuracy >= min_score:
 	print("Unit tests are completed successfully. Score: ",accuracy,"%")
 else:
-	raise ValueError("Unit test score does not satisfy the minimum required accuracy. Minimum expected score is ",threshold,"% but this got ",accuracy,"%")
+	raise ValueError("Unit test score does not satisfy the minimum required accuracy. Minimum expected score is ", min_score,"% but this got ",accuracy,"%")
 
 #-----------------------------------
 #-----------------------------------
