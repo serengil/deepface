@@ -209,7 +209,7 @@ You can also support this work on [Patreon](https://www.patreon.com/bePatron?u=3
 
 ## Citation
 
-Please cite deepface in your publications if it helps your research. Here are its BibTeX entries:
+Please cite deepface in your publications if it helps your research. Here are BibTeX entries:
 
 ```BibTeX
 @inproceedings{serengil2020lightface,
