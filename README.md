@@ -20,7 +20,7 @@ Experiments show that human beings have 97.53% accuracy on facial recognition ta
 
 ## Installation
 
-The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well. The library is mainly based on TensorFlow and Keras.
+The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well. The library is mainly powered by TensorFlow and Keras.
 
 ```python
 pip install deepface
