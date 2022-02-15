@@ -10,7 +10,7 @@
 [![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802)
 [![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697)
 
-[![Twitter](https://img.shields.io/:twitter-@serengil-blue.svg?style=flat&logo=twitter)](https://twitter.com/serengil)
+[![Twitter](https://img.shields.io/twitter/follow/serengil?color=blue&logo=twitter&style=plastic)](https://twitter.com/serengil)
 
 </div>
 
