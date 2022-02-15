@@ -6,11 +6,11 @@
 [![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow)](https://github.com/serengil/deepface/stargazers)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dserengil%26type%3Dpatrons&style=flat)](https://www.patreon.com/serengil?repo=deepface)
+[![Twitter](https://img.shields.io/twitter/follow/serengil?color=blue&logo=twitter&style=plastic)](https://twitter.com/serengil)
+
 
 [![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802)
 [![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697)
-
-[![Twitter](https://img.shields.io/twitter/follow/serengil?color=blue&logo=twitter&style=plastic)](https://twitter.com/serengil)
 
 </div>
 
