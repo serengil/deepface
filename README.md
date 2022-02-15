@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Downloads](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
+[![Downloads](https://pepy.tech/badge/deepface?style=plastic)](https://pepy.tech/project/deepface)
 [![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow&style=plastic)](https://github.com/serengil/deepface/stargazers)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=plastic)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dserengil%26type%3Dpatrons&style=plastic)](https://www.patreon.com/serengil?repo=deepface)
