@@ -70,24 +70,19 @@ def align_face(eye_detector, img):
 	#eyes = eye_detector.detectMultiScale(detected_face_gray, 1.3, 5)
 	eyes = eye_detector.detectMultiScale(detected_face_gray, 1.1, 10)
 
+	#----------------------------------------------------------------
+
+	#opencv eye detectin module is not strong. it might find more than 2 eyes!
+	#besides, it returns eyes with different order in each call (issue 435)
+	#this is an important issue because opencv is the default detector and ssd also uses this
+	#find the largest 2 eye. Thanks to @thelostpeace
+
+	eyes = sorted(eyes, key = lambda v: abs((v[0] - v[2]) * (v[1] - v[3])), reverse=True)
+
+	#----------------------------------------------------------------
+	
 	if len(eyes) >= 2:
 
-		#find the largest 2 eye
-		"""
-		base_eyes = eyes[:, 2]
-
-		items = []
-		for i in range(0, len(base_eyes)):
-			item = (base_eyes[i], i)
-			items.append(item)
-
-		df = pd.DataFrame(items, columns = ["length", "idx"]).sort_values(by=['length'], ascending=False)
-
-		eyes = eyes[df.idx.values[0:2]] #eyes variable stores the largest 2 eye
-		"""
-		#eyes = eyes[0:2]
-
-		#-----------------------
 		#decide left and right eye
 
 		eye_1 = eyes[0]; eye_2 = eyes[1]
