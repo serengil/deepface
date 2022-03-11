@@ -28,17 +28,19 @@ print("-----------------------------------------")
 #-----------------------------------------
 
 print("DeepFace.detectFace test")
-detectors = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
+#detectors = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface']
+detectors = ['opencv', 'ssd', 'mtcnn', 'retinaface']
+
 for detector in detectors:
 	img = DeepFace.detectFace("dataset/img11.jpg", detector_backend = detector)
 	print(detector," test is done")
+
 #import matplotlib.pyplot as plt
 #plt.imshow(img)
 #plt.show()
 
 #-----------------------------------------
 print("-----------------------------------------")
-
 
 img_path = "dataset/img1.jpg"
 embedding = DeepFace.represent(img_path)
@@ -73,9 +75,10 @@ print("opencv detector")
 res = DeepFace.verify(dataset, detector_backend = 'opencv')
 print(res)
 
-print("dlib detector")
-res = DeepFace.verify(dataset, detector_backend = 'dlib')
-print(res)
+if False:
+	print("dlib detector")
+	res = DeepFace.verify(dataset, detector_backend = 'dlib')
+	print(res)
 
 print("mtcnn detector")
 res = DeepFace.verify(dataset, detector_backend = 'mtcnn')
@@ -192,7 +195,7 @@ dataset = [
 
 #models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace', 'DeepID', 'Dlib', 'ArcFace']
 metrics = ['cosine', 'euclidean', 'euclidean_l2']
-models = ['VGG-Face', 'Facenet', 'Facenet512', 'Dlib', 'ArcFace'] #those are robust models
+models = ['VGG-Face', 'Facenet', 'Facenet512', 'ArcFace'] #those are robust models
 #metrics = ['cosine']
 
 passed_tests = 0; test_cases = 0
@@ -267,41 +270,46 @@ print(resp_obj)
 #-----------------------------------
 print("--------------------------")
 
-print("Ensemble for find function")
-df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset", model_name = "Ensemble")
-print(df.head())
+if False:
+	print("Ensemble for find function")
+	df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset", model_name = "Ensemble")
+	print(df.head())
 
 #-----------------------------------
 print("--------------------------")
 
-print("Ensemble for verify function")
-resp_obj = DeepFace.verify(dataset, model_name = "Ensemble")
+if False:
+	print("Ensemble for verify function")
+	resp_obj = DeepFace.verify(dataset, model_name = "Ensemble")
 
-for i in range(0, len(dataset)):
-	item = resp_obj['pair_%s' % (i+1)]
-	verified = item["verified"]
-	score = item["score"]
-	print(verified)
-
-#-----------------------------------
-print("--------------------------")
-
-print("Pre-trained ensemble method - find")
-
-from deepface import DeepFace
-from deepface.basemodels import Boosting
-
-model = Boosting.loadModel()
-df = DeepFace.find("dataset/img1.jpg", db_path = "dataset", model_name = 'Ensemble', model = model, enforce_detection=False)
-
-print(df)
+	for i in range(0, len(dataset)):
+		item = resp_obj['pair_%s' % (i+1)]
+		verified = item["verified"]
+		score = item["score"]
+		print(verified)
 
 #-----------------------------------
 print("--------------------------")
 
-print("Pre-trained ensemble method - verify")
-res = DeepFace.verify(dataset, model_name = "Ensemble", model = model)
-print(res)
+if False:
+
+	print("Pre-trained ensemble method - find")
+
+	from deepface import DeepFace
+	from deepface.basemodels import Boosting
+
+	model = Boosting.loadModel()
+	df = DeepFace.find("dataset/img1.jpg", db_path = "dataset", model_name = 'Ensemble', model = model, enforce_detection=False)
+
+	print(df)
+
+#-----------------------------------
+print("--------------------------")
+
+if False:
+	print("Pre-trained ensemble method - verify")
+	res = DeepFace.verify(dataset, model_name = "Ensemble", model = model)
+	print(res)
 
 #-----------------------------------
 print("--------------------------")
