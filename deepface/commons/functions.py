@@ -36,7 +36,7 @@ def initialize_input(img1_path, img2_path = None):
 		bulkProcess = False
 
 		if (
-			(type(img2_path) == str and img2_path != None) #exact image path, base64 image
+			(type(img2_path) == str) #exact image path, base64 image
 			or (isinstance(img2_path, np.ndarray) and img2_path.any()) #numpy array
 		):
 			img_list = [[img1_path, img2_path]]
