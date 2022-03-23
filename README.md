@@ -28,7 +28,7 @@ The easiest way to install deepface is to download it from [`PyPI`](https://pypi
 pip install deepface
 ```
 
-Then you will be able to import the library and use its functionalities.
+Then you will be able to import the library and use its functionalities. You need to download weight of about 512MB when you are using this library for the first time.
 
 ```python
 from deepface import DeepFace
