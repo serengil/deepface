@@ -206,7 +206,7 @@ gbm.save_model("face-recognition-ensemble-model.txt")
 #--------------------------
 #Evaluation
 
-predictions = gbm.predict(x_test)
+prediction_classes = gbm.predict(x_test)
 
 prediction_classes = []
 for prediction in predictions:

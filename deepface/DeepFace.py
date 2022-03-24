@@ -280,7 +280,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			models['age'] = DeepFace.build_model('Age')
 			models['gender'] = DeepFace.build_model('Gender')
 			models['emotion'] = DeepFace.build_model('Emotion')
-			models['race'] = DeepFace.build_model('race')
+			models['race'] = DeepFace.build_model('Race')
 
 		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
 
