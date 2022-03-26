@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import itertools
 from sklearn import metrics
-from sklearn.metrics import confusion_matrix,accuracy_score, roc_curve, auc
+from sklearn.metrics import confusion_matrix, accuracy_score, roc_curve, auc, roc_auc_score
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 tqdm.pandas()
@@ -45,8 +45,6 @@ for key, values in idendities.items():
 positives = pd.DataFrame(positives, columns = ["file_x", "file_y"])
 positives["decision"] = "Yes"
 
-positives = positives.sample(12)
-
 print(positives.shape)
 #--------------------------
 #Negatives
@@ -85,24 +83,11 @@ print(df.decision.value_counts())
 df.file_x = "dataset/"+df.file_x
 df.file_y = "dataset/"+df.file_y
 
-print(df.head())
-
 #--------------------------
 #DeepFace
 
 from deepface import DeepFace
 from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
-
-pretrained_models = {}
-
-pretrained_models["VGG-Face"] = VGGFace.loadModel()
-print("VGG-Face loaded")
-pretrained_models["Facenet"] = Facenet.loadModel()
-print("Facenet loaded")
-pretrained_models["OpenFace"] = OpenFace.loadModel()
-print("OpenFace loaded")
-pretrained_models["DeepFace"] = FbDeepFace.loadModel()
-print("FbDeepFace loaded")
 
 instances = df[["file_x", "file_y"]].values.tolist()
 
@@ -110,6 +95,18 @@ models = ['VGG-Face', 'Facenet', 'OpenFace', 'DeepFace']
 metrics = ['cosine', 'euclidean_l2']
 
 if True:
+
+    pretrained_models = {}
+
+    pretrained_models["VGG-Face"] = VGGFace.loadModel()
+    print("VGG-Face loaded")
+    pretrained_models["Facenet"] = Facenet.loadModel()
+    print("Facenet loaded")
+    pretrained_models["OpenFace"] = OpenFace.loadModel()
+    print("OpenFace loaded")
+    pretrained_models["DeepFace"] = FbDeepFace.loadModel()
+    print("FbDeepFace loaded")
+
     for model in models:
         for metric in metrics:
 
@@ -152,6 +149,7 @@ for model in models:
         figure_idx = figure_idx + 1
 
 plt.show()
+
 #--------------------------
 #Pre-processing for modelling
 
@@ -184,6 +182,10 @@ x_train = df_train.drop(columns=[target_name]).values
 y_test = df_test[target_name].values
 x_test = df_test.drop(columns=[target_name]).values
 
+#print("target distribution:")
+#print(df_train[target_name].value_counts())
+#print(df_test[target_name].value_counts())
+
 #--------------------------
 #LightGBM
 
@@ -201,7 +203,7 @@ params = {
     , 'metric': 'multi_logloss'
 }
 
-gbm = lgb.train(params, lgb_train, num_boost_round=250, early_stopping_rounds = 15 , valid_sets=lgb_test)
+gbm = lgb.train(params, lgb_train, num_boost_round=500, early_stopping_rounds = 50, valid_sets=lgb_test)
 
 gbm.save_model("face-recognition-ensemble-model.txt")
 
@@ -214,6 +216,8 @@ prediction_classes = []
 for prediction in predictions:
     prediction_class = np.argmax(prediction)
     prediction_classes.append(prediction_class)
+
+y_test = list(y_test)
 
 cm = confusion_matrix(y_test, prediction_classes)
 print(cm)
@@ -235,6 +239,7 @@ print("Accuracy: ", 100*accuracy,"%")
 ax = lgb.plot_importance(gbm, max_num_features=20)
 plt.show()
 
+"""
 import os
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin'
 
@@ -246,13 +251,14 @@ for i in range(0, gbm.num_trees()):
 
     if i == 2:
         break
+"""
 #--------------------------
 #ROC Curve
 
 y_pred_proba = predictions[::,1]
 
-fpr, tpr, _ = metrics.roc_curve(y_test,  y_pred_proba)
-auc = metrics.roc_auc_score(y_test, y_pred_proba)
+fpr, tpr, _ = roc_curve(y_test,  y_pred_proba)
+auc = roc_auc_score(y_test, y_pred_proba)
 
 plt.figure(figsize=(7,3))
 plt.plot(fpr,tpr,label="data 1, auc="+str(auc))
