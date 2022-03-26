@@ -45,6 +45,8 @@ for key, values in idendities.items():
 positives = pd.DataFrame(positives, columns = ["file_x", "file_y"])
 positives["decision"] = "Yes"
 
+positives = positives.sample(12)
+
 print(positives.shape)
 #--------------------------
 #Negatives
@@ -206,16 +208,12 @@ gbm.save_model("face-recognition-ensemble-model.txt")
 #--------------------------
 #Evaluation
 
-prediction_classes = gbm.predict(x_test)
+predictions = gbm.predict(x_test)
 
 prediction_classes = []
 for prediction in predictions:
     prediction_class = np.argmax(prediction)
     prediction_classes.append(prediction_class)
-
-print(y_test)
-print("------")
-print(prediction_classes)
 
 cm = confusion_matrix(y_test, prediction_classes)
 print(cm)
