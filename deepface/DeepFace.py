@@ -72,7 +72,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 	This function verifies an image pair is same person or different persons.
 
 	Parameters:
-		img1_path, img2_path: exact image path, numpy array or based64 encoded images could be passed. If you are going to call verify function for a list of image pairs, then you should pass an array instead of calling the function in for loops.
+		img1_path, img2_path: exact image path, numpy array (BGR) or based64 encoded images could be passed. If you are going to call verify function for a list of image pairs, then you should pass an array instead of calling the function in for loops.
 
 		e.g. img1_path = [
 			['img1.jpg', 'img2.jpg'],
@@ -270,7 +270,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 	This function analyzes facial attributes including age, gender, emotion and race
 
 	Parameters:
-		img_path: exact image path, numpy array or base64 encoded image could be passed. If you are going to analyze lots of images, then set this to list. e.g. img_path = ['img1.jpg', 'img2.jpg']
+		img_path: exact image path, numpy array (BGR) or base64 encoded image could be passed. If you are going to analyze lots of images, then set this to list. e.g. img_path = ['img1.jpg', 'img2.jpg']
 
 		actions (tuple): The default is ('age', 'gender', 'emotion', 'race'). You can drop some of those attributes.
 
@@ -472,7 +472,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 	This function applies verification several times and find an identity in a database
 
 	Parameters:
-		img_path: exact image path, numpy array or based64 encoded image. If you are going to find several identities, then you should pass img_path as array instead of calling find function in a for loop. e.g. img_path = ["img1.jpg", "img2.jpg"]
+		img_path: exact image path, numpy array (BGR) or based64 encoded image. If you are going to find several identities, then you should pass img_path as array instead of calling find function in a for loop. e.g. img_path = ["img1.jpg", "img2.jpg"]
 
 		db_path (string): You should store some .jpg files in a folder and pass the exact folder path to this.
 
@@ -722,7 +722,7 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	This function represents facial images as vectors.
 
 	Parameters:
-		img_path: exact image path, numpy array or based64 encoded images could be passed.
+		img_path: exact image path, numpy array (BGR) or based64 encoded images could be passed.
 
 		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib, ArcFace.
 
@@ -806,7 +806,7 @@ def detectFace(img_path, target_size = (224, 224), detector_backend = 'opencv', 
 	This function applies pre-processing stages of a face recognition pipeline including detection and alignment
 
 	Parameters:
-		img_path: exact image path, numpy array or base64 encoded image
+		img_path: exact image path, numpy array (BGR) or base64 encoded image
 
 		detector_backend (string): face detection backends are retinaface, mtcnn, opencv, ssd or dlib
 
