@@ -13,7 +13,10 @@ model = VGGFace.loadModel()
 #model = OpenFace.loadModel()
 #model = FbDeepFace.loadModel()
 
-input_shape = model.layers[0].input_shape[1:3]
+try:
+	input_shape = model.layers[0].input_shape[1:3]
+except: #issue 470
+	input_shape = model.layers[0].input_shape[0][1:3]
 
 print("model input shape: ", model.layers[0].input_shape[1:])
 print("model output shape: ", model.layers[-1].input_shape[-1])
