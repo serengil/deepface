@@ -821,7 +821,4 @@ def detectFace(img_path, target_size = (224, 224), detector_backend = 'opencv', 
 #---------------------------
 #main
 
-def __main__():
-	pass
-
 functions.initialize_folder()
