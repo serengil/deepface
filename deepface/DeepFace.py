@@ -11,9 +11,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import pickle
+import fire
 
-from deepface.basemodels import VGGFace, OpenFace, Facenet, Facenet512, FbDeepFace, DeepID, DlibWrapper, ArcFace, \
-	Boosting, sface_opencv_wrapper
+from deepface.basemodels import VGGFace, OpenFace, Facenet, Facenet512, FbDeepFace, DeepID, DlibWrapper, ArcFace, Boosting, sface_opencv_wrapper
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -824,3 +824,6 @@ def detectFace(img_path, target_size = (224, 224), detector_backend = 'opencv', 
 #main
 
 functions.initialize_folder()
+
+def cli():
+	fire.Fire()
