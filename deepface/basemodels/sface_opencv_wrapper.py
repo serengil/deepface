@@ -34,7 +34,7 @@ class SFace:
 
     def predict(self, image, bbox=None, **kwargs):
         # Preprocess
-        image = (image[0] * 255).astype(np.uint8)  # revert the iamge to original format and preprocess using the model
+        image = (image[0] * 255).astype(np.uint8)  # revert the image to original format and preprocess using the model
         input_blob = self._preprocess(image, bbox)
 
         # Forward
