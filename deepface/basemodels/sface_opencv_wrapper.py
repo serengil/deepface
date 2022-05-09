@@ -10,7 +10,7 @@ _url = "https://github.com/opencv/opencv_zoo/raw/master/models/face_recognition_
 
 
 class _Layer:
-    input_shape = (None, 112, 122, 3)
+    input_shape = (None, 112, 112, 3)
 
 
 class SFace:
