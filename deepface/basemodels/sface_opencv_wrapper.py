@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import cv2 as cv
 import gdown
 
@@ -33,11 +34,11 @@ class SFace:
 
     def predict(self, image, bbox=None, **kwargs):
         # Preprocess
-        # print(image.max())
-        # input_blob = self._preprocess(image, bbox)
+        image = (image[0] * 255).astype(np.uint8)  # revert the iamge to original format and preprocess using the model
+        input_blob = self._preprocess(image, bbox)
 
         # Forward
-        features = self._model.feature(image[0])
+        features = self._model.feature(input_blob)
         return features
 
 
