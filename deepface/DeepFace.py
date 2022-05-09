@@ -11,10 +11,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import pickle
-
 import fire
 
-from deepface.basemodels import VGGFace, OpenFace, Facenet, Facenet512, FbDeepFace, DeepID, DlibWrapper, ArcFace, Boosting
+from deepface.basemodels import VGGFace, OpenFace, Facenet, Facenet512, FbDeepFace, DeepID, DlibWrapper, ArcFace, Boosting, sface_opencv_wrapper
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 
@@ -48,6 +47,7 @@ def build_model(model_name):
 		'DeepID': DeepID.loadModel,
 		'Dlib': DlibWrapper.loadModel,
 		'ArcFace': ArcFace.loadModel,
+		'SFace': sface_opencv_wrapper.load_model,
 		'Emotion': Emotion.loadModel,
 		'Age': Age.loadModel,
 		'Gender': Gender.loadModel,
