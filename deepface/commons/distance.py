@@ -33,7 +33,7 @@ def findThreshold(model_name, distance_metric):
         'Dlib': 	{'cosine': 0.07, 'euclidean': 0.6, 'euclidean_l2': 0.4},
 
         #TODO: find the best threshold values
-        'SFace': 	{'cosine': 0.40, 'euclidean': 9.5, 'euclidean_l2': 0.90},
+        'SFace': 	{'cosine': 0.5932763306134152, 'euclidean': 10.734038121282206, 'euclidean_l2': 1.055836701022614},
 
 		'OpenFace': {'cosine': 0.10, 'euclidean': 0.55, 'euclidean_l2': 0.55},
 		'DeepFace': {'cosine': 0.23, 'euclidean': 64, 'euclidean_l2': 0.64},
