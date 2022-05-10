@@ -253,7 +253,7 @@ Please cite deepface in your publications if it helps your research. Here are Bi
 }
 ```
 
-Also, if you use deepface in your GitHub projects, please add deepface in the requirements.txt.
+Also, if you use deepface in your GitHub projects, please add deepface in the `requirements.txt`.
 
 ## Licence
 
