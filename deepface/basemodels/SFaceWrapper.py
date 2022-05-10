@@ -6,12 +6,9 @@ import gdown
 
 from deepface.commons import functions
 
-_url = "https://github.com/opencv/opencv_zoo/raw/master/models/face_recognition_sface/face_recognition_sface_2021dec.onnx"
-
-
 class _Layer:
     input_shape = (None, 112, 112, 3)
-
+    output_shape = (None, 1, 128)
 
 class SFace:
     def __init__(self, model_path, backend_id=0, target_id=0):
@@ -42,7 +39,7 @@ class SFace:
         return features
 
 
-def load_model(*args, **kwargs):
+def load_model(url = "https://github.com/opencv/opencv_zoo/raw/master/models/face_recognition_sface/face_recognition_sface_2021dec.onnx", *args, **kwargs):
     home = functions.get_deepface_home()
 
     file_name = home + '/.deepface/weights/face_recognition_sface_2021dec.onnx'
@@ -50,7 +47,7 @@ def load_model(*args, **kwargs):
         print("sface weights will be downloaded...")
 
         output = file_name
-        gdown.download(_url, output, quiet=False)
+        gdown.download(url, output, quiet=False)
 
     model = SFace(file_name, 0, 0)
     return model
