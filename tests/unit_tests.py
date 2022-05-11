@@ -5,8 +5,6 @@ import os
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-from deepface import DeepFace
-from deepface.commons import functions
 import json
 import time
 import unittest
@@ -26,6 +24,8 @@ class deepface_unit_tests(unittest.TestCase):
 
         print("Running unit tests for TF ", tf.__version__)
 
+        from deepface import DeepFace
+        from deepface.commons import functions
         from deepface.basemodels import VGGFace, OpenFace, Facenet, FbDeepFace
         from deepface.extendedmodels import Age, Gender, Race, Emotion
 
