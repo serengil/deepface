@@ -67,4 +67,4 @@ jobs:
     - name: Test with pytest
       run: |
         cd tests
-        pytest deepface/tests/unit_tests.py
+        pytest /home/runner/work/deepface/tests/unit_tests.py
