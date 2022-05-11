@@ -348,6 +348,6 @@ class deepface_unit_tests(unittest.TestCase):
 
         print("--------------------------")
 
-        self.assertEqual(accuracy >= min_score, False, "A problem on the deepface installation.")
+        self.assertEqual(accuracy >= min_score, True, "A problem on the deepface installation.")
 
 unittest.main(exit=False)
