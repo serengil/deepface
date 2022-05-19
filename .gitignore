@@ -1,6 +1,7 @@
 __pycache__/*
 basemodels/__pycache__/*
 configurations/__pycache__/*
+tests/__pycache__/*
 build/
 dist/
 Pipfile
