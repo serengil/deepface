@@ -60,7 +60,7 @@ def test_cases():
 
 	for detector in detectors:
 		img = DeepFace.detectFace("dataset/img11.jpg", detector_backend = detector)
-		evaluate( img.shape[0] > 0 and img.shape[1] > 0 )
+		evaluate(img.shape[0] > 0 and img.shape[1] > 0)
 		print(detector," test is done")
 
 	print("-----------------------------------------")
@@ -68,7 +68,7 @@ def test_cases():
 	img_path = "dataset/img1.jpg"
 	embedding = DeepFace.represent(img_path)
 	print("Function returned ", len(embedding), "dimensional vector")
-	evaluate( len(embedding) > 0 )
+	evaluate(len(embedding) > 0)
 
 	print("-----------------------------------------")
 
@@ -86,7 +86,7 @@ def test_cases():
 
 	df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset")
 	print(df.head())
-	evaluate( df.shape[0] > 0 )
+	evaluate(df.shape[0] > 0)
 
 	print("-----------------------------------------")
 
@@ -96,8 +96,8 @@ def test_cases():
 	demography = DeepFace.analyze(img)
 	print(demography)
 
-	evaluate(  demography["age"] > 20 and demography["age"] < 40 )
-	evaluate(  demography["gender"] == "Woman" )
+	evaluate(demography["age"] > 20 and demography["age"] < 40)
+	evaluate(demography["gender"] == "Woman")
 
 	print("-----------------------------------------")
 
@@ -113,10 +113,10 @@ def test_cases():
 	print("Race: ", demography["dominant_race"])
 	print("Emotion: ", demography["dominant_emotion"])
 
-	evaluate(  demography.get("age") is not None )
-	evaluate(  demography.get("gender") is not None ) 
-	evaluate(  demography.get("dominant_race") is not None ) 
-	evaluate(  demography.get("dominant_emotion") is not None )
+	evaluate(demography.get("age") is not None)
+	evaluate(demography.get("gender") is not None) 
+	evaluate(demography.get("dominant_race") is not None) 
+	evaluate(demography.get("dominant_emotion") is not None)
 
 	print("-----------------------------------------")
 
@@ -128,20 +128,16 @@ def test_cases():
 	print("Race: ", demography.get("dominant_race"))
 	print("Emotion: ", demography.get("dominant_emotion"))
 
-	evaluate(  demography.get("age") is not None )
-	evaluate(  demography.get("gender") is not None )
-	evaluate(  demography.get("dominant_race") is None )
-	evaluate(  demography.get("dominant_emotion") is None )
+	evaluate(demography.get("age") is not None)
+	evaluate(demography.get("gender") is not None)
+	evaluate(demography.get("dominant_race") is None)
+	evaluate(demography.get("dominant_emotion") is None)
 
 	print("-----------------------------------------")
 
-	print("Face recognition tests")
-
-	passed_tests = 0; test_cases = 0
+	print("Facial recognition tests")
 
 	for model in models:
-		#prebuilt_model = DeepFace.build_model(model)
-		#print(model," is built")
 		for metric in metrics:
 			for instance in dataset:
 				img1 = instance[0]
@@ -150,26 +146,25 @@ def test_cases():
 
 				resp_obj = DeepFace.verify(img1, img2
 							, model_name = model
-							#, model = prebuilt_model
 							, distance_metric = metric)
 
 				prediction = resp_obj["verified"]
 				distance = round(resp_obj["distance"], 2)
 				threshold = resp_obj["threshold"]
 
-				evaluate( prediction == result )
+				passed = prediction == result 
 
-				test_result_label = "failed"
-				if prediction == result:
-					passed_tests = passed_tests + 1
+				evaluate(passed)
+
+				if passed:
 					test_result_label = "passed"
+				else:
+					test_result_label = "failed"
 
 				if prediction == True:
 					classified_label = "verified"
 				else:
 					classified_label = "unverified"
-
-				test_cases = test_cases + 1
 
 				print(img1.split("/")[-1], "-", img2.split("/")[-1], classified_label, "as same person based on", model,"and",metric,". Distance:",distance,", Threshold:", threshold,"(",test_result_label,")")
 
@@ -177,16 +172,6 @@ def test_cases():
 
 	#-----------------------------------------
 
-	print("Passed unit tests: ",passed_tests," / ",test_cases)
-
-	min_score = 70
-
-	accuracy = 100 * passed_tests / test_cases
-	accuracy = round(accuracy, 2)
-
-	print("--------------------------")
-
-	#-----------------------------------
 	print("--------------------------")
 
 	print("Passing numpy array to analyze function")
@@ -195,8 +180,8 @@ def test_cases():
 	resp_obj = DeepFace.analyze(img)
 	print(resp_obj)
 
-	evaluate(  resp_obj["age"] > 20 and resp_obj["age"] < 40 )
-	evaluate(  resp_obj["gender"] == "Woman" )
+	evaluate(resp_obj["age"] > 20 and resp_obj["age"] < 40)
+	evaluate(resp_obj["gender"] == "Woman")
 
 	print("--------------------------")
 
@@ -208,7 +193,7 @@ def test_cases():
 	res = DeepFace.verify(img1, img2)
 	print(res)
 
-	evaluate(  res["verified"] == True )
+	evaluate(res["verified"] == True)
 
 	print("--------------------------")
 
@@ -220,7 +205,7 @@ def test_cases():
 
 	print(df.head())
 
-	evaluate(  df.shape[0] > 0 )
+	evaluate(df.shape[0] > 0)
 
 	print("--------------------------")
 
