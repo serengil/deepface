@@ -19,9 +19,8 @@ print("Running unit tests for TF ", tf.__version__)
 
 print("-----------------------------------------")
 
-test_threshold = 97
-num_cases = 0
-succeed_cases = 0
+expected_coverage = 97
+num_cases = 0; succeed_cases = 0
 
 def evaluate(condition):
 
@@ -82,7 +81,7 @@ def test_cases():
 
 	print("-----------------------------------------")
 
-	print("Single find function test")
+	print("Find function test")
 
 	df = DeepFace.find(img_path = "dataset/img1.jpg", db_path = "dataset")
 	print(df.head())
@@ -170,10 +169,8 @@ def test_cases():
 
 			print("--------------------------")
 
-	#-----------------------------------------
-
-	print("--------------------------")
-
+	# -----------------------------------------
+	
 	print("Passing numpy array to analyze function")
 
 	img = cv2.imread("dataset/img1.jpg")
@@ -218,9 +215,9 @@ test_score = (100 * succeed_cases) / num_cases
 
 print("test coverage: " + str(test_score))
 
-if test_score > test_threshold:
-	print("min required test coverage is satisfied")
+if test_score > expected_coverage:
+	print("well done! min required test coverage is satisfied")
 else:
 	print("min required test coverage is NOT satisfied")
 
-assert test_score > test_threshold
+assert test_score > expected_coverage
