@@ -67,4 +67,5 @@ jobs:
     - name: Test with pytest
       run: |
         cd tests
-        pytest unit_tests.py -s
+        pytest unit_tests.py
+    
