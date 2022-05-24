@@ -6,6 +6,8 @@
 [![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow&style=flat)](https://github.com/serengil/deepface/stargazers)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
+
+
 [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dserengil%26type%3Dpatrons&style=flat)](https://www.patreon.com/serengil?repo=deepface)
 [![Twitter](https://img.shields.io/twitter/follow/serengil?color=blue&logo=twitter&style=flat)](https://twitter.com/serengil)
 
