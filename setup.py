@@ -13,7 +13,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/serengil/deepface",
     packages=setuptools.find_packages(),
-    scripts=['deepface/models/face-recognition-ensemble-model.txt'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
