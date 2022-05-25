@@ -21,7 +21,7 @@ Deepface is a lightweight [face recognition](https://sefiks.com/2018/08/06/deep-
 
 Experiments show that human beings have 97.53% accuracy on facial recognition tasks whereas those models already reached and passed that accuracy level.
 
-## Installation
+## Installation [![PyPI](https://img.shields.io/pypi/v/deepface.svg)](https://pypi.org/project/deepface/)
 
 The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well. The library is mainly powered by TensorFlow and Keras.
 
@@ -212,7 +212,7 @@ Tech stack is vast to store vector embeddings. To determine the right tool, you 
 
 ## Contribution
 
-Pull requests are welcome! You should run the unit tests locally by running [`test/unit_tests.py`](https://github.com/serengil/deepface/blob/master/tests/unit_tests.py). Once a PR sent, GitHub test workflow will be run automatically and unit test results will be available in GitHub actions before approval.
+Pull requests are welcome! You should run the unit tests locally by running [`test/unit_tests.py`](https://github.com/serengil/deepface/blob/master/tests/unit_tests.py). Once a PR sent, GitHub test workflow will be run automatically and unit test results will be available in [GitHub actions](https://github.com/serengil/deepface/actions) before approval.
 
 ## Support
 
