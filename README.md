@@ -193,8 +193,11 @@ Face recognition, facial attribute analysis and vector representation functions 
 DeepFace comes with a command line interface as well. You are able to access its functions in command line as shown below. The command deepface expects the function name as 1st argument and function arguments thereafter.
 
 ```shell
-deepface verify -img1_path tests/dataset/img1.jpg -img2_path tests/dataset/img2.jpg
-deepface analyze -img_path tests/dataset/img1.jpg
+#face verification
+$ deepface verify -img1_path tests/dataset/img1.jpg -img2_path tests/dataset/img2.jpg
+
+#facial analysis
+$ deepface analyze -img_path tests/dataset/img1.jpg
 ```
 
 **Tech Stack** - [`Vlog`](https://youtu.be/R8fHsL7u3eE), [`Tutorial`](https://sefiks.com/2021/03/31/tech-stack-recommendations-for-face-recognition/)
