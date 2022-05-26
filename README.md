@@ -3,7 +3,7 @@
 <div align="center">
 
 [![Downloads via PyPI](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
-[![Downloads via Conda](https://anaconda.org/conda-forge/deepface/badges/downloads.svg)](https://anaconda.org/conda-forge/deepface)
+[![Downloads via Conda](https://anaconda.org/conda-forge/deepface/badges/downloads.svg&style=flat)](https://anaconda.org/conda-forge/deepface)
 [![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow&style=flat)](https://github.com/serengil/deepface/stargazers)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dserengil%26type%3Dpatrons&style=flat)](https://www.patreon.com/serengil?repo=deepface)
