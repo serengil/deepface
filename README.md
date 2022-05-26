@@ -26,13 +26,13 @@ Experiments show that human beings have 97.53% accuracy on facial recognition ta
 The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well.
 
 ```shell
-pip install deepface
+$ pip install deepface
 ```
 
 DeepFace is also available at [`Conda`](https://anaconda.org/conda-forge/deepface).
 
 ```shell
-conda install deepface
+$ conda install -c conda-forge deepface
 ```
 
 Then you will be able to import the library and use its functionalities.
