@@ -2,7 +2,8 @@
 
 <div align="center">
 
-[![Downloads](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
+[![Downloads via PyPI](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
+[![Downloads via Conda](https://anaconda.org/conda-forge/deepface/badges/downloads.svg)](https://anaconda.org/conda-forge/deepface)
 [![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow&style=flat)](https://github.com/serengil/deepface/stargazers)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dserengil%26type%3Dpatrons&style=flat)](https://www.patreon.com/serengil?repo=deepface)
@@ -20,12 +21,18 @@ Deepface is a lightweight [face recognition](https://sefiks.com/2018/08/06/deep-
 
 Experiments show that human beings have 97.53% accuracy on facial recognition tasks whereas those models already reached and passed that accuracy level.
 
-## Installation [![PyPI](https://img.shields.io/pypi/v/deepface.svg)](https://pypi.org/project/deepface/)
+## Installation [![PyPI](https://img.shields.io/pypi/v/deepface.svg)](https://pypi.org/project/deepface/) [![Conda](https://img.shields.io/conda/vn/conda-forge/deepface.svg)](https://anaconda.org/conda-forge/deepface)
 
-The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well. The library is mainly powered by TensorFlow and Keras.
+The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well.
 
-```python
+```shell
 pip install deepface
+```
+
+DeepFace is also available at [`Conda`](https://anaconda.org/conda-forge/deepface).
+
+```shell
+conda install deepface
 ```
 
 Then you will be able to import the library and use its functionalities.
