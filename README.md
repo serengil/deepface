@@ -29,7 +29,7 @@ The easiest way to install deepface is to download it from [`PyPI`](https://pypi
 $ pip install deepface
 ```
 
-DeepFace is also available at [`Conda`](https://anaconda.org/conda-forge/deepface).
+DeepFace is also available at [`Conda`](https://anaconda.org/conda-forge/deepface). You can alternatively install the package via conda.
 
 ```shell
 $ conda install -c conda-forge deepface
