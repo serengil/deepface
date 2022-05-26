@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Downloads via PyPI](https://pepy.tech/badge/deepface)](https://pepy.tech/project/deepface)
+[![Downloads](https://static.pepy.tech/personalized-badge/deepface?period=month&units=international_system&left_color=grey&right_color=blue&left_text=pypi%20downloads)](https://pepy.tech/project/deepface)
 [![Downloads via Conda](https://img.shields.io/badge/conda%20downloads-12%20total-green.svg?style=flat)](https://anaconda.org/conda-forge/deepface)
 [![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow&style=flat)](https://github.com/serengil/deepface/stargazers)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
