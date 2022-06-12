@@ -23,7 +23,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 	arcface_model = keras.layers.Flatten()(arcface_model)
 	arcface_model = keras.layers.Dense(512, activation=None, use_bias=True, kernel_initializer="glorot_normal")(arcface_model)
 	embedding = keras.layers.BatchNormalization(momentum=0.9, epsilon=2e-5, name="embedding", scale=True)(arcface_model)
-	model = keras.models.Model(inputs, embedding, name=base_model.name)
+	model = keras.detectors.Model(inputs, embedding, name=base_model.name)
 
 	#---------------------------------------
 	#check the availability of pre-trained weights

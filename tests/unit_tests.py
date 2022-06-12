@@ -96,7 +96,7 @@ def test_cases():
 	print(demography)
 
 	evaluate(demography["age"] > 20 and demography["age"] < 40)
-	evaluate(demography["gender"] == "Woman")
+	evaluate(demography["dominant_gender"] == "Woman")
 
 	print("-----------------------------------------")
 
@@ -108,12 +108,12 @@ def test_cases():
 
 	#check response is a valid json
 	print("Age: ", demography["age"])
-	print("Gender: ", demography["gender"])
+	print("Gender: ", demography["dominant_gender"])
 	print("Race: ", demography["dominant_race"])
 	print("Emotion: ", demography["dominant_emotion"])
 
 	evaluate(demography.get("age") is not None)
-	evaluate(demography.get("gender") is not None) 
+	evaluate(demography.get("dominant_gender") is not None)
 	evaluate(demography.get("dominant_race") is not None) 
 	evaluate(demography.get("dominant_emotion") is not None)
 
@@ -123,12 +123,12 @@ def test_cases():
 	demography = DeepFace.analyze(img, ['age', 'gender'])
 
 	print("Age: ", demography.get("age"))
-	print("Gender: ", demography.get("gender"))
+	print("Gender: ", demography.get("dominant_gender"))
 	print("Race: ", demography.get("dominant_race"))
 	print("Emotion: ", demography.get("dominant_emotion"))
 
 	evaluate(demography.get("age") is not None)
-	evaluate(demography.get("gender") is not None)
+	evaluate(demography.get("dominant_gender") is not None)
 	evaluate(demography.get("dominant_race") is None)
 	evaluate(demography.get("dominant_emotion") is None)
 

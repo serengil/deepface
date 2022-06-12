@@ -294,7 +294,11 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 		{
 			"region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
 			"age": 28.66,
-			"gender": "woman",
+			"dominant_gender": "Woman",
+			"gender": {
+				'Woman': 99.99407529830933,
+				'Man': 0.005928758764639497,
+			}
 			"dominant_emotion": "neutral",
 			"emotion": {
 				'sad': 37.65260875225067,
@@ -417,14 +421,19 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 				if img_224 is None:
 					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-				gender_prediction = models['gender'].predict(img_224)[0,:]
+				gender_predictions = models['gender'].predict(img_224)[0,:]
 
-				if np.argmax(gender_prediction) == 0:
-					gender = "Woman"
-				elif np.argmax(gender_prediction) == 1:
-					gender = "Man"
+				sum_of_predictions = gender_predictions.sum()
+				gender_labels = ["Woman", "Man"]
+				resp_obj["gender"] = {}
 
-				resp_obj["gender"] = gender
+				for i in range(0, len(gender_labels)):
+					gender_label = gender_labels[i]
+					gender_prediction = 100 * gender_predictions[i] / sum_of_predictions
+					resp_obj["gender"][gender_label] = gender_prediction
+
+				resp_obj["dominant_gender"] = gender_labels[np.argmax(gender_predictions)]
+
 
 			elif action == 'race':
 				if img_224 is None:
