@@ -418,23 +418,26 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 				resp_obj["age"] = int(apparent_age) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 			elif action == 'gender':
-				if img_224 is None:
-					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
+				try:
+					if img_224 is None:
+						img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-				gender_predictions = models['gender'].predict(img_224)[0,:]
+					gender_predictions = models['gender'].predict(img_224)[0,:]
 
-				sum_of_predictions = gender_predictions.sum()
-				gender_labels = ["Woman", "Man"]
-				resp_obj["gender"] = {}
+					sum_of_predictions = gender_predictions.sum()
+					gender_labels = ["Woman", "Man"]
+					resp_obj["gender"] = {}
 
-				for i in range(0, len(gender_labels)):
-					gender_label = gender_labels[i]
-					gender_prediction = 100 * gender_predictions[i] / sum_of_predictions
-					resp_obj["gender"][gender_label] = gender_prediction
+					for i in range(0, len(gender_labels)):
+						gender_label = gender_labels[i]
+						gender_prediction = 100 * gender_predictions[i] / sum_of_predictions
+						resp_obj["gender"][gender_label] = gender_prediction
 
-				resp_obj["dominant_gender"] = gender_labels[np.argmax(gender_predictions)]
-
-
+					resp_obj["dominant_gender"] = gender_labels[np.argmax(gender_predictions)]
+				except Exception as e:
+					resp_obj["dominant_gender"] = None
+					resp_obj["gender"] = None
+					resp_obj["error"] = e
 			elif action == 'race':
 				if img_224 is None:
 					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True) #just emotion model expects grayscale images
@@ -453,7 +456,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 
 			#-----------------------------
 
-			if is_region_set != True:
+			if is_region_set != True and region:
 				resp_obj["region"] = {}
 				is_region_set = True
 				for i, parameter in enumerate(region_labels):
@@ -467,14 +470,14 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			return resp_obj
 
 	if bulkProcess == True:
-
-		resp_obj = {}
-
-		for i in range(0, len(resp_objects)):
-			resp_item = resp_objects[i]
-			resp_obj["instance_%d" % (i+1)] = resp_item
-
-		return resp_obj
+		return resp_objects
+		# resp_obj = {}
+		#
+		# for i in range(0, len(resp_objects)):
+		# 	resp_item = resp_objects[i]
+		# 	resp_obj["instance_%d" % (i+1)] = resp_item
+		#
+		# return resp_obj
 
 def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, prog_bar = True, normalization = 'base', silent=False):
 
