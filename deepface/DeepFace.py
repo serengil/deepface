@@ -88,7 +88,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 			model = DeepFace.build_model('VGG-Face')
 
-		enforce_detection (boolean): If any face could not be detected in an image, then verify function will return exception. Set this to False not to have this exception. This might be convenient for low resolution images.
+		enforce_detection (boolean): If no face could not be detected in an image, then this function will return exception by default. Set this to False not to have this exception. This might be convenient for low resolution images.
 
 		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib
 
@@ -283,7 +283,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			models['emotion'] = DeepFace.build_model('Emotion')
 			models['race'] = DeepFace.build_model('Race')
 
-		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
+		enforce_detection (boolean): The function throws exception if no face detected by default. Set this to False if you don't want to get exception. This might be convenient for low resolution images.
 
 		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib.
 
