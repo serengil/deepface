@@ -9,9 +9,8 @@
 [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dserengil%26type%3Dpatrons&style=flat)](https://www.patreon.com/serengil?repo=deepface)
 [![Twitter](https://img.shields.io/twitter/follow/serengil?color=blue&logo=twitter&style=flat)](https://twitter.com/serengil)
 
-
-[![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802)
 [![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697)
+[![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802)
 
 </div>
 
@@ -238,19 +237,6 @@ You can also support this work on [Patreon](https://www.patreon.com/serengil?rep
 Please cite deepface in your publications if it helps your research. Here are BibTeX entries:
 
 ```BibTeX
-@inproceedings{serengil2020lightface,
-  title        = {LightFace: A Hybrid Deep Face Recognition Framework},
-  author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-  booktitle    = {2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
-  pages        = {23-27},
-  year         = {2020},
-  doi          = {10.1109/ASYU50717.2020.9259802},
-  url          = {https://doi.org/10.1109/ASYU50717.2020.9259802},
-  organization = {IEEE}
-}
-```
-
-```BibTeX
 @inproceedings{serengil2021lightface,
   title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
   author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
@@ -259,6 +245,19 @@ Please cite deepface in your publications if it helps your research. Here are Bi
   year         = {2021},
   doi          = {10.1109/ICEET53442.2021.9659697},
   url          = {https://doi.org/10.1109/ICEET53442.2021.9659697},
+  organization = {IEEE}
+}
+```
+
+```BibTeX
+@inproceedings{serengil2020lightface,
+  title        = {LightFace: A Hybrid Deep Face Recognition Framework},
+  author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+  booktitle    = {2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
+  pages        = {23-27},
+  year         = {2020},
+  doi          = {10.1109/ASYU50717.2020.9259802},
+  url          = {https://doi.org/10.1109/ASYU50717.2020.9259802},
   organization = {IEEE}
 }
 ```
