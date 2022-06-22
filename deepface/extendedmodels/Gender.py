@@ -18,6 +18,7 @@ elif tf_version == 2:
 
 #url = 'https://drive.google.com/uc?id=1wUXRVlbsni2FN9-jkS_f4UTUrm1bRLyk'
 
+
 def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.h5'):
 
 	model = VGGFace.baseModel()
