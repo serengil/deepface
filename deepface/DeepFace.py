@@ -424,13 +424,12 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 
 					gender_predictions = models['gender'].predict(img_224)[0,:]
 
-					sum_of_predictions = gender_predictions.sum()
 					gender_labels = ["Woman", "Man"]
 					resp_obj["gender"] = {}
 
 					for i in range(0, len(gender_labels)):
 						gender_label = gender_labels[i]
-						gender_prediction = 100 * gender_predictions[i] / sum_of_predictions
+						gender_prediction = 100 * gender_predictions[i]
 						resp_obj["gender"][gender_label] = gender_prediction
 
 					resp_obj["dominant_gender"] = gender_labels[np.argmax(gender_predictions)]
@@ -471,13 +470,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 
 	if bulkProcess == True:
 		return resp_objects
-		# resp_obj = {}
-		#
-		# for i in range(0, len(resp_objects)):
-		# 	resp_item = resp_objects[i]
-		# 	resp_obj["instance_%d" % (i+1)] = resp_item
-		#
-		# return resp_obj
+
 
 def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, prog_bar = True, normalization = 'base', silent=False):
 
