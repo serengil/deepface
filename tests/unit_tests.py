@@ -3,6 +3,7 @@ import os
 import tensorflow as tf
 import cv2
 from deepface import DeepFace
+from tests.test_nonbinary_gender import test_gender_prediction, test_gender_prediction_with_detector
 
 print("-----------------------------------------")
 
@@ -96,7 +97,7 @@ def test_cases():
 	print(demography)
 
 	evaluate(demography["age"] > 20 and demography["age"] < 40)
-	evaluate(demography["gender"] == "Woman")
+	evaluate(demography["dominant_gender"] == "Woman")
 
 	print("-----------------------------------------")
 
@@ -108,13 +109,13 @@ def test_cases():
 
 	#check response is a valid json
 	print("Age: ", demography["age"])
-	print("Gender: ", demography["gender"])
+	print("Gender: ", demography["dominant_gender"])
 	print("Race: ", demography["dominant_race"])
 	print("Emotion: ", demography["dominant_emotion"])
 
 	evaluate(demography.get("age") is not None)
-	evaluate(demography.get("gender") is not None) 
-	evaluate(demography.get("dominant_race") is not None) 
+	evaluate(demography.get("dominant_gender") is not None)
+	evaluate(demography.get("dominant_race") is not None)
 	evaluate(demography.get("dominant_emotion") is not None)
 
 	print("-----------------------------------------")
@@ -123,12 +124,12 @@ def test_cases():
 	demography = DeepFace.analyze(img, ['age', 'gender'])
 
 	print("Age: ", demography.get("age"))
-	print("Gender: ", demography.get("gender"))
+	print("Gender: ", demography.get("dominant_gender"))
 	print("Race: ", demography.get("dominant_race"))
 	print("Emotion: ", demography.get("dominant_emotion"))
 
 	evaluate(demography.get("age") is not None)
-	evaluate(demography.get("gender") is not None)
+	evaluate(demography.get("dominant_gender") is not None)
 	evaluate(demography.get("dominant_race") is None)
 	evaluate(demography.get("dominant_emotion") is None)
 
@@ -151,7 +152,7 @@ def test_cases():
 				distance = round(resp_obj["distance"], 2)
 				threshold = resp_obj["threshold"]
 
-				passed = prediction == result 
+				passed = prediction == result
 
 				evaluate(passed)
 
@@ -206,7 +207,14 @@ def test_cases():
 
 	print("--------------------------")
 
+
+def run_gender_prediction_test():
+	for detector in detectors:
+		evaluate(test_gender_prediction_with_detector(detector))
+
+
 test_cases()
+run_gender_prediction_test()
 
 print("num of test cases run: " + str(num_cases))
 print("succeeded test cases: " + str(succeed_cases))

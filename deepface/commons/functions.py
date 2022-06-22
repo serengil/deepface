@@ -83,7 +83,7 @@ def load_image(img):
 		img = loadBase64Img(img)
 
 	elif url_img:
-		img = np.array(Image.open(requests.get(img, stream=True).raw))
+		img = np.array(Image.open(requests.get(img, stream=True).raw).convert('RGB'))
 
 	elif exact_image != True: #image path passed as input
 		if os.path.isfile(img) != True:
