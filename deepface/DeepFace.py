@@ -418,25 +418,21 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 				resp_obj["age"] = int(apparent_age) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
 			elif action == 'gender':
-				try:
-					if img_224 is None:
-						img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-					gender_predictions = models['gender'].predict(img_224)[0,:]
+				if img_224 is None:
+					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-					gender_labels = ["Woman", "Man"]
-					resp_obj["gender"] = {}
+				gender_predictions = models['gender'].predict(img_224)[0,:]
 
-					for i in range(0, len(gender_labels)):
-						gender_label = gender_labels[i]
-						gender_prediction = 100 * gender_predictions[i]
-						resp_obj["gender"][gender_label] = gender_prediction
+				gender_labels = ["Woman", "Man"]
+				resp_obj["gender"] = {}
 
-					resp_obj["dominant_gender"] = gender_labels[np.argmax(gender_predictions)]
-				except Exception as e:
-					resp_obj["dominant_gender"] = None
-					resp_obj["gender"] = None
-					resp_obj["error"] = e
+				for i, gender_label in enumerate(gender_labels):
+					gender_prediction = 100 * gender_predictions[i]
+					resp_obj["gender"][gender_label] = gender_prediction
+
+				resp_obj["dominant_gender"] = gender_labels[np.argmax(gender_predictions)]
+
 			elif action == 'race':
 				if img_224 is None:
 					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True) #just emotion model expects grayscale images

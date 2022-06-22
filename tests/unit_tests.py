@@ -3,7 +3,6 @@ import os
 import tensorflow as tf
 import cv2
 from deepface import DeepFace
-from tests.test_nonbinary_gender import test_gender_prediction, test_gender_prediction_with_detector
 
 print("-----------------------------------------")
 
@@ -207,14 +206,27 @@ def test_cases():
 
 	print("--------------------------")
 
+	print("non-binary gender tests")
 
-def run_gender_prediction_test():
-	for detector in detectors:
-		evaluate(test_gender_prediction_with_detector(detector))
+	#interface validation - no need to call evaluate here
 
+	for img1_path, img2_path, verified in dataset:
+		for detector in detectors:
+			result = DeepFace.analyze(img1_path, actions=('gender',), detector_backend=detector, enforce_detection=False)
+
+			print(result)
+
+			assert 'gender' in result.keys()
+			assert 'dominant_gender' in result.keys() and result["dominant_gender"] in ["Man", "Woman"]
+
+			if result["dominant_gender"] == "Man":
+				assert result["gender"]["Man"] > result["gender"]["Woman"]
+			else:
+				assert result["gender"]["Man"] < result["gender"]["Woman"]
+
+# ---------------------------------------------
 
 test_cases()
-run_gender_prediction_test()
 
 print("num of test cases run: " + str(num_cases))
 print("succeeded test cases: " + str(succeed_cases))
