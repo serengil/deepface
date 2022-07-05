@@ -20,3 +20,4 @@ tests/dataset/*.pkl
 .DS_Store
 deepface/.DS_Store
 *.pyc
+vDeepFace
