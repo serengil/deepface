@@ -94,6 +94,23 @@ FaceNet, VGG-Face, ArcFace and Dlib are [overperforming](https://youtu.be/i_MOwv
 | OpenFace | 93.80% | - |
 | DeepID | - | 97.05% |
 
+**Embeddings**
+
+Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function.
+
+```python
+embedding = DeepFace.represent(img_path = "img.jpg", model_name = 'VGG-Face')
+```
+
+This function returns an array as output. The size of the output array would be different based on the model name. For instance, VGG-Face represents facial images as 2622 dimensional vectors.
+
+```python
+assert isinstance(embedding, list)
+assert len(embedding) == 2622
+```
+
+Here, embedding is also plotted with 2622 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right.
+
 **Similarity**
 
 Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent faces as vectors. We expect that a face pair of same person should be [more similar](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/) than a face pair of different persons.
@@ -208,13 +225,7 @@ $ deepface analyze -img_path tests/dataset/img1.jpg
 
 **Tech Stack** - [`Vlog`](https://youtu.be/R8fHsL7u3eE), [`Tutorial`](https://sefiks.com/2021/03/31/tech-stack-recommendations-for-face-recognition/)
 
-Face recognition models represent facial images as vector embeddings. The idea behind facial recognition is that vectors should be more similar for same person than different persons. The question is that where and how to store facial embeddings in a large scale system. Herein, deepface offers a represention function to find vector embeddings from facial images.
-
-```python
-embedding = DeepFace.represent(img_path = "img.jpg", model_name = 'Facenet')
-```
-
-Tech stack is vast to store vector embeddings. To determine the right tool, you should consider your task such as face verification or face recognition, priority such as speed or confidence, and also data size.
+Face recognition models represent facial images as vector embeddings. The idea behind facial recognition is that vectors should be more similar for same person than different persons. The question is that where and how to store facial embeddings in a large scale system. Tech stack is vast to store vector embeddings. To determine the right tool, you should consider your task such as face verification or face recognition, priority such as speed or confidence, and also data size.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/tech-stack-v2.jpg" width="90%" height="90%"></p>
 
