@@ -111,6 +111,8 @@ assert len(embedding) == 2622
 
 Here, embedding is also plotted with 2622 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right.
 
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/embedding.jpg" width="95%" height="95%"></p>
+
 **Similarity**
 
 Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent faces as vectors. We expect that a face pair of same person should be [more similar](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/) than a face pair of different persons.
@@ -179,6 +181,9 @@ obj = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", detector_b
 
 #face recognition
 df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backends[4])
+
+#embeddings
+embedding = DeepFace.represent(img_path = "img.jpg", detector_backend = backends[4])
 
 #facial analysis
 demography = DeepFace.analyze(img_path = "img4.jpg", detector_backend = backends[4])
