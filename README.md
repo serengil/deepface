@@ -143,27 +143,6 @@ obj = DeepFace.analyze(img_path = "img4.jpg", actions = ['age', 'gender', 'race'
 
 Age model got ± 4.65 MAE; gender model got 97.44% accuracy, 96.29% precision and 95.05% recall as mentioned in its [tutorial](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/).
 
-**Streaming and Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
-
-You can run deepface for real time videos as well. Stream function will access your webcam and apply both face recognition and facial attribute analysis. The function starts to analyze a frame if it can focus a face sequantially 5 frames. Then, it shows results 5 seconds.
-
-```python
-DeepFace.stream(db_path = "C:/User/Sefik/Desktop/database")
-```
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-3.jpg" width="90%" height="90%"></p>
-
-Even though face recognition is based on one-shot learning, you can use multiple face pictures of a person as well. You should rearrange your directory structure as illustrated below.
-
-```bash
-user
-├── database
-│   ├── Alice
-│   │   ├── Alice1.jpg
-│   │   ├── Alice2.jpg
-│   ├── Bob
-│   │   ├── Bob.jpg
-```
 
 **Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
 
@@ -203,6 +182,28 @@ The performance of RetinaFace is very satisfactory even in the crowd as seen in 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/retinaface-results.jpeg" width="90%" height="90%"></p>
 
 You can find out more about RetinaFace on this [repo](https://github.com/serengil/retinaface).
+
+**Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
+
+You can run deepface for real time videos as well. Stream function will access your webcam and apply both face recognition and facial attribute analysis. The function starts to analyze a frame if it can focus a face sequantially 5 frames. Then, it shows results 5 seconds.
+
+```python
+DeepFace.stream(db_path = "C:/User/Sefik/Desktop/database")
+```
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-3.jpg" width="90%" height="90%"></p>
+
+Even though face recognition is based on one-shot learning, you can use multiple face pictures of a person as well. You should rearrange your directory structure as illustrated below.
+
+```bash
+user
+├── database
+│   ├── Alice
+│   │   ├── Alice1.jpg
+│   │   ├── Alice2.jpg
+│   ├── Bob
+│   │   ├── Bob.jpg
+```
 
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
