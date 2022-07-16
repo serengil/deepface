@@ -72,14 +72,7 @@ Face recognition models basically represent facial images as multi-dimensional v
 embedding = DeepFace.represent(img_path = "img.jpg")
 ```
 
-This function returns an array as output. The size of the output array would be different based on the model name. For instance, VGG-Face is the default model for deepface and it represents facial images as 2622 dimensional vectors.
-
-```python
-assert isinstance(embedding, list)
-assert len(embedding) == 2622
-```
-
-Here, embedding is also plotted with 2622 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right.
+This function returns an array as output. The size of the output array would be different based on the model name. For instance, VGG-Face is the default model for deepface and it represents facial images as 2622 dimensional vectors. Here, embedding is also plotted with 2622 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/embedding.jpg" width="95%" height="95%"></p>
 
