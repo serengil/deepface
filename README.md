@@ -64,6 +64,25 @@ df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%" height="95%"></p>
 
+**Embeddings**
+
+Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function.
+
+```python
+embedding = DeepFace.represent(img_path = "img.jpg")
+```
+
+This function returns an array as output. The size of the output array would be different based on the model name. For instance, VGG-Face is the default model for deepface and it represents facial images as 2622 dimensional vectors.
+
+```python
+assert isinstance(embedding, list)
+assert len(embedding) == 2622
+```
+
+Here, embedding is also plotted with 2622 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right.
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/embedding.jpg" width="95%" height="95%"></p>
+
 **Face recognition models** - [`Demo`](https://youtu.be/i_MOwvhbLdI)
 
 Deepface is a **hybrid** face recognition package. It currently wraps many **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`Google FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`Facebook DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/), [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/), [`ArcFace`](https://sefiks.com/2020/12/14/deep-face-recognition-with-arcface-in-keras-and-python/), [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/) and `SFace`. The default configuration uses VGG-Face model.
@@ -76,6 +95,9 @@ result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", model_n
 
 #face recognition
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", model_name = models[1])
+
+#embeddings
+embedding = DeepFace.represent(img_path = "img.jpg", model_name = models[1])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/model-portfolio-v8.jpg" width="95%" height="95%"></p>
@@ -93,25 +115,6 @@ FaceNet, VGG-Face, ArcFace and Dlib are [overperforming](https://youtu.be/i_MOwv
 | *Human-beings* | *97.53%* | - |
 | OpenFace | 93.80% | - |
 | DeepID | - | 97.05% |
-
-**Embeddings**
-
-Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function.
-
-```python
-embedding = DeepFace.represent(img_path = "img.jpg", model_name = 'VGG-Face')
-```
-
-This function returns an array as output. The size of the output array would be different based on the model name. For instance, VGG-Face represents facial images as 2622 dimensional vectors.
-
-```python
-assert isinstance(embedding, list)
-assert len(embedding) == 2622
-```
-
-Here, embedding is also plotted with 2622 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right.
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/embedding.jpg" width="95%" height="95%"></p>
 
 **Similarity**
 
