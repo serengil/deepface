@@ -77,7 +77,7 @@ This function returns an array as output. The size of the output array would be 
 
 ```python
 assert isinstance(embedding, list)
-assert (model_name = "VGG-Face" and len(embedding) == 2622) or (model_name = "Facenet" and len(embedding) == 128)
+assert model_name = "VGG-Face" and len(embedding) == 2622
 ```
 
 Here, embedding is also plotted with 2622 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right.
