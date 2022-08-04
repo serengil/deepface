@@ -56,10 +56,16 @@ result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 
 **Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
-[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. Herein, deepface has an out-of-the-box find function to handle this action. It's going to look for the identity of input image in the database path and it will return pandas data frame as output.
+[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. Herein, deepface has an out-of-the-box find function to handle this action.
 
 ```python
 df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
+```
+
+It's going to look for the identity of input image in the database path and it will return pandas data frame as output.
+
+```python
+assert isinstance(df, pd.DataFrame)
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%" height="95%"></p>
@@ -72,7 +78,14 @@ Face recognition models basically represent facial images as multi-dimensional v
 embedding = DeepFace.represent(img_path = "img.jpg")
 ```
 
-This function returns an array as output. The size of the output array would be different based on the model name. For instance, VGG-Face is the default model for deepface and it represents facial images as 2622 dimensional vectors. Here, embedding is also plotted with 2622 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right.
+This function returns an array as output. The size of the output array would be different based on the model name. For instance, VGG-Face is the default model for deepface and it represents facial images as 2622 dimensional vectors.
+
+```python
+assert isinstance(embedding, list)
+assert model_name = "VGG-Face" and len(embedding) = 2622
+```
+
+Here, embedding is also plotted with 2622 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/embedding.jpg" width="95%" height="95%"></p>
 
