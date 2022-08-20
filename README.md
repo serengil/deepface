@@ -102,10 +102,14 @@ models = [
 ]
 
 #face verification
-result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", model_name = models[1])
+result = DeepFace.verify(img1_path = "img1.jpg", 
+      img2_path = "img2.jpg", 
+      model_name = models[1])
 
 #face recognition
-df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", model_name = models[1])
+df = DeepFace.find(img_path = "img1.jpg",
+      db_path = "C:/workspace/my_db", 
+      model_name = models[1])
 
 #embeddings
 embedding = DeepFace.represent(img_path = "img.jpg", model_name = models[1])
@@ -137,10 +141,14 @@ Similarity could be calculated by different metrics such as [Cosine Similarity](
 metrics = ["cosine", "euclidean", "euclidean_l2"]
 
 #face verification
-result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1])
+result = DeepFace.verify(img1_path = "img1.jpg", 
+          img2_path = "img2.jpg", 
+          distance_metric = metrics[1])
 
 #face recognition
-df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", distance_metric = metrics[1])
+df = DeepFace.find(img_path = "img1.jpg", 
+          db_path = "C:/workspace/my_db", 
+          distance_metric = metrics[1])
 ```
 
 Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than cosine and regular Euclidean distance based on experiments.
@@ -150,7 +158,8 @@ Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than c
 Deepface also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions.
 
 ```python
-obj = DeepFace.analyze(img_path = "img4.jpg", actions = ['age', 'gender', 'race', 'emotion'])
+obj = DeepFace.analyze(img_path = "img4.jpg", 
+        actions = ['age', 'gender', 'race', 'emotion'])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
@@ -167,22 +176,37 @@ Face detection and alignment are important early stages of a modern face recogni
 All deepface functions accept an optional detector backend input argument. You can switch among those detectors with this argument. OpenCV is the default detector.
 
 ```python
-backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+backends = [
+  'opencv', 
+  'ssd', 
+  'dlib', 
+  'mtcnn', 
+  'retinaface', 
+  'mediapipe'
+]
 
 #face verification
-obj = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", detector_backend = backends[4])
+obj = DeepFace.verify(img1_path = "img1.jpg", 
+        img2_path = "img2.jpg", 
+        detector_backend = backends[4])
 
 #face recognition
-df = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = backends[4])
+df = DeepFace.find(img_path = "img.jpg", 
+        db_path = "my_db", 
+        detector_backend = backends[4])
 
 #embeddings
-embedding = DeepFace.represent(img_path = "img.jpg", detector_backend = backends[4])
+embedding = DeepFace.represent(img_path = "img.jpg", 
+        detector_backend = backends[4])
 
 #facial analysis
-demography = DeepFace.analyze(img_path = "img4.jpg", detector_backend = backends[4])
+demography = DeepFace.analyze(img_path = "img4.jpg", 
+        detector_backend = backends[4])
 
 #face detection and alignment
-face = DeepFace.detectFace(img_path = "img.jpg", target_size = (224, 224), detector_backend = backends[4])
+face = DeepFace.detectFace(img_path = "img.jpg", 
+        target_size = (224, 224), 
+        detector_backend = backends[4])
 ```
 
 Face recognition models are actually CNN models and they expect standard sized inputs. So, resizing is required before representation. To avoid deformation, deepface adds black padding pixels according to the target size argument after detection and alignment.
