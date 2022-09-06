@@ -38,7 +38,8 @@ def detect_face(face_detector, img, align = True):
         for key in obj:
             identity = obj[key]
             facial_area = identity["facial_area"]
-
+	    confidence = identity["score"]
+	    
             y = facial_area[1]
             h = facial_area[3] - y
             x = facial_area[0]
@@ -58,6 +59,6 @@ def detect_face(face_detector, img, align = True):
 
                 detected_face = postprocess.alignment_procedure(detected_face, right_eye, left_eye, nose)
 
-            resp.append((detected_face, img_region))
+            resp.append((detected_face, img_region, confidence))
 
     return resp
