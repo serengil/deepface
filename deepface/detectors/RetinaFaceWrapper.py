@@ -38,8 +38,8 @@ def detect_face(face_detector, img, align = True):
         for key in obj:
             identity = obj[key]
             facial_area = identity["facial_area"]
-	    confidence = identity["score"]
-	    
+            confidence = identity["score"]
+
             y = facial_area[1]
             h = facial_area[3] - y
             x = facial_area[0]
