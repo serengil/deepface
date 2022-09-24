@@ -4,6 +4,7 @@ import itertools
 from sklearn import metrics
 from sklearn.metrics import confusion_matrix, accuracy_score, roc_curve, auc, roc_auc_score
 import matplotlib.pyplot as plt
+import sys
 from tqdm import tqdm
 tqdm.pandas()
 
@@ -33,10 +34,10 @@ positives = []
 
 for key, values in idendities.items():
 
-    #print(key)
+    #print(key, file=sys.stderr)
     for i in range(0, len(values)-1):
         for j in range(i+1, len(values)):
-            #print(values[i], " and ", values[j])
+            #print(values[i], " and ", values[j], file=sys.stderr)
             positive = []
             positive.append(values[i])
             positive.append(values[j])
@@ -45,7 +46,7 @@ for key, values in idendities.items():
 positives = pd.DataFrame(positives, columns = ["file_x", "file_y"])
 positives["decision"] = "Yes"
 
-print(positives.shape)
+print(positives.shape, file=sys.stderr)
 #--------------------------
 #Negatives
 
@@ -55,13 +56,13 @@ negatives = []
 
 for i in range(0, len(idendities) - 1):
     for j in range(i+1, len(idendities)):
-        #print(samples_list[i], " vs ",samples_list[j])
+        #print(samples_list[i], " vs ",samples_list[j], file=sys.stderr)
         cross_product = itertools.product(samples_list[i], samples_list[j])
         cross_product = list(cross_product)
-        #print(cross_product)
+        #print(cross_product, file=sys.stderr)
 
         for cross_sample in cross_product:
-            #print(cross_sample[0], " vs ", cross_sample[1])
+            #print(cross_sample[0], " vs ", cross_sample[1], file=sys.stderr)
             negative = []
             negative.append(cross_sample[0])
             negative.append(cross_sample[1])
@@ -72,13 +73,13 @@ negatives["decision"] = "No"
 
 negatives = negatives.sample(positives.shape[0])
 
-print(negatives.shape)
+print(negatives.shape, file=sys.stderr)
 #--------------------------
 #Merge positive and negative ones
 
 df = pd.concat([positives, negatives]).reset_index(drop = True)
 
-print(df.decision.value_counts())
+print(df.decision.value_counts(), file=sys.stderr)
 
 df.file_x = "dataset/"+df.file_x
 df.file_y = "dataset/"+df.file_y
@@ -99,13 +100,13 @@ if True:
     pretrained_models = {}
 
     pretrained_models["VGG-Face"] = VGGFace.loadModel()
-    print("VGG-Face loaded")
+    print("VGG-Face loaded", file=sys.stderr)
     pretrained_models["Facenet"] = Facenet.loadModel()
-    print("Facenet loaded")
+    print("Facenet loaded", file=sys.stderr)
     pretrained_models["OpenFace"] = OpenFace.loadModel()
-    print("OpenFace loaded")
+    print("OpenFace loaded", file=sys.stderr)
     pretrained_models["DeepFace"] = FbDeepFace.loadModel()
-    print("FbDeepFace loaded")
+    print("FbDeepFace loaded", file=sys.stderr)
 
     for model in models:
         for metric in metrics:
@@ -166,7 +167,7 @@ df = df[columns]
 df.loc[df[df.decision == 'Yes'].index, 'decision'] = 1
 df.loc[df[df.decision == 'No'].index, 'decision'] = 0
 
-print(df.head())
+print(df.head(), file=sys.stderr)
 #--------------------------
 #Train test split
 
@@ -182,9 +183,9 @@ x_train = df_train.drop(columns=[target_name]).values
 y_test = df_test[target_name].values
 x_test = df_test.drop(columns=[target_name]).values
 
-#print("target distribution:")
-#print(df_train[target_name].value_counts())
-#print(df_test[target_name].value_counts())
+#print("target distribution:", file=sys.stderr)
+#print(df_train[target_name].value_counts(), file=sys.stderr)
+#print(df_test[target_name].value_counts(), file=sys.stderr)
 
 #--------------------------
 #LightGBM
@@ -220,7 +221,7 @@ for prediction in predictions:
 y_test = list(y_test)
 
 cm = confusion_matrix(y_test, prediction_classes)
-print(cm)
+print(cm, file=sys.stderr)
 
 tn, fp, fn, tp = cm.ravel()
 
@@ -229,10 +230,10 @@ precision = tp / (tp + fp)
 accuracy = (tp + tn)/(tn + fp +  fn + tp)
 f1 = 2 * (precision * recall) / (precision + recall)
 
-print("Precision: ", 100*precision,"%")
-print("Recall: ", 100*recall,"%")
-print("F1 score ",100*f1, "%")
-print("Accuracy: ", 100*accuracy,"%")
+print("Precision: ", 100*precision,"%", file=sys.stderr)
+print("Recall: ", 100*recall,"%", file=sys.stderr)
+print("F1 score ",100*f1, "%", file=sys.stderr)
+print("Accuracy: ", 100*accuracy,"%", file=sys.stderr)
 #--------------------------
 #Interpretability
 

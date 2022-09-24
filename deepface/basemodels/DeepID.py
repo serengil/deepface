@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import gdown
+import sys
 import zipfile
 
 from tensorflow import keras
@@ -46,7 +47,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 	home = functions.get_deepface_home()
 
 	if os.path.isfile(home+'/.deepface/weights/deepid_keras_weights.h5') != True:
-		print("deepid_keras_weights.h5 will be downloaded...")
+		print("deepid_keras_weights.h5 will be downloaded...", file=sys.stderr)
 
 		output = home+'/.deepface/weights/deepid_keras_weights.h5'
 		gdown.download(url, output, quiet=False)

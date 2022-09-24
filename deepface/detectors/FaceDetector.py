@@ -2,6 +2,7 @@ from deepface.detectors import OpenCvWrapper, SsdWrapper, DlibWrapper, MtcnnWrap
 from PIL import Image
 import math
 import numpy as np
+import sys
 from deepface.commons import distance
 
 def build_model(detector_backend):
@@ -26,7 +27,7 @@ def build_model(detector_backend):
         if face_detector:
             face_detector = face_detector()
             face_detector_obj[detector_backend] = face_detector
-            #print(detector_backend," built")
+            #print(detector_backend," built", file=sys.stderr)
         else:
             raise ValueError("invalid detector_backend passed - " + detector_backend)
 

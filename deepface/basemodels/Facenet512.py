@@ -2,6 +2,7 @@ from deepface.basemodels import Facenet
 from pathlib import Path
 import os
 import gdown
+import sys
 
 from deepface.commons import functions
 
@@ -14,7 +15,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
     home = functions.get_deepface_home()
 
     if os.path.isfile(home+'/.deepface/weights/facenet512_weights.h5') != True:
-        print("facenet512_weights.h5 will be downloaded...")
+        print("facenet512_weights.h5 will be downloaded...", file=sys.stderr)
 
         output = home+'/.deepface/weights/facenet512_weights.h5'
         gdown.download(url, output, quiet=False)

@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import gdown
+import sys
 import zipfile
 
 from tensorflow import keras
@@ -29,7 +30,7 @@ def loadModel(url = 'https://github.com/swghosh/DeepFace/releases/download/weigh
 	home = functions.get_deepface_home()
 	
 	if os.path.isfile(home+'/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5') != True:
-		print("VGGFace2_DeepFace_weights_val-0.9034.h5 will be downloaded...")
+		print("VGGFace2_DeepFace_weights_val-0.9034.h5 will be downloaded...", file=sys.stderr)
 		
 		output = home+'/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5.zip'
 		

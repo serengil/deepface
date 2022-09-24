@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import gdown
 import numpy as np
+import sys
 import zipfile
 
 from deepface.commons import functions
@@ -43,7 +44,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 	home = functions.get_deepface_home()
 
 	if os.path.isfile(home+'/.deepface/weights/race_model_single_batch.h5') != True:
-		print("race_model_single_batch.h5 will be downloaded...")
+		print("race_model_single_batch.h5 will be downloaded...", file=sys.stderr)
 
 		output = home+'/.deepface/weights/race_model_single_batch.h5'
 		gdown.download(url, output, quiet=False)

@@ -13,6 +13,7 @@ import uuid
 import json
 import time
 from tqdm import tqdm
+import sys
 
 #------------------------------
 
@@ -84,7 +85,7 @@ def analyzeWrapper(req, trx_id = 0):
 	if len(instances) == 0:
 		return jsonify({'success': False, 'error': 'you must pass at least one img object in your request'}), 205
 
-	print("Analyzing ", len(instances)," instances")
+	print("Analyzing ", len(instances)," instances", file=sys.stderr)
 
 	#---------------------------
 
@@ -103,11 +104,11 @@ def analyzeWrapper(req, trx_id = 0):
 	try:
 		resp_obj = DeepFace.analyze(instances, actions = actions)
 	except Exception as err:
-		print("Exception: ", str(err))
+		print("Exception: ", str(err), file=sys.stderr)
 		return jsonify({'success': False, 'error': str(err)}), 205
 
 	#---------------
-	#print(resp_obj)
+	#print(resp_obj, file=sys.stderr)
 	return resp_obj
 
 @app.route('/verify', methods=['POST'])
@@ -177,7 +178,7 @@ def verifyWrapper(req, trx_id = 0):
 	if len(instances) == 0:
 		return jsonify({'success': False, 'error': 'you must pass at least one img object in your request'}), 205
 
-	print("Input request of ", trx_id, " has ",len(instances)," pairs to verify")
+	print("Input request of ", trx_id, " has ",len(instances)," pairs to verify", file=sys.stderr)
 
 	#--------------------------
 
@@ -244,14 +245,14 @@ def representWrapper(req, trx_id = 0):
 	img = ""
 	if "img" in list(req.keys()):
 		img = req["img"] #list
-		#print("img: ", img)
+		#print("img: ", img, file=sys.stderr)
 
 	validate_img = False
 	if len(img) > 11 and img[0:11] == "data:image/":
 		validate_img = True
 
 	if validate_img != True:
-		print("invalid image passed!")
+		print("invalid image passed!", file=sys.stderr)
 		return jsonify({'success': False, 'error': 'you must pass img as base64 encoded string'}), 205
 
 	#-------------------------------------
@@ -265,12 +266,12 @@ def representWrapper(req, trx_id = 0):
 		)
 
 	except Exception as err:
-		print("Exception: ",str(err))
+		print("Exception: ",str(err), file=sys.stderr)
 		resp_obj = jsonify({'success': False, 'error': str(err)}), 205
 
 	#-------------------------------------
 
-	#print("embedding is ", len(embedding)," dimensional vector")
+	#print("embedding is ", len(embedding)," dimensional vector", file=sys.stderr)
 	resp_obj = {}
 	resp_obj["embedding"] = embedding
 

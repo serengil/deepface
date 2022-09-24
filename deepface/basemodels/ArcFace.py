@@ -9,6 +9,7 @@ from tensorflow import keras
 import os
 from pathlib import Path
 import gdown
+import sys
 
 from deepface.commons import functions
 
@@ -35,7 +36,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
 	if os.path.isfile(output) != True:
 
-		print(file_name," will be downloaded to ",output)
+		print(file_name," will be downloaded to ",output, file=sys.stderr)
 		gdown.download(url, output, quiet=False)
 
 	#---------------------------------------

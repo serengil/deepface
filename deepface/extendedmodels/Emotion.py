@@ -1,6 +1,7 @@
 import os
 import gdown
 from pathlib import Path
+import sys
 import zipfile
 
 from deepface.commons import functions
@@ -54,7 +55,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 	home = functions.get_deepface_home()
 
 	if os.path.isfile(home+'/.deepface/weights/facial_expression_model_weights.h5') != True:
-		print("facial_expression_model_weights.h5 will be downloaded...")
+		print("facial_expression_model_weights.h5 will be downloaded...", file=sys.stderr)
 
 		output = home+'/.deepface/weights/facial_expression_model_weights.h5'
 		gdown.download(url, output, quiet=False)

@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import gdown
+import sys
 
 from deepface.commons import functions
 
@@ -77,7 +78,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 	output = home+'/.deepface/weights/vgg_face_weights.h5'
 
 	if os.path.isfile(output) != True:
-		print("vgg_face_weights.h5 will be downloaded...")
+		print("vgg_face_weights.h5 will be downloaded...", file=sys.stderr)
 		gdown.download(url, output, quiet=False)
 
 	#-----------------------------------

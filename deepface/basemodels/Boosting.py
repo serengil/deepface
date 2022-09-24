@@ -5,6 +5,7 @@ from os import path
 from pathlib import Path
 import numpy as np
 import gdown
+import sys
 from deepface.commons import functions, distance as dst
 
 def loadModel():
@@ -31,7 +32,7 @@ def validate_model(model):
 		found_models.append(key)
 	
 	if ('VGG-Face' in found_models) and ('Facenet' in found_models) and ('OpenFace' in found_models) and ('DeepFace' in found_models):
-		#print("Ensemble learning will be applied for ", found_models," models")
+		#print("Ensemble learning will be applied for ", found_models," models", file=sys.stderr)
 		valid = True
 	else:
 		
@@ -47,7 +48,7 @@ def build_gbm():
 	home = functions.get_deepface_home()
 	
 	if os.path.isfile(home+'/.deepface/weights/face-recognition-ensemble-model.txt') != True:
-		print("face-recognition-ensemble-model.txt will be downloaded...")
+		print("face-recognition-ensemble-model.txt will be downloaded...", file=sys.stderr)
 		url = 'https://raw.githubusercontent.com/serengil/deepface/master/deepface/models/face-recognition-ensemble-model.txt'
 		output = home+'/.deepface/weights/face-recognition-ensemble-model.txt'
 		gdown.download(url, output, quiet=False)

@@ -4,6 +4,7 @@ import bz2
 import gdown
 import numpy as np
 from pathlib import Path
+import sys
 
 from deepface.commons import functions
 
@@ -25,7 +26,7 @@ class DlibResNet:
 		
 		#download pre-trained model if it does not exist
 		if os.path.isfile(weight_file) != True:
-			print("dlib_face_recognition_resnet_model_v1.dat is going to be downloaded")  
+			print("dlib_face_recognition_resnet_model_v1.dat is going to be downloaded", file=sys.stderr)  
 			
 			url = "http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2"
 			output = home+'/.deepface/weights/'+url.split("/")[-1]

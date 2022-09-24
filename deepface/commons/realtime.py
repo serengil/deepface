@@ -5,6 +5,7 @@ import pandas as pd
 import cv2
 import time
 import re
+import sys
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -19,7 +20,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 	#------------------------
 
 	face_detector = FaceDetector.build_model(detector_backend)
-	print("Detector backend is ", detector_backend)
+	print("Detector backend is ", detector_backend, file=sys.stderr)
 
 	#------------------------
 
@@ -35,18 +36,18 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 				if ('.jpg' in file):
 					#exact_path = os.path.join(r, file)
 					exact_path = r + "/" + file
-					#print(exact_path)
+					#print(exact_path, file=sys.stderr)
 					employees.append(exact_path)
 
 	if len(employees) == 0:
-		print("WARNING: There is no image in this path ( ", db_path,") . Face recognition will not be performed.")
+		print("WARNING: There is no image in this path ( ", db_path,") . Face recognition will not be performed.", file=sys.stderr)
 
 	#------------------------
 
 	if len(employees) > 0:
 
 		model = DeepFace.build_model(model_name)
-		print(model_name," is built")
+		print(model_name," is built", file=sys.stderr)
 
 		#------------------------
 
@@ -64,17 +65,17 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 		tic = time.time()
 
 		emotion_model = DeepFace.build_model('Emotion')
-		print("Emotion model loaded")
+		print("Emotion model loaded", file=sys.stderr)
 
 		age_model = DeepFace.build_model('Age')
-		print("Age model loaded")
+		print("Age model loaded", file=sys.stderr)
 
 		gender_model = DeepFace.build_model('Gender')
-		print("Gender model loaded")
+		print("Gender model loaded", file=sys.stderr)
 
 		toc = time.time()
 
-		print("Facial attibute analysis models loaded in ",toc-tic," seconds")
+		print("Facial attibute analysis models loaded in ",toc-tic," seconds", file=sys.stderr)
 
 	#------------------------
 
@@ -108,7 +109,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 
 	toc = time.time()
 
-	print("Embeddings found for given data set in ", toc-tic," seconds")
+	print("Embeddings found for given data set in ", toc-tic," seconds", file=sys.stderr)
 
 	#-----------------------
 
@@ -296,7 +297,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 							elif np.argmax(gender_prediction) == 1:
 								gender = "M"
 
-							#print(str(int(apparent_age))," years old ", dominant_emotion, " ", gender)
+							#print(str(int(apparent_age))," years old ", dominant_emotion, " ", gender, file=sys.stderr)
 
 							analysis_report = str(int(apparent_age))+" "+gender
 
@@ -344,7 +345,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 							if df.shape[0] > 0: #if there are images to verify, apply face recognition
 								img1_representation = model.predict(custom_face)[0,:]
 
-								#print(freezed_frame," - ",img1_representation[0:5])
+								#print(freezed_frame," - ",img1_representation[0:5], file=sys.stderr)
 
 								def findDistance(row):
 									distance_metric = row['distance_metric']
@@ -367,11 +368,11 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 								employee_name = candidate['employee']
 								best_distance = candidate['distance']
 
-								#print(candidate[['employee', 'distance']].values)
+								#print(candidate[['employee', 'distance']].values, file=sys.stderr)
 
 								#if True:
 								if best_distance <= threshold:
-									#print(employee_name)
+									#print(employee_name, file=sys.stderr)
 									display_img = cv2.imread(employee_name)
 
 									display_img = cv2.resize(display_img, (pivot_img_size, pivot_img_size))
@@ -436,7 +437,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 											cv2.line(freeze_img,(x+int(w/2), y+h), (x+int(w/2)+int(w/4), y+h+int(pivot_img_size/2)),(67,67,67),1)
 											cv2.line(freeze_img, (x+int(w/2)+int(w/4), y+h+int(pivot_img_size/2)), (x+w, y+h+int(pivot_img_size/2)), (67,67,67),1)
 									except Exception as err:
-										print(str(err))
+										print(str(err), file=sys.stderr)
 
 						tic = time.time() #in this way, freezed image can show 5 seconds
 

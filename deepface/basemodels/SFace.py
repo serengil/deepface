@@ -2,6 +2,7 @@ import os
 import numpy as np
 import cv2 as cv
 import gdown
+import sys
 
 from deepface.commons import functions
 
@@ -39,7 +40,7 @@ def load_model(url = "https://github.com/opencv/opencv_zoo/raw/master/models/fac
 
     if not os.path.isfile(file_name):
 
-        print("sface weights will be downloaded...")
+        print("sface weights will be downloaded...", file=sys.stderr)
 
         gdown.download(url, file_name, quiet=False)
 

@@ -6,6 +6,7 @@ import base64
 from pathlib import Path
 from PIL import Image
 import requests
+import sys
 
 from deepface.detectors import FaceDetector
 
@@ -50,11 +51,11 @@ def initialize_folder():
 
 	if not os.path.exists(home+"/.deepface"):
 		os.makedirs(home+"/.deepface")
-		print("Directory ", home, "/.deepface created")
+		print("Directory ", home, "/.deepface created", file=sys.stderr)
 
 	if not os.path.exists(home+"/.deepface/weights"):
 		os.makedirs(home+"/.deepface/weights")
-		print("Directory ", home, "/.deepface/weights created")
+		print("Directory ", home, "/.deepface/weights created", file=sys.stderr)
 
 def get_deepface_home():
 	return str(os.getenv('DEEPFACE_HOME', default=Path.home()))

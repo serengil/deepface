@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import pickle
+import sys
 
 from deepface.basemodels import VGGFace, OpenFace, Facenet, Facenet512, FbDeepFace, DeepID, DlibWrapper, ArcFace, SFace, Boosting
 from deepface.extendedmodels import Age, Gender, Race, Emotion
@@ -61,7 +62,7 @@ def build_model(model_name):
 		if model:
 			model = model()
 			model_obj[model_name] = model
-			#print(model_name," built")
+			#print(model_name," built", file=sys.stderr)
 		else:
 			raise ValueError('Invalid model_name passed - {}'.format(model_name))
 
@@ -507,7 +508,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 		if model == None:
 
 			if model_name == 'Ensemble':
-				if not silent: print("Ensemble learning enabled")
+				if not silent: print("Ensemble learning enabled", file=sys.stderr)
 				models = Boosting.loadModel()
 
 			else: #model is not ensemble
@@ -516,7 +517,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 				models[model_name] = model
 
 		else: #model != None
-			if not silent: print("Already built model is passed")
+			if not silent: print("Already built model is passed", file=sys.stderr)
 
 			if model_name == 'Ensemble':
 				Boosting.validate_model(model)
@@ -542,12 +543,12 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 		if path.exists(db_path+"/"+file_name):
 
-			if not silent: print("WARNING: Representations for images in ",db_path," folder were previously stored in ", file_name, ". If you added new instances after this file creation, then please delete this file and call find function again. It will create it again.")
+			if not silent: print("WARNING: Representations for images in ",db_path," folder were previously stored in ", file_name, ". If you added new instances after this file creation, then please delete this file and call find function again. It will create it again.", file=sys.stderr)
 
 			f = open(db_path+'/'+file_name, 'rb')
 			representations = pickle.load(f)
 
-			if not silent: print("There are ", len(representations)," representations found in ",file_name)
+			if not silent: print("There are ", len(representations)," representations found in ",file_name, file=sys.stderr)
 
 		else: #create representation.pkl from scratch
 			employees = []
@@ -595,7 +596,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 			pickle.dump(representations, f)
 			f.close()
 
-			if not silent: print("Representations stored in ",db_path,"/",file_name," file. Please delete this file when you add new identities in your database.")
+			if not silent: print("Representations stored in ",db_path,"/",file_name," file. Please delete this file when you add new identities in your database.", file=sys.stderr)
 
 		#----------------------------
 		#now, we got representations for facial database
@@ -673,7 +674,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 							feature = '%s_%s' % (j, k)
 							feature_names.append(feature)
 
-				#print(df.head())
+				#print(df.head(), file=sys.stderr)
 
 				x = df[feature_names].values
 
@@ -706,7 +707,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 		toc = time.time()
 
-		if not silent: print("find function lasts ",toc-tic," seconds")
+		if not silent: print("find function lasts ",toc-tic," seconds", file=sys.stderr)
 
 		if len(resp_obj) == 1:
 			return resp_obj[0]

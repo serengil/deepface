@@ -2,6 +2,7 @@ from pathlib import Path
 import gdown
 import bz2
 import os
+import sys
 
 from deepface.commons import functions
 
@@ -14,7 +15,7 @@ def build_model():
 	#check required file exists in the home/.deepface/weights folder
 	if os.path.isfile(home+'/.deepface/weights/shape_predictor_5_face_landmarks.dat') != True:
 
-		print("shape_predictor_5_face_landmarks.dat.bz2 is going to be downloaded")
+		print("shape_predictor_5_face_landmarks.dat.bz2 is going to be downloaded", file=sys.stderr)
 
 		url = "http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2"
 		output = home+'/.deepface/weights/'+url.split("/")[-1]

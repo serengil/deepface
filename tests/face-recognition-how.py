@@ -4,6 +4,7 @@ from deepface.commons import functions
 
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 #----------------------------------------------
 #build face recognition model
@@ -18,8 +19,8 @@ try:
 except: #issue 470
 	input_shape = model.layers[0].input_shape[0][1:3]
 
-print("model input shape: ", model.layers[0].input_shape[1:])
-print("model output shape: ", model.layers[-1].input_shape[-1])
+print("model input shape: ", model.layers[0].input_shape[1:], file=sys.stderr)
+print("model output shape: ", model.layers[-1].input_shape[-1], file=sys.stderr)
 
 #----------------------------------------------
 #load images and find embeddings
@@ -36,10 +37,10 @@ img2_representation = model.predict(img2)[0,:]
 #distance between two images
 
 distance_vector = np.square(img1_representation - img2_representation)
-#print(distance_vector)
+#print(distance_vector, file=sys.stderr)
 
 distance = np.sqrt(distance_vector.sum())
-print("Euclidean distance: ",distance)
+print("Euclidean distance: ",distance, file=sys.stderr)
 
 #----------------------------------------------
 #expand vectors to be shown better in graph
