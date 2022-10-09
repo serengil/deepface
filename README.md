@@ -301,7 +301,7 @@ You can also support this work on [Patreon](https://www.patreon.com/serengil?rep
 
 ## Citation
 
-Please cite deepface in your publications if it helps your research. Here are BibTeX entries:
+Please cite deepface in your publications if it helps your research for facial recognition purposes.
 
 ```BibTeX
 @inproceedings{serengil2020lightface,
@@ -315,6 +315,8 @@ Please cite deepface in your publications if it helps your research. Here are Bi
   organization = {IEEE}
 }
 ```
+
+If you use deepface facial attribute analysis such as age, gender, emotion or ethnicity, please cite the this publication.
 
 ```BibTeX
 @inproceedings{serengil2021lightface,
