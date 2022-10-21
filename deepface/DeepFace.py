@@ -367,6 +367,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 	resp_objects = []
 
 	disable_option = (False if len(img_paths) > 1 else True) or not prog_bar
+	verbose = int(not disable_option)
 
 	global_pbar = tqdm(range(0,len(img_paths)), desc='Analyzing', disable = disable_option)
 
@@ -395,7 +396,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-				emotion_predictions = models['emotion'].predict(img)[0,:]
+				emotion_predictions = models['emotion'].predict(img, verbose=verbose)[0,:]
 
 				sum_of_predictions = emotion_predictions.sum()
 
@@ -412,7 +413,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 				if img_224 is None:
 					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-				age_predictions = models['age'].predict(img_224)[0,:]
+				age_predictions = models['age'].predict(img_224, verbose=verbose)[0,:]
 				apparent_age = Age.findApparentAge(age_predictions)
 
 				resp_obj["age"] = int(apparent_age) #int cast is for the exception - object of type 'float32' is not JSON serializable
@@ -422,7 +423,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 				if img_224 is None:
 					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
-				gender_predictions = models['gender'].predict(img_224)[0,:]
+				gender_predictions = models['gender'].predict(img_224, verbose=verbose)[0,:]
 
 				gender_labels = ["Woman", "Man"]
 				resp_obj["gender"] = {}
@@ -436,7 +437,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			elif action == 'race':
 				if img_224 is None:
 					img_224, region = functions.preprocess_face(img = img_path, target_size = (224, 224), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True) #just emotion model expects grayscale images
-				race_predictions = models['race'].predict(img_224)[0,:]
+				race_predictions = models['race'].predict(img_224, verbose=verbose)[0,:]
 				race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
 
 				sum_of_predictions = race_predictions.sum()
