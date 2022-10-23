@@ -766,6 +766,7 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 
 	#represent
 	if "keras" in str(type(model)):
+		#new tf versions show progress bar and it is annoying
 		embedding = model.predict(img, verbose=0)[0].tolist()
 	else:
 		#SFace is not a keras model and it has no verbose argument
