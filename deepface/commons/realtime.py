@@ -151,7 +151,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 
 		detected_faces = []
 		face_index = 0
-		for face, (x, y, w, h) in faces:
+		for face, (x, y, w, h), _ in faces:
 			if w > 130: #discard small detected faces
 
 				face_detected = True

@@ -14,7 +14,7 @@ def build_model(detector_backend):
         'dlib': DlibWrapper.build_model,
         'mtcnn': MtcnnWrapper.build_model,
         'retinaface': RetinaFaceWrapper.build_model,
-	'mediapipe': MediapipeWrapper.build_model
+	    'mediapipe': MediapipeWrapper.build_model
     }
 
     if not "face_detector_obj" in globals():
@@ -37,12 +37,13 @@ def detect_face(face_detector, detector_backend, img, align = True):
     obj = detect_faces(face_detector, detector_backend, img, align)
 
     if len(obj) > 0:
-        face, region = obj[0] #discard multiple faces
+        face, region, confidence = obj[0] #discard multiple faces
     else: #len(obj) == 0
         face = None
         region = [0, 0, img.shape[0], img.shape[1]]
+        confidence = None
 
-    return face, region
+    return face, region, confidence
 
 def detect_faces(face_detector, detector_backend, img, align = True):
 
@@ -52,14 +53,14 @@ def detect_faces(face_detector, detector_backend, img, align = True):
         'dlib': DlibWrapper.detect_face,
         'mtcnn': MtcnnWrapper.detect_face,
         'retinaface': RetinaFaceWrapper.detect_face,
-	'mediapipe': MediapipeWrapper.detect_face
+	    'mediapipe': MediapipeWrapper.detect_face
     }
 
     detect_face = backends.get(detector_backend)
 
     if detect_face:
         obj = detect_face(face_detector, img, align)
-        #obj stores list of detected_face and region pair
+        #obj stores list of (detected_face, region, confidence)
 
         return obj
     else:

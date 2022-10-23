@@ -46,9 +46,12 @@ def detect_face(detector, img, align = True):
 
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
+	confidence = None
 
 	face_detector = detector["face_detector"]
-	detections = face_detector(img, 1)
+
+	#note that, by design, dlib's fhog face detector scores are >0 but not capped at 1
+	detections, scores, _ = face_detector.run(img, 1)
 
 	if len(detections) > 0:
 
@@ -60,12 +63,13 @@ def detect_face(detector, img, align = True):
 			detected_face = img[max(0, top): min(bottom, img.shape[0]), max(0, left): min(right, img.shape[1])]
 			
 			img_region = [left, top, right - left, bottom - top]
+			confidence = scores[idx]
 
 			if align:
 				img_shape = sp(img, detections[idx])
 				detected_face = dlib.get_face_chip(img, img_shape, size = detected_face.shape[0])
 
-			resp.append((detected_face, img_region))
+			resp.append((detected_face, img_region, confidence))
 
 
 	return resp
