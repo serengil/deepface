@@ -51,7 +51,7 @@ def detect_face(detector, img, align = True):
 	resp = []
 
 	detected_face = None
-	img_region = [0, 0, img.shape[0], img.shape[1]]
+	img_region = [0, 0, img.shape[1], img.shape[0]]
 
 	ssd_labels = ["img_id", "is_face", "confidence", "left", "top", "right", "bottom"]
 

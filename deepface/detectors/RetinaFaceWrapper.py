@@ -20,7 +20,7 @@ def detect_face(face_detector, img, align = True):
 
     """
     face = None
-    img_region = [0, 0, img.shape[0], img.shape[1]] #Really?
+    img_region = [0, 0, img.shape[1], img.shape[0]] #Really?
 
     faces = RetinaFace.extract_faces(img_rgb, model = face_detector, align = align)
 
