@@ -765,7 +765,11 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	#---------------------------------
 
 	#represent
-	embedding = model.predict(img, verbose=0)[0].tolist()
+	if "keras" in str(type(model)):
+		embedding = model.predict(img, verbose=0)[0].tolist()
+	else:
+		#SFace is not a keras model and it has no verbose argument
+		embedding = model.predict(img)[0].tolist()
 
 	return embedding
 
