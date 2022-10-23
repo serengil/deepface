@@ -41,17 +41,20 @@ def detect_face(detector, img, align = True):
 
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
+	confidence = None
 
 	faces = []
 	try:
 		#faces = detector["face_detector"].detectMultiScale(img, 1.3, 5)
-		faces = detector["face_detector"].detectMultiScale(img, 1.1, 10)
+		
+		#note that, by design, opencv's haarcascade scores are >0 but not capped at 1
+		faces, _, scores = detector["face_detector"].detectMultiScale3(img, 1.1, 10, outputRejectLevels = True)
 	except:
 		pass
 
 	if len(faces) > 0:
 
-		for x,y,w,h in faces:
+		for (x,y,w,h), confidence in zip(faces, scores):
 			detected_face = img[int(y):int(y+h), int(x):int(x+w)]
 
 			if align:
@@ -59,7 +62,7 @@ def detect_face(detector, img, align = True):
 
 			img_region = [x, y, w, h]
 
-			resp.append((detected_face, img_region))
+			resp.append((detected_face, img_region, confidence))
 
 	return resp
 

@@ -12,6 +12,7 @@ def detect_face(face_detector, img, align = True):
 
 	detected_face = None
 	img_region = [0, 0, img.shape[0], img.shape[1]]
+	confidence = None
 
 	img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #mtcnn expects RGB but OpenCV read BGR
 	detections = face_detector.detect_faces(img_rgb)
@@ -22,6 +23,7 @@ def detect_face(face_detector, img, align = True):
 			x, y, w, h = detection["box"]
 			detected_face = img[int(y):int(y+h), int(x):int(x+w)]
 			img_region = [x, y, w, h]
+			confidence = detection["confidence"]
 
 			if align:
 				keypoints = detection["keypoints"]
@@ -29,6 +31,6 @@ def detect_face(face_detector, img, align = True):
 				right_eye = keypoints["right_eye"]
 				detected_face = FaceDetector.alignment_procedure(detected_face, left_eye, right_eye)
 
-			resp.append((detected_face, img_region))
+			resp.append((detected_face, img_region, confidence))
 
 	return resp
