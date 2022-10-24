@@ -74,7 +74,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 
 		toc = time.time()
 
-		print("Facial attibute analysis models loaded in ",toc-tic," seconds")
+		print("Facial attribute analysis models loaded in ",toc-tic," seconds")
 
 	#------------------------
 
