@@ -11,8 +11,7 @@ def detect_face(face_detector, img, align = True):
 	resp = []
 
 	detected_face = None
-	img_region = [0, 0, img.shape[0], img.shape[1]]
-	confidence = None
+	img_region = [0, 0, img.shape[1], img.shape[0]]
 
 	img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #mtcnn expects RGB but OpenCV read BGR
 	detections = face_detector.detect_faces(img_rgb)

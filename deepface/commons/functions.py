@@ -95,7 +95,7 @@ def load_image(img):
 
 def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_detection = True, align = True):
 
-	img_region = [0, 0, img.shape[0], img.shape[1]]
+	img_region = [0, 0, img.shape[1], img.shape[0]]
 
 	#----------------------------------------------
 	#people would like to skip detection and alignment if they already have pre-processed images

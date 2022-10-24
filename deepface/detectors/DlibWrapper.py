@@ -45,8 +45,8 @@ def detect_face(detector, img, align = True):
 	sp = detector["sp"]
 
 	detected_face = None
-	img_region = [0, 0, img.shape[0], img.shape[1]]
-	confidence = None
+
+	img_region = [0, 0, img.shape[1], img.shape[0]]
 
 	face_detector = detector["face_detector"]
 
