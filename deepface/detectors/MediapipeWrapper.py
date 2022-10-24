@@ -19,8 +19,8 @@ def detect_face(face_detector, img, align = True):
     
     if results.detections:
         for detection in results.detections:
-            
-            confidence = detection.score
+
+            confidence, = detection.score
             
             bounding_box = detection.location_data.relative_bounding_box
             landmarks = detection.location_data.relative_keypoints
@@ -44,6 +44,6 @@ def detect_face(face_detector, img, align = True):
                 if align:
                     detected_face = FaceDetector.alignment_procedure(detected_face, left_eye, right_eye)
                     
-                resp.append((detected_face,img_region))
+                resp.append((detected_face, img_region, confidence))
                 
     return resp
