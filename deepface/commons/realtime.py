@@ -4,14 +4,13 @@ import numpy as np
 import pandas as pd
 import cv2
 import time
-import re
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 from deepface import DeepFace
 from deepface.extendedmodels import Age
-from deepface.commons import functions, realtime, distance as dst
+from deepface.commons import functions, distance as dst, utils
 from deepface.detectors import FaceDetector
 
 def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', distance_metric = 'cosine', enable_face_analysis = True, source = 0, time_threshold = 5, frame_threshold = 5):
@@ -32,7 +31,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 	if os.path.isdir(db_path) == True:
 		for r, d, f in os.walk(db_path): # r=root, d=directories, f = files
 			for file in f:
-				if ('.jpg' in file):
+				if utils.is_file_supported(file):
 					#exact_path = os.path.join(r, file)
 					exact_path = r + "/" + file
 					#print(exact_path)
@@ -375,9 +374,8 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 									display_img = cv2.imread(employee_name)
 
 									display_img = cv2.resize(display_img, (pivot_img_size, pivot_img_size))
-
-									label = employee_name.split("/")[-1].replace(".jpg", "")
-									label = re.sub('[0-9]', '', label)
+									
+									label = utils.get_label_for_employee(employee_name)
 
 									try:
 										if y - pivot_img_size > 0 and x + w + pivot_img_size < resolution_x:
