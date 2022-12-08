@@ -2,11 +2,11 @@ import re
 
 DEFAULT_SUPPORTED_FILE_EXTS = [".jpg", ".jpeg", ".png", ".webp"]
 
-def get_file_ext(file: str):
-    return ".{}".format(file.split(".")[-1]).lower()
+def get_file_ext(filename: str):
+    return ".{}".format(filename.split(".")[-1]).lower()
 
-def is_file_ext_supported(file: str):
-    file_ext = get_file_ext(file)
+def is_file_supported(filename: str):
+    file_ext = get_file_ext(filename)
     
     if not file_ext:
         return False
