@@ -321,6 +321,9 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 		}
 
 	"""
+	
+	if type(actions) == str:
+		actions = (actions,)
 
 	actions = list(actions)
 	if not models:
