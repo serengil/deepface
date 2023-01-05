@@ -267,6 +267,15 @@ python api.py
 
 Face recognition, facial attribute analysis and vector representation functions are covered in the API. You are expected to call these functions as http post methods. Service endpoints will be `http://127.0.0.1:5000/verify` for face recognition, `http://127.0.0.1:5000/analyze` for facial attribute analysis, and `http://127.0.0.1:5000/represent` for vector representation. You should pass input images as base64 encoded string in this case. [Here](https://github.com/serengil/deepface/tree/master/api), you can find a postman project.
 
+**Dockerized Service**
+
+You can deploy the deepface api on a kubernetes cluster with docker. The following shell script will serve deepface on localhost:5000. You need to re-configure the Dockerfile if you want to change the port. Then, even if you do not have a development environment, you will be able to consume deepface services. You can also access the inside of the docker image to run deepface related commands. Please follow the instructions in the shell script.
+
+```shell
+cd scripts
+./dockerize.sh
+```
+
 **Command Line Interface**
 
 DeepFace comes with a command line interface as well. You are able to access its functions in command line as shown below. The command deepface expects the function name as 1st argument and function arguments thereafter.
