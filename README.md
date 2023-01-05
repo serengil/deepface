@@ -269,6 +269,8 @@ Face recognition, facial attribute analysis and vector representation functions 
 
 **Dockerized Service**
 
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-dockerized.jpg" width="30%" height="30%"></p>
+
 You can deploy the deepface api on a kubernetes cluster with docker. The following shell script will serve deepface on localhost:5000. You need to re-configure the Dockerfile if you want to change the port. Then, even if you do not have a development environment, you will be able to consume deepface services. You can also access the inside of the docker image to run deepface related commands. Please follow the instructions in the shell script.
 
 ```shell
