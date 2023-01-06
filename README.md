@@ -276,7 +276,7 @@ cd scripts
 ./dockerize.sh
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-dockerized.jpg" width="50%" height="50%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-dockerized-v2.jpg" width="50%" height="50%"></p>
 
 **Command Line Interface**
 
