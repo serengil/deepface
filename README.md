@@ -290,7 +290,7 @@ $ deepface verify -img1_path tests/dataset/img1.jpg -img2_path tests/dataset/img
 $ deepface analyze -img_path tests/dataset/img1.jpg
 ```
 
-You can also run these command if you are running deepface with docker. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh#L17).
+You can also run these commands if you are running deepface with docker. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh#L17).
 
 **Tech Stack** - [`Vlog`](https://youtu.be/R8fHsL7u3eE), [`Tutorial`](https://sefiks.com/2021/03/31/tech-stack-recommendations-for-face-recognition/)
 
