@@ -269,7 +269,7 @@ Face recognition, facial attribute analysis and vector representation functions 
 
 **Dockerized Service**
 
-You can deploy the deepface api on a kubernetes cluster with docker. The following shell script will serve deepface on `localhost:5000`. You need to re-configure the Dockerfile if you want to change the port. Then, even if you do not have a development environment, you will be able to consume deepface services. You can also access the inside of the docker image to run deepface related commands. Please follow the instructions in the shell script.
+You can deploy the deepface api on a kubernetes cluster with docker. The following [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh) will serve deepface on `localhost:5000`. You need to re-configure the [Dockerfile](https://github.com/serengil/deepface/blob/master/Dockerfile) if you want to change the port. Then, even if you do not have a development environment, you will be able to consume deepface services such as verify and analyze. You can also access the inside of the docker image to run deepface related commands. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh).
 
 ```shell
 cd scripts
@@ -289,6 +289,8 @@ $ deepface verify -img1_path tests/dataset/img1.jpg -img2_path tests/dataset/img
 #facial analysis
 $ deepface analyze -img_path tests/dataset/img1.jpg
 ```
+
+You can also run these command if you are running deepface with docker. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh#L17).
 
 **Tech Stack** - [`Vlog`](https://youtu.be/R8fHsL7u3eE), [`Tutorial`](https://sefiks.com/2021/03/31/tech-stack-recommendations-for-face-recognition/)
 
