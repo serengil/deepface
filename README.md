@@ -300,7 +300,7 @@ Face recognition models represent facial images as vector embeddings. The idea b
 
 You can use deepface not just for facial recognition tasks. For instance, [Celebrity look-alike prediction](https://sefiks.com/2019/05/05/celebrity-look-alike-face-recognition-with-deep-learning-in-keras/) and [Parental look-alike prediction](https://sefiks.com/2022/12/22/decide-whom-your-child-looks-like-with-facial-recognition-mommy-or-daddy/) tasks can be done with DeepFace!
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike.jpg" width="80%" height="80%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-v2.jpg" width="80%" height="80%"></p>
 
 ## Contribution [![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
 
