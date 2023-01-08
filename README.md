@@ -300,7 +300,7 @@ Face recognition models represent facial images as vector embeddings. The idea b
 
 ## Derived applications
 
-You can use deepface not just for facial recognition tasks. It's very common to use DeepFace for entertainment purposes. For instance, Celebrity look-alike prediction and Parental look-alike prediction tasks can be done with DeepFace!
+You can use deepface not just for facial recognition tasks. It's very common to use DeepFace for entertainment purposes. For instance, celebrity look-alike prediction and parental look-alike prediction tasks can be done with DeepFace!
 
 **Parental Look-Alike Prediction** - [`Vlog`](https://youtu.be/nza4tmi9vhE), [`Tutorial`](https://sefiks.com/2022/12/22/decide-whom-your-child-looks-like-with-facial-recognition-mommy-or-daddy/)
 
