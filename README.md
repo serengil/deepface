@@ -306,7 +306,7 @@ You can use deepface not just for facial recognition tasks. It's very common to 
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-v2.jpg" width="90%" height="90%"></p>
 
-**Celebrity Look-Alike Prediction** - [`Vlog`](https://youtu.be/RMgIKU1H8DY), [`Tutorial`](https://sefiks.com/2019/05/05/celebrity-look-alike-face-recognition-with-deep-learning-in-keras/)
+**Celebrity Look-Alike Prediction** - [`Vlog`](https://youtu.be/jaxkEn-Kieo), [`Tutorial`](https://sefiks.com/2019/05/05/celebrity-look-alike-face-recognition-with-deep-learning-in-keras/)
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/look-alike-v3.jpg" width="90%" height="90%"></p>
 
