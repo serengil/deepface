@@ -66,10 +66,18 @@ def analyze():
 
 	toc = time.time()
 
-	resp_obj["trx_id"] = trx_id
-	resp_obj["seconds"] = toc-tic
+	resp = {}
 
-	return resp_obj, 200
+	resp["trx_id"] = trx_id
+	resp["seconds"] = toc-tic
+
+	if isinstance(resp_obj, list):
+		for idx, instance in enumerate(resp_obj):
+			resp[f"instance_{idx+1}"] = instance
+	elif isinstance(resp_obj, dict):
+		resp["instance_1"] = resp_obj
+
+	return resp, 200
 
 def analyzeWrapper(req, trx_id = 0):
 	resp_obj = jsonify({'success': False})
