@@ -70,10 +70,10 @@ def build_model(model_name):
 def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric = 'cosine', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, prog_bar = True, normalization = 'base'):
 
 	"""
-	This function verifies an image pair is same person or different persons.
+	This function verifies an image pair is same person or different persons. In the background, verification function represents facial images as vectors and then calculates the similarity between those vectors. Vectors of same person images should have more similarity (or less distance) than vectors of different persons.
 
 	Parameters:
-		img1_path, img2_path: exact image path, numpy array (BGR) or based64 encoded images could be passed. If you are going to call verify function for a list of image pairs, then you should pass an array instead of calling the function in for loops.
+		img1_path, img2_path (string): exact image path. Alternatively, numpy array (BGR) or based64 encoded images could be passed. If you do not want to call verify function in a for loop, then you can pass an list of pairs as shown below.
 
 		e.g. img1_path = [
 			['img1.jpg', 'img2.jpg'],
@@ -84,7 +84,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 		distance_metric (string): cosine, euclidean, euclidean_l2
 
-		model: Built deepface model. A face recognition model is built every call of verify function. You can pass pre-built face recognition model optionally if you will call verify function several times.
+		model: Pre-built deepface model. You can pass pre-built face recognition model optionally.
 
 			model = DeepFace.build_model('VGG-Face')
 
@@ -268,14 +268,14 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True):
 
 	"""
-	This function analyzes facial attributes including age, gender, emotion and race
+	This function analyzes facial attributes including age, gender, emotion and race. In the background, analysis function builds convolutional neural network models to classify age, gender, emotion and race of the input image.
 
 	Parameters:
-		img_path: exact image path, numpy array (BGR) or base64 encoded image could be passed. If you are going to analyze lots of images, then set this to list. e.g. img_path = ['img1.jpg', 'img2.jpg']
+		img_path (string): exact image path. Alterntively, numpy array (BGR) or base64 encoded image could be passed. If you are going to analyze lots of images, then set this to list. e.g. img_path = ['img1.jpg', 'img2.jpg']
 
 		actions (tuple): The default is ('age', 'gender', 'emotion', 'race'). You can drop some of those attributes.
 
-		models: (Optional[dict]) facial attribute analysis models are built in every call of analyze function. You can pass pre-built models to speed the function up.
+		models: facial attribute analysis models are built in every call of analyze function. You can pass pre-built models with this argument.
 
 			models = {}
 			models['age'] = DeepFace.build_model('Age')
@@ -288,6 +288,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 		detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd, dlib or mediapipe.
 
 		prog_bar (boolean): enable/disable a progress bar
+		
 	Returns:
 		The function returns a dictionary. If img_path is a list, then it will return list of dictionary.
 
@@ -724,10 +725,10 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, normalization = 'base'):
 
 	"""
-	This function represents facial images as vectors.
+	This function represents facial images as vectors. The function uses convolutional neural networks models to generate vector embeddings.
 
 	Parameters:
-		img_path: exact image path, numpy array (BGR) or based64 encoded images could be passed.
+		img_path (string): exact image path. Alternatively, numpy array (BGR) or based64 encoded images could be passed.
 
 		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace or Ensemble
 		
