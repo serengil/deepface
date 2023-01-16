@@ -80,7 +80,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 			['img2.jpg', 'img3.jpg']
 		]
 
-		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib, ArcFace or Ensemble
+		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace or Ensemble
 
 		distance_metric (string): cosine, euclidean, euclidean_l2
 
@@ -90,7 +90,7 @@ def verify(img1_path, img2_path = '', model_name = 'VGG-Face', distance_metric =
 
 		enforce_detection (boolean): If no face could not be detected in an image, then this function will return exception by default. Set this to False not to have this exception. This might be convenient for low resolution images.
 
-		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib
+		detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd, dlib or mediapipe
 
 		prog_bar (boolean): enable/disable a progress bar
 
@@ -285,7 +285,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 
 		enforce_detection (boolean): The function throws exception if no face detected by default. Set this to False if you don't want to get exception. This might be convenient for low resolution images.
 
-		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib.
+		detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd, dlib or mediapipe.
 
 		prog_bar (boolean): enable/disable a progress bar
 	Returns:
@@ -481,7 +481,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 		db_path (string): You should store some .jpg files in a folder and pass the exact folder path to this.
 
-		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib or Ensemble
+		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace or Ensemble
 
 		distance_metric (string): cosine, euclidean, euclidean_l2
 
@@ -491,7 +491,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
 
-		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib
+		detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd, dlib or mediapipe
 
 		prog_bar (boolean): enable/disable a progress bar
 
@@ -729,15 +729,15 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	Parameters:
 		img_path: exact image path, numpy array (BGR) or based64 encoded images could be passed.
 
-		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib, ArcFace.
-
+		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace or Ensemble
+		
 		model: Built deepface model. A face recognition model is built every call of verify function. You can pass pre-built face recognition model optionally if you will call verify function several times. Consider to pass model if you are going to call represent function in a for loop.
 
 			model = DeepFace.build_model('VGG-Face')
 
 		enforce_detection (boolean): If any face could not be detected in an image, then verify function will return exception. Set this to False not to have this exception. This might be convenient for low resolution images.
 
-		detector_backend (string): set face detector backend as retinaface, mtcnn, opencv, ssd or dlib
+		detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd, dlib or mediapipe
 
 		normalization (string): normalize the input image before feeding to model
 
@@ -785,9 +785,9 @@ def stream(db_path = '', model_name ='VGG-Face', detector_backend = 'opencv', di
 	Parameters:
 		db_path (string): facial database path. You should store some .jpg files in this folder.
 
-		model_name (string): VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib or Ensemble
+		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace or Ensemble
 
-		detector_backend (string): opencv, ssd, mtcnn, dlib, retinaface
+		detector_backend (string): opencv, retinaface, mtcnn, ssd, dlib or mediapipe
 
 		distance_metric (string): cosine, euclidean, euclidean_l2
 
