@@ -229,7 +229,9 @@ Face recognition models are actually CNN models and they expect standard sized i
 
 The performance of RetinaFace is very satisfactory even in the crowd as seen in the following illustration. Besides, it comes with an incredible facial landmark detection performance. Highlighted red points show some facial landmarks such as eyes, nose and mouth. That's why, alignment score of RetinaFace is high as well.
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/retinaface-results.jpeg" width="90%" height="90%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/retinaface-results.jpeg" width="90%" height="90%">
+<br><em>The Yellow Angels - Fenerbahce Women's Volleyball Team</em>
+</p>
 
 You can find out more about RetinaFace on this [repo](https://github.com/serengil/retinaface).
 
