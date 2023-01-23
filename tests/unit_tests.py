@@ -34,7 +34,7 @@ def evaluate(condition):
 
 # ------------------------------------------------
 
-detectors = ['opencv', 'mtcnn', 'retinaface']
+detectors = ['opencv', 'mtcnn']
 models = ['VGG-Face', 'Facenet', 'Facenet512', 'ArcFace', 'SFace']
 metrics = ['cosine', 'euclidean', 'euclidean_l2']
 
