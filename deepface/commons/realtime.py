@@ -50,7 +50,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 
 		#------------------------
 
-		input_shape = functions.find_input_shape(model)
+		input_shape = functions.find_target_size(model_name=model_name)
 		input_shape_x = input_shape[0]; input_shape_y = input_shape[1]
 
 		#tuned thresholds for model and metric pair
