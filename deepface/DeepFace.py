@@ -210,37 +210,15 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , enforce_d
 	This function analyzes facial attributes including age, gender, emotion and race. In the background, analysis function builds convolutional neural network models to classify age, gender, emotion and race of the input image.
 
 	Parameters:
-<<<<<<< HEAD
 		img_path: exact image path, numpy array (BGR) or base64 encoded image could be passed.
 
 		actions (tuple): The default is ('age', 'gender', 'emotion', 'race'). You can drop some of those attributes.
 
-=======
-		img_path (string): exact image path. Alterntively, numpy array (BGR) or base64 encoded image could be passed. If you are going to analyze lots of images, then set this to list. e.g. img_path = ['img1.jpg', 'img2.jpg']
-
-		actions (tuple): The default is ('age', 'gender', 'emotion', 'race'). You can drop some of those attributes.
-
-		models: facial attribute analysis models are built in every call of analyze function. You can pass pre-built models with this argument.
-
-			models = {}
-			models['age'] = DeepFace.build_model('Age')
-			models['gender'] = DeepFace.build_model('Gender')
-			models['emotion'] = DeepFace.build_model('Emotion')
-			models['race'] = DeepFace.build_model('Race')
-
->>>>>>> 658e2f987edc8c054e8cbba580025bcebbf17dc3
 		enforce_detection (boolean): The function throws exception if no face detected by default. Set this to False if you don't want to get exception. This might be convenient for low resolution images.
 
 		detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd, dlib or mediapipe.
 
-<<<<<<< HEAD
 		silent (boolean): disable (some) log messages
-=======
-		prog_bar (boolean): enable/disable a progress bar
-		
-	Returns:
-		The function returns a dictionary. If img_path is a list, then it will return list of dictionary.
->>>>>>> 658e2f987edc8c054e8cbba580025bcebbf17dc3
 
 	Returns:
 		The function returns a list of dictionaries for each face appearing in the image.
@@ -540,15 +518,6 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	Parameters:
 		img_path (string): exact image path. Alternatively, numpy array (BGR) or based64 encoded images could be passed.
 
-<<<<<<< HEAD
-=======
-		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace or Ensemble
-		
-		model: Built deepface model. A face recognition model is built every call of verify function. You can pass pre-built face recognition model optionally if you will call verify function several times. Consider to pass model if you are going to call represent function in a for loop.
-
-			model = DeepFace.build_model('VGG-Face')
-
->>>>>>> 658e2f987edc8c054e8cbba580025bcebbf17dc3
 		enforce_detection (boolean): If any face could not be detected in an image, then verify function will return exception. Set this to False not to have this exception. This might be convenient for low resolution images.
 
 		detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd, dlib or mediapipe

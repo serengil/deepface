@@ -46,7 +46,7 @@ A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
-This function verifies face pairs as same person or different persons. It expects exact image paths as inputs. Passing numpy or base64 encoded images is also welcome. Then, it is going to return a dictionary and you should check just its verified key.
+This function verifies face pairs as same person or different persons. It expects exact image paths as inputs. Passing numpy or base64 encoded images is also welcome. Then, it is going to return a dictionary and you should check just its verified key. Verification function can also handle many faces in the face pairs. In this case, the most similar faces will be compared.
 
 ```python
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
@@ -56,26 +56,27 @@ result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 
 **Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
-[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. Herein, deepface has an out-of-the-box find function to handle this action. It's going to look for the identity of input image in the database path and it will return pandas data frame as output.
+[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. Herein, deepface has an out-of-the-box find function to handle this action. It's going to look for the identity of input image in the database path and it will return list of pandas data frame as output. Result is going to be the size of faces appearing in the image path.
 
 
 ```python
-df = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
+dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%" height="95%"></p>
 
 **Embeddings**
 
-Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function.
+Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function. Represent function returns a list of embeddings. Result is going to be the size of faces appearing in the image path.
 
 ```python
-embedding = DeepFace.represent(img_path = "img.jpg")
+embedding_objs = DeepFace.represent(img_path = "img.jpg")
 ```
 
-This function returns an array as output. The size of the output array would be different based on the model name. For instance, VGG-Face is the default model for deepface and it represents facial images as 2622 dimensional vectors.
+This function returns an array as embedding. The size of the embedding array would be different based on the model name. For instance, VGG-Face is the default model and it represents facial images as 2622 dimensional vectors.
 
 ```python
+embedding = embedding_objs[0]["embedding"]
 assert isinstance(embedding, list)
 assert model_name = "VGG-Face" and len(embedding) == 2622
 ```
@@ -104,18 +105,18 @@ models = [
 #face verification
 result = DeepFace.verify(img1_path = "img1.jpg", 
       img2_path = "img2.jpg", 
-      model_name = models[1]
+      model_name = models[0]
 )
 
 #face recognition
-df = DeepFace.find(img_path = "img1.jpg",
+dfs = DeepFace.find(img_path = "img1.jpg",
       db_path = "C:/workspace/my_db", 
       model_name = models[1]
 )
 
 #embeddings
-embedding = DeepFace.represent(img_path = "img.jpg", 
-      model_name = models[1]
+embedding_objs = DeepFace.represent(img_path = "img.jpg", 
+      model_name = models[2]
 )
 ```
 
@@ -151,9 +152,9 @@ result = DeepFace.verify(img1_path = "img1.jpg",
 )
 
 #face recognition
-df = DeepFace.find(img_path = "img1.jpg", 
+dfs = DeepFace.find(img_path = "img1.jpg", 
           db_path = "C:/workspace/my_db", 
-          distance_metric = metrics[1]
+          distance_metric = metrics[2]
 )
 ```
 
@@ -164,7 +165,7 @@ Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than c
 Deepface also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions.
 
 ```python
-obj = DeepFace.analyze(img_path = "img4.jpg", 
+objs = DeepFace.analyze(img_path = "img4.jpg", 
         actions = ['age', 'gender', 'race', 'emotion']
 )
 ```
@@ -195,27 +196,27 @@ backends = [
 #face verification
 obj = DeepFace.verify(img1_path = "img1.jpg", 
         img2_path = "img2.jpg", 
-        detector_backend = backends[4]
+        detector_backend = backends[0]
 )
 
 #face recognition
-df = DeepFace.find(img_path = "img.jpg", 
+dfs = DeepFace.find(img_path = "img.jpg", 
         db_path = "my_db", 
-        detector_backend = backends[4]
+        detector_backend = backends[1]
 )
 
 #embeddings
-embedding = DeepFace.represent(img_path = "img.jpg", 
-        detector_backend = backends[4]
+embedding_objs = DeepFace.represent(img_path = "img.jpg", 
+        detector_backend = backends[2]
 )
 
 #facial analysis
-demography = DeepFace.analyze(img_path = "img4.jpg", 
-        detector_backend = backends[4]
+demographies = DeepFace.analyze(img_path = "img4.jpg", 
+        detector_backend = backends[3]
 )
 
 #face detection and alignment
-face = DeepFace.detectFace(img_path = "img.jpg", 
+face_objs = DeepFace.extract_face(img_path = "img.jpg", 
         target_size = (224, 224), 
         detector_backend = backends[4]
 )
