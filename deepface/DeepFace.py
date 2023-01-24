@@ -74,7 +74,6 @@ def verify(img1_path, img2_path, model_name = 'VGG-Face', detector_backend = 'op
 	This function verifies an image pair is same person or different persons. In the background, verification function represents facial images as vectors and then calculates the similarity between those vectors. Vectors of same person images should have more similarity (or less distance) than vectors of different persons.
 
 	Parameters:
-<<<<<<< HEAD
 		img1_path, img2_path: exact image path as string. numpy array (BGR) or based64 encoded images are also welcome. 
 		If one of pair has more than one face, then we will compare the face pair with max similarity.
 
@@ -84,24 +83,6 @@ def verify(img1_path, img2_path, model_name = 'VGG-Face', detector_backend = 'op
 
 		enforce_detection (boolean): If no face could not be detected in an image, then this function will return exception by default. 
 		Set this to False not to have this exception. This might be convenient for low resolution images.
-=======
-		img1_path, img2_path (string): exact image path. Alternatively, numpy array (BGR) or based64 encoded images could be passed. If you do not want to call verify function in a for loop, then you can pass an list of pairs as shown below.
-
-		e.g. img1_path = [
-			['img1.jpg', 'img2.jpg'],
-			['img2.jpg', 'img3.jpg']
-		]
-
-		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace or Ensemble
-
-		distance_metric (string): cosine, euclidean, euclidean_l2
-
-		model: Pre-built deepface model. You can pass pre-built face recognition model optionally.
-
-			model = DeepFace.build_model('VGG-Face')
-
-		enforce_detection (boolean): If no face could not be detected in an image, then this function will return exception by default. Set this to False not to have this exception. This might be convenient for low resolution images.
->>>>>>> 658e2f987edc8c054e8cbba580025bcebbf17dc3
 
 		detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd, dlib or mediapipe
 
