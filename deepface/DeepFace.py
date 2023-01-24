@@ -473,7 +473,10 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 			target_representation = target_embedding_obj[0]["embedding"]
 
 			result_df = df.copy() #df will be filtered in each img
-			#TODO: add facial area in df
+			result_df["source_x"] = target_region["x"]
+			result_df["source_y"] = target_region["y"]
+			result_df["source_w"] = target_region["w"]
+			result_df["source_h"] = target_region["h"]
 
 			distances = []
 			for index, instance in df.iterrows():

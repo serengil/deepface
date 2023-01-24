@@ -66,21 +66,13 @@ def analyze():
 
 	toc = time.time()
 
-	resp = {}
+	resp_obj["trx_id"] = trx_id
+	resp_obj["seconds"] = toc-tic
 
-	resp["trx_id"] = trx_id
-	resp["seconds"] = toc-tic
-
-	if isinstance(resp_obj, list):
-		for idx, instance in enumerate(resp_obj):
-			resp[f"instance_{idx+1}"] = instance
-	elif isinstance(resp_obj, dict):
-		resp["instance_1"] = resp_obj
-
-	return resp, 200
+	return resp_obj, 200
 
 def analyzeWrapper(req, trx_id = 0):
-	resp_obj = jsonify({'success': False})
+	resp_obj = {}
 
 	instances = []
 	if "img" in list(req.keys()):
@@ -90,32 +82,46 @@ def analyzeWrapper(req, trx_id = 0):
 			instances.append(item)
 
 	if len(instances) == 0:
-		return jsonify({'success': False, 'error': 'you must pass at least one img object in your request'}), 205
+		return {'success': False, 'error': 'you must pass at least one img object in your request'}
 
 	print("Analyzing ", len(instances)," instances")
 
 	#---------------------------
 
 	detector_backend = 'opencv'
-
 	actions= ['emotion', 'age', 'gender', 'race']
+	align = True
+	enforce_detection = True
 
 	if "actions" in list(req.keys()):
 		actions = req["actions"]
 
 	if "detector_backend" in list(req.keys()):
 		detector_backend = req["detector_backend"]
+	
+	if "align" in list(req.keys()):
+		align = req["align"]
+	
+	if "enforce_detection" in list(req.keys()):
+		enforce_detection = req["enforce_detection"]
 
 	#---------------------------
 
 	try:
-		resp_obj = DeepFace.analyze(instances, actions = actions)
+		resp_obj["demographies"] = {}
+		for idx, instance in enumerate(instances):
+
+			demographies = DeepFace.analyze(img_path = instance, 
+										detector_backend = detector_backend, 
+										actions = actions, align = align, 
+										enforce_detection = enforce_detection)
+			resp_obj["demographies"][f"img_{idx+1}"] = demographies
+
 	except Exception as err:
 		print("Exception: ", str(err))
 		return jsonify({'success': False, 'error': str(err)}), 205
 
 	#---------------
-	#print(resp_obj)
 	return resp_obj
 
 @app.route('/verify', methods=['POST'])
@@ -146,62 +152,58 @@ def verify():
 
 def verifyWrapper(req, trx_id = 0):
 
-	resp_obj = jsonify({'success': False})
+	resp_obj = {}
 
 	model_name = "VGG-Face"; distance_metric = "cosine"; detector_backend = "opencv"
+	align = True; enforce_detection = True
 	if "model_name" in list(req.keys()):
 		model_name = req["model_name"]
 	if "distance_metric" in list(req.keys()):
 		distance_metric = req["distance_metric"]
 	if "detector_backend" in list(req.keys()):
 		detector_backend = req["detector_backend"]
-
+	if "align" in list(req.keys()):
+		align = req["align"]
+	if "enforce_detection" in list(req.keys()):
+		enforce_detection = req["enforce_detection"]
 	#----------------------
-
-	instances = []
-	if "img" in list(req.keys()):
-		raw_content = req["img"] #list
-
-		for item in raw_content: #item is in type of dict
-			instance = []
-			img1 = item["img1"]; img2 = item["img2"]
-
-			validate_img1 = False
-			if len(img1) > 11 and img1[0:11] == "data:image/":
-				validate_img1 = True
-
-			validate_img2 = False
-			if len(img2) > 11 and img2[0:11] == "data:image/":
-				validate_img2 = True
-
-			if validate_img1 != True or validate_img2 != True:
-				return jsonify({'success': False, 'error': 'you must pass both img1 and img2 as base64 encoded string'}), 205
-
-			instance.append(img1); instance.append(img2)
-			instances.append(instance)
-
-	#--------------------------
-
-	if len(instances) == 0:
-		return jsonify({'success': False, 'error': 'you must pass at least one img object in your request'}), 205
-
-	print("Input request of ", trx_id, " has ",len(instances)," pairs to verify")
-
-	#--------------------------
-
 	try:
-		resp_obj = DeepFace.verify(instances
-			, model_name = model_name
-			, distance_metric = distance_metric
-			, detector_backend = detector_backend
-		)
+		if "img" in list(req.keys()):
+			raw_content = req["img"] #list
 
-		if model_name == "Ensemble": #issue 198.
-			for key in resp_obj: #issue 198.
-				resp_obj[key]['verified'] = bool(resp_obj[key]['verified'])
+			if len(raw_content) == 0:
+				return jsonify({'success': False, 'error': 'you must pass at least one img object in your request'}), 205
+			
+			print("Input request of ", trx_id, " has ",len(raw_content)," pairs to verify")
 
+			results = []
+			for idx, item in enumerate(raw_content): #item is in type of dict
+				img1 = item["img1"]; img2 = item["img2"]
+
+				validate_img1 = False
+				if len(img1) > 11 and img1[0:11] == "data:image/":
+					validate_img1 = True
+
+				validate_img2 = False
+				if len(img2) > 11 and img2[0:11] == "data:image/":
+					validate_img2 = True
+
+				if validate_img1 != True or validate_img2 != True:
+					return jsonify({'success': False, 'error': 'you must pass both img1 and img2 as base64 encoded string'}), 205
+				
+				result = DeepFace.verify(img1_path=img1, 
+								img2_path=img2, 
+								model_name=model_name, 
+								detector_backend=detector_backend, 
+								distance_metric=distance_metric,
+								align=align,
+								enforce_detection=enforce_detection,
+								)
+				results.append(result)
+				
+			resp_obj[f"pairs"] = results
 	except Exception as err:
-		resp_obj = jsonify({'success': False, 'error': str(err)}), 205
+		resp_obj = jsonify({'success': False, 'error': str(err)}), 205		
 
 	return resp_obj
 
@@ -238,7 +240,7 @@ def representWrapper(req, trx_id = 0):
 	#-------------------------------------
 	#find out model
 
-	model_name = "VGG-Face"; distance_metric = "cosine"; detector_backend = 'opencv'
+	model_name = "VGG-Face"; detector_backend = 'opencv'
 
 	if "model_name" in list(req.keys()):
 		model_name = req["model_name"]
@@ -267,7 +269,7 @@ def representWrapper(req, trx_id = 0):
 
 	try:
 
-		embedding = DeepFace.represent(img
+		embedding_objs = DeepFace.represent(img
 			, model_name = model_name
 			, detector_backend = detector_backend
 		)
@@ -280,7 +282,16 @@ def representWrapper(req, trx_id = 0):
 
 	#print("embedding is ", len(embedding)," dimensional vector")
 	resp_obj = {}
-	resp_obj["embedding"] = embedding
+	faces = []
+	for embedding_obj in embedding_objs:
+		face = {}
+		face["embedding"] = embedding_obj["embedding"]
+		face["facial_area"] = embedding_obj["facial_area"]
+		face["model_name"] = model_name
+		face["detector_backend"] = detector_backend
+		faces.append(face)
+
+	resp_obj["embeddings"] = faces
 
 	#-------------------------------------
 

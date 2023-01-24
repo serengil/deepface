@@ -85,9 +85,7 @@ def analysis(db_path, model_name = 'VGG-Face', detector_backend = 'opencv', dist
 	#-----------------------
 
 	pbar = tqdm(range(0, len(employees)), desc='Finding embeddings')
-
-	#TODO: why don't you store those embeddings in a pickle file similar to find function?
-
+	
 	embeddings = []
 	#for employee in employees:
 	for index in pbar:
