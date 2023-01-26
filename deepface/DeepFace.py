@@ -395,7 +395,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 				employee = employees[index]
 
 				img_objs = functions.extract_faces(img = employee, 
-					target_size = target_size, 
+					target_size = (target_size[1], target_size[0]), 
 					detector_backend = detector_backend, 
 					grayscale = False, 
 					enforce_detection = enforce_detection, 
@@ -433,7 +433,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 		# img path might have move than once face
 		target_objs = functions.extract_faces(img = img_path, 
-					target_size = target_size, 
+					target_size = (target_size[1], target_size[0]), 
 					detector_backend = detector_backend, 
 					grayscale = False, 
 					enforce_detection = enforce_detection, 
@@ -526,7 +526,7 @@ def represent(img_path, model_name = 'VGG-Face', enforce_detection = True, detec
 		target_size = functions.find_target_size(model_name=model_name)
 
 		img_objs = functions.extract_faces(img = img_path, 
-								target_size = target_size, 
+								target_size = (target_size[1], target_size[0]), 
 								detector_backend = detector_backend, 
 								grayscale = False, 
 								enforce_detection = enforce_detection, 
@@ -620,7 +620,7 @@ def extract_faces(img_path, target_size = (224, 224), detector_backend = 'opencv
 	resp_objs = []
 	img_objs = functions.extract_faces(
 						img = img_path, 
-						target_size = target_size, 
+						target_size = (target_size[1], target_size[0]), 
 						detector_backend = detector_backend, 
 						grayscale = False, 
 						enforce_detection = enforce_detection, 
