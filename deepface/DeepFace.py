@@ -494,7 +494,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 		return resp_obj
 
-def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, normalization = 'base'):
+def represent(img_path, model_name = 'VGG-Face', enforce_detection = True, detector_backend = 'opencv', align = True, normalization = 'base'):
 
 	"""
 	This function represents facial images as vectors. The function uses convolutional neural networks models to generate vector embeddings.
@@ -503,10 +503,6 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 		img_path (string): exact image path. Alternatively, numpy array (BGR) or based64 encoded images could be passed.
 
 		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace
-
-		model: Built deepface model. A face recognition model is built every call of verify function. You can pass pre-built face recognition model optionally if you will call verify function several times. Consider to pass model if you are going to call represent function in a for loop.
-
-			model = DeepFace.build_model('VGG-Face')
 
 		enforce_detection (boolean): If no face could not be detected in an image, then this function will return exception by default.
 		Set this to False not to have this exception. This might be convenient for low resolution images.
@@ -522,8 +518,7 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	"""
 	resp_objs = []
 
-	if model is None:
-		model = build_model(model_name)
+	model = build_model(model_name)
 
 	#---------------------------------
 	# we started to run pre-process in verification. so, this can be skipped if it is coming from verification.
