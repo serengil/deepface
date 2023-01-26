@@ -494,7 +494,7 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 		return resp_obj
 
-def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection = True, detector_backend = 'opencv', align = True, normalization = 'base'):
+def represent(img_path, model_name = 'VGG-Face', enforce_detection = True, detector_backend = 'opencv', align = True, normalization = 'base'):
 
 	"""
 	This function represents facial images as vectors. The function uses convolutional neural networks models to generate vector embeddings.
@@ -502,9 +502,14 @@ def represent(img_path, model_name = 'VGG-Face', model = None, enforce_detection
 	Parameters:
 		img_path (string): exact image path. Alternatively, numpy array (BGR) or based64 encoded images could be passed.
 
-		enforce_detection (boolean): If any face could not be detected in an image, then verify function will return exception. Set this to False not to have this exception. This might be convenient for low resolution images.
+		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace
+
+		enforce_detection (boolean): If no face could not be detected in an image, then this function will return exception by default.
+		Set this to False not to have this exception. This might be convenient for low resolution images.
 
 		detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd, dlib or mediapipe
+
+		align (boolean): alignment according to the eye positions.
 
 		normalization (string): normalize the input image before feeding to model
 
