@@ -71,10 +71,12 @@ def build_model(model_name):
 def verify(img1_path, img2_path, model_name = 'VGG-Face', detector_backend = 'opencv', distance_metric = 'cosine', enforce_detection = True, align = True, normalization = 'base'):
 
 	"""
-	This function verifies an image pair is same person or different persons. In the background, verification function represents facial images as vectors and then calculates the similarity between those vectors. Vectors of same person images should have more similarity (or less distance) than vectors of different persons.
+	This function verifies an image pair is same person or different persons. In the background, verification function represents 
+	facial images as vectors and then calculates the similarity between those vectors. Vectors of same person images should have 
+	more similarity (or less distance) than vectors of different persons.
 
 	Parameters:
-		img1_path, img2_path: exact image path as string. numpy array (BGR) or based64 encoded images are also welcome. 
+		img1_path, img2_path: exact image path as string. numpy array (BGR) or based64 encoded images are also welcome.
 		If one of pair has more than one face, then we will compare the face pair with max similarity.
 
 		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace
@@ -188,10 +190,12 @@ def verify(img1_path, img2_path, model_name = 'VGG-Face', detector_backend = 'op
 def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , enforce_detection = True, detector_backend = 'opencv', align = True, silent = False):
 
 	"""
-	This function analyzes facial attributes including age, gender, emotion and race. In the background, analysis function builds convolutional neural network models to classify age, gender, emotion and race of the input image.
+	This function analyzes facial attributes including age, gender, emotion and race. In the background, analysis function builds convolutional 
+	neural network models to classify age, gender, emotion and race of the input image.
 
 	Parameters:
 		img_path: exact image path, numpy array (BGR) or base64 encoded image could be passed.
+		If source image has more than one face, then result will be size of number of faces appearing in the image.
 
 		actions (tuple): The default is ('age', 'gender', 'emotion', 'race'). You can drop some of those attributes.
 
@@ -331,8 +335,10 @@ def find(img_path, db_path, model_name ='VGG-Face', distance_metric = 'cosine', 
 
 	Parameters:
 		img_path: exact image path, numpy array (BGR) or based64 encoded image. 
+		Source image can have many faces. Then, result will be the size of number of faces in the source image.
 		
 		db_path (string): You should store some .jpg files in a folder and pass the exact folder path to this.
+		A database image can also have many faces. Then, all detected faces in db side will be considered in the decision.
 
 		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace or Ensemble
 
@@ -501,6 +507,7 @@ def represent(img_path, model_name = 'VGG-Face', enforce_detection = True, detec
 
 	Parameters:
 		img_path (string): exact image path. Alternatively, numpy array (BGR) or based64 encoded images could be passed.
+		Source image can have many faces. Then, result will be the size of number of faces appearing in the source image.
 
 		model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace
 
@@ -601,7 +608,8 @@ def extract_faces(img_path, target_size = (224, 224), detector_backend = 'opencv
 	This function applies pre-processing stages of a face recognition pipeline including detection and alignment
 
 	Parameters:
-		img_path: exact image path, numpy array (BGR) or base64 encoded image
+		img_path: exact image path, numpy array (BGR) or base64 encoded image.
+		Source image can have many face. Then, result will be the size of number of faces appearing in that source image.
 
 		target_size (tuple): final shape of facial image. black pixels will be added to resize the image.
 
