@@ -56,7 +56,7 @@ result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 
 Verification function can also handle many faces in the face pairs. In this case, the most similar faces will be compared.
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/many-faces-in-verify.jpg" width="95%" height="95%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/verify-many-faces.jpg" width="95%" height="95%"></p>
 
 **Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
