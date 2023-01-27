@@ -56,9 +56,11 @@ result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 
 Verification function can also handle many faces in the face pairs. In this case, the most similar faces will be compared.
 
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/many-faces.jpg" width="95%" height="95%"></p>
+
 **Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
-[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. Herein, deepface has an out-of-the-box find function to handle this action. It's going to look for the identity of input image in the database path and it will return list of pandas data frame as output. Result is going to be the size of faces appearing in the source image.
+[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. Herein, deepface has an out-of-the-box find function to handle this action. It's going to look for the identity of input image in the database path and it will return list of pandas data frame as output. Result is going to be the size of faces appearing in the source image. Besides, target images in the database can have many faces as well.
 
 
 ```python
