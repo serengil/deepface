@@ -53,3 +53,7 @@ def loadModel(
     return gender_model
 
     # --------------------------
+
+
+GENDER_LABELS = ["Woman", "Man"]
+"""Labels for the genders that can be detected by the model."""

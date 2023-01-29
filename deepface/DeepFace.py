@@ -26,6 +26,9 @@ from deepface.basemodels import (
     SFace,
 )
 from deepface.extendedmodels import Age, Gender, Race, Emotion
+from deepface.extendedmodels.Emotion import EMOTION_LABELS
+from deepface.extendedmodels.Gender import GENDER_LABELS
+from deepface.extendedmodels.Race import RACE_LABELS
 from deepface.commons import functions, realtime, distance as dst
 
 # -----------------------------------
@@ -338,21 +341,12 @@ def analyze(
                     sum_of_predictions = emotion_predictions.sum()
 
                     obj["emotion"] = {}
-                    emotion_labels = [
-                        "angry",
-                        "disgust",
-                        "fear",
-                        "happy",
-                        "sad",
-                        "surprise",
-                        "neutral",
-                    ]
 
-                    for i, emotion_label in enumerate(emotion_labels):
+                    for i, emotion_label in enumerate(EMOTION_LABELS):
                         emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
                         obj["emotion"][emotion_label] = emotion_prediction
 
-                    obj["dominant_emotion"] = emotion_labels[np.argmax(emotion_predictions)]
+                    obj["dominant_emotion"] = EMOTION_LABELS[np.argmax(emotion_predictions)]
 
                 elif action == "age":
                     age_predictions = models["age"].predict(img_content, verbose=0)[0, :]
@@ -362,32 +356,23 @@ def analyze(
 
                 elif action == "gender":
                     gender_predictions = models["gender"].predict(img_content, verbose=0)[0, :]
-                    gender_labels = ["Woman", "Man"]
                     obj["gender"] = {}
-                    for i, gender_label in enumerate(gender_labels):
+                    for i, gender_label in enumerate(GENDER_LABELS):
                         gender_prediction = 100 * gender_predictions[i]
                         obj["gender"][gender_label] = gender_prediction
 
-                    obj["dominant_gender"] = gender_labels[np.argmax(gender_predictions)]
+                    obj["dominant_gender"] = GENDER_LABELS[np.argmax(gender_predictions)]
 
                 elif action == "race":
                     race_predictions = models["race"].predict(img_content, verbose=0)[0, :]
                     sum_of_predictions = race_predictions.sum()
 
                     obj["race"] = {}
-                    race_labels = [
-                        "asian",
-                        "indian",
-                        "black",
-                        "white",
-                        "middle eastern",
-                        "latino hispanic",
-                    ]
-                    for i, race_label in enumerate(race_labels):
+                    for i, race_label in enumerate(RACE_LABELS):
                         race_prediction = 100 * race_predictions[i] / sum_of_predictions
                         obj["race"][race_label] = race_prediction
 
-                    obj["dominant_race"] = race_labels[np.argmax(race_predictions)]
+                    obj["dominant_race"] = RACE_LABELS[np.argmax(race_predictions)]
 
                 # -----------------------------
                 # mention facial areas

@@ -50,3 +50,7 @@ def loadModel(
     race_model.load_weights(home + "/.deepface/weights/race_model_single_batch.h5")
 
     return race_model
+
+
+RACE_LABELS = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
+"""Labels for the ethnic phenotypes that can be detected by the model."""

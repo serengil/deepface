@@ -70,3 +70,7 @@ def loadModel(
     model.load_weights(home + "/.deepface/weights/facial_expression_model_weights.h5")
 
     return model
+
+
+EMOTION_LABELS = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
+"""Labels for the emotions that can be detected by the model."""
