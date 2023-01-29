@@ -62,10 +62,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pytest
+        pip install pylint
+        pip install black
         pip install .
         
     - name: Test with pytest
       run: |
         cd tests
         pytest unit_tests.py
+        pylint --fail-under=10 ../deepface/
     
