@@ -6,6 +6,8 @@ import pandas as pd
 import cv2
 from deepface import DeepFace
 
+# pylint: disable=consider-iterating-dictionary
+
 print("-----------------------------------------")
 
 warnings.filterwarnings("ignore")
@@ -93,8 +95,7 @@ def test_cases():
         assert "h" in objs[0]["facial_area"].keys()
         assert isinstance(objs[0]["embedding"], list)
         assert len(objs[0]["embedding"]) == 2622  # embedding of VGG-Face
-    except Exception as err:
-        print(str(err))
+    except:
         exception_thrown = True
 
     assert exception_thrown is False
