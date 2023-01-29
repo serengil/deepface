@@ -5,7 +5,7 @@ from deepface.commons import functions
 
 # ---------------------------------------
 
-tf_version = int(tf.__version__.split(".")[0])
+tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
 
 if tf_version == 1:
     from keras.models import Model, Sequential

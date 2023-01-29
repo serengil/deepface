@@ -3,6 +3,8 @@ import gdown
 import tensorflow as tf
 from deepface.commons import functions
 
+# pylint: disable=unsubscriptable-object
+
 # --------------------------------
 # dependency configuration
 
