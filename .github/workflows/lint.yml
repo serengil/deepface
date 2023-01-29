@@ -1,0 +1,49 @@
+name: Lint
+
+on: 
+  push:
+    paths:
+      - '.github/workflows/tests.yml'
+      - '.github/workflows/lint.yml'
+      - 'deepface/**'  
+      - 'tests/**'
+      - 'api/**'
+      - 'requirements.txt'
+      - '.gitignore'
+      - 'setup.py'
+  pull_request:
+    paths:
+      - '.github/workflows/tests.yml'
+      - '.github/workflows/lint.yml'
+      - 'deepface/**'  
+      - 'tests/**'
+      - 'api/**'
+      - 'requirements.txt'
+      - '.gitignore'
+      - 'setup.py'
+
+jobs:
+  lint-with-ubuntu-latest:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pylint
+        pip install black
+        pip install .
+        
+    - name: Lint with pylint
+      run: |
+        pylint --fail-under=10 ../deepface/
+    
