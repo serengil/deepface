@@ -87,12 +87,13 @@ def analysis(
                 )
                 faces = []
                 for face_obj in face_objs:
+                    facial_area = face_obj["facial_area"]
                     faces.append(
                         (
-                            face_obj["facial_area"]["x"],
-                            face_obj["facial_area"]["y"],
-                            face_obj["facial_area"]["w"],
-                            face_obj["facial_area"]["h"],
+                            facial_area["x"],
+                            facial_area["y"],
+                            facial_area["w"],
+                            facial_area["h"],
                         )
                     )
             except:  # to avoid exception if no face detected

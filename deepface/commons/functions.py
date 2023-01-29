@@ -62,10 +62,10 @@ def load_image(img):
     if type(img).__module__ == np.__name__:
         exact_image = True
 
-    elif len(img) > 11 and img[0:11] == "data:image/":
+    elif img.startswith("data:image/"):
         base64_img = True
 
-    elif len(img) > 11 and img.startswith("http"):
+    elif img.startswith("http"):
         url_img = True
 
     # ---------------------------
@@ -177,9 +177,7 @@ def extract_faces(
 
     if len(extracted_faces) == 0 and enforce_detection == True:
         raise ValueError(
-            "Detected face shape is ",
-            img.shape,
-            ". Consider to set enforce_detection argument to False.",
+            f"Detected face shape is {img.shape}. Consider to set enforce_detection arg to False."
         )
 
     return extracted_faces

@@ -93,7 +93,8 @@ def test_cases():
         assert "h" in objs[0]["facial_area"].keys()
         assert isinstance(objs[0]["embedding"], list)
         assert len(objs[0]["embedding"]) == 2622  # embedding of VGG-Face
-    except:
+    except Exception as err:
+        print(str(err))
         exception_thrown = True
 
     assert exception_thrown is False
