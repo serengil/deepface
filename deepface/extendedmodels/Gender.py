@@ -18,6 +18,11 @@ elif tf_version == 2:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 # -------------------------------------
+
+# Labels for the genders that can be detected by the model.
+labels = ["Woman", "Man"]
+
+
 def loadModel(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.h5",
 ):
@@ -51,9 +56,3 @@ def loadModel(
     gender_model.load_weights(home + "/.deepface/weights/gender_model_weights.h5")
 
     return gender_model
-
-    # --------------------------
-
-
-GENDER_LABELS = ["Woman", "Man"]
-"""Labels for the genders that can be detected by the model."""

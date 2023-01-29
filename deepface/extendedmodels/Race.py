@@ -17,6 +17,10 @@ elif tf_version == 2:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 # --------------------------
+# Labels for the ethnic phenotypes that can be detected by the model.
+labels = ["asian", "indian", "black", "white", "middle eastern", "latino hispanic"]
+
+
 def loadModel(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5",
 ):
@@ -50,7 +54,3 @@ def loadModel(
     race_model.load_weights(home + "/.deepface/weights/race_model_single_batch.h5")
 
     return race_model
-
-
-RACE_LABELS = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
-"""Labels for the ethnic phenotypes that can be detected by the model."""
