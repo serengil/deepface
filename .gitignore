@@ -7,7 +7,6 @@ dist/
 Pipfile
 Pipfile.lock
 .mypy_cache/
-.vscode/
 .idea/
 deepface.egg-info/
 deepface/__pycache__/*
