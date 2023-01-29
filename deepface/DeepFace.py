@@ -788,6 +788,8 @@ def extract_faces(
 
             align (boolean): alignment according to the eye positions.
 
+            grayscale (boolean): extracting faces in rgb or gray scale
+
     Returns:
             list of dictionaries. Each dictionary will have facial image itself,
             extracted area from the original image and confidence score.
