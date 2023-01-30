@@ -435,7 +435,9 @@ disable=raw-checker-failed,
         global-statement,
         no-member,
         no-name-in-module,
-        unrecognized-option
+        unrecognized-option,
+        consider-using-dict-items,
+        consider-iterating-dictionary
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
