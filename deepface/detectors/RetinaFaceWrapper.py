@@ -19,7 +19,8 @@ def detect_face(face_detector, img, align=True):
     obj = RetinaFace.detect_faces(img, model=face_detector, threshold=0.9)
 
     if isinstance(obj, dict):
-        for identity in obj.items():
+        for item in obj.items():
+            identity = item[1]
             facial_area = identity["facial_area"]
 
             y = facial_area[1]
