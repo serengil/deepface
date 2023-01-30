@@ -526,7 +526,7 @@ def find(
     # now, we got representations for facial database
     df = pd.DataFrame(representations, columns=["identity", f"{model_name}_representation"])
 
-    # img path might have move than once face
+    # img path might have more than once face
     target_objs = functions.extract_faces(
         img=img_path,
         target_size=target_size,
