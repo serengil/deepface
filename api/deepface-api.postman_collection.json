@@ -1,0 +1,102 @@
+{
+	"info": {
+		"_postman_id": "4c0b144e-4294-4bdd-8072-bcb326b1fed2",
+		"name": "deepface-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Represent",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"model_name\": \"Facenet\",\n  \"img\": \"/Users/sefik/Desktop/deepface/tests/dataset/img1.jpg\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/represent",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"represent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Face verification",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "  {\n  \t\"img1_path\": \"/Users/sefik/Desktop/deepface/tests/dataset/img1.jpg\",\n    \"img2_path\": \"/Users/sefik/Desktop/deepface/tests/dataset/img2.jpg\",\n    \"model_name\": \"Facenet\",\n    \"detector_backend\": \"mtcnn\",\n    \"distance_metric\": \"euclidean\"\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/verify",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"verify"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Face analysis",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"img_path\": \"/Users/sefik/Desktop/deepface/tests/dataset/couple.jpg\",\n    \"actions\": [\"age\", \"gender\", \"emotion\", \"race\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/analyze",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"analyze"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

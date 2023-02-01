@@ -39,5 +39,4 @@ ENV PYTHONUNBUFFERED=1
 # -----------------------------------
 # run the app (re-configure port if necessary)
 EXPOSE 5000
-# flask run is not recommended in production, move this to gunicorn
-CMD ["python", "/app/api.py", "--port", "5000"]
+CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]
