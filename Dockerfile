@@ -9,7 +9,9 @@ RUN mkdir /app/deepface
 # -----------------------------------
 # Copy required files from repo into image
 COPY ./deepface /app/deepface
-COPY ./api/api.py /app/
+COPY ./api/app.py /app/
+COPY ./api/routes.py.py /app/
+COPY ./api/service.py.py /app/
 COPY ./setup.py /app/
 COPY ./README.md /app/
 # -----------------------------------
