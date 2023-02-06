@@ -72,19 +72,20 @@ def load_image(img):
     # ---------------------------
 
     filename, file_extension = os.path.splitext(img)
-	if (file_extension == ".HEIC"):
-		heif_file = pyheif.read(img)
-		pil_image = Image.frombytes(
-			heif_file.mode, 
-			heif_file.size, 
-			heif_file.data,
-			"raw",
-			heif_file.mode,
-			heif_file.stride,
-			)
-		img = np.array(pil_image) 
-		img = img[:, :, ::-1].copy()         
-	elif base64_img is True:
+    if (file_extension == ".HEIC"):
+        heif_file = pyheif.read(img)
+        pil_image = Image.frombytes(
+                        heif_file.mode, 
+                        heif_file.size, 
+                        heif_file.data, 
+                        "raw", 
+                        heif_file.mode, 
+                        heif_file.stride, 
+                        )
+        img = np.array(pil_image)
+        img = img[:, :, ::-1].copy()
+
+    elif base64_img is True:
         img = loadBase64Img(img)
 
     elif url_img is True:
