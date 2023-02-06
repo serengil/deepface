@@ -164,8 +164,8 @@ def verify(
     distances = []
     regions = []
     # now we will find the face pair with minimum distance
-    for img1_content, img1_region, _ in img1_objs:
-        for img2_content, img2_region, _ in img2_objs:
+    for img1_content, img1_region in img1_objs:
+        for img2_content, img2_region in img2_objs:
             img1_embedding_obj = represent(
                 img_path=img1_content,
                 model_name=model_name,
@@ -319,7 +319,7 @@ def analyze(
         align=align,
     )
 
-    for img_content, img_region, _ in img_objs:
+    for img_content, img_region in img_objs:
         if img_content.shape[0] > 0 and img_content.shape[1] > 0:
             obj = {}
             # facial attribute analysis
@@ -494,7 +494,7 @@ def find(
                 align=align,
             )
 
-            for img_content, _, _ in img_objs:
+            for img_content, _ in img_objs:
                 embedding_obj = represent(
                     img_path=img_content,
                     model_name=model_name,
@@ -538,7 +538,7 @@ def find(
 
     resp_obj = []
 
-    for target_img, target_region, _ in target_objs:
+    for target_img, target_region in target_objs:
         target_embedding_obj = represent(
             img_path=target_img,
             model_name=model_name,
@@ -660,10 +660,10 @@ def represent(
             raise ValueError(f"unexpected type for img_path - {type(img_path)}")
 
         img_region = [0, 0, img.shape[1], img.shape[0]]
-        img_objs = [(img, img_region, 0)]
+        img_objs = [(img, img_region)]
     # ---------------------------------
 
-    for img, region, _ in img_objs:
+    for img, region in img_objs:
         # custom normalization
         img = functions.normalize_input(img=img, normalization=normalization)
 
@@ -788,7 +788,7 @@ def extract_faces(
         align=align,
     )
 
-    for img, region, confidence in img_objs:
+    for img, region in img_objs:
         resp_obj = {}
 
         # discard expanded dimension
@@ -797,7 +797,6 @@ def extract_faces(
 
         resp_obj["face"] = img[:, :, ::-1]
         resp_obj["facial_area"] = region
-        resp_obj["confidence"] = confidence
         resp_objs.append(resp_obj)
 
     return resp_objs

@@ -136,7 +136,7 @@ def test_cases():
             assert "y" in img_obj["facial_area"].keys()
             assert "w" in img_obj["facial_area"].keys()
             assert "h" in img_obj["facial_area"].keys()
-            assert "confidence" in img_obj.keys()
+            assert "confidence" in img_obj["facial_area"].keys()
 
             img = img_obj["face"]
             evaluate(img.shape[0] > 0 and img.shape[1] > 0)

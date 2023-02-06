@@ -170,9 +170,10 @@ def extract_faces(
                 "y": int(current_region[1]),
                 "w": int(current_region[2]),
                 "h": int(current_region[3]),
+                "confidence": round(confidence, 2),
             }
 
-            extracted_face = [img_pixels, region_obj, confidence]
+            extracted_face = [img_pixels, region_obj]
             extracted_faces.append(extracted_face)
 
     if len(extracted_faces) == 0 and enforce_detection == True:
