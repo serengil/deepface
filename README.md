@@ -378,7 +378,7 @@ If you use deepface for facial attribute analysis purposes such as age, gender, 
 }
 ```
 
-Also, if you use deepface in your GitHub projects, please add deepface in the `requirements.txt`.
+Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
 
 ## Licence
 
