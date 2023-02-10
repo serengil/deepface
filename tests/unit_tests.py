@@ -95,7 +95,8 @@ def test_cases():
         assert "h" in objs[0]["facial_area"].keys()
         assert isinstance(objs[0]["embedding"], list)
         assert len(objs[0]["embedding"]) == 2622  # embedding of VGG-Face
-    except:
+    except Exception as err:
+        print(f"Unexpected exception thrown: {str(err)}")
         exception_thrown = True
 
     assert exception_thrown is False
@@ -116,7 +117,8 @@ def test_cases():
         obj = DeepFace.verify(img1_path=black_img, img2_path=black_img, enforce_detection=False)
         assert isinstance(obj, dict)
         exception_thrown = False
-    except:
+    except Exception as err:
+        print(f"Unexpected exception thrown: {str(err)}")
         exception_thrown = True
 
     assert exception_thrown is False
