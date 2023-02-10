@@ -653,10 +653,8 @@ def represent(
     else:  # skip
         if isinstance(img_path, str):
             img = functions.load_image(img_path)
-            img = cv2.resize(img, target_size)
         elif type(img_path).__module__ == np.__name__:
             img = img_path.copy()
-            img = cv2.resize(img, target_size)
         else:
             raise ValueError(f"unexpected type for img_path - {type(img_path)}")
         img_region = [0, 0, img.shape[1], img.shape[0]]
