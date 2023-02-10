@@ -639,16 +639,26 @@ def represent(
     model = build_model(model_name)
 
     # ---------------------------------
+    # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
     target_size = functions.find_target_size(model_name=model_name)
-
-    img_objs = functions.extract_faces(
-        img=img_path,
-        target_size=target_size,
-        detector_backend=detector_backend,
-        grayscale=False,
-        enforce_detection=enforce_detection,
-        align=align,
-    )
+    if detector_backend != "skip":
+        img_objs = functions.extract_faces(
+            img=img_path,
+            target_size=target_size,
+            detector_backend=detector_backend,
+            grayscale=False,
+            enforce_detection=enforce_detection,
+            align=align,
+        )
+    else:  # skip
+        if isinstance(img_path, str):
+            img = functions.load_image(img_path)
+            img = cv2.resize(img, target_size)
+        elif type(img_path).__module__ == np.__name__:
+            img = img_path.copy()
+            img = cv2.resize(img, target_size)
+        else:
+            raise ValueError(f"unexpected type for img_path - {type(img_path)}")
     # ---------------------------------
 
     for img, region, _ in img_objs:
