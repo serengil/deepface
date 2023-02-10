@@ -659,6 +659,8 @@ def represent(
             img = cv2.resize(img, target_size)
         else:
             raise ValueError(f"unexpected type for img_path - {type(img_path)}")
+        img_region = [0, 0, img.shape[1], img.shape[0]]
+        img_objs = [(img, img_region, 0)]
     # ---------------------------------
 
     for img, region, _ in img_objs:
