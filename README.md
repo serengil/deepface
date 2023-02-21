@@ -11,7 +11,7 @@
 
 [![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802)
 [![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697)
-[![DOI](http://img.shields.io/:DOI-10.33774/coe-2023-18rcn-blue.svg?style=flat)](https://doi.org/10.33774/coe-2023-18rcn)
+[![DOI](http://img.shields.io/:DOI-10.33774/coe--2023--18rcn-blue.svg?style=flat)](https://doi.org/10.33774/coe-2023-18rcn)
 
 [![Blog](https://img.shields.io/:blog-sefiks.com-blue.svg?style=flat&logo=wordpress)](https://sefiks.com)
 [![YouTube](https://img.shields.io/youtube/channel/subscribers/UCKEKCFtCsvypj2x1Vd_WWXQ?logo=youtube&style=flat)](https://youtube.com/@sefiks)
