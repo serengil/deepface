@@ -378,6 +378,18 @@ If you use deepface for facial attribute analysis purposes such as age, gender, 
 }
 ```
 
+```BibTeX
+@misc{serengil2023db,
+  title        = {An Evaluation of SQL and NoSQL Databases for Facial Recognition Pipelines},
+  author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+  month        = Feb,
+  year         = {2023},
+  publisher    = {Cambridge Open Engage},
+  doi          = {10.33774/coe-2023-18rcn},
+  howpublished = {https://www.cambridge.org/engage/coe/article-details/63f3e5541d2d184063d4f569},
+}
+```
+
 Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
 
 ## Licence
