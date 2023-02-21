@@ -349,8 +349,6 @@ You can also support this work on [Patreon](https://www.patreon.com/serengil?rep
 
 Please cite deepface in your publications if it helps your research. Here are its BibTex entries:
 
-If you use deepface for facial recogntion purposes, please cite the this publication.
-
 ```BibTeX
 @inproceedings{serengil2020lightface,
   title        = {LightFace: A Hybrid Deep Face Recognition Framework},
@@ -363,8 +361,6 @@ If you use deepface for facial recogntion purposes, please cite the this publica
   organization = {IEEE}
 }
 ```
-
-If you use deepface for facial attribute analysis purposes such as age, gender, emotion or ethnicity prediction, please cite the this publication.
 
 ```BibTeX
 @inproceedings{serengil2021lightface,
