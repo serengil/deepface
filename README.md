@@ -386,7 +386,8 @@ Please cite deepface in your publications if it helps your research. Here are it
   year         = {2023},
   publisher    = {Cambridge Open Engage},
   doi          = {10.33774/coe-2023-18rcn},
-  url          = {https://www.cambridge.org/engage/coe/article-details/63f3e5541d2d184063d4f569}
+  url          = {https://www.cambridge.org/engage/coe/article-details/63f3e5541d2d184063d4f569},
+  pubstate     = {prepublished}
 }
 ```
 
