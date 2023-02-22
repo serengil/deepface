@@ -640,9 +640,8 @@ def represent(
 
     # ---------------------------------
     # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
+    target_size = functions.find_target_size(model_name=model_name)
     if detector_backend != "skip":
-        target_size = functions.find_target_size(model_name=model_name)
-
         img_objs = functions.extract_faces(
             img=img_path,
             target_size=target_size,
@@ -658,7 +657,13 @@ def represent(
             img = img_path.copy()
         else:
             raise ValueError(f"unexpected type for img_path - {type(img_path)}")
-
+        # --------------------------------
+        if len(img.shape) == 4:
+            img = img[0]  # e.g. (1, 224, 224, 3) to (224, 224, 3)
+        if len(img.shape) == 3:
+            img = cv2.resize(img, target_size)
+            img = np.expand_dims(img, axis=0)
+        # --------------------------------
         img_region = [0, 0, img.shape[1], img.shape[0]]
         img_objs = [(img, img_region, 0)]
     # ---------------------------------
