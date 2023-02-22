@@ -13,7 +13,7 @@
 [![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697)
 
 [![Blog](https://img.shields.io/:blog-sefiks.com-blue.svg?style=flat&logo=wordpress)](https://sefiks.com)
-[![YouTube](https://img.shields.io/youtube/channel/subscribers/UCKEKCFtCsvypj2x1Vd_WWXQ?logo=youtube&style=flat)](https://youtube.com/@sefiks)
+[![YouTube](https://img.shields.io/:youtube-@sefiks-red.svg?style=flat&logo=youtube)](https://youtube.com/@sefiks)
 [![Twitter](https://img.shields.io/:follow-@serengil-blue.svg?style=flat&logo=twitter)](https://twitter.com/serengil)
 
 </div>
