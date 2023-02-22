@@ -11,6 +11,7 @@
 
 [![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802)
 [![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697)
+[![DOI](http://img.shields.io/:DOI-10.33774/coe--2023--18rcn-blue.svg?style=flat)](https://doi.org/10.33774/coe-2023-18rcn)
 
 [![Blog](https://img.shields.io/:blog-sefiks.com-blue.svg?style=flat&logo=wordpress)](https://sefiks.com)
 [![YouTube](https://img.shields.io/youtube/channel/subscribers/UCKEKCFtCsvypj2x1Vd_WWXQ?logo=youtube&style=flat)](https://youtube.com/@sefiks)
@@ -348,7 +349,7 @@ You can also support this work on [Patreon](https://www.patreon.com/serengil?rep
 
 Please cite deepface in your publications if it helps your research. Here are its BibTex entries:
 
-If you use deepface for facial recogntion purposes, please cite the this publication.
+<!-- If you use deepface for facial recogntion purposes, please cite the this publication. -->
 
 ```BibTeX
 @inproceedings{serengil2020lightface,
@@ -363,7 +364,7 @@ If you use deepface for facial recogntion purposes, please cite the this publica
 }
 ```
 
-If you use deepface for facial attribute analysis purposes such as age, gender, emotion or ethnicity prediction, please cite the this publication.
+<!-- If you use deepface for facial attribute analysis purposes such as age, gender, emotion or ethnicity prediction, please cite the this publication. -->
 
 ```BibTeX
 @inproceedings{serengil2021lightface,
@@ -375,6 +376,17 @@ If you use deepface for facial attribute analysis purposes such as age, gender, 
   doi          = {10.1109/ICEET53442.2021.9659697},
   url          = {https://doi.org/10.1109/ICEET53442.2021.9659697},
   organization = {IEEE}
+}
+```
+
+```BibTeX
+@misc{serengil2023db,
+  author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+  title        = {An Evaluation of SQL and NoSQL Databases for Facial Recognition Pipelines},
+  year         = {2023},
+  publisher    = {Cambridge Open Engage},
+  doi          = {10.33774/coe-2023-18rcn},
+  url          = {https://www.cambridge.org/engage/coe/article-details/63f3e5541d2d184063d4f569}
 }
 ```
 
