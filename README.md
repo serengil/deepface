@@ -11,7 +11,6 @@
 
 [![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802)
 [![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697)
-[![DOI](http://img.shields.io/:DOI-10.33774/coe--2023--18rcn-blue.svg?style=flat)](https://doi.org/10.33774/coe-2023-18rcn)
 
 [![Blog](https://img.shields.io/:blog-sefiks.com-blue.svg?style=flat&logo=wordpress)](https://sefiks.com)
 [![YouTube](https://img.shields.io/youtube/channel/subscribers/UCKEKCFtCsvypj2x1Vd_WWXQ?logo=youtube&style=flat)](https://youtube.com/@sefiks)
@@ -372,18 +371,6 @@ Please cite deepface in your publications if it helps your research. Here are it
   doi          = {10.1109/ICEET53442.2021.9659697},
   url          = {https://doi.org/10.1109/ICEET53442.2021.9659697},
   organization = {IEEE}
-}
-```
-
-```BibTeX
-@misc{serengil2023databases,
-  title        = {An Evaluation of SQL and NoSQL Databases for Facial Recognition Pipelines},
-  author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-  month        = {Feb},
-  year         = {2023},
-  publisher    = {Cambridge Open Engage},
-  doi          = {10.33774/coe-2023-18rcn},
-  howpublished = {https://www.cambridge.org/engage/coe/article-details/63f3e5541d2d184063d4f569}
 }
 ```
 
