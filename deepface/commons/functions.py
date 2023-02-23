@@ -251,3 +251,35 @@ def find_target_size(model_name):
         raise ValueError(f"unimplemented model name - {model_name}")
 
     return target_size
+
+
+# ---------------------------------------------------
+# deprecated functions
+
+
+def preprocess_face(
+    img,
+    target_size=(224, 224),
+    detector_backend="opencv",
+    grayscale=False,
+    enforce_detection=True,
+    align=True,
+):
+    print("⚠️ Function preprocess_face function is deprecated! Use extract_faces instead of this.")
+    result = None
+    img_objs = extract_faces(
+        img=img,
+        target_size=target_size,
+        detector_backend=detector_backend,
+        grayscale=grayscale,
+        enforce_detection=enforce_detection,
+        align=align,
+    )
+
+    if len(img_objs) > 0:
+        result, _, _ = img_objs[0]
+        # discard expanded dimension
+        if len(result.shape) == 4:
+            result = result[0]
+
+    return result

@@ -809,6 +809,30 @@ def extract_faces(
 
 
 # ---------------------------
+# deprecated functions
+
+
+def detectFace(
+    img_path, target_size=(224, 224), detector_backend="opencv", enforce_detection=True, align=True
+):
+    print("⚠️ Function detectFace is deprecated! Use extract_faces instead of this.")
+
+    face_objs = extract_faces(
+        img_path=img_path,
+        target_size=target_size,
+        detector_backend=detector_backend,
+        enforce_detection=enforce_detection,
+        align=align,
+        grayscale=False,
+    )
+
+    extracted_face = None
+    if len(face_objs) > 0:
+        extracted_face = face_objs[0]["face"]
+    return extracted_face
+
+
+# ---------------------------
 # main
 
 functions.initialize_folder()
