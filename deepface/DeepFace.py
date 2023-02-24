@@ -817,6 +817,7 @@ def extract_faces(
 def detectFace(
     img_path, target_size=(224, 224), detector_backend="opencv", enforce_detection=True, align=True
 ):
+    print("⚠️ Function detectFace is deprecated. Use extract_faces instead.")
     face_objs = extract_faces(
         img_path=img_path,
         target_size=target_size,

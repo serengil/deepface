@@ -267,6 +267,7 @@ def preprocess_face(
     enforce_detection=True,
     align=True,
 ):
+    print("⚠️ Function preprocess_face is deprecated. Use extract_faces instead.")
     result = None
     img_objs = extract_faces(
         img=img,
