@@ -8,6 +8,7 @@ import requests
 import numpy as np
 import cv2
 import tensorflow as tf
+from deprecated import deprecated
 
 # package dependencies
 from deepface.detectors import FaceDetector
@@ -257,6 +258,7 @@ def find_target_size(model_name):
 # deprecated functions
 
 
+@deprecated(version="0.0.78", reason="Use extract_faces instead of preprocess_face")
 def preprocess_face(
     img,
     target_size=(224, 224),
@@ -265,7 +267,6 @@ def preprocess_face(
     enforce_detection=True,
     align=True,
 ):
-    print("⚠️ Function preprocess_face function is deprecated! Use extract_faces instead of this.")
     result = None
     img_objs = extract_faces(
         img=img,

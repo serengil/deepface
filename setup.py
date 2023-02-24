@@ -36,5 +36,6 @@ setuptools.setup(
         "retina-face>=0.0.1",
         "fire>=0.4.0",
         "gunicorn>=20.1.0",
+        "Deprecated>=1.2.13",
     ],
 )

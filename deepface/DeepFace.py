@@ -12,6 +12,7 @@ import pandas as pd
 from tqdm import tqdm
 import cv2
 import tensorflow as tf
+from deprecated import deprecated
 
 # package dependencies
 from deepface.basemodels import (
@@ -812,11 +813,10 @@ def extract_faces(
 # deprecated functions
 
 
+@deprecated(version="0.0.78", reason="Use DeepFace.extract_faces instead of DeepFace.detectFace")
 def detectFace(
     img_path, target_size=(224, 224), detector_backend="opencv", enforce_detection=True, align=True
 ):
-    print("⚠️ Function detectFace is deprecated! Use extract_faces instead of this.")
-
     face_objs = extract_faces(
         img_path=img_path,
         target_size=target_size,
