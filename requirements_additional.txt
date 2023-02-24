@@ -1,0 +1,3 @@
+opencv-contrib-python>=4.3.0.36
+mediapipe>=0.8.7.3
+dlib>=19.20.0
