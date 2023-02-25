@@ -1,7 +1,5 @@
-__pycache__/*
-basemodels/__pycache__/*
-configurations/__pycache__/*
-tests/__pycache__/*
+**/__pycache__
+**/.DS_Store
 build/
 dist/
 Pipfile
@@ -9,14 +7,6 @@ Pipfile.lock
 .mypy_cache/
 .idea/
 deepface.egg-info/
-deepface/__pycache__/*
-deepface/commons/__pycache__/*
-deepface/basemodels/__pycache__/*
-deepface/extendedmodels/__pycache__/*
-deepface/subsidiarymodels/__pycache__/*
-deepface/detectors/__pycache__/*
 tests/dataset/*.pkl
 tests/sandbox.ipynb
-.DS_Store
-deepface/.DS_Store
 *.pyc
