@@ -3,7 +3,7 @@ FROM python:3.8
 LABEL org.opencontainers.image.source https://github.com/serengil/deepface
 # -----------------------------------
 # create required folder
-RUN mkdir /app
+WORKDIR /app
 RUN mkdir /app/deepface
 # -----------------------------------
 # Copy required files from repo into image
@@ -13,9 +13,6 @@ COPY ./api/routes.py /app/
 COPY ./api/service.py /app/
 COPY ./setup.py /app/
 COPY ./README.md /app/
-# -----------------------------------
-# switch to application directory
-WORKDIR /app
 # -----------------------------------
 # update image os
 RUN apt-get update
