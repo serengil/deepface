@@ -95,9 +95,9 @@ def load_image(img):
 
     # The image is a url
     if img.startswith("http"):
-        return np.array(
-            Image.open(requests.get(img, stream=True, timeout=60).raw).convert("RGB")
-        )[:, :, ::-1]
+        return np.array(Image.open(requests.get(img, stream=True, timeout=60).raw).convert("RGB"))[
+            :, :, ::-1
+        ]
 
     # The image is a path
     if os.path.isfile(img) is not True:
@@ -147,9 +147,7 @@ def extract_faces(
         face_objs = [(img, img_region, 0)]
     else:
         face_detector = FaceDetector.build_model(detector_backend)
-        face_objs = FaceDetector.detect_faces(
-            face_detector, detector_backend, img, align
-        )
+        face_objs = FaceDetector.detect_faces(face_detector, detector_backend, img, align)
 
     # in case of no face found
     if len(face_objs) == 0 and enforce_detection is True:
