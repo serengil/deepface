@@ -85,29 +85,25 @@ def load_image(img):
     Returns:
         numpy array: the loaded image.
     """
-    exact_image = False
-
     # The image is already a numpy array
     if type(img).__module__ == np.__name__:
-        # exact_image = True
         return img
 
     # The image is a base64 string
-    elif img.startswith("data:image/"):
+    if img.startswith("data:image/"):
         return loadBase64Img(img)
 
     # The image is a url
-    elif img.startswith("http"):
-        return np.array(Image.open(requests.get(img, stream=True, timeout=60).raw).convert("RGB"))[:, :, ::-1]
+    if img.startswith("http"):
+        return np.array(
+            Image.open(requests.get(img, stream=True, timeout=60).raw).convert("RGB")
+        )[:, :, ::-1]
 
     # The image is a path
-    if exact_image is not True:  # image path passed as input
-        if os.path.isfile(img) is not True:
-            raise ValueError(f"Confirm that {img} exists")
+    if os.path.isfile(img) is not True:
+        raise ValueError(f"Confirm that {img} exists")
 
-        return cv2.imread(img)
-
-    return img
+    return cv2.imread(img)
 
 
 # --------------------------------------------------
@@ -125,9 +121,11 @@ def extract_faces(
 
     Args:
         img: a path, url, base64 or numpy array.
-        target_size (tuple, optional): the target size of the extracted faces. Defaults to (224, 224).
+        target_size (tuple, optional): the target size of the extracted faces.
+        Defaults to (224, 224).
         detector_backend (str, optional): the face detector backend. Defaults to "opencv".
-        grayscale (bool, optional): whether to convert the extracted faces to grayscale. Defaults to False.
+        grayscale (bool, optional): whether to convert the extracted faces to grayscale.
+        Defaults to False.
         enforce_detection (bool, optional): whether to enforce face detection. Defaults to True.
         align (bool, optional): whether to align the extracted faces. Defaults to True.
 
@@ -150,7 +148,8 @@ def extract_faces(
     else:
         face_detector = FaceDetector.build_model(detector_backend)
         face_objs = FaceDetector.detect_faces(
-            face_detector, detector_backend, img, align)
+            face_detector, detector_backend, img, align
+        )
 
     # in case of no face found
     if len(face_objs) == 0 and enforce_detection is True:
@@ -164,7 +163,6 @@ def extract_faces(
 
     for current_img, current_region, confidence in face_objs:
         if current_img.shape[0] > 0 and current_img.shape[1] > 0:
-
             if grayscale is True:
                 current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
 
@@ -175,7 +173,9 @@ def extract_faces(
                 factor = min(factor_0, factor_1)
 
                 dsize = (
-                    int(current_img.shape[1] * factor), int(current_img.shape[0] * factor))
+                    int(current_img.shape[1] * factor),
+                    int(current_img.shape[0] * factor),
+                )
                 current_img = cv2.resize(current_img, dsize)
 
                 diff_0 = target_size[0] - current_img.shape[0]
@@ -194,8 +194,10 @@ def extract_faces(
                 else:
                     current_img = np.pad(
                         current_img,
-                        ((diff_0 // 2, diff_0 - diff_0 // 2),
-                         (diff_1 // 2, diff_1 - diff_1 // 2)),
+                        (
+                            (diff_0 // 2, diff_0 - diff_0 // 2),
+                            (diff_1 // 2, diff_1 - diff_1 // 2),
+                        ),
                         "constant",
                     )
 
@@ -233,7 +235,8 @@ def normalize_input(img, normalization="base"):
 
     Args:
         img (numpy array): the input image.
-        normalization (str, optional): the normalization technique. Defaults to "base", for no normalization.
+        normalization (str, optional): the normalization technique. Defaults to "base",
+        for no normalization.
 
     Returns:
         numpy array: the normalized image.
