@@ -29,7 +29,7 @@ elif tf_major_version == 2:
 # --------------------------------------------------
 
 
-def initialize_folder() -> None:
+def initialize_folder():
     """Initialize the folder for storing weights and models.
 
     Raises:
@@ -46,7 +46,7 @@ def initialize_folder() -> None:
         print("Directory ", home, "/.deepface/weights created")
 
 
-def get_deepface_home() -> str:
+def get_deepface_home():
     """Get the home directory for storing weights and models.
 
     Returns:
@@ -120,7 +120,7 @@ def extract_faces(
     grayscale=False,
     enforce_detection=True,
     align=True,
-) -> list:
+):
     """Extract faces from an image.
 
     Args:
@@ -285,7 +285,7 @@ def normalize_input(img, normalization="base"):
     return img
 
 
-def find_target_size(model_name: str) -> tuple:
+def find_target_size(model_name):
     """Find the target size of the model.
 
     Args:
