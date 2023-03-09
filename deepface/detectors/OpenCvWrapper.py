@@ -3,7 +3,7 @@ import cv2
 from deepface.detectors import FaceDetector
 
 
-def build_model():
+def build_model(**kwargs):
     detector = {}
     detector["face_detector"] = build_cascade("haarcascade")
     detector["eye_detector"] = build_cascade("haarcascade_eye")

@@ -2,10 +2,10 @@ import cv2
 from deepface.detectors import FaceDetector
 
 
-def build_model():
+def build_model(**kwargs):
     from mtcnn import MTCNN
 
-    face_detector = MTCNN()
+    face_detector = MTCNN(**kwargs)
     return face_detector
 
 

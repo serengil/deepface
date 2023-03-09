@@ -95,6 +95,7 @@ def verify(
     enforce_detection=True,
     align=True,
     normalization="base",
+    **backend_kwargs
 ):
 
     """
@@ -151,6 +152,7 @@ def verify(
         grayscale=False,
         enforce_detection=enforce_detection,
         align=align,
+        **backend_kwargs
     )
 
     img2_objs = functions.extract_faces(
@@ -160,6 +162,7 @@ def verify(
         grayscale=False,
         enforce_detection=enforce_detection,
         align=align,
+        **backend_kwargs
     )
     # --------------------------------
     distances = []
@@ -230,6 +233,7 @@ def analyze(
     detector_backend="opencv",
     align=True,
     silent=False,
+    **backend_kwargs
 ):
 
     """
@@ -318,6 +322,7 @@ def analyze(
         grayscale=False,
         enforce_detection=enforce_detection,
         align=align,
+        **backend_kwargs
     )
 
     for img_content, img_region, _ in img_objs:
@@ -391,6 +396,7 @@ def find(
     align=True,
     normalization="base",
     silent=False,
+    **backend_kwargs
 ):
 
     """
@@ -493,6 +499,7 @@ def find(
                 grayscale=False,
                 enforce_detection=enforce_detection,
                 align=align,
+                **backend_kwargs
             )
 
             for img_content, _, _ in img_objs:
@@ -535,6 +542,7 @@ def find(
         grayscale=False,
         enforce_detection=enforce_detection,
         align=align,
+        **backend_kwargs
     )
 
     resp_obj = []
@@ -605,6 +613,7 @@ def represent(
     detector_backend="opencv",
     align=True,
     normalization="base",
+    **backend_kwargs
 ):
 
     """
@@ -650,6 +659,7 @@ def represent(
             grayscale=False,
             enforce_detection=enforce_detection,
             align=align,
+            **backend_kwargs
         )
     else:  # skip
         if isinstance(img_path, str):
@@ -698,6 +708,7 @@ def stream(
     source=0,
     time_threshold=5,
     frame_threshold=5,
+    **backend_kwargs
 ):
 
     """
@@ -743,6 +754,7 @@ def stream(
         source=source,
         time_threshold=time_threshold,
         frame_threshold=frame_threshold,
+        **backend_kwargs
     )
 
 
@@ -753,6 +765,7 @@ def extract_faces(
     enforce_detection=True,
     align=True,
     grayscale=False,
+    **backend_kwargs
 ):
 
     """
@@ -792,6 +805,7 @@ def extract_faces(
         grayscale=grayscale,
         enforce_detection=enforce_detection,
         align=align,
+        **backend_kwargs
     )
 
     for img, region, confidence in img_objs:

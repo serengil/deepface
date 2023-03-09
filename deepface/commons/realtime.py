@@ -21,6 +21,7 @@ def analysis(
     source=0,
     time_threshold=5,
     frame_threshold=5,
+    **backend_kwargs
 ):
     # global variables
     text_color = (255, 255, 255)
@@ -53,6 +54,7 @@ def analysis(
         detector_backend=detector_backend,
         distance_metric=distance_metric,
         enforce_detection=False,
+        **backend_kwargs
     )
     # -----------------------
     # visualization
@@ -414,6 +416,7 @@ def analysis(
                             distance_metric=distance_metric,
                             enforce_detection=False,
                             silent=True,
+                            **backend_kwargs
                         )
 
                         if len(dfs) > 0:

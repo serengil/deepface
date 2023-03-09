@@ -3,11 +3,13 @@ from deepface.detectors import FaceDetector
 # Link - https://google.github.io/mediapipe/solutions/face_detection
 
 
-def build_model():
+def build_model(**kwargs):
     import mediapipe as mp  # this is not a must dependency. do not import it in the global level.
 
+    default_kwargs = {'min_detection_confidence': 0.7}
+    passed_kwargs = {**default_kwargs, **kwargs}
     mp_face_detection = mp.solutions.face_detection
-    face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.7)
+    face_detection = mp_face_detection.FaceDetection(**passed_kwargs)
     return face_detection
 
 

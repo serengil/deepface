@@ -1,4 +1,4 @@
-def build_model():
+def build_model(**kwargs):
     from retinaface import RetinaFace  # this is not a must dependency
 
     face_detector = RetinaFace.build_model()

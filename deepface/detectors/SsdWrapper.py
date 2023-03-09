@@ -8,7 +8,7 @@ from deepface.commons import functions
 # pylint: disable=line-too-long
 
 
-def build_model():
+def build_model(**kwargs):
 
     home = functions.get_deepface_home()
 

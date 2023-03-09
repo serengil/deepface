@@ -116,6 +116,7 @@ def extract_faces(
     grayscale=False,
     enforce_detection=True,
     align=True,
+    **backend_kwargs
 ):
     """Extract faces from an image.
 
@@ -146,7 +147,7 @@ def extract_faces(
     if detector_backend == "skip":
         face_objs = [(img, img_region, 0)]
     else:
-        face_detector = FaceDetector.build_model(detector_backend)
+        face_detector = FaceDetector.build_model(detector_backend, **backend_kwargs)
         face_objs = FaceDetector.detect_faces(face_detector, detector_backend, img, align)
 
     # in case of no face found

@@ -4,7 +4,7 @@ import gdown
 from deepface.commons import functions
 
 
-def build_model():
+def build_model(**kwargs):
 
     home = functions.get_deepface_home()
 

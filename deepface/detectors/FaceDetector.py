@@ -12,7 +12,7 @@ from deepface.detectors import (
 )
 
 
-def build_model(detector_backend):
+def build_model(detector_backend, **backend_kwargs):
 
     global face_detector_obj  # singleton design pattern
 
@@ -33,7 +33,7 @@ def build_model(detector_backend):
         face_detector = backends.get(detector_backend)
 
         if face_detector:
-            face_detector = face_detector()
+            face_detector = face_detector(**backend_kwargs)
             face_detector_obj[detector_backend] = face_detector
         else:
             raise ValueError("invalid detector_backend passed - " + detector_backend)
