@@ -669,7 +669,7 @@ def represent(
         img_objs = [(img, img_region, 0)]
     # ---------------------------------
 
-    for img, region, _ in img_objs:
+    for img, region, confidence in img_objs:
         # custom normalization
         img = functions.normalize_input(img=img, normalization=normalization)
 
@@ -684,6 +684,7 @@ def represent(
         resp_obj = {}
         resp_obj["embedding"] = embedding
         resp_obj["facial_area"] = region
+        resp_obj["face_confidence"] = confidence
         resp_objs.append(resp_obj)
 
     return resp_objs
