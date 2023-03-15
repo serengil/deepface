@@ -175,6 +175,11 @@ The performance of RetinaFace is very satisfactory even in the crowd as seen in 
 
 You can find out more about RetinaFace on this [repo](https://github.com/serengil/retinaface).
 
+**Applications**
+
+### Gender based cleaning algorithm [repo](https://github.com/nelson123-lab/Gender_based_cleaning_algorithm)
+You can use the DeepFace gender detection feature as a cleaning algorithm. The removal of noisy images from groups of both face- and faceless images is possible. The script can be modified for several other applications including grouping of a certain population together, counting the number of people of a group and removal of less quality images from the face image data etc.
+
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
 Deepface serves an API as well. You can clone [`/api/api.py`](https://github.com/serengil/deepface/tree/master/api/api.py) and pass it to python command as an argument. This will get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
