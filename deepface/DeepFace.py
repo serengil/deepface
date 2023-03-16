@@ -604,6 +604,7 @@ def represent(
     enforce_detection=True,
     detector_backend="opencv",
     align=True,
+    include_image_in_response=False,
     normalization="base",
 ):
 
@@ -671,17 +672,19 @@ def represent(
 
     for img, region, confidence in img_objs:
         # custom normalization
-        img = functions.normalize_input(img=img, normalization=normalization)
+        normalized_img = functions.normalize_input(img=img, normalization=normalization)
 
         # represent
         if "keras" in str(type(model)):
             # new tf versions show progress bar and it is annoying
-            embedding = model.predict(img, verbose=0)[0].tolist()
+            embedding = model.predict(normalized_img, verbose=0)[0].tolist()
         else:
             # SFace and Dlib are not keras models and no verbose arguments
-            embedding = model.predict(img)[0].tolist()
+            embedding = model.predict(normalized_img)[0].tolist()
 
         resp_obj = {}
+        if include_image_in_response:
+            response_obj['face_img'] = img
         resp_obj["embedding"] = embedding
         resp_obj["facial_area"] = region
         resp_obj["face_confidence"] = confidence
