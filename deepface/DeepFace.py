@@ -684,7 +684,7 @@ def represent(
 
         resp_obj = {}
         if include_image_in_response:
-            response_obj['face_img'] = img
+            resp_obj['face_img'] = img
         resp_obj["embedding"] = embedding
         resp_obj["facial_area"] = region
         resp_obj["face_confidence"] = confidence
