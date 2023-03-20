@@ -645,6 +645,7 @@ def represent(
     # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
     if target_size == "auto":
         target_size = functions.find_target_size(model_name=model_name)
+     print('Target size:', target_size)
         
     if detector_backend != "skip":
         img_objs = functions.extract_faces(
