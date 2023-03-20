@@ -602,6 +602,7 @@ def represent(
     img_path,
     model_name="VGG-Face",
     enforce_detection=True,
+    target_size="auto",
     detector_backend="opencv",
     align=True,
     include_image_in_response=False,
@@ -642,7 +643,9 @@ def represent(
 
     # ---------------------------------
     # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
-    target_size = functions.find_target_size(model_name=model_name)
+    if target_size == "auto":
+        target_size = functions.find_target_size(model_name=model_name)
+        
     if detector_backend != "skip":
         img_objs = functions.extract_faces(
             img=img_path,
