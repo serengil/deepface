@@ -11,6 +11,7 @@ COPY ./deepface /app/deepface
 COPY ./api/app.py /app/
 COPY ./api/routes.py /app/
 COPY ./api/service.py /app/
+COPY ./requirements.txt /app/
 COPY ./setup.py /app/
 COPY ./README.md /app/
 # -----------------------------------
