@@ -56,7 +56,6 @@ def detect_face(detector, img, align=True):
         pass
 
     if len(faces) > 0:
-
         for (x, y, w, h), confidence in zip(faces, scores):
             detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
 
@@ -71,7 +70,6 @@ def detect_face(detector, img, align=True):
 
 
 def align_face(eye_detector, img):
-
     detected_face_gray = cv2.cvtColor(
         img, cv2.COLOR_BGR2GRAY
     )  # eye detector expects gray scale image
@@ -86,12 +84,11 @@ def align_face(eye_detector, img):
     # this is an important issue because opencv is the default detector and ssd also uses this
     # find the largest 2 eye. Thanks to @thelostpeace
 
-    eyes = sorted(eyes, key=lambda v: abs((v[0] - v[2]) * (v[1] - v[3])), reverse=True)
+    eyes = sorted(eyes, key=lambda v: abs(v[2] * v[3]), reverse=True)
 
     # ----------------------------------------------------------------
 
     if len(eyes) >= 2:
-
         # decide left and right eye
 
         eye_1 = eyes[0]
