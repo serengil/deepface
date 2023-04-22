@@ -302,7 +302,7 @@ def find_target_size(model_name):
         "Facenet512": (160, 160),
         "OpenFace": (96, 96),
         "DeepFace": (152, 152),
-        "DeepID": (55, 47),
+        "DeepID": (47, 55),
         "Dlib": (150, 150),
         "ArcFace": (112, 112),
         "SFace": (112, 112),
