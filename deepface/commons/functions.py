@@ -103,7 +103,12 @@ def load_image(img):
     if os.path.isfile(img) is not True:
         raise ValueError(f"Confirm that {img} exists")
 
-    return cv2.imread(img)
+    img = open(img, "rb")
+    chunk = img.read()
+    chunk_arr = np.frombuffer(chunk, dtype=np.uint8)
+    img = cv2.imdecode(chunk_arr, cv2.IMREAD_COLOR)
+    
+    return img
 
 
 # --------------------------------------------------
