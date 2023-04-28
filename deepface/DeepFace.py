@@ -108,8 +108,8 @@ def verify(
             images are also welcome. If one of pair has more than one face, then we will compare the
             face pair with max similarity.
 
-            model_name (str): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib
-            , ArcFace and SFace
+            model_name (str): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
+            ArcFace and SFace
 
             distance_metric (string): cosine, euclidean, euclidean_l2
 
@@ -391,6 +391,7 @@ def find(
     align=True,
     normalization="base",
     silent=False,
+    file_extensions=("jpg", "jpeg", "png"),
 ):
 
     """
@@ -418,6 +419,9 @@ def find(
             dlib or mediapipe
 
             silent (boolean): disable some logging and progress bars
+
+            file_extensions (tuple): The default is ('jpg', 'jpeg', 'png'). You can drop some of
+            these extensions.
 
     Returns:
             This function returns list of pandas data frame. Each item of the list corresponding to
@@ -457,11 +461,7 @@ def find(
 
         for r, _, f in os.walk(db_path):
             for file in f:
-                if (
-                    (".jpg" in file.lower())
-                    or (".jpeg" in file.lower())
-                    or (".png" in file.lower())
-                ):
+                if file.lower().endswith(file_extensions):
                     exact_path = r + "/" + file
                     employees.append(exact_path)
 
@@ -469,7 +469,9 @@ def find(
             raise ValueError(
                 "There is no image in ",
                 db_path,
-                " folder! Validate .jpg or .png files exist in this path.",
+                " folder! Validate ",
+                file_extensions,
+                " files exist in this path."
             )
 
         # ------------------------
