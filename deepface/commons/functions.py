@@ -102,13 +102,16 @@ def load_image(img):
     # The image is a path
     if os.path.isfile(img) is not True:
         raise ValueError(f"Confirm that {img} exists")
-
-    with open(img, "rb") as img:
-        chunk = img.read()
+    
+    # For reading images with unicode names
+    with open(img, "rb") as img_f:
+        chunk = img_f.read()
         chunk_arr = np.frombuffer(chunk, dtype=np.uint8)
         img = cv2.imdecode(chunk_arr, cv2.IMREAD_COLOR)
 
     return img
+    # This causes troubles when reading files with non english names
+    # return cv2.imread(img)
 
 
 # --------------------------------------------------
