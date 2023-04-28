@@ -102,7 +102,7 @@ def load_image(img):
     # The image is a path
     if os.path.isfile(img) is not True:
         raise ValueError(f"Confirm that {img} exists")
-    
+
     # For reading images with unicode names
     with open(img, "rb") as img_f:
         chunk = img_f.read()
