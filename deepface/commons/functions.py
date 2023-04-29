@@ -109,10 +109,9 @@ def load_image(img):
         chunk_arr = np.frombuffer(chunk, dtype=np.uint8)
         img = cv2.imdecode(chunk_arr, cv2.IMREAD_COLOR)
     return img
- 
+
     # This causes troubles when reading files with non english names
     # return cv2.imread(img)
-
 
 # --------------------------------------------------
 
