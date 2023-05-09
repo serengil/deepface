@@ -119,6 +119,10 @@ def verify(
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
             dlib or mediapipe
+            
+            align (boolean): alignment according to the eye positions.
+            
+            normalization (string): normalize the input image before feeding to model
 
     Returns:
             Verify function returns a dictionary.
@@ -251,6 +255,8 @@ def analyze(
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
             dlib or mediapipe.
+            
+            align (boolean): alignment according to the eye positions.
 
             silent (boolean): disable (some) log messages
 
@@ -416,6 +422,10 @@ def find(
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
             dlib or mediapipe
+            
+            align (boolean): alignment according to the eye positions.
+            
+            normalization (string): normalize the input image before feeding to model
 
             silent (boolean): disable some logging and progress bars
 
