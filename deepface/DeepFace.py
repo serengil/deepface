@@ -460,7 +460,7 @@ def find(
             representations = pickle.load(f)
 
         if not silent:
-            print("There are ", len(representations), " representations found in ", file_name)
+            print("There are", len(representations), "representations found in", file_name)
 
     else:  # create representation.pkl from scratch
         employees = []
@@ -477,7 +477,7 @@ def find(
 
         if len(employees) == 0:
             raise ValueError(
-                "There is no image in ",
+                "There are no image in ",
                 db_path,
                 " folder! Validate .jpg or .png files exist in this path.",
             )
