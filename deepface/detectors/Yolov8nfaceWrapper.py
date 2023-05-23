@@ -22,9 +22,6 @@ def detect_face(face_detector, img, align=False):
     confidence = -1
     detected_face = None
 
-    # if align:
-    #     raise NotImplementedError("`align` is not implemented for Yolov8Wrapper")
-
     results = face_detector.predict(img, verbose=False, show=True, conf=0.25)[0]
 
     for result in results:
@@ -33,10 +30,22 @@ def detect_face(face_detector, img, align=False):
         # print(f"Confidence: {confidence}, x: {x}, y: {y}, w: {w}, h: {h}")
 
         # print landmarks
-        print(result.keypoints.tolist())
+        landmarks = result.keypoints.tolist()
+        left_eye, right_eye = landmarks[0], landmarks[1]
+        # print(result.keypoints.tolist())
+        # print(f"Left eye: {left_eye}, right eye: {right_eye}")
+
+        # add eyes landmarks to img
+        import cv2
+
+        img = cv2.circle(img, (int(left_eye[0]), int(left_eye[1])), 2, (0, 0, 255), 2)
+        img = cv2.circle(img, (int(right_eye[0]), int(right_eye[1])), 2, (0, 255, 0), 2)
         # change to top left corner, width, height
         x, y, w, h = int(x - w / 2), int(y - h / 2), int(w), int(h)
         detected_face = img[y : y + h, x : x + w].copy()
+
+        # if align:
+        #     raise NotImplementedError("`align` is not implemented for Yolov8Wrapper")
         resp.append((detected_face, [x, y, w, h], confidence))
 
     return resp
