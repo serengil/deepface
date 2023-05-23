@@ -9,5 +9,7 @@
   "python.formatting.provider": "black",
   "python.formatting.blackArgs": ["--line-length=100"],
   "editor.fontWeight": "normal",
-  "python.analysis.extraPaths": ["./deepface"]
+  "python.analysis.extraPaths": ["./deepface"],
+  "stylelint.autoFixOnSave": false,
+  "standard.autoFixOnSave": false
 }
