@@ -9,11 +9,11 @@ from deepface.detectors import (
     MtcnnWrapper,
     RetinaFaceWrapper,
     MediapipeWrapper,
+    Yolov8nfaceWrapper,
 )
 
 
 def build_model(detector_backend):
-
     global face_detector_obj  # singleton design pattern
 
     backends = {
@@ -23,6 +23,7 @@ def build_model(detector_backend):
         "mtcnn": MtcnnWrapper.build_model,
         "retinaface": RetinaFaceWrapper.build_model,
         "mediapipe": MediapipeWrapper.build_model,
+        "yolov8n-face": Yolov8nfaceWrapper.build_model,
     }
 
     if not "face_detector_obj" in globals():
@@ -42,7 +43,6 @@ def build_model(detector_backend):
 
 
 def detect_face(face_detector, detector_backend, img, align=True):
-
     obj = detect_faces(face_detector, detector_backend, img, align)
 
     if len(obj) > 0:
@@ -50,12 +50,12 @@ def detect_face(face_detector, detector_backend, img, align=True):
     else:  # len(obj) == 0
         face = None
         region = [0, 0, img.shape[1], img.shape[0]]
+        confidence = 0
 
     return face, region, confidence
 
 
 def detect_faces(face_detector, detector_backend, img, align=True):
-
     backends = {
         "opencv": OpenCvWrapper.detect_face,
         "ssd": SsdWrapper.detect_face,
@@ -63,6 +63,7 @@ def detect_faces(face_detector, detector_backend, img, align=True):
         "mtcnn": MtcnnWrapper.detect_face,
         "retinaface": RetinaFaceWrapper.detect_face,
         "mediapipe": MediapipeWrapper.detect_face,
+        "yolov8n-face": Yolov8nfaceWrapper.detect_face,
     }
 
     detect_face_fn = backends.get(detector_backend)
@@ -76,7 +77,6 @@ def detect_faces(face_detector, detector_backend, img, align=True):
 
 
 def alignment_procedure(img, left_eye, right_eye):
-
     # this function aligns given face in img based on left and right eye coordinates
 
     left_eye_x, left_eye_y = left_eye
@@ -104,7 +104,6 @@ def alignment_procedure(img, left_eye, right_eye):
     # apply cosine rule
 
     if b != 0 and c != 0:  # this multiplication causes division by zero in cos_a calculation
-
         cos_a = (b * b + c * c - a * a) / (2 * b * c)
         angle = np.arccos(cos_a)  # angle in radian
         angle = (angle * 180) / math.pi  # radian to degree
