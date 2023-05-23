@@ -23,8 +23,6 @@ def build_model(detector_backend):
         "mtcnn": MtcnnWrapper.build_model,
         "retinaface": RetinaFaceWrapper.build_model,
         "mediapipe": MediapipeWrapper.build_model,
-        "yolov8-lite-t": Yolov8faceWrapper.build_model("yolov8-lite-t"),
-        "yolov8-lite-s": Yolov8faceWrapper.build_model("yolov8-lite-s"),
         "yolov8n": Yolov8faceWrapper.build_model("yolov8n"),
     }
 
@@ -65,8 +63,6 @@ def detect_faces(face_detector, detector_backend, img, align=True):
         "mtcnn": MtcnnWrapper.detect_face,
         "retinaface": RetinaFaceWrapper.detect_face,
         "mediapipe": MediapipeWrapper.detect_face,
-        "yolov8-lite-t": Yolov8faceWrapper.detect_face,
-        "yolov8-lite-s": Yolov8faceWrapper.detect_face,
         "yolov8n": Yolov8faceWrapper.detect_face,
     }
 
