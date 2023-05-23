@@ -41,7 +41,7 @@ def build_model(model: str):
 def detect_face(face_detector, img, align=False):
     resp = []
 
-    results = face_detector.predict(img, verbose=False, show=True, conf=0.25)[0]
+    results = face_detector.predict(img, verbose=False, show=False, conf=0.25)[0]
 
     for result in results:
         x, y, w, h = result.boxes.xywh.tolist()[0]
