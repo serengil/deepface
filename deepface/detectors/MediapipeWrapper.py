@@ -19,6 +19,10 @@ def detect_face(face_detector, img, align=True):
 
     results = face_detector.process(img)
 
+    # if no face have been detected, return an empty list
+    if results.detections is None:
+        return resp
+
     for detection in results.detections:
         (confidence,) = detection.score
 
