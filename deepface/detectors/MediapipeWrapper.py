@@ -19,10 +19,11 @@ def detect_face(face_detector, img, align=True):
 
     results = face_detector.process(img)
 
-    # if no face have been detected, return an empty list
+    # If no face has been detected, return an empty list
     if results.detections is None:
         return resp
 
+    # Extract the bounding box, the landmarks and the confidence score
     for detection in results.detections:
         (confidence,) = detection.score
 
@@ -34,6 +35,7 @@ def detect_face(face_detector, img, align=True):
         y = int(bounding_box.ymin * img_height)
         h = int(bounding_box.height * img_height)
 
+        # Extract landmarks
         left_eye = (int(landmarks[0].x * img_width), int(landmarks[0].y * img_height))
         right_eye = (int(landmarks[1].x * img_width), int(landmarks[1].y * img_height))
         # nose = (int(landmarks[2].x * img_width), int(landmarks[2].y * img_height))
