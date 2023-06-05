@@ -297,7 +297,7 @@ def analyze(
         actions = (actions,)
 
     actions = list(actions)
-    
+
     # Check if actions have been passed correctly
     if not actions:
         raise ValueError("`actions` must be a list of strings.")
