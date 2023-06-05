@@ -47,6 +47,9 @@ def detect_face(face_detector, detector_backend, img, align=True):
 
     if len(obj) > 0:
         face, region, confidence = obj[0]  # discard multiple faces
+
+    # If no face detected, return, set face to None,
+    # image region to full image, confidence to 0
     else:  # len(obj) == 0
         face = None
         region = [0, 0, img.shape[1], img.shape[0]]
