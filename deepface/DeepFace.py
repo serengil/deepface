@@ -297,10 +297,12 @@ def analyze(
         actions = (actions,)
 
     actions = list(actions)
-
+    
+    # Check if actions have been passed correctly
     if not actions:
         raise ValueError("`actions` must be a list of strings.")
 
+    # For each action, check if it is valid
     for action in actions:
         if action not in ("emotion", "age", "gender", "race"):
             raise ValueError(
