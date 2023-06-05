@@ -424,7 +424,7 @@ def find(
             dlib, mediapipe or yolov8n.
 
             align (boolean): alignment according to the eye positions.
-            
+
             normalization (string): normalize the input image before feeding to model
 
             silent (boolean): disable some logging and progress bars
@@ -830,7 +830,7 @@ def detectFace(
 ):
     """
     Deprecated function. Use extract_faces for same functionality.
-    
+
     This function applies pre-processing stages of a face recognition pipeline
     including detection and alignment
 
@@ -855,7 +855,7 @@ def detectFace(
 
     Returns:
             detected and aligned face as numpy array
-            
+
     """
     print("⚠️ Function detectFace is deprecated. Use extract_faces instead.")
     face_objs = extract_faces(

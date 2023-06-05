@@ -61,7 +61,7 @@ def detect_face(detector, img, align=True):
         import traceback
 
         print(traceback.format_exc())
-    
+
     # For each face and associated score, append face,
     # bounding box, and score to resp
     for (x, y, w, h), confidence in zip(faces, scores):
