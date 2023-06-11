@@ -36,13 +36,15 @@ def initialize_folder():
         OSError: if the folder cannot be created.
     """
     home = get_deepface_home()
+    deepFaceHomePath = home + "/.deepface"
+    weightsPath = deepFaceHomePath + "/weights"
 
-    if not os.path.exists(home + "/.deepface"):
-        os.makedirs(home + "/.deepface")
+    if not os.path.exists(deepFaceHomePath):
+        os.makedirs(deepFaceHomePath, exist_ok=True)
         print("Directory ", home, "/.deepface created")
 
-    if not os.path.exists(home + "/.deepface/weights"):
-        os.makedirs(home + "/.deepface/weights")
+    if not os.path.exists(weightsPath):
+        os.makedirs(weightsPath, exist_ok=True)
         print("Directory ", home, "/.deepface/weights created")
 
 
