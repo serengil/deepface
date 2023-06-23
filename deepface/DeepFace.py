@@ -237,7 +237,7 @@ def analyze(
 ):
 
     """
-    This function analyses facial attributes including age, gender, emotion and race.
+    This function analyzes facial attributes including age, gender, emotion and race.
     In the background, analysis function builds convolutional neural network models to
     classify age, gender, emotion and race of the input image.
 
@@ -299,17 +299,17 @@ def analyze(
     if isinstance(actions, str):
         actions = (actions,)
 
-    actions = list(actions)
-
-    # Check if actions have been passed correctly
-    if not actions:
+    # check if actions is not an iterable or empty.
+    if not hasattr(actions, "__getitem__") or not actions:
         raise ValueError("`actions` must be a list of strings.")
+
+    actions = list(actions)
 
     # For each action, check if it is valid
     for action in actions:
         if action not in ("emotion", "age", "gender", "race"):
             raise ValueError(
-                f"Invalid action passed ({action})). "
+                f"Invalid action passed ({repr(action)})). "
                 "Valid actions are `emotion`, `age`, `gender`, `race`."
             )
     # ---------------------------------
@@ -740,7 +740,7 @@ def stream(
 
             source: Set this to 0 for access web cam. Otherwise, pass exact video path.
 
-            time_threshold (int): how many second analysed image will be displayed
+            time_threshold (int): how many second analyzed image will be displayed
 
             frame_threshold (int): how many frames required to focus on face
 
