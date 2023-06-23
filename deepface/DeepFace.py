@@ -296,17 +296,17 @@ def analyze(
     if isinstance(actions, str):
         actions = (actions,)
 
-    actions = list(actions)
-
-    # Check if actions have been passed correctly
-    if not actions:
+    # check if actions is not an iterable or empty.
+    if not hasattr(actions, "__getitem__") or not actions:
         raise ValueError("`actions` must be a list of strings.")
+
+    actions = list(actions)
 
     # For each action, check if it is valid
     for action in actions:
         if action not in ("emotion", "age", "gender", "race"):
             raise ValueError(
-                f"Invalid action passed ({action})). "
+                f"Invalid action passed ({repr(action)})). "
                 "Valid actions are `emotion`, `age`, `gender`, `race`."
             )
     # ---------------------------------
