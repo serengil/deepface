@@ -23,7 +23,7 @@ def build_model(detector_backend):
         "mtcnn": MtcnnWrapper.build_model,
         "retinaface": RetinaFaceWrapper.build_model,
         "mediapipe": MediapipeWrapper.build_model,
-        "yolov8n": YoloWrapper.build_model,
+        "yolov8": YoloWrapper.build_model,
     }
 
     if not "face_detector_obj" in globals():
@@ -66,7 +66,7 @@ def detect_faces(face_detector, detector_backend, img, align=True):
         "mtcnn": MtcnnWrapper.detect_face,
         "retinaface": RetinaFaceWrapper.detect_face,
         "mediapipe": MediapipeWrapper.detect_face,
-        "yolov8n": YoloWrapper.detect_face,
+        "yolov8": YoloWrapper.detect_face,
     }
 
     detect_face_fn = backends.get(detector_backend)

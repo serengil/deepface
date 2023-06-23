@@ -208,7 +208,7 @@ backends = [
   'mtcnn', 
   'retinaface', 
   'mediapipe',
-  'yolov8n',
+  'yolov8',
 ]
 
 #face verification
