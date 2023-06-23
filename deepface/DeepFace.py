@@ -41,7 +41,6 @@ if tf_version == 2:
 
 
 def build_model(model_name):
-
     """
     This function builds a deepface model
     Parameters:
@@ -96,7 +95,6 @@ def verify(
     align=True,
     normalization="base",
 ):
-
     """
     This function verifies an image pair is same person or different persons. In the background,
     verification function represents facial images as vectors and then calculates the similarity
@@ -119,9 +117,9 @@ def verify(
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
             dlib or mediapipe
-            
+
             align (boolean): alignment according to the eye positions.
-            
+
             normalization (string): normalize the input image before feeding to model
 
     Returns:
@@ -235,7 +233,6 @@ def analyze(
     align=True,
     silent=False,
 ):
-
     """
     This function analyzes facial attributes including age, gender, emotion and race.
     In the background, analysis function builds convolutional neural network models to
@@ -255,7 +252,7 @@ def analyze(
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
             dlib or mediapipe.
-            
+
             align (boolean): alignment according to the eye positions.
 
             silent (boolean): disable (some) log messages
@@ -299,7 +296,19 @@ def analyze(
     if isinstance(actions, str):
         actions = (actions,)
 
+    # check if actions is not an iterable or empty.
+    if not hasattr(actions, "__getitem__") or not actions:
+        raise ValueError("`actions` must be a list of strings.")
+
     actions = list(actions)
+
+    # For each action, check if it is valid
+    for action in actions:
+        if action not in ("emotion", "age", "gender", "race"):
+            raise ValueError(
+                f"Invalid action passed ({repr(action)})). "
+                "Valid actions are `emotion`, `age`, `gender`, `race`."
+            )
     # ---------------------------------
     # build models
     models = {}
@@ -398,7 +407,6 @@ def find(
     normalization="base",
     silent=False,
 ):
-
     """
     This function applies verification several times and find the identities in a database
 
@@ -422,9 +430,9 @@ def find(
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
             dlib or mediapipe
-            
+
             align (boolean): alignment according to the eye positions.
-            
+
             normalization (string): normalize the input image before feeding to model
 
             silent (boolean): disable some logging and progress bars
@@ -448,7 +456,6 @@ def find(
     file_name = file_name.replace("-", "_").lower()
 
     if path.exists(db_path + "/" + file_name):
-
         if not silent:
             print(
                 f"WARNING: Representations for images in {db_path} folder were previously stored"
@@ -616,7 +623,6 @@ def represent(
     align=True,
     normalization="base",
 ):
-
     """
     This function represents facial images as vectors. The function uses convolutional neural
     networks models to generate vector embeddings.
@@ -710,7 +716,6 @@ def stream(
     time_threshold=5,
     frame_threshold=5,
 ):
-
     """
     This function applies real time face recognition and facial attribute analysis
 
@@ -765,7 +770,6 @@ def extract_faces(
     align=True,
     grayscale=False,
 ):
-
     """
     This function applies pre-processing stages of a face recognition pipeline
     including detection and alignment
@@ -830,7 +834,7 @@ def detectFace(
 ):
     """
     Deprecated function. Use extract_faces for same functionality.
-    
+
     This function applies pre-processing stages of a face recognition pipeline
     including detection and alignment
 
@@ -855,7 +859,7 @@ def detectFace(
 
     Returns:
             detected and aligned face as numpy array
-            
+
     """
     print("⚠️ Function detectFace is deprecated. Use extract_faces instead.")
     face_objs = extract_faces(
