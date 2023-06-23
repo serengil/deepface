@@ -44,9 +44,7 @@ def detect_face(detector, img, align=True):
     detected_face = None
     img_region = [0, 0, img.shape[1], img.shape[0]]
 
-    # Initialize faces and scores to empty lists
     faces = []
-    scores = []
     try:
         # faces = detector["face_detector"].detectMultiScale(img, 1.3, 5)
 
@@ -54,25 +52,19 @@ def detect_face(detector, img, align=True):
         faces, _, scores = detector["face_detector"].detectMultiScale3(
             img, 1.1, 10, outputRejectLevels=True
         )
+    except:
+        pass
 
-    # except alone is too broad and will catch keyboard interrupts
-    # Exception should be changed to something more specific in the future
-    except Exception:  # pylint: disable=broad-except
-        import traceback
+    if len(faces) > 0:
+        for (x, y, w, h), confidence in zip(faces, scores):
+            detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
 
-        print(traceback.format_exc())
+            if align:
+                detected_face = align_face(detector["eye_detector"], detected_face)
 
-    # For each face and associated score, append face,
-    # bounding box, and score to resp
-    for (x, y, w, h), confidence in zip(faces, scores):
-        detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+            img_region = [x, y, w, h]
 
-        if align:
-            detected_face = align_face(detector["eye_detector"], detected_face)
-
-        img_region = [x, y, w, h]
-
-        resp.append((detected_face, img_region, confidence))
+            resp.append((detected_face, img_region, confidence))
 
     return resp
 
