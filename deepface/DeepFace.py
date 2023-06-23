@@ -41,7 +41,6 @@ if tf_version == 2:
 
 
 def build_model(model_name):
-
     """
     This function builds a deepface model
     Parameters:
