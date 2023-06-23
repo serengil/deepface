@@ -116,7 +116,7 @@ def verify(
             This might be convenient for low resolution images.
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib or mediapipe
+            dlib, mediapipe or yolov8.
 
             align (boolean): alignment according to the eye positions.
 
@@ -251,7 +251,7 @@ def analyze(
             resolution images.
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib or mediapipe.
+            dlib, mediapipe or yolov8.
 
             align (boolean): alignment according to the eye positions.
 
@@ -429,7 +429,7 @@ def find(
             resolution images.
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib or mediapipe
+            dlib, mediapipe or yolov8.
 
             align (boolean): alignment according to the eye positions.
 
@@ -456,6 +456,7 @@ def find(
     file_name = file_name.replace("-", "_").lower()
 
     if path.exists(db_path + "/" + file_name):
+
         if not silent:
             print(
                 f"WARNING: Representations for images in {db_path} folder were previously stored"
@@ -640,7 +641,7 @@ def represent(
             This might be convenient for low resolution images.
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib or mediapipe
+            dlib, mediapipe or yolov8.
 
             align (boolean): alignment according to the eye positions.
 
@@ -725,7 +726,7 @@ def stream(
             model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
             ArcFace, SFace
 
-            detector_backend (string): opencv, retinaface, mtcnn, ssd, dlib or mediapipe
+            detector_backend (string): opencv, retinaface, mtcnn, ssd, dlib, mediapipe or yolov8.
 
             distance_metric (string): cosine, euclidean, euclidean_l2
 
