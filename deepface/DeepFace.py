@@ -96,7 +96,6 @@ def verify(
     align=True,
     normalization="base",
 ):
-
     """
     This function verifies an image pair is same person or different persons. In the background,
     verification function represents facial images as vectors and then calculates the similarity
@@ -235,7 +234,6 @@ def analyze(
     align=True,
     silent=False,
 ):
-
     """
     This function analyzes facial attributes including age, gender, emotion and race.
     In the background, analysis function builds convolutional neural network models to
@@ -410,7 +408,6 @@ def find(
     normalization="base",
     silent=False,
 ):
-
     """
     This function applies verification several times and find the identities in a database
 
@@ -628,7 +625,6 @@ def represent(
     align=True,
     normalization="base",
 ):
-
     """
     This function represents facial images as vectors. The function uses convolutional neural
     networks models to generate vector embeddings.
@@ -722,7 +718,6 @@ def stream(
     time_threshold=5,
     frame_threshold=5,
 ):
-
     """
     This function applies real time face recognition and facial attribute analysis
 
@@ -777,7 +772,6 @@ def extract_faces(
     align=True,
     grayscale=False,
 ):
-
     """
     This function applies pre-processing stages of a face recognition pipeline
     including detection and alignment
