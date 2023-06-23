@@ -1,3 +1,4 @@
 opencv-contrib-python>=4.3.0.36
 mediapipe>=0.8.7.3
 dlib>=19.20.0
+ultralytics @ git+https://github.com/derronqi/yolov8-face.git@b623989575bdb78601b5ca717851e3d63ca9e01c
