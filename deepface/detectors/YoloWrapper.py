@@ -51,7 +51,8 @@ def detect_face(face_detector, img, align=False):
             # Extract landmarks
             left_eye, right_eye, _, _, _ = result.keypoints.tolist()
             # Check the landmarks confidence before alignment
-            if left_eye[2] > LANDMARKS_CONFIDENCE_THRESHOLD and right_eye[2] > LANDMARKS_CONFIDENCE_THRESHOLD:
+            if (left_eye[2] > LANDMARKS_CONFIDENCE_THRESHOLD and
+                    right_eye[2] > LANDMARKS_CONFIDENCE_THRESHOLD):
                 detected_face = FaceDetector.alignment_procedure(
                     detected_face, left_eye[:2], right_eye[:2]
                 )
