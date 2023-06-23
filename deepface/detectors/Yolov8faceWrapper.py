@@ -2,11 +2,6 @@ from deepface.detectors import FaceDetector
 
 # Models names and paths
 PATHS = {
-    # The commented models are broken, their weights are available
-    # but the models themselves are not working
-    # See https://github.com/derronqi/yolov8-face/issues/3 for details
-    # "yolov8-lite-t": "/.deepface/weights/yolov8-lite-t.pt",
-    # "yolov8-lite-s": "/.deepface/weights/yolov8-lite-s.pt",
     "yolov8n": "/.deepface/weights/yolov8n-face.pt",
 }
 
@@ -15,11 +10,6 @@ BASE_URL = "https://drive.google.com/uc?id="
 
 # Models' Google Drive IDs
 IDS = {
-    # The commented models are broken, their weights are available
-    # but the models themselves are not working
-    # See https://github.com/derronqi/yolov8-face/issues/3 for details
-    # "yolov8-lite-t": "1vFMGW8xtRVo9bfC9yJVWWGY7vVxbLh94",
-    # "yolov8-lite-s": "1ckpBT8KfwURTvTm5pa-cMC89A0V5jbaq",
     "yolov8n": "1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb",
 }
 
