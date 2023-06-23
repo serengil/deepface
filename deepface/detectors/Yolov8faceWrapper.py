@@ -2,8 +2,11 @@ from deepface.detectors import FaceDetector
 
 # Models names and paths
 PATHS = {
-    "yolov8-lite-t": "/.deepface/weights/yolov8-lite-t.pt",
-    "yolov8-lite-s": "/.deepface/weights/yolov8-lite-s.pt",
+    # The commented models are broken, their weights are available
+    # but the models themselves are not working
+    # See https://github.com/derronqi/yolov8-face/issues/3 for details
+    # "yolov8-lite-t": "/.deepface/weights/yolov8-lite-t.pt",
+    # "yolov8-lite-s": "/.deepface/weights/yolov8-lite-s.pt",
     "yolov8n": "/.deepface/weights/yolov8n-face.pt",
 }
 
@@ -12,8 +15,11 @@ BASE_URL = "https://drive.google.com/uc?id="
 
 # Models' Google Drive IDs
 IDS = {
-    "yolov8-lite-t": "1vFMGW8xtRVo9bfC9yJVWWGY7vVxbLh94",
-    "yolov8-lite-s": "1ckpBT8KfwURTvTm5pa-cMC89A0V5jbaq",
+    # The commented models are broken, their weights are available
+    # but the models themselves are not working
+    # See https://github.com/derronqi/yolov8-face/issues/3 for details
+    # "yolov8-lite-t": "1vFMGW8xtRVo9bfC9yJVWWGY7vVxbLh94",
+    # "yolov8-lite-s": "1ckpBT8KfwURTvTm5pa-cMC89A0V5jbaq",
     "yolov8n": "1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb",
 }
 
@@ -49,7 +55,8 @@ def detect_face(face_detector, img, align=False):
     resp = []
 
     # Detect faces
-    results = face_detector.predict(img, verbose=False, show=False, conf=0.25)[0]
+    results = face_detector.predict(
+        img, verbose=False, show=False, conf=0.25)[0]
 
     # For each face, extract the bounding box, the landmarks and confidence
     for result in results:
@@ -58,7 +65,7 @@ def detect_face(face_detector, img, align=False):
         confidence = result.boxes.conf.tolist()[0]
 
         x, y, w, h = int(x - w / 2), int(y - h / 2), int(w), int(h)
-        detected_face = img[y : y + h, x : x + w].copy()
+        detected_face = img[y: y + h, x: x + w].copy()
 
         if align:
             # Extract landmarks
