@@ -234,7 +234,7 @@ def analyze(
     silent=False,
 ):
     """
-    This function analyses facial attributes including age, gender, emotion and race.
+    This function analyzes facial attributes including age, gender, emotion and race.
     In the background, analysis function builds convolutional neural network models to
     classify age, gender, emotion and race of the input image.
 
@@ -733,7 +733,7 @@ def stream(
 
             source: Set this to 0 for access web cam. Otherwise, pass exact video path.
 
-            time_threshold (int): how many second analysed image will be displayed
+            time_threshold (int): how many second analyzed image will be displayed
 
             frame_threshold (int): how many frames required to focus on face
 
