@@ -48,15 +48,17 @@ def detect_face(face_detector, img, align=False):
         detected_face = img[y: y + h, x: x + w].copy()
 
         if align:
-            # Extract landmarks
-            left_eye, right_eye, _, _, _ = result.keypoints.tolist()
-            # Check the landmarks confidence before alignment
-            if (left_eye[2] > LANDMARKS_CONFIDENCE_THRESHOLD and
-                    right_eye[2] > LANDMARKS_CONFIDENCE_THRESHOLD):
-                detected_face = FaceDetector.alignment_procedure(
-                    detected_face, left_eye[:2], right_eye[:2]
-                )
+            # Tuple of x,y and confidence for left eye
+            left_eye = result.keypoints.xy[0][0], result.keypoints.conf[0][0]
+            # Tuple of x,y and confidence for right eye
+            right_eye = result.keypoints.xy[0][1], result.keypoints.conf[0][1]
 
+            # Check the landmarks confidence before alignment
+            if (left_eye[1] > LANDMARKS_CONFIDENCE_THRESHOLD and
+                    right_eye[1] > LANDMARKS_CONFIDENCE_THRESHOLD):
+                detected_face = FaceDetector.alignment_procedure(
+                    detected_face, left_eye[0].cpu(), right_eye[0].cpu()
+                )
         resp.append((detected_face, [x, y, w, h], confidence))
 
     return resp
