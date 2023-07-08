@@ -10,6 +10,7 @@ from deepface.detectors import (
     RetinaFaceWrapper,
     MediapipeWrapper,
     YoloWrapper,
+    YunetWrapper,
 )
 
 
@@ -24,6 +25,7 @@ def build_model(detector_backend):
         "retinaface": RetinaFaceWrapper.build_model,
         "mediapipe": MediapipeWrapper.build_model,
         "yolov8": YoloWrapper.build_model,
+        "yunet": YunetWrapper.build_model,
     }
 
     if not "face_detector_obj" in globals():
@@ -67,6 +69,7 @@ def detect_faces(face_detector, detector_backend, img, align=True):
         "retinaface": RetinaFaceWrapper.detect_face,
         "mediapipe": MediapipeWrapper.detect_face,
         "yolov8": YoloWrapper.detect_face,
+        "yunet": YunetWrapper.detect_face,
     }
 
     detect_face_fn = backends.get(detector_backend)
