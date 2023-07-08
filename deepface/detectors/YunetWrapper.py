@@ -30,10 +30,13 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
     height, width = image.shape[0], image.shape[1]
     # resize image if it is too large (Yunet fails to detect faces on large input sometimes)
     # I picked 640 as a threshold because it is the default value of max_size in Yunet.
+    resized = False
     if height > 640 or width > 640:
         r = 640.0 / max(height, width)
+        original_image = image.copy()
         image = cv2.resize(image, (int(width * r), int(height * r)))
         height, width = image.shape[0], image.shape[1]
+        resized = True
     detector.setInputSize((width, height))
     detector.setScoreThreshold(score_threshold)
     _, faces = detector.detect(image)
@@ -49,6 +52,15 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
         {x, y}_{re, le, nt, rcm, lcm} stands for the coordinates of right eye, left eye, nose tip, the right corner and left corner of the mouth respectively.
         """
         (x, y, w, h, x_re, y_re, x_le, y_le) = list(map(int, face[:8]))
+        if resized:
+            image = original_image
+            x, y, w, h = int(x / r), int(y / r), int(w / r), int(h / r)
+            x_re, y_re, x_le, y_le = (
+                int(x_re / r),
+                int(y_re / r),
+                int(x_le / r),
+                int(y_le / r),
+            )
         confidence = face[-1]
         confidence = "{:.2f}".format(confidence)
         detected_face = image[int(y) : int(y + h), int(x) : int(x + w)]
