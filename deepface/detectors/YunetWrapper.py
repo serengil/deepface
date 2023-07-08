@@ -1,4 +1,3 @@
-import numpy as np
 import cv2
 import os
 import gdown
@@ -20,7 +19,7 @@ def build_model():
     return face_detector
 
 
-def detect_face(detector, image, align=True, score_threshold=0.8):
+def detect_face(detector, image, align=True, score_threshold=0.9):
     # FaceDetector.detect_faces does not support score_threshold parameter.
     # We can set it via environment variable.
     score_threshold = os.environ.get("yunet_score_threshold", score_threshold)
@@ -38,6 +37,8 @@ def detect_face(detector, image, align=True, score_threshold=0.8):
     detector.setInputSize((width, height))
     detector.setScoreThreshold(score_threshold)
     _, faces = detector.detect(image)
+    if faces is None:
+        return resp
     for face in faces:
         """
         The detection output faces is a two-dimension array of type CV_32F,
