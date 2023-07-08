@@ -11,7 +11,7 @@ def build_model():
     file_name = "face_detection_yunet_2023mar.onnx"
     home = functions.get_deepface_home()
     if os.path.isfile(home + f"/.deepface/weights/{file_name}") is False:
-        print("yunet_n_dynamic.onnx will be downloaded...")
+        print(f"{file_name} will be downloaded...")
         output = home + f"/.deepface/weights/{file_name}"
         gdown.download(url, output, quiet=False)
     face_detector = cv2.FaceDetectorYN_create(
