@@ -1,21 +1,22 @@
-import cv2
 import os
+import cv2
 import gdown
 from deepface.detectors import FaceDetector
 from deepface.commons import functions
 
 
 def build_model():
-    url = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
+    url = (
+        "https://github.com/opencv/opencv_zoo/raw/main/models/"
+        + "face_detection_yunet/face_detection_yunet_2023mar.onnx"
+    )
     file_name = "face_detection_yunet_2023mar.onnx"
     home = functions.get_deepface_home()
     if os.path.isfile(home + f"/.deepface/weights/{file_name}") is False:
         print(f"{file_name} will be downloaded...")
         output = home + f"/.deepface/weights/{file_name}"
         gdown.download(url, output, quiet=False)
-    face_detector = cv2.FaceDetectorYN_create(
-        home + f"/.deepface/weights/{file_name}", "", (0, 0)
-    )
+    face_detector = cv2.FaceDetectorYN_create(home + f"/.deepface/weights/{file_name}", "", (0, 0))
     return face_detector
 
 
@@ -43,14 +44,16 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
     if faces is None:
         return resp
     for face in faces:
-        """
-        The detection output faces is a two-dimension array of type CV_32F,
-        whose rows are the detected face instances, columns are the location of a face and 5 facial landmarks.
-        The format of each row is as follows:
-        x1, y1, w, h, x_re, y_re, x_le, y_le, x_nt, y_nt, x_rcm, y_rcm, x_lcm, y_lcm,
-        where x1, y1, w, h are the top-left coordinates, width and height of the face bounding box,
-        {x, y}_{re, le, nt, rcm, lcm} stands for the coordinates of right eye, left eye, nose tip, the right corner and left corner of the mouth respectively.
-        """
+        # The detection output faces is a two-dimension array of type CV_32F,
+        # whose rows are the detected face instances,
+        # columns are the location of a face and 5 facial landmarks.
+        # The format of each row is as follows:
+        # x1, y1, w, h, x_re, y_re, x_le, y_le, x_nt, y_nt, x_rcm, y_rcm, x_lcm, y_lcm,
+        # where x1, y1, w, h are the top-left coordinates,
+        # width and height of the face bounding box,
+        # {x, y}_{re, le, nt, rcm, lcm} stands for the coordinates of
+        # right eye, left eye, nose tip, the right corner and left corner
+        # of the mouth respectively.
         (x, y, w, h, x_re, y_re, x_le, y_le) = list(map(int, face[:8]))
         if resized:
             image = original_image
@@ -62,7 +65,7 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
                 int(y_le / r),
             )
         confidence = face[-1]
-        confidence = "{:.2f}".format(confidence)
+        confidence = f"{confidence:.2f}"
         detected_face = image[int(y) : int(y + h), int(x) : int(x + w)]
         img_region = [x, y, w, h]
         if align:
