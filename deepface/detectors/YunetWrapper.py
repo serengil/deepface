@@ -13,9 +13,7 @@ def build_model():
         print(f"{file_name} will be downloaded...")
         output = home + f"/.deepface/weights/{file_name}"
         gdown.download(url, output, quiet=False)
-    face_detector = cv2.FaceDetectorYN_create(
-        home + f"/.deepface/weights/{file_name}", "", (0, 0)
-    )
+    face_detector = cv2.FaceDetectorYN_create(home + f"/.deepface/weights/{file_name}", "", (0, 0))
     return face_detector
 
 
@@ -52,10 +50,11 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
         {x, y}_{re, le, nt, rcm, lcm} stands for the coordinates of right eye, left eye, nose tip, the right corner and left corner of the mouth respectively.
         """
         (x, y, w, h, x_re, y_re, x_le, y_le) = list(map(int, face[:8]))
-        if x < 0:
-            x = 0
-        if y < 0:
-            y = 0
+
+        # Yunet returns negative coordinates if it thinks part of the detected face is outside the frame.
+        # We set the coordinate to 0 if they are negative.
+        x = max(x, 0)
+        y = max(y, 0)
         if resized:
             image = original_image
             x, y, w, h = int(x / r), int(y / r), int(w / r), int(h / r)
