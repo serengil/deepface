@@ -52,6 +52,10 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
         {x, y}_{re, le, nt, rcm, lcm} stands for the coordinates of right eye, left eye, nose tip, the right corner and left corner of the mouth respectively.
         """
         (x, y, w, h, x_re, y_re, x_le, y_le) = list(map(int, face[:8]))
+        if x < 0:
+            x = 0
+        if y < 0:
+            y = 0
         if resized:
             image = original_image
             x, y, w, h = int(x / r), int(y / r), int(w / r), int(h / r)
