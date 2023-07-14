@@ -1,21 +1,22 @@
-import cv2
 import os
+import cv2
 import gdown
 from deepface.detectors import FaceDetector
 from deepface.commons import functions
 
 
 def build_model():
-    url = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
+    url = (
+        "https://github.com/opencv/opencv_zoo/raw/main/models/"
+        + "face_detection_yunet/face_detection_yunet_2023mar.onnx"
+    )
     file_name = "face_detection_yunet_2023mar.onnx"
     home = functions.get_deepface_home()
     if os.path.isfile(home + f"/.deepface/weights/{file_name}") is False:
         print(f"{file_name} will be downloaded...")
         output = home + f"/.deepface/weights/{file_name}"
         gdown.download(url, output, quiet=False)
-    face_detector = cv2.FaceDetectorYN_create(
-        home + f"/.deepface/weights/{file_name}", "", (0, 0)
-    )
+    face_detector = cv2.FaceDetectorYN_create(home + f"/.deepface/weights/{file_name}", "", (0, 0))
     return face_detector
 
 
@@ -72,7 +73,7 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
                 int(y_le / r),
             )
         confidence = face[-1]
-        confidence = "{:.2f}".format(confidence)
+        confidence = f"{confidence:.2f}"
         detected_face = image[int(y) : int(y + h), int(x) : int(x + w)]
         img_region = [x, y, w, h]
         if align:
