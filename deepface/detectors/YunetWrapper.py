@@ -13,7 +13,9 @@ def build_model():
         print(f"{file_name} will be downloaded...")
         output = home + f"/.deepface/weights/{file_name}"
         gdown.download(url, output, quiet=False)
-    face_detector = cv2.FaceDetectorYN_create(home + f"/.deepface/weights/{file_name}", "", (0, 0))
+    face_detector = cv2.FaceDetectorYN_create(
+        home + f"/.deepface/weights/{file_name}", "", (0, 0)
+    )
     return face_detector
 
 
