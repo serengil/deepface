@@ -45,15 +45,20 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
     for face in faces:
         """
         The detection output faces is a two-dimension array of type CV_32F,
-        whose rows are the detected face instances, columns are the location of a face and 5 facial landmarks.
+        whose rows are the detected face instances, columns are the location 
+        of a face and 5 facial landmarks.
         The format of each row is as follows:
-        x1, y1, w, h, x_re, y_re, x_le, y_le, x_nt, y_nt, x_rcm, y_rcm, x_lcm, y_lcm,
-        where x1, y1, w, h are the top-left coordinates, width and height of the face bounding box,
-        {x, y}_{re, le, nt, rcm, lcm} stands for the coordinates of right eye, left eye, nose tip, the right corner and left corner of the mouth respectively.
+        x1, y1, w, h, x_re, y_re, x_le, y_le, x_nt, y_nt,
+        x_rcm, y_rcm, x_lcm, y_lcm,
+        where x1, y1, w, h are the top-left coordinates, width and height of
+        the face bounding box,
+        {x, y}_{re, le, nt, rcm, lcm} stands for the coordinates of right eye,
+        left eye, nose tip, the right corner and left corner of the mouth respectively.
         """
         (x, y, w, h, x_re, y_re, x_le, y_le) = list(map(int, face[:8]))
 
-        # Yunet returns negative coordinates if it thinks part of the detected face is outside the frame.
+        # Yunet returns negative coordinates if it thinks part of 
+        # the detected face is outside the frame.
         # We set the coordinate to 0 if they are negative.
         x = max(x, 0)
         y = max(y, 0)
