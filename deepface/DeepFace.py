@@ -309,6 +309,11 @@ def analyze(
                 f"Invalid action passed ({repr(action)})). "
                 "Valid actions are `emotion`, `age`, `gender`, `race`."
             )
+
+     # check if img_path is a NoneType
+    if img_path is None:
+        raise TypeError("Expected numpy.ndarray or base64 encoded image object, NoneType found.")
+
     # ---------------------------------
     # build models
     models = {}
