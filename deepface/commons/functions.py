@@ -25,7 +25,7 @@ if tf_major_version == 1:
     from keras.preprocessing import image
 elif tf_major_version == 2:
     from tensorflow.keras.preprocessing import image
-
+    
 # --------------------------------------------------
 
 

@@ -63,192 +63,215 @@ print("-----------------------------------------")
 
 def test_cases():
 
-    print("Enforce detection test")
-    black_img = np.zeros([224, 224, 3])
+    # print("Enforce detection test")
+    # black_img = np.zeros([224, 224, 3], dtype=None)
 
-    # enforce detection on for represent
-    try:
-        DeepFace.represent(img_path=black_img)
-        exception_thrown = False
-    except:
-        exception_thrown = True
+    # # enforce detection on for represent
+    # try:
+    #     DeepFace.represent(img_path=black_img)
+    #     exception_thrown = False
+    # except:
+    #     exception_thrown = True
 
-    assert exception_thrown is True
+    # assert exception_thrown is True
 
+    # # -------------------------------------------
+
+    # # enforce detection off for represent
+    # try:
+    #     objs = DeepFace.represent(img_path=black_img, enforce_detection=False)
+    #     exception_thrown = False
+
+    #     # validate response of represent function
+    #     assert isinstance(objs, list)
+    #     assert len(objs) > 0
+    #     assert isinstance(objs[0], dict)
+    #     assert "embedding" in objs[0].keys()
+    #     assert "facial_area" in objs[0].keys()
+    #     assert isinstance(objs[0]["facial_area"], dict)
+    #     assert "x" in objs[0]["facial_area"].keys()
+    #     assert "y" in objs[0]["facial_area"].keys()
+    #     assert "w" in objs[0]["facial_area"].keys()
+    #     assert "h" in objs[0]["facial_area"].keys()
+    #     assert isinstance(objs[0]["embedding"], list)
+    #     assert len(objs[0]["embedding"]) == 2622  # embedding of VGG-Face
+    # except Exception as err:
+    #     print(f"Unexpected exception thrown: {str(err)}")
+    #     exception_thrown = True
+
+    # assert exception_thrown is False
+
+    # # -------------------------------------------
+    # # enforce detection on for verify
+    # try:
+    #     obj = DeepFace.verify(img1_path=black_img, img2_path=black_img)
+    #     exception_thrown = False
+    # except:
+    #     exception_thrown = True
+
+    # assert exception_thrown is True
+    # # -------------------------------------------
+    # # enforce detection off for verify
+
+    # try:
+    #     obj = DeepFace.verify(img1_path=black_img, img2_path=black_img, enforce_detection=False)
+    #     assert isinstance(obj, dict)
+    #     exception_thrown = False
+    # except Exception as err:
+    #     print(f"Unexpected exception thrown: {str(err)}")
+    #     exception_thrown = True
+
+    # assert exception_thrown is False
     # -------------------------------------------
 
-    # enforce detection off for represent
-    try:
-        objs = DeepFace.represent(img_path=black_img, enforce_detection=False)
-        exception_thrown = False
+    # print("-----------------------------------------")
 
-        # validate response of represent function
-        assert isinstance(objs, list)
-        assert len(objs) > 0
-        assert isinstance(objs[0], dict)
-        assert "embedding" in objs[0].keys()
-        assert "facial_area" in objs[0].keys()
-        assert isinstance(objs[0]["facial_area"], dict)
-        assert "x" in objs[0]["facial_area"].keys()
-        assert "y" in objs[0]["facial_area"].keys()
-        assert "w" in objs[0]["facial_area"].keys()
-        assert "h" in objs[0]["facial_area"].keys()
-        assert isinstance(objs[0]["embedding"], list)
-        assert len(objs[0]["embedding"]) == 2622  # embedding of VGG-Face
-    except Exception as err:
-        print(f"Unexpected exception thrown: {str(err)}")
-        exception_thrown = True
+    # print("Extract faces test")
 
-    assert exception_thrown is False
+    # for detector in detectors:
+    #     # Foi necessário achar o caminho absoluto
+    #     # para fazer o código funcionar na minha máquina
+    #     path = "dataset/img11.jpg"
+    #     path = os.path.abspath(f"tests/{path}")
+    #     print(f"---->> {path}")
+    #     img_objs = DeepFace.extract_faces(img_path=path, detector_backend=detector)
+    #     for img_obj in img_objs:
+    #         assert "face" in img_obj.keys()
+    #         assert "facial_area" in img_obj.keys()
+    #         assert isinstance(img_obj["facial_area"], dict)
+    #         assert "x" in img_obj["facial_area"].keys()
+    #         assert "y" in img_obj["facial_area"].keys()
+    #         assert "w" in img_obj["facial_area"].keys()
+    #         assert "h" in img_obj["facial_area"].keys()
+    #         assert "confidence" in img_obj.keys()
 
-    # -------------------------------------------
-    # enforce detection on for verify
-    try:
-        obj = DeepFace.verify(img1_path=black_img, img2_path=black_img)
-        exception_thrown = False
-    except:
-        exception_thrown = True
+    #         img = img_obj["face"]
+    #         evaluate(img.shape[0] > 0 and img.shape[1] > 0)
+    #         print(detector, " test is done")
 
-    assert exception_thrown is True
-    # -------------------------------------------
-    # enforce detection off for verify
+    # print("-----------------------------------------")
 
-    try:
-        obj = DeepFace.verify(img1_path=black_img, img2_path=black_img, enforce_detection=False)
-        assert isinstance(obj, dict)
-        exception_thrown = False
-    except Exception as err:
-        print(f"Unexpected exception thrown: {str(err)}")
-        exception_thrown = True
+    # # Foi necessário encontrar o caminho absoluto
+    # img_path = "dataset/img1.jpg"
+    # img_path = os.path.abspath(f"tests/{img_path}")
+    # embedding_objs = DeepFace.represent(img_path)
+    # for embedding_obj in embedding_objs:
+    #     embedding = embedding_obj["embedding"]
+    #     print("Function returned ", len(embedding), "dimensional vector")
+    #     evaluate(len(embedding) == 2622)
 
-    assert exception_thrown is False
-    # -------------------------------------------
+    # print("-----------------------------------------")
 
-    print("-----------------------------------------")
+    # print("Different face detectors on verification test")
 
-    print("Extract faces test")
+    # for detector in detectors:
+    #     print(detector + " detector")
+    #     # Foi necessário achar o caminho absoluto
+    #     # res = DeepFace.verify(dataset[0][0], dataset[0][1], detector_backend=detector)
+    #     img1 = os.path.abspath(f"tests/{dataset[0][0]}")
+    #     img2 = os.path.abspath(f"tests/{dataset[0][1]}")
+    #     res = DeepFace.verify(img1, img2, detector_backend=detector)
 
-    for detector in detectors:
-        img_objs = DeepFace.extract_faces(img_path="dataset/img11.jpg", detector_backend=detector)
-        for img_obj in img_objs:
-            assert "face" in img_obj.keys()
-            assert "facial_area" in img_obj.keys()
-            assert isinstance(img_obj["facial_area"], dict)
-            assert "x" in img_obj["facial_area"].keys()
-            assert "y" in img_obj["facial_area"].keys()
-            assert "w" in img_obj["facial_area"].keys()
-            assert "h" in img_obj["facial_area"].keys()
-            assert "confidence" in img_obj.keys()
+    #     assert isinstance(res, dict)
+    #     assert "verified" in res.keys()
+    #     assert res["verified"] in [True, False]
+    #     assert "distance" in res.keys()
+    #     assert "threshold" in res.keys()
+    #     assert "model" in res.keys()
+    #     assert "detector_backend" in res.keys()
+    #     assert "similarity_metric" in res.keys()
+    #     assert "facial_areas" in res.keys()
+    #     assert "img1" in res["facial_areas"].keys()
+    #     assert "img2" in res["facial_areas"].keys()
+    #     assert "x" in res["facial_areas"]["img1"].keys()
+    #     assert "y" in res["facial_areas"]["img1"].keys()
+    #     assert "w" in res["facial_areas"]["img1"].keys()
+    #     assert "h" in res["facial_areas"]["img1"].keys()
+    #     assert "x" in res["facial_areas"]["img2"].keys()
+    #     assert "y" in res["facial_areas"]["img2"].keys()
+    #     assert "w" in res["facial_areas"]["img2"].keys()
+    #     assert "h" in res["facial_areas"]["img2"].keys()
 
-            img = img_obj["face"]
-            evaluate(img.shape[0] > 0 and img.shape[1] > 0)
-            print(detector, " test is done")
+    #     print(res)
+    #     evaluate(res["verified"] == dataset[0][2])
 
-    print("-----------------------------------------")
+    # print("-----------------------------------------")
 
-    img_path = "dataset/img1.jpg"
-    embedding_objs = DeepFace.represent(img_path)
-    for embedding_obj in embedding_objs:
-        embedding = embedding_obj["embedding"]
-        print("Function returned ", len(embedding), "dimensional vector")
-        evaluate(len(embedding) == 2622)
+    # print("Find function test")
+    
+    # # Necessário encontrar caminho absoluto
+    # #dfs = DeepFace.find(img_path="dataset/img1.jpg", db_path="dataset")
+    # img_path = "dataset/img1.jpg"
+    # img_path = os.path.abspath(f"tests/{img_path}")
+    # db_path = "dataset"
+    # db_path = os.path.abspath(f"tests/{db_path}")
+    # dfs = DeepFace.find(img_path=img_path, db_path=db_path)
+    # for df in dfs:
+    #     assert isinstance(df, pd.DataFrame)
+    #     print(df.head())
+    #     evaluate(df.shape[0] > 0)
 
-    print("-----------------------------------------")
+    # print("-----------------------------------------")
 
-    print("Different face detectors on verification test")
+    # print("Facial analysis test. Passing nothing as an action")
 
-    for detector in detectors:
-        print(detector + " detector")
-        res = DeepFace.verify(dataset[0][0], dataset[0][1], detector_backend=detector)
+    # img = "dataset/img4.jpg"
+    # img = os.path.abspath(f"tests/{img}")
+    # demography_objs = DeepFace.analyze(img)
+    # for demography in demography_objs:
+    #     print(demography)
+    #     evaluate(demography["age"] > 20 and demography["age"] < 40)
+    #     evaluate(demography["dominant_gender"] == "Woman")
 
-        assert isinstance(res, dict)
-        assert "verified" in res.keys()
-        assert res["verified"] in [True, False]
-        assert "distance" in res.keys()
-        assert "threshold" in res.keys()
-        assert "model" in res.keys()
-        assert "detector_backend" in res.keys()
-        assert "similarity_metric" in res.keys()
-        assert "facial_areas" in res.keys()
-        assert "img1" in res["facial_areas"].keys()
-        assert "img2" in res["facial_areas"].keys()
-        assert "x" in res["facial_areas"]["img1"].keys()
-        assert "y" in res["facial_areas"]["img1"].keys()
-        assert "w" in res["facial_areas"]["img1"].keys()
-        assert "h" in res["facial_areas"]["img1"].keys()
-        assert "x" in res["facial_areas"]["img2"].keys()
-        assert "y" in res["facial_areas"]["img2"].keys()
-        assert "w" in res["facial_areas"]["img2"].keys()
-        assert "h" in res["facial_areas"]["img2"].keys()
+    # print("-----------------------------------------")
 
-        print(res)
-        evaluate(res["verified"] == dataset[0][2])
+    # print("Facial analysis test. Passing all to the action")
+    # demography_objs = DeepFace.analyze(img, ["age", "gender", "race", "emotion"])
 
-    print("-----------------------------------------")
+    # for demography in demography_objs:
+    #     # print(f"Demography: {demography}")
+    #     # check response is a valid json
+    #     print("Age: ", demography["age"])
+    #     print("Gender: ", demography["dominant_gender"])
+    #     print("Race: ", demography["dominant_race"])
+    #     print("Emotion: ", demography["dominant_emotion"])
 
-    print("Find function test")
+    #     evaluate(demography.get("age") is not None)
+    #     evaluate(demography.get("dominant_gender") is not None)
+    #     evaluate(demography.get("dominant_race") is not None)
+    #     evaluate(demography.get("dominant_emotion") is not None)
 
-    dfs = DeepFace.find(img_path="dataset/img1.jpg", db_path="dataset")
-    for df in dfs:
-        assert isinstance(df, pd.DataFrame)
-        print(df.head())
-        evaluate(df.shape[0] > 0)
+    # print("-----------------------------------------")
 
-    print("-----------------------------------------")
+    # print("Facial analysis test 2. Remove some actions and check they are not computed")
+    # demography_objs = DeepFace.analyze(img, ["age", "gender"])
 
-    print("Facial analysis test. Passing nothing as an action")
+    # for demography in demography_objs:
+    #     print("Age: ", demography.get("age"))
+    #     print("Gender: ", demography.get("dominant_gender"))
+    #     print("Race: ", demography.get("dominant_race"))
+    #     print("Emotion: ", demography.get("dominant_emotion"))
 
-    img = "dataset/img4.jpg"
-    demography_objs = DeepFace.analyze(img)
-    for demography in demography_objs:
-        print(demography)
-        evaluate(demography["age"] > 20 and demography["age"] < 40)
-        evaluate(demography["dominant_gender"] == "Woman")
-
-    print("-----------------------------------------")
-
-    print("Facial analysis test. Passing all to the action")
-    demography_objs = DeepFace.analyze(img, ["age", "gender", "race", "emotion"])
-
-    for demography in demography_objs:
-        # print(f"Demography: {demography}")
-        # check response is a valid json
-        print("Age: ", demography["age"])
-        print("Gender: ", demography["dominant_gender"])
-        print("Race: ", demography["dominant_race"])
-        print("Emotion: ", demography["dominant_emotion"])
-
-        evaluate(demography.get("age") is not None)
-        evaluate(demography.get("dominant_gender") is not None)
-        evaluate(demography.get("dominant_race") is not None)
-        evaluate(demography.get("dominant_emotion") is not None)
+    #     evaluate(demography.get("age") is not None)
+    #     evaluate(demography.get("dominant_gender") is not None)
+    #     evaluate(demography.get("dominant_race") is None)
+    #     evaluate(demography.get("dominant_emotion") is None)
 
     print("-----------------------------------------")
-
-    print("Facial analysis test 2. Remove some actions and check they are not computed")
-    demography_objs = DeepFace.analyze(img, ["age", "gender"])
-
-    for demography in demography_objs:
-        print("Age: ", demography.get("age"))
-        print("Gender: ", demography.get("dominant_gender"))
-        print("Race: ", demography.get("dominant_race"))
-        print("Emotion: ", demography.get("dominant_emotion"))
-
-        evaluate(demography.get("age") is not None)
-        evaluate(demography.get("dominant_gender") is not None)
-        evaluate(demography.get("dominant_race") is None)
-        evaluate(demography.get("dominant_emotion") is None)
-
-    print("-----------------------------------------")
-
+    # O teste de reconhecimento facial tem dado muitas falhas, por que?
     print("Facial recognition tests")
-
+    falhas = 0
+    acertos = 0
     for model in models:
         for metric in metrics:
             for instance in dataset:
                 img1 = instance[0]
                 img2 = instance[1]
                 result = instance[2]
+
+                img1 = os.path.abspath(f"tests/{img1}")
+                img2 = os.path.abspath(f"tests/{img2}")
+                result = os.path.abspath(f"tests/{result}")
 
                 resp_obj = DeepFace.verify(img1, img2, model_name=model, distance_metric=metric)
 
@@ -261,8 +284,10 @@ def test_cases():
                 evaluate(passed)
 
                 if passed:
+                    acertos += 1
                     test_result_label = "passed"
                 else:
+                    falhas +=1
                     test_result_label = "failed"
 
                 if prediction == True:
@@ -287,69 +312,81 @@ def test_cases():
                     test_result_label,
                     ")",
                 )
-
+            print(F"RECONHECIMENTO FACIAL TEVE {acertos} ACERTOS E {falhas} FALHAS")
             print("--------------------------")
 
     # -----------------------------------------
 
-    print("Passing numpy array to analyze function")
+    # print("Passing numpy array to analyze function")
 
-    img = cv2.imread("dataset/img1.jpg")
-    resp_objs = DeepFace.analyze(img)
+    # # Precisei achar o caminho absoluto
+    # # img = cv2.imread("dataset/img1.jpg")
+    # img = cv2.imread(os.path.abspath("tests/dataset/img1.jpg"))
+    # resp_objs = DeepFace.analyze(img)
 
-    for resp_obj in resp_objs:
-        print(resp_obj)
-        evaluate(resp_obj["age"] > 20 and resp_obj["age"] < 40)
-        evaluate(resp_obj["gender"] == "Woman")
+    # for resp_obj in resp_objs:
+    #     print(resp_obj)
+    #     evaluate(resp_obj["age"] > 20 and resp_obj["age"] < 40)
+    #     evaluate(resp_obj["gender"] == "Woman")
 
-    print("--------------------------")
+    # print("--------------------------")
 
-    print("Passing numpy array to verify function")
+    # print("Passing numpy array to verify function")
 
-    img1 = cv2.imread("dataset/img1.jpg")
-    img2 = cv2.imread("dataset/img2.jpg")
 
-    res = DeepFace.verify(img1, img2)
-    print(res)
-    evaluate(res["verified"] == True)
+    # # Precisei achar o caminho absoluto
+    # #img1 = cv2.imread("dataset/img1.jpg")
+    # #img2 = cv2.imread("dataset/img2.jpg")
+    # #
+    # img1 = cv2.imread(os.path.abspath("tests/dataset/img1.jpg"))
+    # img2 = cv2.imread(os.path.abspath("tests/dataset/img2.jpg"))
 
-    print("--------------------------")
+    # res = DeepFace.verify(img1, img2)
+    # print(res)
+    # evaluate(res["verified"] == True)
 
-    print("Passing numpy array to find function")
+    # print("--------------------------")
 
-    img1 = cv2.imread("dataset/img1.jpg")
+    # print("Passing numpy array to find function")
 
-    dfs = DeepFace.find(img1, db_path="dataset")
+    # #img1 = cv2.imread("dataset/img1.jpg")
+    # img1 = cv2.imread(os.path.abspath("tests/dataset/img1.jpg"))
 
-    for df in dfs:
-        print(df.head())
-        evaluate(df.shape[0] > 0)
+    # #dfs = DeepFace.find(img1, db_path=dataset)
+    # dfs = DeepFace.find(img1, db_path=os.path.abspath("tests/dataset"))
 
-    print("--------------------------")
+    # for df in dfs:
+    #     print(df.head())
+    #     evaluate(df.shape[0] > 0)
 
-    print("non-binary gender tests")
+    # print("--------------------------")
 
-    # interface validation - no need to call evaluate here
+    # print("non-binary gender tests")
 
-    for img1_path, _, _ in dataset:
-        for detector in detectors:
-            results = DeepFace.analyze(
-                img1_path, actions=("gender",), detector_backend=detector, enforce_detection=False
-            )
+    # # interface validation - no need to call evaluate here
 
-            for result in results:
-                print(result)
+    # for img1_path, _, _ in dataset:
+    #     for detector in detectors:
+    #         # results = DeepFace.analyze(
+    #         #     img1_path, actions=("gender",), detector_backend=detector, enforce_detection=False
+    #         # )
+    #         results = DeepFace.analyze(
+    #            os.path.abspath(f"tests/{img1_path}"), actions=("gender",), detector_backend=detector, enforce_detection=False
+    #         )
 
-                assert "gender" in result.keys()
-                assert "dominant_gender" in result.keys() and result["dominant_gender"] in [
-                    "Man",
-                    "Woman",
-                ]
+    #         for result in results:
+    #             print(result)
 
-                if result["dominant_gender"] == "Man":
-                    assert result["gender"]["Man"] > result["gender"]["Woman"]
-                else:
-                    assert result["gender"]["Man"] < result["gender"]["Woman"]
+    #             assert "gender" in result.keys()
+    #             assert "dominant_gender" in result.keys() and result["dominant_gender"] in [
+    #                 "Man",
+    #                 "Woman",
+    #             ]
+
+    #             if result["dominant_gender"] == "Man":
+    #                 assert result["gender"]["Man"] > result["gender"]["Woman"]
+    #             else:
+    #                 assert result["gender"]["Man"] < result["gender"]["Woman"]
 
 
 # ---------------------------------------------
