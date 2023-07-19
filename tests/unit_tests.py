@@ -129,10 +129,10 @@ def test_cases():
     print("Extract faces test")
 
     for detector in detectors:
-        # Foi necessário achar o caminho absoluto
-        # para fazer o código funcionar na minha máquina
-        path = "dataset/img11.jpg"
-        path = os.path.abspath(f"tests/{path}")
+        # Absolute path to img11
+        #
+        # path = "dataset/img11.jpg"
+        path = os.path.abspath("tests/dataset/img11.jpg")
         print(f"---->> {path}")
         img_objs = DeepFace.extract_faces(img_path=path, detector_backend=detector)
         for img_obj in img_objs:
@@ -151,9 +151,10 @@ def test_cases():
 
     print("-----------------------------------------")
 
-    # Foi necessário encontrar o caminho absoluto
-    img_path = "dataset/img1.jpg"
-    img_path = os.path.abspath(f"tests/{img_path}")
+    # Absolute path to img1
+    #
+    # img_path = "dataset/img1.jpg"
+    img_path = os.path.abspath("tests/dataset/img1.jpg")
     embedding_objs = DeepFace.represent(img_path)
     for embedding_obj in embedding_objs:
         embedding = embedding_obj["embedding"]
@@ -166,7 +167,8 @@ def test_cases():
 
     for detector in detectors:
         print(detector + " detector")
-        # Foi necessário achar o caminho absoluto
+        # Absolute path to dataset[0][0] and dataset[0][1]
+        #
         # res = DeepFace.verify(dataset[0][0], dataset[0][1], detector_backend=detector)
         img1 = os.path.abspath(f"tests/{dataset[0][0]}")
         img2 = os.path.abspath(f"tests/{dataset[0][1]}")
@@ -199,12 +201,13 @@ def test_cases():
 
     print("Find function test")
     
-    # Necessário encontrar caminho absoluto
-    #dfs = DeepFace.find(img_path="dataset/img1.jpg", db_path="dataset")
-    img_path = "dataset/img1.jpg"
-    img_path = os.path.abspath(f"tests/{img_path}")
-    db_path = "dataset"
-    db_path = os.path.abspath(f"tests/{db_path}")
+    # Absolute path to img1 and dataset directory
+    #
+    # dfs = DeepFace.find(img_path="dataset/img1.jpg", db_path="dataset")
+    # img_path = "dataset/img1.jpg"
+    # db_path = "dataset"
+    img_path = os.path.abspath("tests/dataset/img1.jpg")
+    db_path = os.path.abspath("tests/dataset")
     dfs = DeepFace.find(img_path=img_path, db_path=db_path)
     for df in dfs:
         assert isinstance(df, pd.DataFrame)
@@ -215,8 +218,10 @@ def test_cases():
 
     print("Facial analysis test. Passing nothing as an action")
 
-    img = "dataset/img4.jpg"
-    img = os.path.abspath(f"tests/{img}")
+    # Absolute path to img
+    #
+    # img = "dataset/img4.jpg"
+    img = os.path.abspath("tests/dataset/img4.jpg")
     demography_objs = DeepFace.analyze(img)
     for demography in demography_objs:
         print(demography)
@@ -267,7 +272,7 @@ def test_cases():
                 img2 = instance[1]
                 result = instance[2]
 
-                # Caminho absoluto das img1 e img2
+                # Absolute path to img1 and img2
                 img1 = os.path.abspath(f"tests/{img1}")
                 img2 = os.path.abspath(f"tests/{img2}")
 
@@ -312,76 +317,82 @@ def test_cases():
 
     # -----------------------------------------
 
-    # print("Passing numpy array to analyze function")
+    print("Passing numpy array to analyze function")
 
-    # # Precisei achar o caminho absoluto
-    # # img = cv2.imread("dataset/img1.jpg")
-    # img = cv2.imread(os.path.abspath("tests/dataset/img1.jpg"))
-    # resp_objs = DeepFace.analyze(img)
+    # Absolute path to img1
+    # img = cv2.imread("dataset/img1.jpg")
+    img = cv2.imread(os.path.abspath("tests/dataset/img1.jpg"))
+    resp_objs = DeepFace.analyze(img)
 
-    # for resp_obj in resp_objs:
-    #     print(resp_obj)
-    #     evaluate(resp_obj["age"] > 20 and resp_obj["age"] < 40)
-    #     evaluate(resp_obj["gender"] == "Woman")
+    for resp_obj in resp_objs:
+        print(resp_obj)
+        evaluate(resp_obj["age"] > 20 and resp_obj["age"] < 40)
+        evaluate(resp_obj["gender"] == "Woman")
 
-    # print("--------------------------")
+    print("--------------------------")
 
-    # print("Passing numpy array to verify function")
+    print("Passing numpy array to verify function")
 
 
-    # # Precisei achar o caminho absoluto
-    # #img1 = cv2.imread("dataset/img1.jpg")
-    # #img2 = cv2.imread("dataset/img2.jpg")
-    # #
-    # img1 = cv2.imread(os.path.abspath("tests/dataset/img1.jpg"))
-    # img2 = cv2.imread(os.path.abspath("tests/dataset/img2.jpg"))
+    # Absolute path to img1 and img2
+    #img1 = cv2.imread("dataset/img1.jpg")
+    #img2 = cv2.imread("dataset/img2.jpg")
+    #
+    img1 = cv2.imread(os.path.abspath("tests/dataset/img1.jpg"))
+    img2 = cv2.imread(os.path.abspath("tests/dataset/img2.jpg"))
 
-    # res = DeepFace.verify(img1, img2)
-    # print(res)
-    # evaluate(res["verified"] == True)
+    res = DeepFace.verify(img1, img2)
+    print(res)
+    evaluate(res["verified"] == True)
 
-    # print("--------------------------")
+    print("--------------------------")
 
-    # print("Passing numpy array to find function")
+    print("Passing numpy array to find function")
 
-    # #img1 = cv2.imread("dataset/img1.jpg")
-    # img1 = cv2.imread(os.path.abspath("tests/dataset/img1.jpg"))
+    # Absolute path to img1
+    #
+    # img1 = cv2.imread("dataset/img1.jpg")
+    img1 = cv2.imread(os.path.abspath("tests/dataset/img1.jpg"))
 
-    # #dfs = DeepFace.find(img1, db_path=dataset)
-    # dfs = DeepFace.find(img1, db_path=os.path.abspath("tests/dataset"))
+    # Absolute path to dataset directory
+    #
+    # dfs = DeepFace.find(img1, db_path=dataset)
+    dfs = DeepFace.find(img1, db_path=os.path.abspath("tests/dataset"))
 
-    # for df in dfs:
-    #     print(df.head())
-    #     evaluate(df.shape[0] > 0)
+    for df in dfs:
+        print(df.head())
+        evaluate(df.shape[0] > 0)
 
-    # print("--------------------------")
+    print("--------------------------")
 
-    # print("non-binary gender tests")
+    print("non-binary gender tests")
 
-    # # interface validation - no need to call evaluate here
+    # interface validation - no need to call evaluate here
 
-    # for img1_path, _, _ in dataset:
-    #     for detector in detectors:
-    #         # results = DeepFace.analyze(
-    #         #     img1_path, actions=("gender",), detector_backend=detector, enforce_detection=False
-    #         # )
-    #         results = DeepFace.analyze(
-    #            os.path.abspath(f"tests/{img1_path}"), actions=("gender",), detector_backend=detector, enforce_detection=False
-    #         )
+    for img1_path, _, _ in dataset:
+        for detector in detectors:
+            # Absolute path to img1_path
+            #
+            # results = DeepFace.analyze(
+            #     img1_path, actions=("gender",), detector_backend=detector, enforce_detection=False
+            # )
+            results = DeepFace.analyze(
+               os.path.abspath(f"tests/{img1_path}"), actions=("gender",), detector_backend=detector, enforce_detection=False
+            )
 
-    #         for result in results:
-    #             print(result)
+            for result in results:
+                print(result)
 
-    #             assert "gender" in result.keys()
-    #             assert "dominant_gender" in result.keys() and result["dominant_gender"] in [
-    #                 "Man",
-    #                 "Woman",
-    #             ]
+                assert "gender" in result.keys()
+                assert "dominant_gender" in result.keys() and result["dominant_gender"] in [
+                    "Man",
+                    "Woman",
+                ]
 
-    #             if result["dominant_gender"] == "Man":
-    #                 assert result["gender"]["Man"] > result["gender"]["Woman"]
-    #             else:
-    #                 assert result["gender"]["Man"] < result["gender"]["Woman"]
+                if result["dominant_gender"] == "Man":
+                    assert result["gender"]["Man"] > result["gender"]["Woman"]
+                else:
+                    assert result["gender"]["Man"] < result["gender"]["Woman"]
 
 
 # ---------------------------------------------

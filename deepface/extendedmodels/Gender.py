@@ -9,9 +9,8 @@ from deepface.commons import functions
 # -------------------------------------
 # dependency configurations
 
-# A minha versão do tensorflow é a 2
+
 tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
-print(tf_version)
 
 if tf_version == 1:
     from keras.models import Model, Sequential
