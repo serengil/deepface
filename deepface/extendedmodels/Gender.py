@@ -16,10 +16,8 @@ if tf_version == 1:
     from keras.models import Model, Sequential
     from keras.layers import Convolution2D, Flatten, Activation
 elif tf_version == 2:
-    # from tensorflow.keras.models import Model, Sequential
-    # from tensorflow.keras.layers import Convolution2D, Flatten, Activation
-    from keras.models import Model, Sequential
-    from keras.layers import Convolution2D, Flatten, Activation
+    from tensorflow.keras.models import Model, Sequential
+    from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 # -------------------------------------
 
 # Labels for the genders that can be detected by the model.
