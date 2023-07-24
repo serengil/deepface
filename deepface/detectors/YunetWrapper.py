@@ -6,10 +6,8 @@ from deepface.commons import functions
 
 
 def build_model():
-    url = (
-        "https://github.com/opencv/opencv_zoo/raw/main/models/"
-        + "face_detection_yunet/face_detection_yunet_2023mar.onnx"
-    )
+    # pylint: disable=C0301
+    url = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
     file_name = "face_detection_yunet_2023mar.onnx"
     home = functions.get_deepface_home()
     if os.path.isfile(home + f"/.deepface/weights/{file_name}") is False:
@@ -44,9 +42,10 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
     if faces is None:
         return resp
     for face in faces:
+        # pylint: disable=W0105
         """
         The detection output faces is a two-dimension array of type CV_32F,
-        whose rows are the detected face instances, columns are the location 
+        whose rows are the detected face instances, columns are the location
         of a face and 5 facial landmarks.
         The format of each row is as follows:
         x1, y1, w, h, x_re, y_re, x_le, y_le, x_nt, y_nt,
@@ -58,7 +57,7 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
         """
         (x, y, w, h, x_re, y_re, x_le, y_le) = list(map(int, face[:8]))
 
-        # Yunet returns negative coordinates if it thinks part of 
+        # Yunet returns negative coordinates if it thinks part of
         # the detected face is outside the frame.
         # We set the coordinate to 0 if they are negative.
         x = max(x, 0)
