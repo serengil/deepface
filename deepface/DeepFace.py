@@ -425,7 +425,7 @@ def find(
             distance_metric (string): cosine, euclidean, euclidean_l2
 
             enforce_detection (bool): The function throws exception if a face could not be detected.
-            Set this to True if you don't want to get exception. This might be convenient for low
+            Set this to False if you don't want to get exception. This might be convenient for low
             resolution images.
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
