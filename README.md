@@ -347,7 +347,7 @@ If you use deepface for facial recogntion purposes, please cite the this publica
 }
 ```
 
- If you use deepface for facial attribute analysis purposes such as age, gender, emotion or ethnicity prediction, please cite the this publication.
+ If you use deepface for facial attribute analysis purposes such as age, gender, emotion or ethnicity prediction or face detection purposes, please cite the this publication.
 
 ```BibTeX
 @inproceedings{serengil2021lightface,
