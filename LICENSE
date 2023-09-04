@@ -19,3 +19,35 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+The library wraps some external face recognition models. Licence types will be
+inherited if you are going to use those models. Please check the license types
+of those models for production purposes.
+
+- VGG-Face: http://www.robots.ox.ac.uk/~vgg/software/vgg_face/
+- FaceNet: https://github.com/davidsandberg/facenet/blob/master/LICENSE.md
+- OpenFace: https://github.com/iwantooxxoox/Keras-OpenFace/blob/master/LICENSE
+- DeepFace (model): https://github.com/swghosh/DeepFace
+- DeepId: https://github.com/Ruoyiran/DeepID/blob/master/LICENSE.md
+- ArcFace: https://github.com/leondgarse/Keras_insightface/blob/master/LICENSE
+- Dlib: https://github.com/davisking/dlib/blob/master/dlib/LICENSE.txt
+- SFace: https://github.com/opencv/opencv_zoo/blob/master/models/face_recognition_sface/LICENSE
+
+Secondly, different face detector models are being wrapped in DeepFace. License
+type of those detectors will be inherited according to your adoption.
+
+- OpenCV Haarcascade: https://github.com/opencv/opencv/blob/4.x/LICENSE
+- SSD: https://github.com/opencv/opencv/tree/master/samples/dnn/face_detector
+- Dlib Hog: https://github.com/davisking/dlib/blob/master/dlib/LICENSE.txt
+- MtCnn: https://github.com/ipazc/mtcnn/blob/master/LICENSE
+- RetinaFace: https://github.com/serengil/retinaface/blob/master/LICENSE
+- MediaPipe: https://github.com/google/mediapipe/blob/master/LICENSE
+- Yolo: https://github.com/derronqi/yolov8-face/blob/main/LICENSE
+- YuNet: https://github.com/ShiqiYu/libfacedetection/blob/master/LICENSE
+
+Besides, age, gender and race / ethnicity models are were trained on VGG-Face.
+So, license of VGG-Face will be inherited if you would use one of those models.
+
+Deepface logo is created by Adrien Coquet and it is licensed under Creative
+Commons: By Attribution 3.0 License: 
+- https://thenounproject.com/term/face-recognition/2965879/
