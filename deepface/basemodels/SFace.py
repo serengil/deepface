@@ -35,7 +35,7 @@ class SFaceModel:
 
 
 def load_model(
-    url="https://github.com/opencv/opencv_zoo/raw/master/models/face_recognition_sface/face_recognition_sface_2021dec.onnx",
+    url="https://github.com/opencv/opencv_zoo/raw/main/models/face_recognition_sface/face_recognition_sface_2021dec.onnx",
 ):
 
     home = functions.get_deepface_home()
