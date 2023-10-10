@@ -693,7 +693,7 @@ def represent(
         # represent
         if "keras" in str(type(model)):
             # new tf versions show progress bar and it is annoying
-            embedding = model.predict(img, verbose=0)[0].tolist()
+            embedding = model(img, training=False).numpy()[0].tolist()
         else:
             # SFace and Dlib are not keras models and no verbose arguments
             embedding = model.predict(img)[0].tolist()
