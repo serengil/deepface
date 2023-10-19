@@ -6,7 +6,11 @@ from deepface.detectors import FaceDetector
 
 def build_model():
     # Optional dependency
-    from facenet_pytorch import MTCNN as fast_mtcnn
+    try:
+        from facenet_pytorch import MTCNN as fast_mtcnn
+    except ModuleNotFoundError:
+        print("This is an optional detector, ensure the library is installed. \
+              Please install using 'pip install facenet-pytorch' ")
 
 
     face_detector = fast_mtcnn(image_size=160,
