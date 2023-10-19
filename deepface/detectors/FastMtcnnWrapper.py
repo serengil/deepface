@@ -12,7 +12,8 @@ def build_model():
     face_detector = fast_mtcnn(image_size=160,
               thresholds=[0.6, 0.7, 0.7], # MTCNN thresholds
               post_process=True,
-              device='cpu'
+              device='cpu',
+              select_largest=False, # return result in descending order
         )
     return face_detector
 
