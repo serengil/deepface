@@ -264,6 +264,7 @@ def analyze(
                     {
                             "region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
                             "age": 28.66,
+                            'face_confidence': 0.9993908405303955,
                             "dominant_gender": "Woman",
                             "gender": {
                                     'Woman': 99.99407529830933,
@@ -335,7 +336,7 @@ def analyze(
         align=align,
     )
 
-    for img_content, img_region, _ in img_objs:
+    for img_content, img_region, img_confidence in img_objs:
         if img_content.shape[0] > 0 and img_content.shape[1] > 0:
             obj = {}
             # facial attribute analysis
@@ -390,6 +391,8 @@ def analyze(
                 # -----------------------------
                 # mention facial areas
                 obj["region"] = img_region
+                # include image confidence
+                obj["face_confidence"] = img_confidence
 
             resp_objects.append(obj)
 
