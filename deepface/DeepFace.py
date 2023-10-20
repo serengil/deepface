@@ -406,7 +406,8 @@ def find(
     align=True,
     normalization="base",
     silent=False,
-    save_pickle=True
+    save_pickle=True,
+    extractions_db=False,
 ):
     """
     This function applies verification several times and find the identities in a database
@@ -438,6 +439,10 @@ def find(
 
             silent (boolean): disable some logging and progress bars
 
+            save_pickle (boolean): option to save representations as a pickle file
+
+            extractions_db (boolean): set this to True if you want to put representations in db_path instead of images
+
     Returns:
             This function returns list of pandas data frame. Each item of the list corresponding to
             an identity in the img_path.
@@ -446,7 +451,7 @@ def find(
     tic = time.time()
 
     # -------------------------------
-    if os.path.isdir(db_path) is not True:
+    if not extractions_db and os.path.isdir(db_path) is not True:
         raise ValueError("Passed db_path does not exist!")
 
     target_size = functions.find_target_size(model_name=model_name)
@@ -456,7 +461,7 @@ def find(
     file_name = f"representations_{model_name}.pkl"
     file_name = file_name.replace("-", "_").lower()
 
-    if path.exists(db_path + "/" + file_name):
+    if not extractions_db and path.exists(db_path + "/" + file_name):
 
         if not silent:
             print(
@@ -474,22 +479,25 @@ def find(
     else:  # create representation.pkl from scratch
         employees = []
 
-        for r, _, f in os.walk(db_path):
-            for file in f:
-                if (
-                    (".jpg" in file.lower())
-                    or (".jpeg" in file.lower())
-                    or (".png" in file.lower())
-                ):
-                    exact_path = r + "/" + file
-                    employees.append(exact_path)
+        if not extractions_db:
+            for r, _, f in os.walk(db_path):
+                for file in f:
+                    if (
+                        (".jpg" in file.lower())
+                        or (".jpeg" in file.lower())
+                        or (".png" in file.lower())
+                    ):
+                        exact_path = r + "/" + file
+                        employees.append(exact_path)
 
-        if len(employees) == 0:
-            raise ValueError(
-                "There is no image in ",
-                db_path,
-                " folder! Validate .jpg or .png files exist in this path.",
-            )
+            if len(employees) == 0:
+                raise ValueError(
+                    "There is no image in ",
+                    db_path,
+                    " folder! Validate .jpg or .png files exist in this path.",
+                )
+        else:
+            employees = db_path
 
         # ------------------------
         # find representations for db images
@@ -505,26 +513,34 @@ def find(
         for index in pbar:
             employee = employees[index]
 
-            img_objs = functions.extract_faces(
-                img=employee,
-                target_size=target_size,
-                detector_backend=detector_backend,
-                grayscale=False,
-                enforce_detection=enforce_detection,
-                align=align,
-            )
-
-            for img_content, _, _ in img_objs:
-                embedding_obj = represent(
-                    img_path=img_content,
-                    model_name=model_name,
+            if not extractions_db:
+                img_objs = functions.extract_faces(
+                    img=employee,
+                    target_size=target_size,
+                    detector_backend=detector_backend,
+                    grayscale=False,
                     enforce_detection=enforce_detection,
-                    detector_backend="skip",
                     align=align,
-                    normalization=normalization,
                 )
 
-                img_representation = embedding_obj[0]["embedding"]
+                for img_content, _, _ in img_objs:
+                    embedding_obj = represent(
+                        img_path=img_content,
+                        model_name=model_name,
+                        enforce_detection=enforce_detection,
+                        detector_backend="skip",
+                        align=align,
+                        normalization=normalization,
+                    )
+
+                    img_representation = embedding_obj[0]["embedding"]
+
+                    instance = []
+                    instance.append(employee)
+                    instance.append(img_representation)
+                    representations.append(instance)
+            else:
+                img_representation = employee[0]["embedding"]
 
                 instance = []
                 instance.append(employee)
