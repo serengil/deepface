@@ -406,6 +406,7 @@ def find(
     align=True,
     normalization="base",
     silent=False,
+    save_pickle=True
 ):
     """
     This function applies verification several times and find the identities in a database
@@ -532,8 +533,9 @@ def find(
 
         # -------------------------------
 
-        with open(f"{db_path}/{file_name}", "wb") as f:
-            pickle.dump(representations, f)
+        if save_pickle:
+            with open(f"{db_path}/{file_name}", "wb") as f:
+                pickle.dump(representations, f)
 
         if not silent:
             print(
