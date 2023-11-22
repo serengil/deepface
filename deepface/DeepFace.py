@@ -684,7 +684,9 @@ def represent(
         if len(img.shape) == 3:
             img = cv2.resize(img, target_size)
             img = np.expand_dims(img, axis=0)
-            img /= 255
+            # when represent is called from verify, this is already normalized
+            if img.max() > 1:
+                img /= 255
         # --------------------------------
         img_region = [0, 0, img.shape[1], img.shape[0]]
         img_objs = [(img, img_region, 0)]
