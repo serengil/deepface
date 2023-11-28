@@ -94,6 +94,7 @@ def verify(
     enforce_detection=True,
     align=True,
     normalization="base",
+    threshold="auto"
 ):
     """
     This function verifies an image pair is same person or different persons. In the background,
@@ -121,6 +122,8 @@ def verify(
             align (boolean): alignment according to the eye positions.
 
             normalization (string): normalize the input image before feeding to model
+            
+            threshold (float): threshold value for verification. "auto" option calculates threshold
 
     Returns:
             Verify function returns a dictionary.
@@ -205,7 +208,15 @@ def verify(
             regions.append((img1_region, img2_region))
 
     # -------------------------------
-    threshold = dst.findThreshold(model_name, distance_metric)
+    if threshold == "auto":
+        threshold = dst.findThreshold(model_name, distance_metric)
+    else:
+        try:
+            threshold = float(threshold)
+            if threshold < 0:
+                raise ValueError("threshold must be positive")
+        except:
+            raise ValueError("threshold must be float or 'auto'")
     distance = min(distances)  # best distance
     facial_areas = regions[np.argmin(distances)]
 
@@ -409,6 +420,7 @@ def find(
     align=True,
     normalization="base",
     silent=False,
+    threshold="auto"
 ):
     """
     This function applies verification several times and find the identities in a database
@@ -439,6 +451,8 @@ def find(
             normalization (string): normalize the input image before feeding to model
 
             silent (boolean): disable some logging and progress bars
+            
+            threshold (float): threshold value for verification. "auto" option calculates threshold
 
     Returns:
             This function returns list of pandas data frame. Each item of the list corresponding to
@@ -600,7 +614,15 @@ def find(
 
         result_df[f"{model_name}_{distance_metric}"] = distances
 
-        threshold = dst.findThreshold(model_name, distance_metric)
+        if threshold == "auto":
+            threshold = dst.findThreshold(model_name, distance_metric)
+        else:
+            try:
+                threshold = float(threshold)
+                if threshold < 0:
+                    raise ValueError("threshold must be positive")
+            except:
+                raise ValueError("threshold must be float or 'auto'")
         result_df = result_df.drop(columns=[f"{model_name}_representation"])
         result_df = result_df[result_df[f"{model_name}_{distance_metric}"] <= threshold]
         result_df = result_df.sort_values(
