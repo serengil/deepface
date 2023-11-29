@@ -107,10 +107,21 @@ def load_image(img):
 
     # For reading images with unicode names
     with open(img, "rb") as img_f:
-        chunk = img_f.read()
-        chunk_arr = np.frombuffer(chunk, dtype=np.uint8)
-        img = cv2.imdecode(chunk_arr, cv2.IMREAD_COLOR)
-    return img
+        try:
+            chunk = img_f.read()
+            chunk_arr = np.frombuffer(chunk, dtype=np.uint8)
+
+            if chunk_arr.size == 0:
+                raise ValueError(f"Image '{img}' is empty")
+
+            img = cv2.imdecode(chunk_arr, cv2.IMREAD_COLOR)
+            return img
+
+        except cv2.error:
+            raise ValueError(f"Image '{img}' contains invalid data")
+
+        except Exception as e:
+            raise e
 
     # This causes troubles when reading files with non english names
     # return cv2.imread(img)
