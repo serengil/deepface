@@ -117,11 +117,11 @@ def load_image(img):
             img = cv2.imdecode(chunk_arr, cv2.IMREAD_COLOR)
             return img
 
-        except cv2.error:
-            raise ValueError(f"Image '{img}' contains invalid data")
+        except cv2.error as exc:
+            raise ValueError(f"Image '{img}' contains invalid data") from exc
 
-        except Exception as e:
-            raise e
+        except Exception as exc:
+            raise exc
 
     # This causes troubles when reading files with non english names
     # return cv2.imread(img)
