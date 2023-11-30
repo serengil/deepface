@@ -239,7 +239,7 @@ def analyze(
     classify age, gender, emotion and race of the input image.
 
     Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image could be passed.
+            img_path: exact image path, numpy array (RGB) or base64 encoded image could be passed.
             If source image has more than one face, then result will be size of number of faces
             appearing in the image.
 
