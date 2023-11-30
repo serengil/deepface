@@ -102,7 +102,7 @@ def verify(
     distance) than vectors of different persons.
 
     Parameters:
-            img1_path, img2_path: exact image path as string. numpy array (BGR) or based64 encoded
+            img1_path, img2_path: exact image path as string. numpy array (RGB) or based64 encoded
             images are also welcome. If one of pair has more than one face, then we will compare the
             face pair with max similarity.
 
@@ -414,7 +414,7 @@ def find(
     This function applies verification several times and find the identities in a database
 
     Parameters:
-            img_path: exact image path, numpy array (BGR) or based64 encoded image.
+            img_path: exact image path, numpy array (RGB) or based64 encoded image.
             Source image can have many faces. Then, result will be the size of number of
             faces in the source image.
 
@@ -632,7 +632,7 @@ def represent(
     networks models to generate vector embeddings.
 
     Parameters:
-            img_path (string): exact image path. Alternatively, numpy array (BGR) or based64
+            img_path (string): exact image path. Alternatively, numpy array (RGB) or based64
             encoded images could be passed. Source image can have many faces. Then, result will
             be the size of number of faces appearing in the source image.
 
@@ -783,7 +783,7 @@ def extract_faces(
     including detection and alignment
 
     Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image.
+            img_path: exact image path, numpy array (RGB) or base64 encoded image.
             Source image can have many face. Then, result will be the size of number
             of faces appearing in that source image.
 
@@ -847,7 +847,7 @@ def detectFace(
     including detection and alignment
 
     Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image.
+            img_path: exact image path, numpy array (RGB) or base64 encoded image.
             Source image can have many face. Then, result will be the size of number
             of faces appearing in that source image.
 
