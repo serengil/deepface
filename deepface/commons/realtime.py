@@ -7,7 +7,7 @@ from deepface import DeepFace
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 
-logger = Logger()
+logger = Logger(module="commons.realtime")
 
 # dependency configuration
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"

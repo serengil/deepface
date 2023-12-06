@@ -4,7 +4,7 @@ from deepface.basemodels import Facenet
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 
-logger = Logger()
+logger = Logger(module="basemodels.Facenet512")
 
 def loadModel(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.h5",

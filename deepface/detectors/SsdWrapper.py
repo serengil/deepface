@@ -6,7 +6,7 @@ from deepface.detectors import OpenCvWrapper
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 
-logger = Logger()
+logger = Logger(module="detectors.SsdWrapper")
 
 # pylint: disable=line-too-long
 

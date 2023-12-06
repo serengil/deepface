@@ -5,7 +5,7 @@ from deepface.detectors import FaceDetector
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 
-logger = Logger()
+logger = Logger(module="detectors.YunetWrapper")
 
 def build_model():
     # pylint: disable=C0301

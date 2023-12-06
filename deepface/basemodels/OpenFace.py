@@ -4,7 +4,7 @@ import tensorflow as tf
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 
-logger = Logger()
+logger = Logger(module="basemodels.OpenFace")
 
 tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
 if tf_version == 1:

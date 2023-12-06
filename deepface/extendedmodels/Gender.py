@@ -5,7 +5,7 @@ from deepface.basemodels import VGGFace
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 
-logger = Logger()
+logger = Logger(module="extendedmodels.Gender")
 
 # -------------------------------------
 # pylint: disable=line-too-long

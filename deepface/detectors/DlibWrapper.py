@@ -4,7 +4,7 @@ import gdown
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 
-logger = Logger()
+logger = Logger(module="detectors.DlibWrapper")
 
 def build_model():
 

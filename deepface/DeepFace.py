@@ -30,7 +30,7 @@ from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 from deepface.commons.logger import Logger
 
-logger = Logger()
+logger = Logger(module="DeepFace")
 
 # -----------------------------------
 # configurations for dependencies
@@ -343,7 +343,11 @@ def analyze(
         if img_content.shape[0] > 0 and img_content.shape[1] > 0:
             obj = {}
             # facial attribute analysis
-            pbar = tqdm(range(0, len(actions)), desc="Finding actions", disable=silent)
+            pbar = tqdm(
+                range(0, len(actions)),
+                desc="Finding actions",
+                disable=silent if len(actions) > 1 else True,
+            )
             for index in pbar:
                 action = actions[index]
                 pbar.set_description(f"Action: {action}")

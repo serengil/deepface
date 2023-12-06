@@ -5,7 +5,7 @@ import numpy as np
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 
-logger = Logger()
+logger = Logger(module="basemodels.DlibResNet")
 
 # pylint: disable=too-few-public-methods
 

@@ -14,7 +14,7 @@ from deprecated import deprecated
 from deepface.detectors import FaceDetector
 from deepface.commons.logger import Logger
 
-logger = Logger()
+logger = Logger(module="commons.functions")
 
 # --------------------------------------------------
 # configurations of dependencies
