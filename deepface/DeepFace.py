@@ -232,6 +232,7 @@ def analyze(
     detector_backend="opencv",
     align=True,
     silent=False,
+    limit=None
 ):
     """
     This function analyzes facial attributes including age, gender, emotion and race.
@@ -335,6 +336,10 @@ def analyze(
         enforce_detection=enforce_detection,
         align=align,
     )
+
+    if limit is not None:
+        img_objs.sort(key=lambda x: x[1]["w"] * x[1]["h"], reverse=True)
+        img_objs = img_objs[:limit]
 
     for img_content, img_region, img_confidence in img_objs:
         if img_content.shape[0] > 0 and img_content.shape[1] > 0:

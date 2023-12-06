@@ -190,6 +190,8 @@ objs = DeepFace.analyze(img_path = "img4.jpg",
 
 Age model got ± 4.65 MAE; gender model got 97.44% accuracy, 96.29% precision and 95.05% recall as mentioned in its [tutorial](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/).
 
+You may also specify the `limit` parameter in order to limit analysis to the largest X faces by pixel area
+
 
 **Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
 

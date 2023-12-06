@@ -88,6 +88,7 @@ def analyze():
     enforce_detection = input_args.get("enforce_detection", True)
     align = input_args.get("align", True)
     actions = input_args.get("actions", ["age", "gender", "emotion", "race"])
+    limit = input_args.get("limit", None)
 
     demographies = service.analyze(
         img_path=img_path,
@@ -95,6 +96,7 @@ def analyze():
         detector_backend=detector_backend,
         enforce_detection=enforce_detection,
         align=align,
+        limit=limit,
     )
 
     return demographies
