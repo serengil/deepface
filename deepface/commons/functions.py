@@ -360,7 +360,7 @@ def preprocess_face(
     Deprecated:
         0.0.78: Use extract_faces instead of preprocess_face.
     """
-    logger.info("⚠️ Function preprocess_face is deprecated. Use extract_faces instead.")
+    logger.warn("Function preprocess_face is deprecated. Use extract_faces instead.")
     result = None
     img_objs = extract_faces(
         img=img,

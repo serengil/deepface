@@ -35,7 +35,7 @@ distance_vector = np.square(img1_representation - img2_representation)
 logger.debug(distance_vector)
 
 distance = np.sqrt(distance_vector.sum())
-logger.info("Euclidean distance: ", distance)
+logger.info(f"Euclidean distance: {distance}")
 
 # ----------------------------------------------
 # expand vectors to be shown better in graph

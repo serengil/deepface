@@ -470,8 +470,8 @@ def find(
         if not silent:
             logger.warn(
                 f"Representations for images in {db_path} folder were previously stored"
-                + f" in {file_name}. If you added new instances after the creation, then please "
-                + "delete this file and call find function again. It will create it again."
+                f" in {file_name}. If you added new instances after the creation, then please "
+                "delete this file and call find function again. It will create it again."
             )
 
         with open(f"{db_path}/{file_name}", "rb") as f:
@@ -876,7 +876,7 @@ def detectFace(
             detected and aligned face as numpy array
 
     """
-    logger.info("⚠️ Function detectFace is deprecated. Use extract_faces instead.")
+    logger.warn("Function detectFace is deprecated. Use extract_faces instead.")
     face_objs = extract_faces(
         img_path=img_path,
         target_size=target_size,
