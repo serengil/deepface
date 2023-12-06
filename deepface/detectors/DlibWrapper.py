@@ -2,7 +2,9 @@ import os
 import bz2
 import gdown
 from deepface.commons import functions
+from deepface.commons.logger import Logger
 
+logger = Logger()
 
 def build_model():
 
@@ -14,7 +16,7 @@ def build_model():
     if os.path.isfile(home + "/.deepface/weights/shape_predictor_5_face_landmarks.dat") != True:
 
         file_name = "shape_predictor_5_face_landmarks.dat.bz2"
-        print(f"{file_name} is going to be downloaded")
+        logger.info(f"{file_name} is going to be downloaded")
 
         url = f"http://dlib.net/files/{file_name}"
         output = f"{home}/.deepface/weights/{file_name}"

@@ -2,6 +2,9 @@ import os
 import gdown
 import tensorflow as tf
 from deepface.commons import functions
+from deepface.commons.logger import Logger
+
+logger = Logger()
 
 # ---------------------------------------
 
@@ -95,7 +98,7 @@ def loadModel(
     output = home + "/.deepface/weights/vgg_face_weights.h5"
 
     if os.path.isfile(output) != True:
-        print("vgg_face_weights.h5 will be downloaded...")
+        logger.info("vgg_face_weights.h5 will be downloaded...")
         gdown.download(url, output, quiet=False)
 
     # -----------------------------------

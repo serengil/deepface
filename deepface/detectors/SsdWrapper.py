@@ -4,6 +4,9 @@ import cv2
 import pandas as pd
 from deepface.detectors import OpenCvWrapper
 from deepface.commons import functions
+from deepface.commons.logger import Logger
+
+logger = Logger()
 
 # pylint: disable=line-too-long
 
@@ -15,7 +18,7 @@ def build_model():
     # model structure
     if os.path.isfile(home + "/.deepface/weights/deploy.prototxt") != True:
 
-        print("deploy.prototxt will be downloaded...")
+        logger.info("deploy.prototxt will be downloaded...")
 
         url = "https://github.com/opencv/opencv/raw/3.4.0/samples/dnn/face_detector/deploy.prototxt"
 
@@ -26,7 +29,7 @@ def build_model():
     # pre-trained weights
     if os.path.isfile(home + "/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel") != True:
 
-        print("res10_300x300_ssd_iter_140000.caffemodel will be downloaded...")
+        logger.info("res10_300x300_ssd_iter_140000.caffemodel will be downloaded...")
 
         url = "https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel"
 

@@ -3,6 +3,9 @@ import bz2
 import gdown
 import numpy as np
 from deepface.commons import functions
+from deepface.commons.logger import Logger
+
+logger = Logger()
 
 # pylint: disable=too-few-public-methods
 
@@ -24,7 +27,7 @@ class DlibResNet:
 
         # download pre-trained model if it does not exist
         if os.path.isfile(weight_file) != True:
-            print("dlib_face_recognition_resnet_model_v1.dat is going to be downloaded")
+            logger.info("dlib_face_recognition_resnet_model_v1.dat is going to be downloaded")
 
             file_name = "dlib_face_recognition_resnet_model_v1.dat.bz2"
             url = f"http://dlib.net/files/{file_name}"

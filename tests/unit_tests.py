@@ -5,10 +5,13 @@ import numpy as np
 import pandas as pd
 import cv2
 from deepface import DeepFace
+from deepface.commons.logger import Logger
+
+logger = Logger()
 
 # pylint: disable=consider-iterating-dictionary
 
-print("-----------------------------------------")
+logger.info("-----------------------------------------")
 
 warnings.filterwarnings("ignore")
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -20,9 +23,9 @@ if tf_major_version == 2:
 
     tf.get_logger().setLevel(logging.ERROR)
 
-print("Running unit tests for TF ", tf.__version__)
+logger.info("Running unit tests for TF " + tf.__version__)
 
-print("-----------------------------------------")
+logger.info("-----------------------------------------")
 
 expected_coverage = 97
 num_cases = 0
@@ -58,12 +61,12 @@ dataset = [
     ["dataset/img6.jpg", "dataset/img9.jpg", False],
 ]
 
-print("-----------------------------------------")
+logger.info("-----------------------------------------")
 
 
 def test_cases():
 
-    print("Enforce detection test")
+    logger.info("Enforce detection test")
     black_img = np.zeros([224, 224, 3])
 
     # enforce detection on for represent
@@ -96,7 +99,7 @@ def test_cases():
         assert isinstance(objs[0]["embedding"], list)
         assert len(objs[0]["embedding"]) == 2622  # embedding of VGG-Face
     except Exception as err:
-        print(f"Unexpected exception thrown: {str(err)}")
+        logger.error(f"Unexpected exception thrown: {str(err)}")
         exception_thrown = True
 
     assert exception_thrown is False
@@ -118,15 +121,15 @@ def test_cases():
         assert isinstance(obj, dict)
         exception_thrown = False
     except Exception as err:
-        print(f"Unexpected exception thrown: {str(err)}")
+        logger.error(f"Unexpected exception thrown: {str(err)}")
         exception_thrown = True
 
     assert exception_thrown is False
     # -------------------------------------------
 
-    print("-----------------------------------------")
+    logger.info("-----------------------------------------")
 
-    print("Extract faces test")
+    logger.info("Extract faces test")
 
     for detector in detectors:
         img_objs = DeepFace.extract_faces(img_path="dataset/img11.jpg", detector_backend=detector)
@@ -142,23 +145,23 @@ def test_cases():
 
             img = img_obj["face"]
             evaluate(img.shape[0] > 0 and img.shape[1] > 0)
-            print(detector, " test is done")
+            logger.info(f"{detector} test is done")
 
-    print("-----------------------------------------")
+    logger.info("-----------------------------------------")
 
     img_path = "dataset/img1.jpg"
     embedding_objs = DeepFace.represent(img_path)
     for embedding_obj in embedding_objs:
         embedding = embedding_obj["embedding"]
-        print("Function returned ", len(embedding), "dimensional vector")
+        logger.info(f"Function returned {len(embedding)} dimensional vector")
         evaluate(len(embedding) == 2622)
 
-    print("-----------------------------------------")
+    logger.info("-----------------------------------------")
 
-    print("Different face detectors on verification test")
+    logger.info("Different face detectors on verification test")
 
     for detector in detectors:
-        print(detector + " detector")
+        logger.info(detector + " detector")
         res = DeepFace.verify(dataset[0][0], dataset[0][1], detector_backend=detector)
 
         assert isinstance(res, dict)
@@ -181,67 +184,72 @@ def test_cases():
         assert "w" in res["facial_areas"]["img2"].keys()
         assert "h" in res["facial_areas"]["img2"].keys()
 
-        print(res)
+        logger.info(res)
         evaluate(res["verified"] == dataset[0][2])
 
-    print("-----------------------------------------")
+    logger.info("-----------------------------------------")
 
-    print("Find function test")
+    logger.info("Find function test")
 
     dfs = DeepFace.find(img_path="dataset/img1.jpg", db_path="dataset")
     for df in dfs:
         assert isinstance(df, pd.DataFrame)
-        print(df.head())
+        logger.info(df.head())
         evaluate(df.shape[0] > 0)
 
-    print("-----------------------------------------")
+    logger.info("-----------------------------------------")
 
-    print("Facial analysis test. Passing nothing as an action")
+    logger.info("Facial analysis test. Passing nothing as an action")
 
     img = "dataset/img4.jpg"
     demography_objs = DeepFace.analyze(img)
     for demography in demography_objs:
-        print(demography)
+        logger.info(demography)
         evaluate(demography["age"] > 20 and demography["age"] < 40)
         evaluate(demography["dominant_gender"] == "Woman")
 
-    print("-----------------------------------------")
+    logger.info("-----------------------------------------")
 
-    print("Facial analysis test. Passing all to the action")
+    logger.info("Facial analysis test. Passing all to the action")
     demography_objs = DeepFace.analyze(img, ["age", "gender", "race", "emotion"])
 
     for demography in demography_objs:
-        # print(f"Demography: {demography}")
+        logger.debug(f"Demography: {demography}")
         # check response is a valid json
-        print("Age: ", demography["age"])
-        print("Gender: ", demography["dominant_gender"])
-        print("Race: ", demography["dominant_race"])
-        print("Emotion: ", demography["dominant_emotion"])
+        age = demography["age"]
+        gender = demography["dominant_gender"]
+        race = demography["dominant_race"]
+        emotion = demography["dominant_emotion"]
+        logger.info(f"Age: {age}")
+        logger.info(f"Gender: {gender}")
+        logger.info(f"Race: {race}")
+        logger.info(f"Emotion: {emotion}")
 
         evaluate(demography.get("age") is not None)
         evaluate(demography.get("dominant_gender") is not None)
         evaluate(demography.get("dominant_race") is not None)
         evaluate(demography.get("dominant_emotion") is not None)
 
-    print("-----------------------------------------")
+    logger.info("-----------------------------------------")
 
-    print("Facial analysis test 2. Remove some actions and check they are not computed")
+    logger.info("Facial analysis test 2. Remove some actions and check they are not computed")
     demography_objs = DeepFace.analyze(img, ["age", "gender"])
 
     for demography in demography_objs:
-        print("Age: ", demography.get("age"))
-        print("Gender: ", demography.get("dominant_gender"))
-        print("Race: ", demography.get("dominant_race"))
-        print("Emotion: ", demography.get("dominant_emotion"))
+        age = demography["age"]
+        gender = demography["dominant_gender"]
+
+        logger.info(f"Age: { age }")
+        logger.info(f"Gender: {gender}")
 
         evaluate(demography.get("age") is not None)
         evaluate(demography.get("dominant_gender") is not None)
         evaluate(demography.get("dominant_race") is None)
         evaluate(demography.get("dominant_emotion") is None)
 
-    print("-----------------------------------------")
+    logger.info("-----------------------------------------")
 
-    print("Facial recognition tests")
+    logger.info("Facial recognition tests")
 
     for model in models:
         for metric in metrics:
@@ -270,64 +278,55 @@ def test_cases():
                 else:
                     classified_label = "unverified"
 
-                print(
-                    img1.split("/", maxsplit=1)[-1],
-                    "-",
-                    img2.split("/", maxsplit=1)[-1],
-                    classified_label,
-                    "as same person based on",
-                    model,
-                    "and",
-                    metric,
-                    ". Distance:",
-                    distance,
-                    ", Threshold:",
-                    threshold,
-                    "(",
-                    test_result_label,
-                    ")",
+                img1_alias = img1.split("/", maxsplit=1)[-1]
+                img2_alias = img2.split("/", maxsplit=1)[-1]
+
+                logger.info(
+                    f"{img1_alias} - {img2_alias}"
+                    f". {classified_label} as same person based on {model} and {metric}"
+                    f". Distance: {distance}, Threshold:{threshold} ({test_result_label})",
                 )
 
-            print("--------------------------")
+            logger.info("--------------------------")
 
     # -----------------------------------------
 
-    print("Passing numpy array to analyze function")
+    logger.info("Passing numpy array to analyze function")
 
     img = cv2.imread("dataset/img1.jpg")
     resp_objs = DeepFace.analyze(img)
 
     for resp_obj in resp_objs:
-        print(resp_obj)
+        logger.info(resp_obj)
         evaluate(resp_obj["age"] > 20 and resp_obj["age"] < 40)
         evaluate(resp_obj["gender"] == "Woman")
 
-    print("--------------------------")
+    logger.info("--------------------------")
 
-    print("Passing numpy array to verify function")
+    logger.info("Passing numpy array to verify function")
 
     img1 = cv2.imread("dataset/img1.jpg")
     img2 = cv2.imread("dataset/img2.jpg")
 
     res = DeepFace.verify(img1, img2)
-    print(res)
+    logger.info(res)
     evaluate(res["verified"] == True)
 
-    print("--------------------------")
+    logger.info("--------------------------")
 
-    print("Passing numpy array to find function")
+    logger.info("Passing numpy array to find function")
 
     img1 = cv2.imread("dataset/img1.jpg")
 
     dfs = DeepFace.find(img1, db_path="dataset")
 
     for df in dfs:
-        print(df.head())
+        logger.info(df.head())
         evaluate(df.shape[0] > 0)
 
-    print("--------------------------")
+    logger.info("--------------------------")
 
-    print("non-binary gender tests")
+    logger.info("non-binary gender tests")
 
     # interface validation - no need to call evaluate here
 
@@ -338,7 +337,7 @@ def test_cases():
             )
 
             for result in results:
-                print(result)
+                logger.info(result)
 
                 assert "gender" in result.keys()
                 assert "dominant_gender" in result.keys() and result["dominant_gender"] in [
@@ -356,16 +355,16 @@ def test_cases():
 
 test_cases()
 
-print("num of test cases run: " + str(num_cases))
-print("succeeded test cases: " + str(succeed_cases))
+logger.info("num of test cases run: " + str(num_cases))
+logger.info("succeeded test cases: " + str(succeed_cases))
 
 test_score = (100 * succeed_cases) / num_cases
 
-print("test coverage: " + str(test_score))
+logger.info("test coverage: " + str(test_score))
 
 if test_score > expected_coverage:
-    print("well done! min required test coverage is satisfied")
+    logger.info("well done! min required test coverage is satisfied")
 else:
-    print("min required test coverage is NOT satisfied")
+    logger.info("min required test coverage is NOT satisfied")
 
 assert test_score > expected_coverage

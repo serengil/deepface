@@ -2,6 +2,9 @@ import os
 import gdown
 import tensorflow as tf
 from deepface.commons import functions
+from deepface.commons.logger import Logger
+
+logger = Logger()
 
 # pylint: disable=unsubscriptable-object
 
@@ -71,7 +74,7 @@ def loadModel(
 
     if os.path.isfile(output) != True:
 
-        print(file_name, " will be downloaded to ", output)
+        logger.info(f"{file_name} will be downloaded to {output}")
         gdown.download(url, output, quiet=False)
 
     # ---------------------------------------

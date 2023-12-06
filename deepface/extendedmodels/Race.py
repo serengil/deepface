@@ -3,6 +3,9 @@ import gdown
 import tensorflow as tf
 from deepface.basemodels import VGGFace
 from deepface.commons import functions
+from deepface.commons.logger import Logger
+
+logger = Logger()
 
 # --------------------------
 # pylint: disable=line-too-long
@@ -46,7 +49,7 @@ def loadModel(
     home = functions.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/race_model_single_batch.h5") != True:
-        print("race_model_single_batch.h5 will be downloaded...")
+        logger.info("race_model_single_batch.h5 will be downloaded...")
 
         output = home + "/.deepface/weights/race_model_single_batch.h5"
         gdown.download(url, output, quiet=False)

@@ -4,6 +4,9 @@ import cv2 as cv
 import gdown
 
 from deepface.commons import functions
+from deepface.commons.logger import Logger
+
+logger = Logger()
 
 # pylint: disable=line-too-long, too-few-public-methods
 
@@ -44,7 +47,7 @@ def load_model(
 
     if not os.path.isfile(file_name):
 
-        print("sface weights will be downloaded...")
+        logger.info("sface weights will be downloaded...")
 
         gdown.download(url, file_name, quiet=False)
 

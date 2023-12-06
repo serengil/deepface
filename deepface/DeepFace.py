@@ -28,6 +28,9 @@ from deepface.basemodels import (
 )
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
+from deepface.commons.logger import Logger
+
+logger = Logger()
 
 # -----------------------------------
 # configurations for dependencies
@@ -461,8 +464,8 @@ def find(
     if path.exists(db_path + "/" + file_name):
 
         if not silent:
-            print(
-                f"WARNING: Representations for images in {db_path} folder were previously stored"
+            logger.warn(
+                f"Representations for images in {db_path} folder were previously stored"
                 + f" in {file_name}. If you added new instances after the creation, then please "
                 + "delete this file and call find function again. It will create it again."
             )
@@ -471,7 +474,7 @@ def find(
             representations = pickle.load(f)
 
         if not silent:
-            print("There are ", len(representations), " representations found in ", file_name)
+            logger.info(f"There are {len(representations)} representations found in {file_name}")
 
     else:  # create representation.pkl from scratch
         employees = []
@@ -539,7 +542,7 @@ def find(
             pickle.dump(representations, f)
 
         if not silent:
-            print(
+            logger.info(
                 f"Representations stored in {db_path}/{file_name} file."
                 + "Please delete this file when you add new identities in your database."
             )
@@ -614,7 +617,7 @@ def find(
     toc = time.time()
 
     if not silent:
-        print("find function lasts ", toc - tic, " seconds")
+        logger.info(f"find function lasts {toc - tic} seconds")
 
     return resp_obj
 
@@ -869,7 +872,7 @@ def detectFace(
             detected and aligned face as numpy array
 
     """
-    print("⚠️ Function detectFace is deprecated. Use extract_faces instead.")
+    logger.info("⚠️ Function detectFace is deprecated. Use extract_faces instead.")
     face_objs = extract_faces(
         img_path=img_path,
         target_size=target_size,
