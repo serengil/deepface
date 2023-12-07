@@ -4,6 +4,9 @@ import numpy as np
 import tensorflow as tf
 from deepface.basemodels import VGGFace
 from deepface.commons import functions
+from deepface.commons.logger import Logger
+
+logger = Logger(module="extendedmodels.Age")
 
 # ----------------------------------------
 # dependency configurations
@@ -45,7 +48,7 @@ def loadModel(
     home = functions.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/age_model_weights.h5") != True:
-        print("age_model_weights.h5 will be downloaded...")
+        logger.info("age_model_weights.h5 will be downloaded...")
 
         output = home + "/.deepface/weights/age_model_weights.h5"
         gdown.download(url, output, quiet=False)

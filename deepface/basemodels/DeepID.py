@@ -2,6 +2,9 @@ import os
 import gdown
 import tensorflow as tf
 from deepface.commons import functions
+from deepface.commons.logger import Logger
+
+logger = Logger(module="basemodels.DeepID")
 
 tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
 
@@ -71,7 +74,7 @@ def loadModel(
     home = functions.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/deepid_keras_weights.h5") != True:
-        print("deepid_keras_weights.h5 will be downloaded...")
+        logger.info("deepid_keras_weights.h5 will be downloaded...")
 
         output = home + "/.deepface/weights/deepid_keras_weights.h5"
         gdown.download(url, output, quiet=False)

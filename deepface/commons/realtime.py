@@ -5,6 +5,9 @@ import pandas as pd
 import cv2
 from deepface import DeepFace
 from deepface.commons import functions
+from deepface.commons.logger import Logger
+
+logger = Logger(module="commons.realtime")
 
 # dependency configuration
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -35,15 +38,15 @@ def analysis(
     # build models once to store them in the memory
     # otherwise, they will be built after cam started and this will cause delays
     DeepFace.build_model(model_name=model_name)
-    print(f"facial recognition model {model_name} is just built")
+    logger.info(f"facial recognition model {model_name} is just built")
 
     if enable_face_analysis:
         DeepFace.build_model(model_name="Age")
-        print("Age model is just built")
+        logger.info("Age model is just built")
         DeepFace.build_model(model_name="Gender")
-        print("Gender model is just built")
+        logger.info("Gender model is just built")
         DeepFace.build_model(model_name="Emotion")
-        print("Emotion model is just built")
+        logger.info("Emotion model is just built")
     # -----------------------
     # call a dummy find function for db_path once to create embeddings in the initialization
     DeepFace.find(
@@ -300,7 +303,7 @@ def analysis(
                                     apparent_age = demography["age"]
                                     dominant_gender = demography["dominant_gender"]
                                     gender = "M" if dominant_gender == "Man" else "W"
-                                    # print(f"{apparent_age} years old {dominant_emotion}")
+                                    logger.debug(f"{apparent_age} years old {dominant_gender}")
                                     analysis_report = str(int(apparent_age)) + " " + gender
 
                                     # -------------------------------
@@ -675,7 +678,7 @@ def analysis(
                                             1,
                                         )
                                 except Exception as err:  # pylint: disable=broad-except
-                                    print(str(err))
+                                    logger.error(str(err))
 
                         tic = time.time()  # in this way, freezed image can show 5 seconds
 

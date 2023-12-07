@@ -3,6 +3,9 @@ import zipfile
 import gdown
 import tensorflow as tf
 from deepface.commons import functions
+from deepface.commons.logger import Logger
+
+logger = Logger(module="basemodels.FbDeepFace")
 
 # --------------------------------
 # dependency configuration
@@ -57,7 +60,7 @@ def loadModel(
     home = functions.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5") != True:
-        print("VGGFace2_DeepFace_weights_val-0.9034.h5 will be downloaded...")
+        logger.info("VGGFace2_DeepFace_weights_val-0.9034.h5 will be downloaded...")
 
         output = home + "/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5.zip"
 

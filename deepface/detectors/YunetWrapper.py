@@ -3,7 +3,9 @@ import cv2
 import gdown
 from deepface.detectors import FaceDetector
 from deepface.commons import functions
+from deepface.commons.logger import Logger
 
+logger = Logger(module="detectors.YunetWrapper")
 
 def build_model():
     # pylint: disable=C0301
@@ -11,7 +13,7 @@ def build_model():
     file_name = "face_detection_yunet_2023mar.onnx"
     home = functions.get_deepface_home()
     if os.path.isfile(home + f"/.deepface/weights/{file_name}") is False:
-        print(f"{file_name} will be downloaded...")
+        logger.info(f"{file_name} will be downloaded...")
         output = home + f"/.deepface/weights/{file_name}"
         gdown.download(url, output, quiet=False)
     face_detector = cv2.FaceDetectorYN_create(home + f"/.deepface/weights/{file_name}", "", (0, 0))

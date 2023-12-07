@@ -12,7 +12,9 @@ from deprecated import deprecated
 
 # package dependencies
 from deepface.detectors import FaceDetector
+from deepface.commons.logger import Logger
 
+logger = Logger(module="commons.functions")
 
 # --------------------------------------------------
 # configurations of dependencies
@@ -41,11 +43,11 @@ def initialize_folder():
 
     if not os.path.exists(deepFaceHomePath):
         os.makedirs(deepFaceHomePath, exist_ok=True)
-        print("Directory ", home, "/.deepface created")
+        logger.info(f"Directory {home}/.deepface created")
 
     if not os.path.exists(weightsPath):
         os.makedirs(weightsPath, exist_ok=True)
-        print("Directory ", home, "/.deepface/weights created")
+        logger.info(f"Directory {home}/.deepface/weights created")
 
 
 def get_deepface_home():
@@ -114,6 +116,7 @@ def load_image(img):
 
     # This causes troubles when reading files with non english names
     # return cv2.imread(img)
+
 
 # --------------------------------------------------
 
@@ -357,7 +360,7 @@ def preprocess_face(
     Deprecated:
         0.0.78: Use extract_faces instead of preprocess_face.
     """
-    print("⚠️ Function preprocess_face is deprecated. Use extract_faces instead.")
+    logger.warn("Function preprocess_face is deprecated. Use extract_faces instead.")
     result = None
     img_objs = extract_faces(
         img=img,

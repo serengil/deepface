@@ -1,4 +1,7 @@
 from deepface.detectors import FaceDetector
+from deepface.commons.logger import Logger
+
+logger = Logger()
 
 # Model's weights paths
 PATH = "/.deepface/weights/yolov8n-face.pt"
@@ -25,7 +28,7 @@ def build_model():
     # Download the model's weights if they don't exist
     if not os.path.isfile(weight_path):
         gdown.download(WEIGHT_URL, weight_path, quiet=False)
-        print(f"Downloaded YOLO model {os.path.basename(weight_path)}")
+        logger.info(f"Downloaded YOLO model {os.path.basename(weight_path)}")
 
     # Return face_detector
     return YOLO(weight_path)
