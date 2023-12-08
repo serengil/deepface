@@ -9,7 +9,7 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-# pylint: disable=consider-iterating-dictionary
+# pylint: disable=consider-iterating-dictionary,broad-except
 
 logger.info("-----------------------------------------")
 
@@ -45,7 +45,7 @@ def evaluate(condition):
 # ------------------------------------------------
 
 detectors = ["opencv", "mtcnn"]
-models = ["VGG-Face", "Facenet", "ArcFace"]
+models = ["VGG-Face", "Facenet", "Facenet512", "ArcFace"]
 metrics = ["cosine", "euclidean", "euclidean_l2"]
 
 dataset = [
