@@ -30,6 +30,8 @@ from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 from deepface.commons.logger import Logger
 
+# pylint: disable=no-else-raise
+
 logger = Logger(module="DeepFace")
 
 # -----------------------------------
@@ -465,8 +467,16 @@ def find(
     file_name = f"representations_{model_name}.pkl"
     file_name = file_name.replace("-", "_").lower()
 
-    if path.exists(db_path + "/" + file_name):
+    df_cols = [
+        "identity",
+        f"{model_name}_representation",
+        "target_x",
+        "target_y",
+        "target_w",
+        "target_h",
+    ]
 
+    if path.exists(db_path + "/" + file_name):
         if not silent:
             logger.warn(
                 f"Representations for images in {db_path} folder were previously stored"
@@ -476,6 +486,12 @@ def find(
 
         with open(f"{db_path}/{file_name}", "rb") as f:
             representations = pickle.load(f)
+
+            if len(representations) > 0 and len(representations[0]) != len(df_cols):
+                raise ValueError(
+                    f"Seems existing {db_path}/{file_name} is out-of-the-date."
+                    "Delete it and re-run."
+                )
 
         if not silent:
             logger.info(f"There are {len(representations)} representations found in {file_name}")
@@ -523,7 +539,7 @@ def find(
                 align=align,
             )
 
-            for img_content, _, _ in img_objs:
+            for img_content, img_region, _ in img_objs:
                 embedding_obj = represent(
                     img_path=img_content,
                     model_name=model_name,
@@ -538,6 +554,10 @@ def find(
                 instance = []
                 instance.append(employee)
                 instance.append(img_representation)
+                instance.append(img_region["x"])
+                instance.append(img_region["y"])
+                instance.append(img_region["w"])
+                instance.append(img_region["h"])
                 representations.append(instance)
 
         # -------------------------------
@@ -553,10 +573,13 @@ def find(
 
     # ----------------------------
     # now, we got representations for facial database
-    df = pd.DataFrame(representations, columns=["identity", f"{model_name}_representation"])
+    df = pd.DataFrame(
+        representations,
+        columns=df_cols,
+    )
 
     # img path might have more than once face
-    target_objs = functions.extract_faces(
+    source_objs = functions.extract_faces(
         img=img_path,
         target_size=target_size,
         detector_backend=detector_backend,
@@ -567,9 +590,9 @@ def find(
 
     resp_obj = []
 
-    for target_img, target_region, _ in target_objs:
+    for source_img, source_region, _ in source_objs:
         target_embedding_obj = represent(
-            img_path=target_img,
+            img_path=source_img,
             model_name=model_name,
             enforce_detection=enforce_detection,
             detector_backend="skip",
@@ -580,10 +603,10 @@ def find(
         target_representation = target_embedding_obj[0]["embedding"]
 
         result_df = df.copy()  # df will be filtered in each img
-        result_df["source_x"] = target_region["x"]
-        result_df["source_y"] = target_region["y"]
-        result_df["source_w"] = target_region["w"]
-        result_df["source_h"] = target_region["h"]
+        result_df["source_x"] = source_region["x"]
+        result_df["source_y"] = source_region["y"]
+        result_df["source_w"] = source_region["w"]
+        result_df["source_h"] = source_region["h"]
 
         distances = []
         for index, instance in df.iterrows():
@@ -815,6 +838,7 @@ def extract_faces(
     """
 
     resp_objs = []
+
     img_objs = functions.extract_faces(
         img=img_path,
         target_size=target_size,

@@ -6,11 +6,19 @@ from deepface.commons.logger import Logger
 
 logger = Logger(module="detectors.DlibWrapper")
 
+
 def build_model():
 
     home = functions.get_deepface_home()
 
-    import dlib  # this requirement is not a must that's why imported here
+    # this is not a must dependency. do not import it in the global level.
+    try:
+        import dlib
+    except ModuleNotFoundError as e:
+        raise ImportError(
+            "Dlib is an optional detector, ensure the library is installed."
+            "Please install using 'pip install dlib' "
+        ) from e
 
     # check required file exists in the home/.deepface/weights folder
     if os.path.isfile(home + "/.deepface/weights/shape_predictor_5_face_landmarks.dat") != True:
@@ -40,7 +48,14 @@ def build_model():
 
 def detect_face(detector, img, align=True):
 
-    import dlib  # this requirement is not a must that's why imported here
+    # this is not a must dependency. do not import it in the global level.
+    try:
+        import dlib
+    except ModuleNotFoundError as e:
+        raise ImportError(
+            "Dlib is an optional detector, ensure the library is installed."
+            "Please install using 'pip install dlib' "
+        ) from e
 
     resp = []
 

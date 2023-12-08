@@ -4,22 +4,26 @@ from deepface.detectors import FaceDetector
 # Link -> https://github.com/timesler/facenet-pytorch
 # Examples https://www.kaggle.com/timesler/guide-to-mtcnn-in-facenet-pytorch
 
+
 def build_model():
-    # Optional dependency
+    # this is not a must dependency. do not import it in the global level.
     try:
         from facenet_pytorch import MTCNN as fast_mtcnn
     except ModuleNotFoundError as e:
-        raise ImportError("This is an optional detector, ensure the library is installed. \
-              Please install using 'pip install facenet-pytorch' ") from e
+        raise ImportError(
+            "FastMtcnn is an optional detector, ensure the library is installed."
+            "Please install using 'pip install facenet-pytorch' "
+        ) from e
 
-
-    face_detector = fast_mtcnn(image_size=160,
-              thresholds=[0.6, 0.7, 0.7], # MTCNN thresholds
-              post_process=True,
-              device='cpu',
-              select_largest=False, # return result in descending order
-        )
+    face_detector = fast_mtcnn(
+        image_size=160,
+        thresholds=[0.6, 0.7, 0.7],  # MTCNN thresholds
+        post_process=True,
+        device="cpu",
+        select_largest=False,  # return result in descending order
+    )
     return face_detector
+
 
 def xyxy_to_xywh(xyxy):
     """
@@ -30,6 +34,7 @@ def xyxy_to_xywh(xyxy):
     h = xyxy[3] - y + 1
     return [x, y, w, h]
 
+
 def detect_face(face_detector, img, align=True):
 
     resp = []
@@ -38,7 +43,9 @@ def detect_face(face_detector, img, align=True):
     img_region = [0, 0, img.shape[1], img.shape[0]]
 
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # mtcnn expects RGB but OpenCV read BGR
-    detections = face_detector.detect(img_rgb, landmarks=True) # returns boundingbox, prob, landmark
+    detections = face_detector.detect(
+        img_rgb, landmarks=True
+    )  # returns boundingbox, prob, landmark
     if len(detections[0]) > 0:
 
         for detection in zip(*detections):

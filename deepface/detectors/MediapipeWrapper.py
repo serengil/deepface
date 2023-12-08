@@ -4,7 +4,14 @@ from deepface.detectors import FaceDetector
 
 
 def build_model():
-    import mediapipe as mp  # this is not a must dependency. do not import it in the global level.
+    # this is not a must dependency. do not import it in the global level.
+    try:
+        import mediapipe as mp
+    except ModuleNotFoundError as e:
+        raise ImportError(
+            "MediaPipe is an optional detector, ensure the library is installed."
+            "Please install using 'pip install mediapipe' "
+        ) from e
 
     mp_face_detection = mp.solutions.face_detection
     face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.7)
