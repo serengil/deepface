@@ -16,6 +16,8 @@ from deepface.commons.logger import Logger
 
 logger = Logger(module="commons.functions")
 
+# pylint: disable=no-else-raise
+
 # --------------------------------------------------
 # configurations of dependencies
 
@@ -73,49 +75,52 @@ def loadBase64Img(uri):
     """
     encoded_data = uri.split(",")[1]
     nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
-    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    return img
+    img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+    return img_bgr
 
 
 def load_image(img):
-    """Load image from path, url, base64 or numpy array.
-
+    """
+    Load image from path, url, base64 or numpy array.
     Args:
         img: a path, url, base64 or numpy array.
-
-    Raises:
-        ValueError: if the image path does not exist.
-
     Returns:
-        numpy array: the loaded image.
+        image (numpy array): the loaded image in BGR format
+        image name (str): image name itself
     """
+
     # The image is already a numpy array
     if type(img).__module__ == np.__name__:
-        return img
+        return img, None
 
     # The image is a base64 string
     if img.startswith("data:image/"):
-        return loadBase64Img(img)
+        return loadBase64Img(img), None
 
     # The image is a url
     if img.startswith("http"):
-        return np.array(Image.open(requests.get(img, stream=True, timeout=60).raw).convert("RGB"))[
-            :, :, ::-1
-        ]
+        return (
+            np.array(Image.open(requests.get(img, stream=True, timeout=60).raw).convert("BGR"))[
+                :, :, ::-1
+            ],
+            # return url as image name
+            img,
+        )
 
     # The image is a path
     if os.path.isfile(img) is not True:
         raise ValueError(f"Confirm that {img} exists")
 
-    # For reading images with unicode names
-    with open(img, "rb") as img_f:
-        chunk = img_f.read()
-        chunk_arr = np.frombuffer(chunk, dtype=np.uint8)
-        img = cv2.imdecode(chunk_arr, cv2.IMREAD_COLOR)
-    return img
+    # image must be a file on the system then
 
-    # This causes troubles when reading files with non english names
-    # return cv2.imread(img)
+    # image name must have english characters
+    if img.isascii() is False:
+        raise ValueError(f"Input image must not have non-english characters - {img}")
+
+    img_obj_bgr = cv2.imread(img)
+    # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
+    return img_obj_bgr, img
 
 
 # --------------------------------------------------
@@ -152,7 +157,7 @@ def extract_faces(
     extracted_faces = []
 
     # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
-    img = load_image(img)
+    img, img_name = load_image(img)
     img_region = [0, 0, img.shape[1], img.shape[0]]
 
     if detector_backend == "skip":
@@ -163,10 +168,17 @@ def extract_faces(
 
     # in case of no face found
     if len(face_objs) == 0 and enforce_detection is True:
-        raise ValueError(
-            "Face could not be detected. Please confirm that the picture is a face photo "
-            + "or consider to set enforce_detection param to False."
-        )
+        if img_name is not None:
+            raise ValueError(
+                f"Face could not be detected in {img_name}."
+                "Please confirm that the picture is a face photo "
+                "or consider to set enforce_detection param to False."
+            )
+        else:
+            raise ValueError(
+                "Face could not be detected. Please confirm that the picture is a face photo "
+                "or consider to set enforce_detection param to False."
+            )
 
     if len(face_objs) == 0 and enforce_detection is False:
         face_objs = [(img, img_region, 0)]
@@ -177,39 +189,38 @@ def extract_faces(
                 current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
 
             # resize and padding
-            if current_img.shape[0] > 0 and current_img.shape[1] > 0:
-                factor_0 = target_size[0] / current_img.shape[0]
-                factor_1 = target_size[1] / current_img.shape[1]
-                factor = min(factor_0, factor_1)
+            factor_0 = target_size[0] / current_img.shape[0]
+            factor_1 = target_size[1] / current_img.shape[1]
+            factor = min(factor_0, factor_1)
 
-                dsize = (
-                    int(current_img.shape[1] * factor),
-                    int(current_img.shape[0] * factor),
+            dsize = (
+                int(current_img.shape[1] * factor),
+                int(current_img.shape[0] * factor),
+            )
+            current_img = cv2.resize(current_img, dsize)
+
+            diff_0 = target_size[0] - current_img.shape[0]
+            diff_1 = target_size[1] - current_img.shape[1]
+            if grayscale is False:
+                # Put the base image in the middle of the padded image
+                current_img = np.pad(
+                    current_img,
+                    (
+                        (diff_0 // 2, diff_0 - diff_0 // 2),
+                        (diff_1 // 2, diff_1 - diff_1 // 2),
+                        (0, 0),
+                    ),
+                    "constant",
                 )
-                current_img = cv2.resize(current_img, dsize)
-
-                diff_0 = target_size[0] - current_img.shape[0]
-                diff_1 = target_size[1] - current_img.shape[1]
-                if grayscale is False:
-                    # Put the base image in the middle of the padded image
-                    current_img = np.pad(
-                        current_img,
-                        (
-                            (diff_0 // 2, diff_0 - diff_0 // 2),
-                            (diff_1 // 2, diff_1 - diff_1 // 2),
-                            (0, 0),
-                        ),
-                        "constant",
-                    )
-                else:
-                    current_img = np.pad(
-                        current_img,
-                        (
-                            (diff_0 // 2, diff_0 - diff_0 // 2),
-                            (diff_1 // 2, diff_1 - diff_1 // 2),
-                        ),
-                        "constant",
-                    )
+            else:
+                current_img = np.pad(
+                    current_img,
+                    (
+                        (diff_0 // 2, diff_0 - diff_0 // 2),
+                        (diff_1 // 2, diff_1 - diff_1 // 2),
+                    ),
+                    "constant",
+                )
 
             # double check: if target image is not still the same size with target.
             if current_img.shape[0:2] != target_size:
