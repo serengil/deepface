@@ -301,7 +301,7 @@ cd scripts
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-dockerized-v2.jpg" width="50%" height="50%"></p>
 
-**Command Line Interface**
+**Command Line Interface** - [`Demo`](https://youtu.be/PKKTAr3ts2s)
 
 DeepFace comes with a command line interface as well. You are able to access its functions in command line as shown below. The command deepface expects the function name as 1st argument and function arguments thereafter.
 
