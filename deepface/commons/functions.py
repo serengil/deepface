@@ -94,6 +94,14 @@ def load_image(img):
     if type(img).__module__ == np.__name__:
         return img, None
 
+    try:
+        # Test whether img is a Python3's Path. If hit, tranform to str to let following logic work.
+        from pathlib import Path
+        if isinstance(img, Path):
+            img = str(img)
+    except ImportError:
+        pass
+
     # The image is a base64 string
     if img.startswith("data:image/"):
         return loadBase64Img(img), None
