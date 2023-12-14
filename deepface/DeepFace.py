@@ -686,15 +686,16 @@ def represent(
             {
                 // Multidimensional vector
                 // The number of dimensions is changing based on the reference model.
-                // E.g. FaceNet returns 128 dimensional vector; VGG-Face returns 2622 dimensional vector.
-                "embedding": np.array, 
-                
+                // E.g. FaceNet returns 128 dimensional vector;
+                //      VGG-Face returns 2622 dimensional vector.
+                "embedding": np.array,
+
                 // Detected Facial-Area by Face detection in dict format.
                 // (x, y) is left-corner point, and (w, h) is the width and height
                 // If `detector_backend` == `skip`, it is the full image area and nonsense.
                 "facial_area": dict{"x": int, "y": int, "w": int, "h": int},
-                
-                // Face detection confidence. 
+
+                // Face detection confidence.
                 // If `detector_backend` == `skip`, will be 0 and nonsense.
                 "face_confidence": float
             }
@@ -716,23 +717,20 @@ def represent(
             align=align,
         )
     else:  # skip
-        if type(img_path).__module__ == np.__name__:
-            img = img_path.copy()
-        else:
-            # Try load. If load error, will raise exception internal
-            img, _ = functions.load_image(img_path)
+        # Try load. If load error, will raise exception internal
+        img, _ = functions.load_image(img_path)
         # --------------------------------
         if len(img.shape) == 4:
             img = img[0]  # e.g. (1, 224, 224, 3) to (224, 224, 3)
         if len(img.shape) == 3:
             img = cv2.resize(img, target_size)
-            img = np.expand_dims(img, axis=0) # Why we remove a axis=0 previously and here expand one?
-            # when represent is called from verify, this is already normalized. But needed when user given.
+            img = np.expand_dims(img, axis=0)
+            # when called from verify, this is already normalized. But needed when user given.
             if img.max() > 1:
-                img = img.astype(np.float32) / 255.
+                img = img.astype(np.float32) / 255.0
         # --------------------------------
         # make dummy region and confidence to keep compatibility with `extract_faces`
-        img_region = {"x": 0, "y": 0, "w": img.shape[1], "h": img.shape[2]} 
+        img_region = {"x": 0, "y": 0, "w": img.shape[1], "h": img.shape[2]}
         img_objs = [(img, img_region, 0)]
     # ---------------------------------
 
@@ -746,7 +744,7 @@ def represent(
             # embedding = model.predict(img, verbose=0)[0].tolist()
             embedding = model(img, training=False).numpy()[0].tolist()
             # if you still get verbose logging. try call
-            # - `tf.keras.utils.disable_interactive_logging()` 
+            # - `tf.keras.utils.disable_interactive_logging()`
             # in your main program
         else:
             # SFace and Dlib are not keras models and no verbose arguments
