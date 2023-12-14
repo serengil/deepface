@@ -94,6 +94,9 @@ def load_image(img):
     if type(img).__module__ == np.__name__:
         return img, None
 
+    if isinstance(img, Path):
+        img = str(img)
+
     # The image is a base64 string
     if img.startswith("data:image/"):
         return loadBase64Img(img), None

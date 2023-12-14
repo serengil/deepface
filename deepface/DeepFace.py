@@ -674,16 +674,31 @@ def represent(
             This might be convenient for low resolution images.
 
             detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+            dlib, mediapipe or yolov8. A special value `skip` could be used to skip face-detection
+            and only encode the given image.
 
             align (boolean): alignment according to the eye positions.
 
             normalization (string): normalize the input image before feeding to model
 
     Returns:
-            Represent function returns a list of object with multidimensional vector (embedding).
-            The number of dimensions is changing based on the reference model.
-            E.g. FaceNet returns 128 dimensional vector; VGG-Face returns 2622 dimensional vector.
+            Represent function returns a list of object, each object has fields as follows:
+            {
+                // Multidimensional vector
+                // The number of dimensions is changing based on the reference model.
+                // E.g. FaceNet returns 128 dimensional vector;
+                //      VGG-Face returns 2622 dimensional vector.
+                "embedding": np.array,
+
+                // Detected Facial-Area by Face detection in dict format.
+                // (x, y) is left-corner point, and (w, h) is the width and height
+                // If `detector_backend` == `skip`, it is the full image area and nonsense.
+                "facial_area": dict{"x": int, "y": int, "w": int, "h": int},
+
+                // Face detection confidence.
+                // If `detector_backend` == `skip`, will be 0 and nonsense.
+                "face_confidence": float
+            }
     """
     resp_objs = []
 
@@ -702,23 +717,20 @@ def represent(
             align=align,
         )
     else:  # skip
-        if isinstance(img_path, str):
-            img = functions.load_image(img_path)
-        elif type(img_path).__module__ == np.__name__:
-            img = img_path.copy()
-        else:
-            raise ValueError(f"unexpected type for img_path - {type(img_path)}")
+        # Try load. If load error, will raise exception internal
+        img, _ = functions.load_image(img_path)
         # --------------------------------
         if len(img.shape) == 4:
             img = img[0]  # e.g. (1, 224, 224, 3) to (224, 224, 3)
         if len(img.shape) == 3:
             img = cv2.resize(img, target_size)
             img = np.expand_dims(img, axis=0)
-            # when represent is called from verify, this is already normalized
+            # when called from verify, this is already normalized. But needed when user given.
             if img.max() > 1:
-                img /= 255
+                img = img.astype(np.float32) / 255.0
         # --------------------------------
-        img_region = [0, 0, img.shape[1], img.shape[0]]
+        # make dummy region and confidence to keep compatibility with `extract_faces`
+        img_region = {"x": 0, "y": 0, "w": img.shape[1], "h": img.shape[2]}
         img_objs = [(img, img_region, 0)]
     # ---------------------------------
 
@@ -731,6 +743,9 @@ def represent(
             # model.predict causes memory issue when it is called in a for loop
             # embedding = model.predict(img, verbose=0)[0].tolist()
             embedding = model(img, training=False).numpy()[0].tolist()
+            # if you still get verbose logging. try call
+            # - `tf.keras.utils.disable_interactive_logging()`
+            # in your main program
         else:
             # SFace and Dlib are not keras models and no verbose arguments
             embedding = model.predict(img)[0].tolist()

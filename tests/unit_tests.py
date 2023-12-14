@@ -127,6 +127,27 @@ def test_cases():
     assert exception_thrown is False
     # -------------------------------------------
 
+    # Test represent on user-given image (skip detector)
+    try:
+        face_img = dataset[1][0] # It's a face
+        img_objs = DeepFace.represent(img_path=face_img, detector_backend="skip")
+        assert len(img_objs) == 1
+        img_obj = img_objs[0]
+        assert "embedding" in img_obj.keys()
+        assert "facial_area" in img_obj.keys()
+        assert isinstance(img_obj["facial_area"], dict)
+        assert "x" in img_obj["facial_area"].keys()
+        assert "y" in img_obj["facial_area"].keys()
+        assert "w" in img_obj["facial_area"].keys()
+        assert "h" in img_obj["facial_area"].keys()
+        assert "face_confidence" in img_obj.keys()
+        exception_thrown = False
+    except Exception as e:
+        exception_thrown = True
+
+    assert exception_thrown is False
+
+    # -------------------------------------------
     logger.info("-----------------------------------------")
 
     logger.info("Extract faces test")
