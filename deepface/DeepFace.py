@@ -464,7 +464,7 @@ def find(
 
     # ---------------------------------------
 
-    file_name = f"representations_{model_name}.pkl"
+    file_name = f"representations_{model_name}_{detector_backend}.pkl"
     file_name = file_name.replace("-", "_").lower()
 
     df_cols = [
