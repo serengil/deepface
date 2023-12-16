@@ -85,5 +85,5 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
 
 # x_re, y_re, x_le, y_le stands for the coordinates of right eye, left eye
 def yunet_align_face(img, x_re, y_re, x_le, y_le):
-    img = FaceDetector.alignment_procedure(img, (x_le, y_le), (x_re, y_re))
+    img = FaceDetector.alignment_procedure(img, (x_re, y_re), (x_le, y_le))
     return img
