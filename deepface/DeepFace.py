@@ -6,7 +6,6 @@ import time
 import pickle
 import logging
 from typing import Any, Dict, List, Tuple, Union
-from keras.engine.functional import Functional
 
 # 3rd party dependencies
 import numpy as np
@@ -56,7 +55,7 @@ def build_model(model_name: str) -> Any:
                     Age, Gender, Emotion, Race for facial attributes
 
     Returns:
-            built deepface model
+            built deepface model (keras.engine.Functional)
     """
 
     # singleton design pattern
