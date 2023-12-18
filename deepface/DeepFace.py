@@ -43,10 +43,13 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
 if tf_version == 2:
     tf.get_logger().setLevel(logging.ERROR)
+    from tensorflow.keras.models import Model
+else:
+    from keras.models import Model
 # -----------------------------------
 
 
-def build_model(model_name: str) -> Any:
+def build_model(model_name: str) -> Union[Model, Any]:
     """
     This function builds a deepface model
     Parameters:
@@ -55,7 +58,7 @@ def build_model(model_name: str) -> Any:
                     Age, Gender, Emotion, Race for facial attributes
 
     Returns:
-            built deepface model (keras.engine.Functional)
+            built deepface model ( (tf.)keras.models.Model )
     """
 
     # singleton design pattern
