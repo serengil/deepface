@@ -234,7 +234,7 @@ def verify(
 
 
 def analyze(
-    img_path: Union[str, np.ndarray],,
+    img_path: Union[str, np.ndarray],
     actions: Tuple[str, ...] = ("emotion", "age", "gender", "race"),
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
