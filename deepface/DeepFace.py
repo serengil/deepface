@@ -7,7 +7,6 @@ import pickle
 import logging
 from typing import Any, Dict, List, Tuple, Union
 from keras.engine.functional import Functional
-from deepface.basemodels import DlibResNet, SFace
 
 # 3rd party dependencies
 import numpy as np
@@ -48,7 +47,7 @@ if tf_version == 2:
 # -----------------------------------
 
 
-def build_model(model_name: str) -> Union[Functional, DlibResNet.DlibResNet, SFace.SFaceModel]:
+def build_model(model_name: str) -> Any:
     """
     This function builds a deepface model
     Parameters:
