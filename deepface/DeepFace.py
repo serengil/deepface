@@ -5,6 +5,9 @@ import warnings
 import time
 import pickle
 import logging
+from typing import Any, Dict, List, Tuple, Union
+from keras.engine.functional import Functional
+from deepface.basemodels import DlibResNet, SFace
 
 # 3rd party dependencies
 import numpy as np
@@ -45,7 +48,7 @@ if tf_version == 2:
 # -----------------------------------
 
 
-def build_model(model_name):
+def build_model(model_name: str) -> Union[Functional, DlibResNet.DlibResNet, SFace.SFaceModel]:
     """
     This function builds a deepface model
     Parameters:
@@ -91,15 +94,15 @@ def build_model(model_name):
 
 
 def verify(
-    img1_path,
-    img2_path,
-    model_name="VGG-Face",
-    detector_backend="opencv",
-    distance_metric="cosine",
-    enforce_detection=True,
-    align=True,
-    normalization="base",
-):
+    img1_path: Union[str, np.ndarray],
+    img2_path: Union[str, np.ndarray],
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    distance_metric: str = "cosine",
+    enforce_detection: bool = True,
+    align: bool = True,
+    normalization: str = "base",
+) -> Dict[str, Any]:
     """
     This function verifies an image pair is same person or different persons. In the background,
     verification function represents facial images as vectors and then calculates the similarity
@@ -231,13 +234,13 @@ def verify(
 
 
 def analyze(
-    img_path,
-    actions=("emotion", "age", "gender", "race"),
-    enforce_detection=True,
-    detector_backend="opencv",
-    align=True,
-    silent=False,
-):
+    img_path: Union[str, np.ndarray],
+    actions: Tuple[str, ...] = ("emotion", "age", "gender", "race"),
+    enforce_detection: bool = True,
+    detector_backend: str = "opencv",
+    align: bool = True,
+    silent: bool = False,
+) -> List[Dict[str, Any]]:
     """
     This function analyzes facial attributes including age, gender, emotion and race.
     In the background, analysis function builds convolutional neural network models to
@@ -409,16 +412,16 @@ def analyze(
 
 
 def find(
-    img_path,
-    db_path,
-    model_name="VGG-Face",
-    distance_metric="cosine",
-    enforce_detection=True,
-    detector_backend="opencv",
-    align=True,
-    normalization="base",
-    silent=False,
-):
+    img_path: Union[str, np.ndarray],
+    db_path : str,
+    model_name : str ="VGG-Face",
+    distance_metric : str ="cosine",
+    enforce_detection : bool =True,
+    detector_backend : str ="opencv",
+    align : bool = True,
+    normalization : str ="base",
+    silent : bool = False,
+) -> List[pd.DataFrame]:
     """
     This function applies verification several times and find the identities in a database
 
@@ -650,13 +653,13 @@ def find(
 
 
 def represent(
-    img_path,
-    model_name="VGG-Face",
-    enforce_detection=True,
-    detector_backend="opencv",
-    align=True,
-    normalization="base",
-):
+    img_path: Union[str, np.ndarray],
+    model_name: str = "VGG-Face",
+    enforce_detection: bool = True,
+    detector_backend: str = "opencv",
+    align: bool = True,
+    normalization: str = "base",
+) -> List[Dict[str, Any]]:
     """
     This function represents facial images as vectors. The function uses convolutional neural
     networks models to generate vector embeddings.
@@ -760,15 +763,15 @@ def represent(
 
 
 def stream(
-    db_path="",
-    model_name="VGG-Face",
-    detector_backend="opencv",
-    distance_metric="cosine",
-    enable_face_analysis=True,
-    source=0,
-    time_threshold=5,
-    frame_threshold=5,
-):
+    db_path: str = "",
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    distance_metric: str = "cosine",
+    enable_face_analysis: bool = True,
+    source: Any = 0,
+    time_threshold: int = 5,
+    frame_threshold: int = 5,
+) -> None:
     """
     This function applies real time face recognition and facial attribute analysis
 
@@ -816,13 +819,13 @@ def stream(
 
 
 def extract_faces(
-    img_path,
-    target_size=(224, 224),
-    detector_backend="opencv",
-    enforce_detection=True,
-    align=True,
-    grayscale=False,
-):
+    img_path: Union[str, np.ndarray],
+    target_size: Tuple[int, int] = (224, 224),
+    detector_backend: str = "opencv",
+    enforce_detection: bool = True,
+    align: bool = True,
+    grayscale: bool = False,
+) -> List[Dict[str, Any]]:
     """
     This function applies pre-processing stages of a face recognition pipeline
     including detection and alignment
