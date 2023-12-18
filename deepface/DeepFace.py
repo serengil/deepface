@@ -743,7 +743,8 @@ def represent(
         img = functions.normalize_input(img=img, normalization=normalization)
 
         # represent
-        if "keras" in str(type(model)):
+        # if "keras" in str(type(model)):
+        if isinstance(model, Model):
             # model.predict causes memory issue when it is called in a for loop
             # embedding = model.predict(img, verbose=0)[0].tolist()
             embedding = model(img, training=False).numpy()[0].tolist()
