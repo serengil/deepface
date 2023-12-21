@@ -1,7 +1,5 @@
-import math
 from PIL import Image
 import numpy as np
-from deepface.commons import distance
 from deepface.detectors import (
     OpenCvWrapper,
     SsdWrapper,
@@ -85,47 +83,19 @@ def detect_faces(face_detector, detector_backend, img, align=True):
         raise ValueError("invalid detector_backend passed - " + detector_backend)
 
 
+def get_alignment_angle_arctan2(left_eye, right_eye):
+    """
+    The left_eye is the eye to the left of the viewer,
+    i.e., right eye of the person in the image.
+    The top-left point of the frame is (0, 0).
+    """
+    return float(np.degrees(
+        np.arctan2(right_eye[1] - left_eye[1], right_eye[0] - left_eye[0])
+    ))
+
+
 def alignment_procedure(img, left_eye, right_eye):
-    # this function aligns given face in img based on left and right eye coordinates
-
-    left_eye_x, left_eye_y = left_eye
-    right_eye_x, right_eye_y = right_eye
-
-    # -----------------------
-    # find rotation direction
-
-    if left_eye_y > right_eye_y:
-        point_3rd = (right_eye_x, left_eye_y)
-        direction = -1  # rotate same direction to clock
-    else:
-        point_3rd = (left_eye_x, right_eye_y)
-        direction = 1  # rotate inverse direction of clock
-
-    # -----------------------
-    # find length of triangle edges
-
-    a = distance.findEuclideanDistance(np.array(left_eye), np.array(point_3rd))
-    b = distance.findEuclideanDistance(np.array(right_eye), np.array(point_3rd))
-    c = distance.findEuclideanDistance(np.array(right_eye), np.array(left_eye))
-
-    # -----------------------
-
-    # apply cosine rule
-
-    if b != 0 and c != 0:  # this multiplication causes division by zero in cos_a calculation
-        cos_a = (b * b + c * c - a * a) / (2 * b * c)
-        angle = np.arccos(cos_a)  # angle in radian
-        angle = (angle * 180) / math.pi  # radian to degree
-
-        # -----------------------
-        # rotate base image
-
-        if direction == -1:
-            angle = 90 - angle
-
-        img = Image.fromarray(img)
-        img = np.array(img.rotate(direction * angle))
-
-    # -----------------------
-
-    return img  # return img anyway
+    angle = get_alignment_angle_arctan2(left_eye, right_eye)
+    img = Image.fromarray(img)
+    img = np.array(img.rotate(angle))
+    return img
