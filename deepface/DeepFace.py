@@ -31,7 +31,7 @@ from deepface.extendedmodels import Age, Gender, Race, Emotion
 from deepface.commons import functions, realtime, distance as dst
 from deepface.commons.logger import Logger
 
-# pylint: disable=no-else-raise
+# pylint: disable=no-else-raise, simplifiable-if-expression
 
 logger = Logger(module="DeepFace")
 
@@ -221,7 +221,7 @@ def verify(
     toc = time.time()
 
     resp_obj = {
-        "verified": distance <= threshold,
+        "verified": True if distance <= threshold else False,
         "distance": distance,
         "threshold": threshold,
         "model": model_name,
@@ -236,7 +236,7 @@ def verify(
 
 def analyze(
     img_path: Union[str, np.ndarray],
-    actions: Tuple[str, ...] = ("emotion", "age", "gender", "race"),
+    actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
@@ -414,14 +414,14 @@ def analyze(
 
 def find(
     img_path: Union[str, np.ndarray],
-    db_path : str,
-    model_name : str ="VGG-Face",
-    distance_metric : str ="cosine",
-    enforce_detection : bool =True,
-    detector_backend : str ="opencv",
-    align : bool = True,
-    normalization : str ="base",
-    silent : bool = False,
+    db_path: str,
+    model_name: str = "VGG-Face",
+    distance_metric: str = "cosine",
+    enforce_detection: bool = True,
+    detector_backend: str = "opencv",
+    align: bool = True,
+    normalization: str = "base",
+    silent: bool = False,
 ) -> List[pd.DataFrame]:
     """
     This function applies verification several times and find the identities in a database
