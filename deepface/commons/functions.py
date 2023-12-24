@@ -104,9 +104,7 @@ def load_image(img):
     # The image is a url
     if img.startswith("http"):
         return (
-            np.array(Image.open(requests.get(img, stream=True, timeout=60).raw).convert("BGR"))[
-                :, :, ::-1
-            ],
+            np.array(Image.open(requests.get(img, stream=True, timeout=60).raw).convert("BGR")),
             # return url as image name
             img,
         )
