@@ -13,8 +13,14 @@ logger = Logger(module="basemodels.DlibResNet")
 class DlibResNet:
     def __init__(self):
 
-        # this is not a must dependency
-        import dlib  # 19.20.0
+        ## this is not a must dependency. do not import it in the global level.
+        try:
+            import dlib
+        except ModuleNotFoundError as e:
+            raise ImportError(
+                "Dlib is an optional dependency, ensure the library is installed."
+                "Please install using 'pip install dlib' "
+            ) from e
 
         self.layers = [DlibMetaData()]
 
@@ -49,7 +55,7 @@ class DlibResNet:
 
         # return None  # classes must return None
 
-    def predict(self, img_aligned):
+    def predict(self, img_aligned: np.ndarray) -> np.ndarray:
 
         # functions.detectFace returns 4 dimensional images
         if len(img_aligned.shape) == 4:

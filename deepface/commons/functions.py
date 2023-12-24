@@ -1,10 +1,11 @@
 import os
+from typing import Union, Tuple
 import base64
 from pathlib import Path
-from PIL import Image
-import requests
 
 # 3rd party dependencies
+from PIL import Image
+import requests
 import numpy as np
 import cv2
 import tensorflow as tf
@@ -33,7 +34,7 @@ elif tf_major_version == 2:
 # --------------------------------------------------
 
 
-def initialize_folder():
+def initialize_folder() -> None:
     """Initialize the folder for storing weights and models.
 
     Raises:
@@ -52,7 +53,7 @@ def initialize_folder():
         logger.info(f"Directory {home}/.deepface/weights created")
 
 
-def get_deepface_home():
+def get_deepface_home() -> str:
     """Get the home directory for storing weights and models.
 
     Returns:
@@ -64,7 +65,7 @@ def get_deepface_home():
 # --------------------------------------------------
 
 
-def loadBase64Img(uri):
+def loadBase64Img(uri: str) -> np.ndarray:
     """Load image from base64 string.
 
     Args:
@@ -80,7 +81,7 @@ def loadBase64Img(uri):
     return img_bgr
 
 
-def load_image(img):
+def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
     """
     Load image from path, url, base64 or numpy array.
     Args:
@@ -91,15 +92,18 @@ def load_image(img):
     """
 
     # The image is already a numpy array
-    if type(img).__module__ == np.__name__:
-        return img, None
+    if isinstance(img, np.ndarray):
+        return img, "numpy array"
 
     if isinstance(img, Path):
         img = str(img)
 
+    if not isinstance(img, str):
+        raise ValueError(f"img must be numpy array or str but it is {type(img)}")
+
     # The image is a base64 string
     if img.startswith("data:image/"):
-        return loadBase64Img(img), None
+        return loadBase64Img(img), "base64 encoded string"
 
     # The image is a url
     if img.startswith("http"):
@@ -128,13 +132,13 @@ def load_image(img):
 
 
 def extract_faces(
-    img,
-    target_size=(224, 224),
-    detector_backend="opencv",
-    grayscale=False,
-    enforce_detection=True,
-    align=True,
-):
+    img: Union[str, np.ndarray],
+    target_size: tuple = (224, 224),
+    detector_backend: str = "opencv",
+    grayscale: bool = False,
+    enforce_detection: bool = True,
+    align: bool = True,
+) -> list:
     """Extract faces from an image.
 
     Args:
@@ -252,7 +256,7 @@ def extract_faces(
     return extracted_faces
 
 
-def normalize_input(img, normalization="base"):
+def normalize_input(img: np.ndarray, normalization: str = "base") -> np.ndarray:
     """Normalize input image.
 
     Args:
@@ -310,7 +314,7 @@ def normalize_input(img, normalization="base"):
     return img
 
 
-def find_target_size(model_name):
+def find_target_size(model_name: str) -> tuple:
     """Find the target size of the model.
 
     Args:
@@ -346,17 +350,18 @@ def find_target_size(model_name):
 
 @deprecated(version="0.0.78", reason="Use extract_faces instead of preprocess_face")
 def preprocess_face(
-    img,
+    img: Union[str, np.ndarray],
     target_size=(224, 224),
     detector_backend="opencv",
     grayscale=False,
     enforce_detection=True,
     align=True,
-):
-    """Preprocess face.
+) -> Union[np.ndarray, None]:
+    """
+    Preprocess only one face
 
     Args:
-        img (numpy array): the input image.
+        img (str or numpy): the input image.
         target_size (tuple, optional): the target size. Defaults to (224, 224).
         detector_backend (str, optional): the detector backend. Defaults to "opencv".
         grayscale (bool, optional): whether to convert to grayscale. Defaults to False.
@@ -364,7 +369,7 @@ def preprocess_face(
         align (bool, optional): whether to align the face. Defaults to True.
 
     Returns:
-        numpy array: the preprocessed face.
+        loaded image (numpt): the preprocessed face.
 
     Raises:
         ValueError: if face is not detected and enforce_detection is True.

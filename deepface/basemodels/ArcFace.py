@@ -14,8 +14,8 @@ logger = Logger(module="basemodels.ArcFace")
 tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
 
 if tf_version == 1:
+    from keras.models import Model
     from keras.engine import training
-    import keras
     from keras.layers import (
         ZeroPadding2D,
         Input,
@@ -28,8 +28,8 @@ if tf_version == 1:
         Dense,
     )
 else:
+    from tensorflow.keras.models import Model
     from tensorflow.python.keras.engine import training
-    from tensorflow import keras
     from tensorflow.keras.layers import (
         ZeroPadding2D,
         Input,
@@ -41,15 +41,11 @@ else:
         Flatten,
         Dense,
     )
-# --------------------------------
-
-
-# url = "https://drive.google.com/uc?id=1LVB3CdVejpmGHM28BpqqkbZP5hDEcdZY"
 
 
 def loadModel(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.h5",
-):
+) -> Model:
     base_model = ResNet34()
     inputs = base_model.inputs[0]
     arcface_model = base_model.outputs[0]
@@ -62,7 +58,7 @@ def loadModel(
     embedding = BatchNormalization(momentum=0.9, epsilon=2e-5, name="embedding", scale=True)(
         arcface_model
     )
-    model = keras.models.Model(inputs, embedding, name=base_model.name)
+    model = Model(inputs, embedding, name=base_model.name)
 
     # ---------------------------------------
     # check the availability of pre-trained weights
@@ -84,7 +80,7 @@ def loadModel(
     return model
 
 
-def ResNet34():
+def ResNet34() -> Model:
 
     img_input = Input(shape=(112, 112, 3))
 

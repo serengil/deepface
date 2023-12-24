@@ -27,7 +27,7 @@ else:
 
 def loadModel(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5",
-):
+) -> Model:
     myInput = Input(shape=(96, 96, 3))
 
     x = ZeroPadding2D(padding=(3, 3), input_shape=(96, 96, 3))(myInput)

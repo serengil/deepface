@@ -41,7 +41,7 @@ else:
 
 def loadModel(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_keras_weights.h5",
-):
+) -> Model:
 
     myInput = Input(shape=(55, 47, 3))
 

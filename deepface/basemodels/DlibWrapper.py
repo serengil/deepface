@@ -1,5 +1,6 @@
+from typing import Any
 from deepface.basemodels.DlibResNet import DlibResNet
 
 
-def loadModel():
+def loadModel() -> Any:
     return DlibResNet()

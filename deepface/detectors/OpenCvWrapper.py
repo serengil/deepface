@@ -1,16 +1,28 @@
 import os
+from typing import Any
 import cv2
+import numpy as np
 from deepface.detectors import FaceDetector
 
 
-def build_model():
+def build_model() -> dict:
+    """
+    Build a opencv face&eye detector models
+    Returns:
+        model (Any)
+    """
     detector = {}
     detector["face_detector"] = build_cascade("haarcascade")
     detector["eye_detector"] = build_cascade("haarcascade_eye")
     return detector
 
 
-def build_cascade(model_name="haarcascade"):
+def build_cascade(model_name="haarcascade") -> Any:
+    """
+    Build a opencv face&eye detector models
+    Returns:
+        model (Any)
+    """
     opencv_path = get_opencv_path()
     if model_name == "haarcascade":
         face_detector_path = opencv_path + "haarcascade_frontalface_default.xml"
@@ -38,7 +50,16 @@ def build_cascade(model_name="haarcascade"):
     return detector
 
 
-def detect_face(detector, img, align=True):
+def detect_face(detector: dict, img: np.ndarray, align: bool = True) -> list:
+    """
+    Detect and align face with opencv
+    Args:
+        face_detector (Any): opencv face detector object
+        img (np.ndarray): pre-loaded image
+        align (bool): default is true
+    Returns:
+        list of detected and aligned faces
+    """
     resp = []
 
     detected_face = None

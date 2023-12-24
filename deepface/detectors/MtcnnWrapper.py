@@ -1,15 +1,31 @@
+from typing import Any
 import cv2
+import numpy as np
 from deepface.detectors import FaceDetector
 
 
-def build_model():
+def build_model() -> Any:
+    """
+    Build a mtcnn face detector model
+    Returns:
+        model (Any)
+    """
     from mtcnn import MTCNN
 
     face_detector = MTCNN()
     return face_detector
 
 
-def detect_face(face_detector, img, align=True):
+def detect_face(face_detector: Any, img: np.ndarray, align: bool = True) -> list:
+    """
+    Detect and align face with mtcnn
+    Args:
+        face_detector (mtcnn.MTCNN): mtcnn face detector object
+        img (np.ndarray): pre-loaded image
+        align (bool): default is true
+    Returns:
+        list of detected and aligned faces
+    """
 
     resp = []
 

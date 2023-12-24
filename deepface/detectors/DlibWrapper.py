@@ -1,14 +1,19 @@
 import os
 import bz2
 import gdown
+import numpy as np
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 
 logger = Logger(module="detectors.DlibWrapper")
 
 
-def build_model():
-
+def build_model() -> dict:
+    """
+    Build a dlib hog face detector model
+    Returns:
+        model (Any)
+    """
     home = functions.get_deepface_home()
 
     # this is not a must dependency. do not import it in the global level.
@@ -46,8 +51,16 @@ def build_model():
     return detector
 
 
-def detect_face(detector, img, align=True):
-
+def detect_face(detector: dict, img: np.ndarray, align: bool = True) -> list:
+    """
+    Detect and align face with dlib
+    Args:
+        face_detector (Any): dlib face detector object
+        img (np.ndarray): pre-loaded image
+        align (bool): default is true
+    Returns:
+        list of detected and aligned faces
+    """
     # this is not a must dependency. do not import it in the global level.
     try:
         import dlib

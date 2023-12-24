@@ -1,20 +1,30 @@
-def build_model():
-    from retinaface import RetinaFace  # this is not a must dependency
+from typing import Any
+import numpy as np
+from retinaface import RetinaFace
+from retinaface.commons import postprocess
 
+
+def build_model() -> Any:
+    """
+    Build a retinaface detector model
+    Returns:
+        model (Any)
+    """
     face_detector = RetinaFace.build_model()
     return face_detector
 
 
-def detect_face(face_detector, img, align=True):
-
-    from retinaface import RetinaFace  # this is not a must dependency
-    from retinaface.commons import postprocess
-
-    # ---------------------------------
-
+def detect_face(face_detector: Any, img: np.ndarray, align: bool = True) -> list:
+    """
+    Detect and align face with retinaface
+    Args:
+        face_detector (Any): retinaface face detector object
+        img (np.ndarray): pre-loaded image
+        align (bool): default is true
+    Returns:
+        list of detected and aligned faces
+    """
     resp = []
-
-    # --------------------------
 
     obj = RetinaFace.detect_faces(img, model=face_detector, threshold=0.9)
 

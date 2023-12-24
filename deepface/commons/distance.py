@@ -1,14 +1,25 @@
+from typing import Union
 import numpy as np
 
 
-def findCosineDistance(source_representation, test_representation):
+def findCosineDistance(
+    source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]
+) -> np.float64:
+    if isinstance(source_representation, list):
+        source_representation = np.array(source_representation)
+
+    if isinstance(test_representation, list):
+        test_representation = np.array(test_representation)
+
     a = np.matmul(np.transpose(source_representation), test_representation)
     b = np.sum(np.multiply(source_representation, source_representation))
     c = np.sum(np.multiply(test_representation, test_representation))
     return 1 - (a / (np.sqrt(b) * np.sqrt(c)))
 
 
-def findEuclideanDistance(source_representation, test_representation):
+def findEuclideanDistance(
+    source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]
+) -> np.float64:
     if isinstance(source_representation, list):
         source_representation = np.array(source_representation)
 
@@ -21,11 +32,11 @@ def findEuclideanDistance(source_representation, test_representation):
     return euclidean_distance
 
 
-def l2_normalize(x):
+def l2_normalize(x: np.ndarray) -> np.ndarray:
     return x / np.sqrt(np.sum(np.multiply(x, x)))
 
 
-def findThreshold(model_name, distance_metric):
+def findThreshold(model_name: str, distance_metric: str) -> float:
 
     base_threshold = {"cosine": 0.40, "euclidean": 0.55, "euclidean_l2": 0.75}
 

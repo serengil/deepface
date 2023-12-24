@@ -1,4 +1,6 @@
 import os
+from typing import Any
+
 import numpy as np
 import cv2 as cv
 import gdown
@@ -25,7 +27,7 @@ class SFaceModel:
 
         self.layers = [_Layer()]
 
-    def predict(self, image):
+    def predict(self, image: np.ndarray) -> np.ndarray:
         # Preprocess
         input_blob = (image[0] * 255).astype(
             np.uint8
@@ -39,7 +41,7 @@ class SFaceModel:
 
 def load_model(
     url="https://github.com/opencv/opencv_zoo/raw/main/models/face_recognition_sface/face_recognition_sface_2021dec.onnx",
-):
+) -> Any:
 
     home = functions.get_deepface_home()
 
