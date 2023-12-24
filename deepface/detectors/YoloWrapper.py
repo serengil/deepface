@@ -1,3 +1,5 @@
+from typing import Any
+import numpy as np
 from deepface.detectors import FaceDetector
 from deepface.commons.logger import Logger
 
@@ -14,8 +16,12 @@ WEIGHT_URL = "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb"
 LANDMARKS_CONFIDENCE_THRESHOLD = 0.5
 
 
-def build_model():
-    """Build YOLO (yolov8n-face) model"""
+def build_model() -> Any:
+    """
+    Build a yolo detector model
+    Returns:
+        model (Any)
+    """
     import gdown
     import os
 
@@ -41,7 +47,16 @@ def build_model():
     return YOLO(weight_path)
 
 
-def detect_face(face_detector, img, align=False):
+def detect_face(face_detector: Any, img: np.ndarray, align: bool = False) -> list:
+    """
+    Detect and align face with yolo
+    Args:
+        face_detector (Any): yolo face detector object
+        img (np.ndarray): pre-loaded image
+        align (bool): default is true
+    Returns:
+        list of detected and aligned faces
+    """
     resp = []
 
     # Detect faces

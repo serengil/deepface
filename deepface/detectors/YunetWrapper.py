@@ -1,5 +1,7 @@
 import os
+from typing import Any
 import cv2
+import numpy as np
 import gdown
 from deepface.detectors import FaceDetector
 from deepface.commons import functions
@@ -7,7 +9,13 @@ from deepface.commons.logger import Logger
 
 logger = Logger(module="detectors.YunetWrapper")
 
-def build_model():
+
+def build_model() -> Any:
+    """
+    Build a yunet detector model
+    Returns:
+        model (Any)
+    """
     # pylint: disable=C0301
     url = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
     file_name = "face_detection_yunet_2023mar.onnx"
@@ -20,7 +28,18 @@ def build_model():
     return face_detector
 
 
-def detect_face(detector, image, align=True, score_threshold=0.9):
+def detect_face(
+    detector: Any, image: np.ndarray, align: bool = True, score_threshold: float = 0.9
+) -> list:
+    """
+    Detect and align face with yunet
+    Args:
+        face_detector (Any): yunet face detector object
+        img (np.ndarray): pre-loaded image
+        align (bool): default is true
+    Returns:
+        list of detected and aligned faces
+    """
     # FaceDetector.detect_faces does not support score_threshold parameter.
     # We can set it via environment variable.
     score_threshold = os.environ.get("yunet_score_threshold", score_threshold)
@@ -78,12 +97,8 @@ def detect_face(detector, image, align=True, score_threshold=0.9):
         detected_face = image[int(y) : int(y + h), int(x) : int(x + w)]
         img_region = [x, y, w, h]
         if align:
-            detected_face = yunet_align_face(detected_face, x_re, y_re, x_le, y_le)
+            detected_face = FaceDetector.alignment_procedure(
+                detected_face, (x_re, y_re), (x_le, y_le)
+            )
         resp.append((detected_face, img_region, confidence))
     return resp
-
-
-# x_re, y_re, x_le, y_le stands for the coordinates of right eye, left eye
-def yunet_align_face(img, x_re, y_re, x_le, y_le):
-    img = FaceDetector.alignment_procedure(img, (x_re, y_re), (x_le, y_le))
-    return img

@@ -16,7 +16,7 @@ tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
 if tf_version == 1:
     from keras.models import Model, Sequential
     from keras.layers import Convolution2D, Flatten, Activation
-elif tf_version == 2:
+else:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 # --------------------------
@@ -26,7 +26,7 @@ labels = ["asian", "indian", "black", "white", "middle eastern", "latino hispani
 
 def loadModel(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5",
-):
+) -> Model:
 
     model = VGGFace.baseModel()
 

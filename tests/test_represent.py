@@ -9,7 +9,7 @@ def test_standard_represent():
     embedding_objs = DeepFace.represent(img_path)
     for embedding_obj in embedding_objs:
         embedding = embedding_obj["embedding"]
-        logger.info(f"Function returned {len(embedding)} dimensional vector")
+        logger.debug(f"Function returned {len(embedding)} dimensional vector")
         assert len(embedding) == 2622
     logger.info("✅ test standard represent function done")
 

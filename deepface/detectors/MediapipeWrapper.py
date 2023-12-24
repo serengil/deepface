@@ -1,9 +1,16 @@
+from typing import Any
+import numpy as np
 from deepface.detectors import FaceDetector
 
 # Link - https://google.github.io/mediapipe/solutions/face_detection
 
 
-def build_model():
+def build_model() -> Any:
+    """
+    Build a mediapipe face detector model
+    Returns:
+        model (Any)
+    """
     # this is not a must dependency. do not import it in the global level.
     try:
         import mediapipe as mp
@@ -18,7 +25,16 @@ def build_model():
     return face_detection
 
 
-def detect_face(face_detector, img, align=True):
+def detect_face(face_detector: Any, img: np.ndarray, align: bool = True) -> list:
+    """
+    Detect and align face with mediapipe
+    Args:
+        face_detector (Any): mediapipe face detector object
+        img (np.ndarray): pre-loaded image
+        align (bool): default is true
+    Returns:
+        list of detected and aligned faces
+    """
     resp = []
 
     img_width = img.shape[1]

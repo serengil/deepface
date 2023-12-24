@@ -47,7 +47,7 @@ def scaling(x, scale):
     return x * scale
 
 
-def InceptionResNetV2(dimension=128):
+def InceptionResNetV2(dimension=128) -> Model:
 
     inputs = Input(shape=(160, 160, 3))
     x = Conv2D(32, 3, strides=2, padding="valid", use_bias=False, name="Conv2d_1a_3x3")(inputs)
@@ -1618,12 +1618,9 @@ def InceptionResNetV2(dimension=128):
     return model
 
 
-# url = 'https://drive.google.com/uc?id=1971Xk5RwedbudGgTIrGAL4F7Aifu7id1'
-
-
 def loadModel(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.h5",
-):
+) -> Model:
     model = InceptionResNetV2()
 
     # -----------------------------------

@@ -15,7 +15,7 @@ tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
 if tf_version == 1:
     from keras.models import Sequential
     from keras.layers import Conv2D, MaxPooling2D, AveragePooling2D, Flatten, Dense, Dropout
-elif tf_version == 2:
+else:
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import (
         Conv2D,
@@ -33,7 +33,7 @@ labels = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
 
 def loadModel(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5",
-):
+) -> Sequential:
 
     num_classes = 7
 

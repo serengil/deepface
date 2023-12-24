@@ -1,11 +1,18 @@
+from typing import Any, Union
 import cv2
+import numpy as np
 from deepface.detectors import FaceDetector
 
 # Link -> https://github.com/timesler/facenet-pytorch
 # Examples https://www.kaggle.com/timesler/guide-to-mtcnn-in-facenet-pytorch
 
 
-def build_model():
+def build_model() -> Any:
+    """
+    Build a fast mtcnn face detector model
+    Returns:
+        model (Any)
+    """
     # this is not a must dependency. do not import it in the global level.
     try:
         from facenet_pytorch import MTCNN as fast_mtcnn
@@ -25,7 +32,7 @@ def build_model():
     return face_detector
 
 
-def xyxy_to_xywh(xyxy):
+def xyxy_to_xywh(xyxy: Union[list, tuple]) -> list:
     """
     Convert xyxy format to xywh format.
     """
@@ -35,8 +42,16 @@ def xyxy_to_xywh(xyxy):
     return [x, y, w, h]
 
 
-def detect_face(face_detector, img, align=True):
-
+def detect_face(face_detector: Any, img: np.ndarray, align: bool = True) -> list:
+    """
+    Detect and align face with mtcnn
+    Args:
+        face_detector (Any): mtcnn face detector object
+        img (np.ndarray): pre-loaded image
+        align (bool): default is true
+    Returns:
+        list of detected and aligned faces
+    """
     resp = []
 
     detected_face = None

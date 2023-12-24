@@ -40,7 +40,7 @@ else:
 
 def loadModel(
     url="https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip",
-):
+) -> Model:
     base_model = Sequential()
     base_model.add(
         Convolution2D(32, (11, 11), activation="relu", name="C1", input_shape=(152, 152, 3))

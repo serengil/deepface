@@ -2,6 +2,7 @@ import os
 import gdown
 import cv2
 import pandas as pd
+import numpy as np
 from deepface.detectors import OpenCvWrapper
 from deepface.commons import functions
 from deepface.commons.logger import Logger
@@ -11,7 +12,12 @@ logger = Logger(module="detectors.SsdWrapper")
 # pylint: disable=line-too-long
 
 
-def build_model():
+def build_model() -> dict:
+    """
+    Build a ssd detector model
+    Returns:
+        model (Any)
+    """
 
     home = functions.get_deepface_home()
 
@@ -51,8 +57,16 @@ def build_model():
     return detector
 
 
-def detect_face(detector, img, align=True):
-
+def detect_face(detector: dict, img: np.ndarray, align: bool = True) -> list:
+    """
+    Detect and align face with ssd
+    Args:
+        face_detector (Any): ssd face detector object
+        img (np.ndarray): pre-loaded image
+        align (bool): default is true
+    Returns:
+        list of detected and aligned faces
+    """
     resp = []
 
     detected_face = None

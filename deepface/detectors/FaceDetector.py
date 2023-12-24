@@ -1,3 +1,4 @@
+from typing import Any, Union
 from PIL import Image
 import numpy as np
 from deepface.detectors import (
@@ -13,7 +14,14 @@ from deepface.detectors import (
 )
 
 
-def build_model(detector_backend):
+def build_model(detector_backend: str) -> Any:
+    """
+    Build a face detector model
+    Args:
+        detector_backend (str): backend detector name
+    Returns:
+        built detector (Any)
+    """
     global face_detector_obj  # singleton design pattern
 
     backends = {
@@ -44,7 +52,20 @@ def build_model(detector_backend):
     return face_detector_obj[detector_backend]
 
 
-def detect_face(face_detector, detector_backend, img, align=True):
+def detect_face(
+    face_detector: Any, detector_backend: str, img: np.ndarray, align: bool = True
+) -> tuple:
+    """
+    Detect a single face from a given image
+    Args:
+        face_detector (Any): pre-built face detector object
+        detector_backend (str): detector name
+        img (np.ndarray): pre-loaded image
+        alig (bool): enable or disable alignment after detection
+    Returns
+        result (tuple): tuple of face (np.ndarray), face region (list)
+            , confidence score (float)
+    """
     obj = detect_faces(face_detector, detector_backend, img, align)
 
     if len(obj) > 0:
@@ -60,7 +81,20 @@ def detect_face(face_detector, detector_backend, img, align=True):
     return face, region, confidence
 
 
-def detect_faces(face_detector, detector_backend, img, align=True):
+def detect_faces(
+    face_detector: Any, detector_backend: str, img: np.ndarray, align: bool = True
+) -> list:
+    """
+    Detect face(s) from a given image
+    Args:
+        face_detector (Any): pre-built face detector object
+        detector_backend (str): detector name
+        img (np.ndarray): pre-loaded image
+        alig (bool): enable or disable alignment after detection
+    Returns
+        result (list): tuple of face (np.ndarray), face region (list)
+            , confidence score (float)
+    """
     backends = {
         "opencv": OpenCvWrapper.detect_face,
         "ssd": SsdWrapper.detect_face,
@@ -83,18 +117,32 @@ def detect_faces(face_detector, detector_backend, img, align=True):
         raise ValueError("invalid detector_backend passed - " + detector_backend)
 
 
-def get_alignment_angle_arctan2(left_eye, right_eye):
+def get_alignment_angle_arctan2(
+    left_eye: Union[list, tuple], right_eye: Union[list, tuple]
+) -> float:
     """
-    The left_eye is the eye to the left of the viewer,
-    i.e., right eye of the person in the image.
-    The top-left point of the frame is (0, 0).
+    Find the angle between eyes
+    Args:
+        left_eye: coordinates of left eye with respect to the you
+        right_eye: coordinates of right eye with respect to the you
+    Returns:
+        angle (float)
     """
-    return float(np.degrees(
-        np.arctan2(right_eye[1] - left_eye[1], right_eye[0] - left_eye[0])
-    ))
+    return float(np.degrees(np.arctan2(right_eye[1] - left_eye[1], right_eye[0] - left_eye[0])))
 
 
-def alignment_procedure(img, left_eye, right_eye):
+def alignment_procedure(
+    img: np.ndarray, left_eye: Union[list, tuple], right_eye: Union[list, tuple]
+) -> np.ndarray:
+    """
+    Rotate given image until eyes are on a horizontal line
+    Args:
+        img (np.ndarray): pre-loaded image
+        left_eye: coordinates of left eye with respect to the you
+        right_eye: coordinates of right eye with respect to the you
+    Returns:
+        result (np.ndarray): aligned face
+    """
     angle = get_alignment_angle_arctan2(left_eye, right_eye)
     img = Image.fromarray(img)
     img = np.array(img.rotate(angle))

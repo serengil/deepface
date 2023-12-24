@@ -34,7 +34,7 @@ else:
 # ---------------------------------------
 
 
-def baseModel():
+def baseModel() -> Sequential:
     model = Sequential()
     model.add(ZeroPadding2D((1, 1), input_shape=(224, 224, 3)))
     model.add(Convolution2D(64, (3, 3), activation="relu"))
@@ -83,16 +83,11 @@ def baseModel():
     return model
 
 
-# url = 'https://drive.google.com/uc?id=1CPSeum3HpopfomUEK1gybeuIVoeJT_Eo'
-
-
 def loadModel(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.h5",
-):
+) -> Model:
 
     model = baseModel()
-
-    # -----------------------------------
 
     home = functions.get_deepface_home()
     output = home + "/.deepface/weights/vgg_face_weights.h5"
@@ -101,13 +96,8 @@ def loadModel(
         logger.info("vgg_face_weights.h5 will be downloaded...")
         gdown.download(url, output, quiet=False)
 
-    # -----------------------------------
-
     model.load_weights(output)
 
-    # -----------------------------------
-
-    # TO-DO: why?
     vgg_face_descriptor = Model(inputs=model.layers[0].input, outputs=model.layers[-2].output)
 
     return vgg_face_descriptor

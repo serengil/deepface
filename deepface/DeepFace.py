@@ -889,8 +889,12 @@ def extract_faces(
 
 @deprecated(version="0.0.78", reason="Use DeepFace.extract_faces instead of DeepFace.detectFace")
 def detectFace(
-    img_path, target_size=(224, 224), detector_backend="opencv", enforce_detection=True, align=True
-):
+    img_path: Union[str, np.ndarray],
+    target_size: tuple = (224, 224),
+    detector_backend: str = "opencv",
+    enforce_detection: bool = True,
+    align: bool = True,
+) -> np.ndarray:
     """
     Deprecated function. Use extract_faces for same functionality.
 
@@ -942,7 +946,7 @@ def detectFace(
 functions.initialize_folder()
 
 
-def cli():
+def cli() -> None:
     """
     command line interface function will be offered in this block
     """
