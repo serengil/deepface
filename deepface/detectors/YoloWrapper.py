@@ -9,7 +9,7 @@ logger = Logger()
 PATH = "/.deepface/weights/yolov8n-face.pt"
 
 # Google Drive URL
-WEIGHT_URL = "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb"
+WEIGHT_URL = "https://github.com/serengil/deepface_models/releases/download/v1.1/yolov8n_face.pt"
 
 # Confidence thresholds for landmarks detection
 # used in alignment_procedure function
