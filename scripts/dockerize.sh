@@ -1,3 +1,6 @@
+# Dockerfile is in the root
+cd ..
+
 # start docker
 # sudo service docker start
 
@@ -8,7 +11,7 @@
 # docker rm -f $(docker ps -a -q --filter "ancestor=deepface")
 
 # build deepface image
-docker build -t deepface_image .
+docker build -t deepface .
 
 # copy weights from your local
 # docker cp ~/.deepface/weights/. <CONTAINER_ID>:/root/.deepface/weights/
