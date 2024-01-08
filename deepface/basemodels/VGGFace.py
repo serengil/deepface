@@ -19,7 +19,9 @@ if tf_version == 1:
         Flatten,
         Dropout,
         Activation,
+        Lambda,
     )
+    from keras import backend as K
 else:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import (
@@ -29,7 +31,9 @@ else:
         Flatten,
         Dropout,
         Activation,
+        Lambda,
     )
+    from tensorflow.keras import backend as K
 
 # ---------------------------------------
 
@@ -98,6 +102,18 @@ def loadModel(
 
     model.load_weights(output)
 
-    vgg_face_descriptor = Model(inputs=model.layers[0].input, outputs=model.layers[-2].output)
+    # 2622d dimensional model
+    # vgg_face_descriptor = Model(inputs=model.layers[0].input, outputs=model.layers[-2].output)
+
+    # 4096 dimensional model offers 6% to 14% increasement on accuracy!
+    # - softmax causes underfitting
+    # - added normalization layer to avoid underfitting with euclidean
+    # as described here: https://github.com/serengil/deepface/issues/944
+    base_model_output = Sequential()
+    base_model_output = Flatten()(model.layers[-5].output)
+    base_model_output = Lambda(lambda x: K.l2_normalize(x, axis=1), name="norm_layer")(
+        base_model_output
+    )
+    vgg_face_descriptor = Model(inputs=model.input, outputs=base_model_output)
 
     return vgg_face_descriptor
