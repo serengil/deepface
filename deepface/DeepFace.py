@@ -616,6 +616,15 @@ def find(
         for index, instance in df.iterrows():
             source_representation = instance[f"{model_name}_representation"]
 
+            target_dims = len(list(target_representation))
+            source_dims = len(list(source_representation))
+            if target_dims != source_dims:
+                raise ValueError(
+                    "Source and target embeddings must have same dimensions but "
+                    + f"{target_dims}:{source_dims}. Model structure may change"
+                    + " after pickle created. Delete the {file_name} and re-run."
+                )
+
             if distance_metric == "cosine":
                 distance = dst.findCosineDistance(source_representation, target_representation)
             elif distance_metric == "euclidean":
@@ -636,6 +645,7 @@ def find(
 
         threshold = dst.findThreshold(model_name, distance_metric)
         result_df = result_df.drop(columns=[f"{model_name}_representation"])
+        # pylint: disable=unsubscriptable-object
         result_df = result_df[result_df[f"{model_name}_{distance_metric}"] <= threshold]
         result_df = result_df.sort_values(
             by=[f"{model_name}_{distance_metric}"], ascending=True
