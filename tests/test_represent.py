@@ -10,7 +10,7 @@ def test_standard_represent():
     for embedding_obj in embedding_objs:
         embedding = embedding_obj["embedding"]
         logger.debug(f"Function returned {len(embedding)} dimensional vector")
-        assert len(embedding) == 2622
+        assert len(embedding) == 4096
     logger.info("✅ test standard represent function done")
 
 

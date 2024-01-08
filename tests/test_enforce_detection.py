@@ -33,7 +33,7 @@ def test_disabled_enforce_detection_for_non_facial_input_on_represent():
     assert "w" in objs[0]["facial_area"].keys()
     assert "h" in objs[0]["facial_area"].keys()
     assert isinstance(objs[0]["embedding"], list)
-    assert len(objs[0]["embedding"]) == 2622  # embedding of VGG-Face
+    assert len(objs[0]["embedding"]) == 4096  # embedding of VGG-Face
 
     logger.info("✅ disabled enforce detection with non facial input test for represent tests done")
 
