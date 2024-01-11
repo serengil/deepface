@@ -7,16 +7,6 @@ LABEL org.opencontainers.image.source https://github.com/serengil/deepface
 RUN mkdir /app
 RUN mkdir /app/deepface
 
-# -----------------------------------
-# Copy required files from repo into image
-COPY ./deepface /app/deepface
-COPY ./api/app.py /app/
-COPY ./api/api.py /app/
-COPY ./api/routes.py /app/
-COPY ./api/service.py /app/
-COPY ./requirements.txt /app/
-COPY ./setup.py /app/
-COPY ./README.md /app/
 
 # -----------------------------------
 # switch to application directory
@@ -47,6 +37,17 @@ RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted
 # -----------------------------------
 # environment variables
 ENV PYTHONUNBUFFERED=1
+
+# -----------------------------------
+# Copy required files from repo into image
+COPY ./deepface /app/deepface
+COPY ./api/app.py /app/
+COPY ./api/api.py /app/
+COPY ./api/routes.py /app/
+COPY ./api/service.py /app/
+COPY ./requirements.txt /app/
+COPY ./setup.py /app/
+COPY ./README.md /app/
 
 # -----------------------------------
 # run the app (re-configure port if necessary)
