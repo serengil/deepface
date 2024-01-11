@@ -7,7 +7,6 @@ LABEL org.opencontainers.image.source https://github.com/serengil/deepface
 RUN mkdir /app
 RUN mkdir /app/deepface
 
-
 # -----------------------------------
 # switch to application directory
 WORKDIR /app
@@ -16,6 +15,17 @@ WORKDIR /app
 # update image os
 RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6 -y
+
+# -----------------------------------
+# Copy required files from repo into image
+COPY ./deepface /app/deepface
+COPY ./api/app.py /app/
+COPY ./api/api.py /app/
+COPY ./api/routes.py /app/
+COPY ./api/service.py /app/
+COPY ./requirements.txt /app/
+COPY ./setup.py /app/
+COPY ./README.md /app/
 
 # -----------------------------------
 # if you plan to use a GPU, you should install the 'tensorflow-gpu' package
@@ -37,17 +47,6 @@ RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted
 # -----------------------------------
 # environment variables
 ENV PYTHONUNBUFFERED=1
-
-# -----------------------------------
-# Copy required files from repo into image
-COPY ./deepface /app/deepface
-COPY ./api/app.py /app/
-COPY ./api/api.py /app/
-COPY ./api/routes.py /app/
-COPY ./api/service.py /app/
-COPY ./requirements.txt /app/
-COPY ./setup.py /app/
-COPY ./README.md /app/
 
 # -----------------------------------
 # run the app (re-configure port if necessary)
