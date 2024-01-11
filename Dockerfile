@@ -8,6 +8,15 @@ RUN mkdir /app
 RUN mkdir /app/deepface
 
 # -----------------------------------
+# switch to application directory
+WORKDIR /app
+
+# -----------------------------------
+# update image os
+RUN apt-get update
+RUN apt-get install ffmpeg libsm6 libxext6 -y
+
+# -----------------------------------
 # Copy required files from repo into image
 COPY ./deepface /app/deepface
 COPY ./api/app.py /app/
@@ -17,15 +26,6 @@ COPY ./api/service.py /app/
 COPY ./requirements.txt /app/
 COPY ./setup.py /app/
 COPY ./README.md /app/
-
-# -----------------------------------
-# switch to application directory
-WORKDIR /app
-
-# -----------------------------------
-# update image os
-RUN apt-get update
-RUN apt-get install ffmpeg libsm6 libxext6 -y
 
 # -----------------------------------
 # if you plan to use a GPU, you should install the 'tensorflow-gpu' package
