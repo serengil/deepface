@@ -90,7 +90,19 @@ def detect_face(detector: dict, img: np.ndarray, align: bool = True) -> list:
     return resp
 
 
-def align_face(eye_detector, img):
+def align_face(eye_detector: Any, img: np.ndarray) -> np.ndarray:
+    """
+    Align a given image with the pre-built eye_detector
+    Args:
+        eye_detector (Any): cascade classifier object
+        img (np.ndarray): given image
+    Returns:
+        aligned_img (np.ndarray)
+    """
+    # if image has unexpectedly 0 dimension then skip alignment
+    if img.shape[0] == 0 or img.shape[1] == 0:
+        return img
+
     detected_face_gray = cv2.cvtColor(
         img, cv2.COLOR_BGR2GRAY
     )  # eye detector expects gray scale image
@@ -130,7 +142,12 @@ def align_face(eye_detector, img):
     return img  # return img anyway
 
 
-def get_opencv_path():
+def get_opencv_path() -> str:
+    """
+    Returns where opencv installed
+    Returns:
+        installation_path (str)
+    """
     opencv_home = cv2.__file__
     folders = opencv_home.split(os.path.sep)[0:-1]
 

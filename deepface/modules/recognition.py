@@ -75,6 +75,7 @@ def find(
 
     file_name = f"representations_{model_name}.pkl"
     file_name = file_name.replace("-", "_").lower()
+    datastore_path = f"{db_path}/{file_name}"
 
     df_cols = [
         "identity",
@@ -85,100 +86,93 @@ def find(
         "target_h",
     ]
 
-    if os.path.exists(db_path + "/" + file_name):
-        if not silent:
-            logger.warn(
-                f"Representations for images in {db_path} folder were previously stored"
-                f" in {file_name}. If you added new instances after the creation, then please "
-                "delete this file and call find function again. It will create it again."
-            )
-
-        with open(f"{db_path}/{file_name}", "rb") as f:
+    if os.path.exists(datastore_path):
+        with open(datastore_path, "rb") as f:
             representations = pickle.load(f)
 
             if len(representations) > 0 and len(representations[0]) != len(df_cols):
                 raise ValueError(
-                    f"Seems existing {db_path}/{file_name} is out-of-the-date."
-                    "Delete it and re-run."
+                    f"Seems existing {datastore_path} is out-of-the-date."
+                    "Please delete it and re-run."
+                )
+
+        alpha_employees = __list_images(path=db_path)
+        beta_employees = [representation[0] for representation in representations]
+
+        newbies = list(set(alpha_employees) - set(beta_employees))
+        oldies = list(set(beta_employees) - set(alpha_employees))
+
+        if newbies:
+            logger.warn(
+                f"Items {newbies} were added into {db_path}"
+                f" just after data source {datastore_path} created!"
+            )
+            newbies_representations = __find_bulk_embeddings(
+                employees=newbies,
+                model_name=model_name,
+                target_size=target_size,
+                detector_backend=detector_backend,
+                enforce_detection=enforce_detection,
+                align=align,
+                normalization=normalization,
+                silent=silent,
+            )
+            representations = representations + newbies_representations
+
+        if oldies:
+            logger.warn(
+                f"Items {oldies} were dropped from {db_path}"
+                f" just after data source {datastore_path} created!"
+            )
+            representations = [rep for rep in representations if rep[0] not in oldies]
+
+        if newbies or oldies:
+            if len(representations) == 0:
+                raise ValueError(f"There is no image in {db_path} anymore!")
+
+            # save new representations
+            with open(datastore_path, "wb") as f:
+                pickle.dump(representations, f)
+
+            if not silent:
+                logger.info(
+                    f"{len(newbies)} new representations are just added"
+                    f" whereas {len(oldies)} represented one(s) are just dropped"
+                    f" in {db_path}/{file_name} file."
                 )
 
         if not silent:
             logger.info(f"There are {len(representations)} representations found in {file_name}")
 
     else:  # create representation.pkl from scratch
-        employees = []
-
-        for r, _, f in os.walk(db_path):
-            for file in f:
-                if (
-                    (".jpg" in file.lower())
-                    or (".jpeg" in file.lower())
-                    or (".png" in file.lower())
-                ):
-                    exact_path = r + "/" + file
-                    employees.append(exact_path)
+        employees = __list_images(path=db_path)
 
         if len(employees) == 0:
             raise ValueError(
-                "There is no image in ",
-                db_path,
-                " folder! Validate .jpg or .png files exist in this path.",
+                f"There is no image in {db_path} folder!"
+                "Validate .jpg, .jpeg or .png files exist in this path.",
             )
 
         # ------------------------
         # find representations for db images
-
-        representations = []
-
-        # for employee in employees:
-        pbar = tqdm(
-            range(0, len(employees)),
-            desc="Finding representations",
-            disable=silent,
+        representations = __find_bulk_embeddings(
+            employees=employees,
+            model_name=model_name,
+            target_size=target_size,
+            detector_backend=detector_backend,
+            enforce_detection=enforce_detection,
+            align=align,
+            normalization=normalization,
+            silent=silent,
         )
-        for index in pbar:
-            employee = employees[index]
-
-            img_objs = functions.extract_faces(
-                img=employee,
-                target_size=target_size,
-                detector_backend=detector_backend,
-                grayscale=False,
-                enforce_detection=enforce_detection,
-                align=align,
-            )
-
-            for img_content, img_region, _ in img_objs:
-                embedding_obj = representation.represent(
-                    img_path=img_content,
-                    model_name=model_name,
-                    enforce_detection=enforce_detection,
-                    detector_backend="skip",
-                    align=align,
-                    normalization=normalization,
-                )
-
-                img_representation = embedding_obj[0]["embedding"]
-
-                instance = []
-                instance.append(employee)
-                instance.append(img_representation)
-                instance.append(img_region["x"])
-                instance.append(img_region["y"])
-                instance.append(img_region["w"])
-                instance.append(img_region["h"])
-                representations.append(instance)
 
         # -------------------------------
 
-        with open(f"{db_path}/{file_name}", "wb") as f:
+        with open(datastore_path, "wb") as f:
             pickle.dump(representations, f)
 
         if not silent:
-            logger.info(
-                f"Representations stored in {db_path}/{file_name} file."
-                + "Please delete this file when you add new identities in your database."
-            )
+            logger.info(f"Representations stored in {db_path}/{file_name} file.")
 
     # ----------------------------
     # now, we got representations for facial database
@@ -218,7 +212,7 @@ def find(
         result_df["source_h"] = source_region["h"]
 
         distances = []
-        for index, instance in df.iterrows():
+        for _, instance in df.iterrows():
             source_representation = instance[f"{model_name}_representation"]
 
             target_dims = len(list(target_representation))
@@ -266,3 +260,87 @@ def find(
         logger.info(f"find function lasts {toc - tic} seconds")
 
     return resp_obj
+
+
+def __list_images(path: str) -> list:
+    """
+    List images in a given path
+    Args:
+        path (str): path's location
+    Returns:
+        images (list): list of exact image paths
+    """
+    images = []
+    for r, _, f in os.walk(path):
+        for file in f:
+            if file.lower().endswith((".jpg", ".jpeg", ".png")):
+                exact_path = f"{r}/{file}"
+                images.append(exact_path)
+    return images
+
+
+def __find_bulk_embeddings(
+    employees: List[str],
+    model_name: str = "VGG-Face",
+    target_size: tuple = (224, 224),
+    detector_backend: str = "opencv",
+    enforce_detection: bool = True,
+    align: bool = True,
+    normalization: str = "base",
+    silent: bool = False,
+):
+    """
+    Find embeddings of a list of images
+
+    Args:
+        employees (list): list of exact image paths
+        model_name (str): facial recognition model name
+        target_size (tuple): expected input shape of facial
+            recognition model
+        detector_backend (str): face detector model name
+        enforce_detection (bool): set this to False if you
+            want to proceed when you cannot detect any face
+        align (bool): enable or disable alignment of image
+            before feeding to facial recognition model
+        normalization (bool): normalization technique
+        silent (bool): enable or disable informative logging
+    Returns:
+        representations (list): pivot list of embeddings with
+            image name and detected face area's coordinates
+    """
+    representations = []
+    for employee in tqdm(
+        employees,
+        desc="Finding representations",
+        disable=silent,
+    ):
+        img_objs = functions.extract_faces(
+            img=employee,
+            target_size=target_size,
+            detector_backend=detector_backend,
+            grayscale=False,
+            enforce_detection=enforce_detection,
+            align=align,
+        )
+
+        for img_content, img_region, _ in img_objs:
+            embedding_obj = representation.represent(
+                img_path=img_content,
+                model_name=model_name,
+                enforce_detection=enforce_detection,
+                detector_backend="skip",
+                align=align,
+                normalization=normalization,
+            )
+
+            img_representation = embedding_obj[0]["embedding"]
+
+            instance = []
+            instance.append(employee)
+            instance.append(img_representation)
+            instance.append(img_region["x"])
+            instance.append(img_region["y"])
+            instance.append(img_region["w"])
+            instance.append(img_region["h"])
+            representations.append(instance)
+    return representations

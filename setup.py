@@ -8,11 +8,11 @@ with open("requirements.txt", "r", encoding="utf-8") as f:
 
 setuptools.setup(
     name="deepface",
-    version="0.0.81",
+    version="0.0.82",
     author="Sefik Ilkin Serengil",
     author_email="serengil@gmail.com",
     description="A Lightweight Face Recognition and Facial Attribute Analysis Framework (Age, Gender, Emotion, Race) for Python",
-    data_files=[('', ['README.md', 'requirements.txt'])],
+    data_files=[("", ["README.md", "requirements.txt"])],
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/serengil/deepface",

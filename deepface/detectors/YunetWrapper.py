@@ -24,7 +24,17 @@ def build_model() -> Any:
         logger.info(f"{file_name} will be downloaded...")
         output = home + f"/.deepface/weights/{file_name}"
         gdown.download(url, output, quiet=False)
-    face_detector = cv2.FaceDetectorYN_create(home + f"/.deepface/weights/{file_name}", "", (0, 0))
+
+    try:
+        face_detector = cv2.FaceDetectorYN_create(
+            home + f"/.deepface/weights/{file_name}", "", (0, 0)
+        )
+    except Exception as err:
+        raise ValueError(
+            "Exception while calling opencv.FaceDetectorYN_create module."
+            + "This is an optional dependency."
+            + "You can install it as pip install opencv-contrib-python."
+        ) from err
     return face_detector
 
 

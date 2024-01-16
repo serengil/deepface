@@ -21,9 +21,16 @@ class _Layer:
 class SFaceModel:
     def __init__(self, model_path):
 
-        self.model = cv.FaceRecognizerSF.create(
-            model=model_path, config="", backend_id=0, target_id=0
-        )
+        try:
+            self.model = cv.FaceRecognizerSF.create(
+                model=model_path, config="", backend_id=0, target_id=0
+            )
+        except Exception as err:
+            raise ValueError(
+                "Exception while calling opencv.FaceRecognizerSF module."
+                + "This is an optional dependency."
+                + "You can install it as pip install opencv-contrib-python."
+            ) from err
 
         self.layers = [_Layer()]
 
