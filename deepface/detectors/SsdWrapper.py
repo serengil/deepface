@@ -43,10 +43,17 @@ def build_model() -> dict:
 
         gdown.download(url, output, quiet=False)
 
-    face_detector = cv2.dnn.readNetFromCaffe(
-        home + "/.deepface/weights/deploy.prototxt",
-        home + "/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel",
-    )
+    try:
+        face_detector = cv2.dnn.readNetFromCaffe(
+            home + "/.deepface/weights/deploy.prototxt",
+            home + "/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel",
+        )
+    except Exception as err:
+        raise ValueError(
+            "Exception while calling opencv.dnn module."
+            + "This is an optional dependency."
+            + "You can install it as pip install opencv-contrib-python."
+        ) from err
 
     eye_detector = OpenCvWrapper.build_cascade("haarcascade_eye")
 
