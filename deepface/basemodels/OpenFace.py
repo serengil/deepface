@@ -3,6 +3,7 @@ import gdown
 import tensorflow as tf
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.OpenFace")
 
@@ -24,10 +25,24 @@ else:
 
 # ---------------------------------------
 
+# pylint: disable=too-few-public-methods
+class OpenFace(FacialRecognition):
+    """
+    OpenFace model class
+    """
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "OpenFace"
 
-def loadModel(
+
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5",
 ) -> Model:
+    """
+    Consturct OpenFace model, download its weights and load
+    Returns:
+        model (Model)
+    """
     myInput = Input(shape=(96, 96, 3))
 
     x = ZeroPadding2D(padding=(3, 3), input_shape=(96, 96, 3))(myInput)

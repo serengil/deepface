@@ -4,6 +4,10 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
+# some models (e.g. Dlib) and detectors (e.g. retinaface) do not have test cases
+# because they require to install huge packages
+# this module is for local runs
+
 model_names = [
     "VGG-Face",
     "Facenet",
@@ -16,6 +20,7 @@ model_names = [
     "SFace",
 ]
 detector_backends = ["opencv", "ssd", "dlib", "mtcnn", "retinaface"]
+
 
 # verification
 for model_name in model_names:

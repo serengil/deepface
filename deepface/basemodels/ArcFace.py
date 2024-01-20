@@ -3,6 +3,7 @@ import gdown
 import tensorflow as tf
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.ArcFace")
 
@@ -42,10 +43,25 @@ else:
         Dense,
     )
 
+# pylint: disable=too-few-public-methods
+class ArcFace(FacialRecognition):
+    """
+    ArcFace model class
+    """
 
-def loadModel(
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "ArcFace"
+
+
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.h5",
 ) -> Model:
+    """
+    Construct ArcFace model, download its weights and load
+    Returns:
+        model (Model)
+    """
     base_model = ResNet34()
     inputs = base_model.inputs[0]
     arcface_model = base_model.outputs[0]
@@ -81,7 +97,11 @@ def loadModel(
 
 
 def ResNet34() -> Model:
-
+    """
+    ResNet34 model
+    Returns:
+        model (Model)
+    """
     img_input = Input(shape=(112, 112, 3))
 
     x = ZeroPadding2D(padding=1, name="conv1_pad")(img_input)

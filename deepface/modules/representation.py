@@ -4,18 +4,11 @@ from typing import Any, Dict, List, Union
 # 3rd party dependencies
 import numpy as np
 import cv2
-import tensorflow as tf
 
 # project dependencies
 from deepface.modules import modeling
 from deepface.commons import functions
-
-# conditional dependencies
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
-if tf_version == 2:
-    from tensorflow.keras.models import Model
-else:
-    from keras.models import Model
+from deepface.models.FacialRecognition import FacialRecognition
 
 
 def represent(
@@ -71,7 +64,7 @@ def represent(
     """
     resp_objs = []
 
-    model = modeling.build_model(model_name)
+    model: FacialRecognition = modeling.build_model(model_name)
 
     # ---------------------------------
     # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
@@ -107,18 +100,7 @@ def represent(
         # custom normalization
         img = functions.normalize_input(img=img, normalization=normalization)
 
-        # represent
-        # if "keras" in str(type(model)):
-        if isinstance(model, Model):
-            # model.predict causes memory issue when it is called in a for loop
-            # embedding = model.predict(img, verbose=0)[0].tolist()
-            embedding = model(img, training=False).numpy()[0].tolist()
-            # if you still get verbose logging. try call
-            # - `tf.keras.utils.disable_interactive_logging()`
-            # in your main program
-        else:
-            # SFace and Dlib are not keras models and no verbose arguments
-            embedding = model.predict(img)[0].tolist()
+        embedding = model.find_embeddings(img)
 
         resp_obj = {}
         resp_obj["embedding"] = embedding

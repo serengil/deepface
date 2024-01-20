@@ -8,7 +8,6 @@ from typing import Any, Dict, List, Tuple, Union
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from deprecated import deprecated
 
 # package dependencies
 from deepface.commons import functions
@@ -22,8 +21,6 @@ from deepface.modules import (
     detection,
     realtime,
 )
-
-# pylint: disable=no-else-raise, simplifiable-if-expression
 
 logger = Logger(module="DeepFace")
 
@@ -39,6 +36,8 @@ if tf_version == 2:
 else:
     from keras.models import Model
 # -----------------------------------
+
+functions.initialize_folder()
 
 
 def build_model(model_name: str) -> Union[Model, Any]:
@@ -411,69 +410,6 @@ def extract_faces(
         align=align,
         grayscale=grayscale,
     )
-
-
-# ---------------------------
-# deprecated functions
-
-
-@deprecated(version="0.0.78", reason="Use DeepFace.extract_faces instead of DeepFace.detectFace")
-def detectFace(
-    img_path: Union[str, np.ndarray],
-    target_size: tuple = (224, 224),
-    detector_backend: str = "opencv",
-    enforce_detection: bool = True,
-    align: bool = True,
-) -> Union[np.ndarray, None]:
-    """
-    Deprecated function. Use extract_faces for same functionality.
-
-    This function applies pre-processing stages of a face recognition pipeline
-    including detection and alignment
-
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image.
-            Source image can have many face. Then, result will be the size of number
-            of faces appearing in that source image.
-
-            target_size (tuple): final shape of facial image. black pixels will be
-            added to resize the image.
-
-            detector_backend (string): face detection backends are retinaface, mtcnn,
-            opencv, ssd or dlib
-
-            enforce_detection (boolean): function throws exception if face cannot be
-            detected in the fed image. Set this to False if you do not want to get
-            an exception and run the function anyway.
-
-            align (boolean): alignment according to the eye positions.
-
-            grayscale (boolean): extracting faces in rgb or gray scale
-
-    Returns:
-            detected and aligned face as numpy array
-
-    """
-    logger.warn("Function detectFace is deprecated. Use extract_faces instead.")
-    face_objs = extract_faces(
-        img_path=img_path,
-        target_size=target_size,
-        detector_backend=detector_backend,
-        enforce_detection=enforce_detection,
-        align=align,
-        grayscale=False,
-    )
-
-    extracted_face = None
-    if len(face_objs) > 0:
-        extracted_face = face_objs[0]["face"]
-    return extracted_face
-
-
-# ---------------------------
-# main
-
-functions.initialize_folder()
 
 
 def cli() -> None:

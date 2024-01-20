@@ -3,6 +3,7 @@ import gdown
 import tensorflow as tf
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.DeepID")
 
@@ -38,10 +39,23 @@ else:
 
 # -------------------------------------
 
+# pylint: disable=too-few-public-methods
+class DeepId(FacialRecognition):
+    """
+    DeepId model class
+    """
 
-def loadModel(
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "DeepId"
+
+
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_keras_weights.h5",
 ) -> Model:
+    """
+    Construct DeepId model, download its weights and load
+    """
 
     myInput = Input(shape=(55, 47, 3))
 

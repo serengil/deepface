@@ -1,32 +1,21 @@
 # built-in dependencies
-from typing import Any, Union
-
-# 3rd party dependencies
-import tensorflow as tf
+from typing import Any
 
 # project dependencies
 from deepface.basemodels import (
     VGGFace,
     OpenFace,
     Facenet,
-    Facenet512,
     FbDeepFace,
     DeepID,
-    DlibWrapper,
+    DlibResNet,
     ArcFace,
     SFace,
 )
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 
-# conditional dependencies
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
-if tf_version == 2:
-    from tensorflow.keras.models import Model
-else:
-    from keras.models import Model
 
-
-def build_model(model_name: str) -> Union[Model, Any]:
+def build_model(model_name: str) -> Any:
     """
     This function builds a deepface model
     Parameters:
@@ -35,26 +24,26 @@ def build_model(model_name: str) -> Union[Model, Any]:
                     Age, Gender, Emotion, Race for facial attributes
 
     Returns:
-            built deepface model ( (tf.)keras.models.Model )
+            built model class
     """
 
     # singleton design pattern
     global model_obj
 
     models = {
-        "VGG-Face": VGGFace.loadModel,
-        "OpenFace": OpenFace.loadModel,
-        "Facenet": Facenet.loadModel,
-        "Facenet512": Facenet512.loadModel,
-        "DeepFace": FbDeepFace.loadModel,
-        "DeepID": DeepID.loadModel,
-        "Dlib": DlibWrapper.loadModel,
-        "ArcFace": ArcFace.loadModel,
-        "SFace": SFace.load_model,
-        "Emotion": Emotion.loadModel,
-        "Age": Age.loadModel,
-        "Gender": Gender.loadModel,
-        "Race": Race.loadModel,
+        "VGG-Face": VGGFace.VggFace,
+        "OpenFace": OpenFace.OpenFace,
+        "Facenet": Facenet.FaceNet128d,
+        "Facenet512": Facenet.FaceNet512d,
+        "DeepFace": FbDeepFace.DeepFace,
+        "DeepID": DeepID.DeepId,
+        "Dlib": DlibResNet.Dlib,
+        "ArcFace": ArcFace.ArcFace,
+        "SFace": SFace.SFace,
+        "Emotion": Emotion.FacialExpression,
+        "Age": Age.ApparentAge,
+        "Gender": Gender.Gender,
+        "Race": Race.Race,
     }
 
     if not "model_obj" in globals():
