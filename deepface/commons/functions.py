@@ -9,7 +9,6 @@ import requests
 import numpy as np
 import cv2
 import tensorflow as tf
-from deprecated import deprecated
 
 # package dependencies
 from deepface.detectors import DetectorWrapper
