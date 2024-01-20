@@ -1,6 +1,5 @@
 import os
 import gdown
-import tensorflow as tf
 import numpy as np
 from deepface.basemodels import VGGFace
 from deepface.commons import functions
@@ -14,8 +13,7 @@ logger = Logger(module="extendedmodels.Gender")
 # -------------------------------------
 # dependency configurations
 
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
-
+tf_version = functions.get_tf_major_version()
 if tf_version == 1:
     from keras.models import Model, Sequential
     from keras.layers import Convolution2D, Flatten, Activation

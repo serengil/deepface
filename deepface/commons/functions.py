@@ -21,9 +21,12 @@ logger = Logger(module="commons.functions")
 # --------------------------------------------------
 # configurations of dependencies
 
-tf_version = tf.__version__
-tf_major_version = int(tf_version.split(".", maxsplit=1)[0])
-tf_minor_version = int(tf_version.split(".")[1])
+
+def get_tf_major_version() -> int:
+    return int(tf.__version__.split(".", maxsplit=1)[0])
+
+
+tf_major_version = get_tf_major_version()
 
 if tf_major_version == 1:
     from keras.preprocessing import image

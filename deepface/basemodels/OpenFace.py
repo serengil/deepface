@@ -7,7 +7,7 @@ from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.OpenFace")
 
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
+tf_version = functions.get_tf_major_version()
 if tf_version == 1:
     from keras.models import Model
     from keras.layers import Conv2D, ZeroPadding2D, Input, concatenate
@@ -30,6 +30,7 @@ class OpenFace(FacialRecognition):
     """
     OpenFace model class
     """
+
     def __init__(self):
         self.model = load_model()
         self.model_name = "OpenFace"
