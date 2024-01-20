@@ -1,9 +1,9 @@
 from abc import ABC
 from typing import Any, Union
 import numpy as np
-import tensorflow as tf
+from deepface.commons import functions
 
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
+tf_version = functions.get_tf_major_version()
 if tf_version == 2:
     from tensorflow.keras.models import Model
 else:

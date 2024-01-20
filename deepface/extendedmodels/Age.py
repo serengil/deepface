@@ -1,7 +1,6 @@
 import os
 import gdown
 import numpy as np
-import tensorflow as tf
 from deepface.basemodels import VGGFace
 from deepface.commons import functions
 from deepface.commons.logger import Logger
@@ -12,7 +11,7 @@ logger = Logger(module="extendedmodels.Age")
 # ----------------------------------------
 # dependency configurations
 
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
+tf_version = functions.get_tf_major_version()
 
 if tf_version == 1:
     from keras.models import Model, Sequential
