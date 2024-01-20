@@ -32,24 +32,20 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
 if tf_version == 2:
     tf.get_logger().setLevel(logging.ERROR)
-    from tensorflow.keras.models import Model
-else:
-    from keras.models import Model
 # -----------------------------------
 
 functions.initialize_folder()
 
 
-def build_model(model_name: str) -> Union[Model, Any]:
+def build_model(model_name: str) -> Any:
     """
     This function builds a deepface model
-    Parameters:
-            model_name (string): face recognition or facial attribute model
-                    VGG-Face, Facenet, OpenFace, DeepFace, DeepID for face recognition
-                    Age, Gender, Emotion, Race for facial attributes
-
+    Args:
+        model_name (string): face recognition or facial attribute model
+            VGG-Face, Facenet, OpenFace, DeepFace, DeepID for face recognition
+            Age, Gender, Emotion, Race for facial attributes
     Returns:
-            built deepface model ( (tf.)keras.models.Model )
+            built model with corresponding class
     """
     return modeling.build_model(model_name=model_name)
 
