@@ -3,6 +3,7 @@ import gdown
 import tensorflow as tf
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.VGGFace")
 
@@ -37,8 +38,23 @@ else:
 
 # ---------------------------------------
 
+# pylint: disable=too-few-public-methods
+class VggFace(FacialRecognition):
+    """
+    VGG-Face model class
+    """
 
-def baseModel() -> Sequential:
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "VGG-Face"
+
+
+def base_model() -> Sequential:
+    """
+    Base model of VGG-Face being used for classification - not to find embeddings
+    Returns:
+        model (Sequential): model was trained to classify 2622 identities
+    """
     model = Sequential()
     model.add(ZeroPadding2D((1, 1), input_shape=(224, 224, 3)))
     model.add(Convolution2D(64, (3, 3), activation="relu"))
@@ -87,11 +103,16 @@ def baseModel() -> Sequential:
     return model
 
 
-def loadModel(
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.h5",
 ) -> Model:
+    """
+    Final VGG-Face model being used for finding embeddings
+    Returns:
+        model (Model): returning 4096 dimensional vectors
+    """
 
-    model = baseModel()
+    model = base_model()
 
     home = functions.get_deepface_home()
     output = home + "/.deepface/weights/vgg_face_weights.h5"

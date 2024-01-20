@@ -12,7 +12,7 @@ import tensorflow as tf
 from deprecated import deprecated
 
 # package dependencies
-from deepface.detectors import FaceDetector
+from deepface.detectors import DetectorWrapper
 from deepface.commons.logger import Logger
 
 logger = Logger(module="commons.functions")
@@ -168,8 +168,7 @@ def extract_faces(
     if detector_backend == "skip":
         face_objs = [(img, img_region, 0)]
     else:
-        face_detector = FaceDetector.build_model(detector_backend)
-        face_objs = FaceDetector.detect_faces(face_detector, detector_backend, img, align)
+        face_objs = DetectorWrapper.detect_faces(detector_backend, img, align)
 
     # in case of no face found
     if len(face_objs) == 0 and enforce_detection is True:

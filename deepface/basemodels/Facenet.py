@@ -3,6 +3,7 @@ import gdown
 import tensorflow as tf
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.Facenet")
 
@@ -42,12 +43,39 @@ else:
 
 # --------------------------------
 
+# pylint: disable=too-few-public-methods
+class FaceNet128d(FacialRecognition):
+    """
+    FaceNet-128d model class
+    """
+
+    def __init__(self):
+        self.model = load_facenet128d_model()
+        self.model_name = "FaceNet-128d"
+
+
+class FaceNet512d(FacialRecognition):
+    """
+    FaceNet-1512d model class
+    """
+
+    def __init__(self):
+        self.model = load_facenet512d_model()
+        self.model_name = "FaceNet-512d"
+
 
 def scaling(x, scale):
     return x * scale
 
 
-def InceptionResNetV2(dimension=128) -> Model:
+def InceptionResNetV2(dimension: int = 128) -> Model:
+    """
+    InceptionResNetV2 model
+    Args:
+        dimension (int): number of dimensions in the embedding layer
+    Returns:
+        model (Model)
+    """
 
     inputs = Input(shape=(160, 160, 3))
     x = Conv2D(32, 3, strides=2, padding="valid", use_bias=False, name="Conv2d_1a_3x3")(inputs)
@@ -1618,9 +1646,16 @@ def InceptionResNetV2(dimension=128) -> Model:
     return model
 
 
-def loadModel(
+def load_facenet128d_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.h5",
 ) -> Model:
+    """
+    Construct FaceNet-128d model, download weights and then load weights
+    Args:
+        dimension (int): construct FaceNet-128d or FaceNet-512d models
+    Returns:
+        model (Model)
+    """
     model = InceptionResNetV2()
 
     # -----------------------------------
@@ -1638,5 +1673,35 @@ def loadModel(
     model.load_weights(home + "/.deepface/weights/facenet_weights.h5")
 
     # -----------------------------------
+
+    return model
+
+
+def load_facenet512d_model(
+    url="https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.h5",
+) -> Model:
+    """
+    Construct FaceNet-512d model, download its weights and load
+    Returns:
+        model (Model)
+    """
+
+    model = InceptionResNetV2(dimension=512)
+
+    # -------------------------
+
+    home = functions.get_deepface_home()
+
+    if os.path.isfile(home + "/.deepface/weights/facenet512_weights.h5") != True:
+        logger.info("facenet512_weights.h5 will be downloaded...")
+
+        output = home + "/.deepface/weights/facenet512_weights.h5"
+        gdown.download(url, output, quiet=False)
+
+    # -------------------------
+
+    model.load_weights(home + "/.deepface/weights/facenet512_weights.h5")
+
+    # -------------------------
 
     return model

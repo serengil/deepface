@@ -1,9 +1,11 @@
 import os
 import gdown
 import tensorflow as tf
+import numpy as np
 from deepface.basemodels import VGGFace
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.Demography import Demography
 
 logger = Logger(module="extendedmodels.Gender")
 
@@ -25,12 +27,30 @@ else:
 # Labels for the genders that can be detected by the model.
 labels = ["Woman", "Man"]
 
+# pylint: disable=too-few-public-methods
+class Gender(Demography):
+    """
+    Gender model class
+    """
 
-def loadModel(
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "Gender"
+
+    def predict(self, img: np.ndarray) -> np.ndarray:
+        return self.model.predict(img, verbose=0)[0, :]
+
+
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.h5",
 ) -> Model:
+    """
+    Construct gender model, download its weights and load
+    Returns:
+        model (Model)
+    """
 
-    model = VGGFace.baseModel()
+    model = VGGFace.base_model()
 
     # --------------------------
 

@@ -4,6 +4,7 @@ import gdown
 import tensorflow as tf
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.FbDeepFace")
 
@@ -35,12 +36,23 @@ else:
 
 
 # -------------------------------------
-# pylint: disable=line-too-long
+# pylint: disable=line-too-long, too-few-public-methods
+class DeepFace(FacialRecognition):
+    """
+    Fb's DeepFace model class
+    """
+
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "DeepFace"
 
 
-def loadModel(
+def load_model(
     url="https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip",
 ) -> Model:
+    """
+    Construct DeepFace model, download its weights and load
+    """
     base_model = Sequential()
     base_model.add(
         Convolution2D(32, (11, 11), activation="relu", name="C1", input_shape=(152, 152, 3))

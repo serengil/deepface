@@ -4,12 +4,11 @@ from typing import Any, Dict, List, Union
 # 3rd party dependencies
 import numpy as np
 from tqdm import tqdm
-import cv2
 
 # project dependencies
 from deepface.modules import modeling
 from deepface.commons import functions
-from deepface.extendedmodels import Age, Gender, Race, Emotion
+from deepface.extendedmodels import Gender, Race, Emotion
 
 
 def analyze(
@@ -123,18 +122,10 @@ def analyze(
                 pbar.set_description(f"Action: {action}")
 
                 if action == "emotion":
-                    img_gray = cv2.cvtColor(img_content[0], cv2.COLOR_BGR2GRAY)
-                    img_gray = cv2.resize(img_gray, (48, 48))
-                    img_gray = np.expand_dims(img_gray, axis=0)
-
-                    emotion_predictions = modeling.build_model("Emotion").predict(
-                        img_gray, verbose=0
-                    )[0, :]
-
+                    emotion_predictions = modeling.build_model("Emotion").predict(img_content)
                     sum_of_predictions = emotion_predictions.sum()
 
                     obj["emotion"] = {}
-
                     for i, emotion_label in enumerate(Emotion.labels):
                         emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
                         obj["emotion"][emotion_label] = emotion_prediction
@@ -142,17 +133,12 @@ def analyze(
                     obj["dominant_emotion"] = Emotion.labels[np.argmax(emotion_predictions)]
 
                 elif action == "age":
-                    age_predictions = modeling.build_model("Age").predict(img_content, verbose=0)[
-                        0, :
-                    ]
-                    apparent_age = Age.findApparentAge(age_predictions)
+                    apparent_age = modeling.build_model("Age").predict(img_content)
                     # int cast is for exception - object of type 'float32' is not JSON serializable
                     obj["age"] = int(apparent_age)
 
                 elif action == "gender":
-                    gender_predictions = modeling.build_model("Gender").predict(
-                        img_content, verbose=0
-                    )[0, :]
+                    gender_predictions = modeling.build_model("Gender").predict(img_content)
                     obj["gender"] = {}
                     for i, gender_label in enumerate(Gender.labels):
                         gender_prediction = 100 * gender_predictions[i]
@@ -161,9 +147,7 @@ def analyze(
                     obj["dominant_gender"] = Gender.labels[np.argmax(gender_predictions)]
 
                 elif action == "race":
-                    race_predictions = modeling.build_model("Race").predict(img_content, verbose=0)[
-                        0, :
-                    ]
+                    race_predictions = modeling.build_model("Race").predict(img_content)
                     sum_of_predictions = race_predictions.sum()
 
                     obj["race"] = {}

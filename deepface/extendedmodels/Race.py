@@ -1,9 +1,11 @@
 import os
 import gdown
 import tensorflow as tf
+import numpy as np
 from deepface.basemodels import VGGFace
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.Demography import Demography
 
 logger = Logger(module="extendedmodels.Race")
 
@@ -23,12 +25,28 @@ else:
 # Labels for the ethnic phenotypes that can be detected by the model.
 labels = ["asian", "indian", "black", "white", "middle eastern", "latino hispanic"]
 
+# pylint: disable=too-few-public-methods
+class Race(Demography):
+    """
+    Race model class
+    """
 
-def loadModel(
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "Race"
+
+    def predict(self, img: np.ndarray) -> np.ndarray:
+        return self.model.predict(img, verbose=0)[0, :]
+
+
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5",
 ) -> Model:
+    """
+    Construct race model, download its weights and load
+    """
 
-    model = VGGFace.baseModel()
+    model = VGGFace.base_model()
 
     # --------------------------
 

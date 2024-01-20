@@ -5,6 +5,7 @@ import tensorflow as tf
 from deepface.basemodels import VGGFace
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.Demography import Demography
 
 logger = Logger(module="extendedmodels.Age")
 
@@ -22,12 +23,31 @@ else:
 
 # ----------------------------------------
 
+# pylint: disable=too-few-public-methods
+class ApparentAge(Demography):
+    """
+    Age model class
+    """
 
-def loadModel(
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "Age"
+
+    def predict(self, img: np.ndarray) -> np.float64:
+        age_predictions = self.model.predict(img, verbose=0)[0, :]
+        return find_apparent_age(age_predictions)
+
+
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/age_model_weights.h5",
 ) -> Model:
+    """
+    Construct age model, download its weights and load
+    Returns:
+        model (Model)
+    """
 
-    model = VGGFace.baseModel()
+    model = VGGFace.base_model()
 
     # --------------------------
 
@@ -60,7 +80,14 @@ def loadModel(
     # --------------------------
 
 
-def findApparentAge(age_predictions) -> np.float64:
+def find_apparent_age(age_predictions: np.ndarray) -> np.float64:
+    """
+    Find apparent age prediction from a given probas of ages
+    Args:
+        age_predictions (?)
+    Returns:
+        apparent_age (float)
+    """
     output_indexes = np.array(list(range(0, 101)))
     apparent_age = np.sum(age_predictions * output_indexes)
     return apparent_age

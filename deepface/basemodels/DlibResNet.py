@@ -4,10 +4,31 @@ import gdown
 import numpy as np
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.DlibResNet")
 
 # pylint: disable=too-few-public-methods
+
+
+class Dlib(FacialRecognition):
+    """
+    Dlib model class
+    """
+
+    def __init__(self):
+        self.model = DlibResNet()
+        self.model_name = "Dlib"
+
+    def find_embeddings(self, img: np.ndarray) -> list:
+        """
+        Custom find embeddings function of Dlib different than FacialRecognition's one
+        Args:
+            img (np.ndarray)
+        Retunrs:
+            embeddings (list)
+        """
+        return self.model.predict(img)[0].tolist()
 
 
 class DlibResNet:

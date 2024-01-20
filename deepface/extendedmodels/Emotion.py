@@ -1,8 +1,11 @@
 import os
 import gdown
 import tensorflow as tf
+import numpy as np
+import cv2
 from deepface.commons import functions
 from deepface.commons.logger import Logger
+from deepface.models.Demography import Demography
 
 logger = Logger(module="extendedmodels.Emotion")
 
@@ -30,10 +33,31 @@ else:
 # Labels for the emotions that can be detected by the model.
 labels = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
 
+# pylint: disable=too-few-public-methods
+class FacialExpression(Demography):
+    """
+    Emotion model class
+    """
 
-def loadModel(
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "Emotion"
+
+    def predict(self, img: np.ndarray) -> np.ndarray:
+        img_gray = cv2.cvtColor(img[0], cv2.COLOR_BGR2GRAY)
+        img_gray = cv2.resize(img_gray, (48, 48))
+        img_gray = np.expand_dims(img_gray, axis=0)
+
+        emotion_predictions = self.model.predict(img_gray, verbose=0)[0, :]
+        return emotion_predictions
+
+
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5",
 ) -> Sequential:
+    """
+    Consruct emotion model, download and load weights
+    """
 
     num_classes = 7
 
