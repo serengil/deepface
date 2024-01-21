@@ -72,7 +72,7 @@ def represent(
     if detector_backend != "skip":
         img_objs = functions.extract_faces(
             img=img_path,
-            target_size=target_size,
+            target_size=(target_size[1], target_size[0]),
             detector_backend=detector_backend,
             grayscale=False,
             enforce_detection=enforce_detection,
