@@ -29,38 +29,47 @@ def find(
     silent: bool = False,
 ) -> List[pd.DataFrame]:
     """
-    This function applies verification several times and find the identities in a database
+    Identify individuals in a database
 
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or based64 encoded image.
-            Source image can have many faces. Then, result will be the size of number of
-            faces in the source image.
+    Args:
+        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
+            or a base64 encoded image. If the source image contains multiple faces, the result will
+            include information for each detected face.
 
-            db_path (string): You should store some image files in a folder and pass the
-            exact folder path to this. A database image can also have many faces.
-            Then, all detected faces in db side will be considered in the decision.
+        db_path (string): Path to the folder containing image files. All detected faces
+            in the database will be considered in the decision-making process.
 
-            model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID,
-            Dlib, ArcFace, SFace or Ensemble
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace
 
-            distance_metric (string): cosine, euclidean, euclidean_l2
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'euclidean_l2'.
 
-            enforce_detection (bool): The function throws exception if a face could not be detected.
-            Set this to False if you don't want to get exception. This might be convenient for low
-            resolution images.
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Default is True. Set to False to avoid the exception for low-resolution images.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
-            align (boolean): alignment according to the eye positions.
+        align (boolean): Perform alignment based on the eye positions.
 
-            normalization (string): normalize the input image before feeding to model
+        normalization (string): Normalize the input image before feeding it to the model.
+            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
 
-            silent (boolean): disable some logging and progress bars
+        silent (boolean): Suppress or allow some log messages for a quieter analysis process.
 
     Returns:
-            This function returns list of pandas data frame. Each item of the list corresponding to
-            an identity in the img_path.
+        results (List[pd.DataFrame]): A list of pandas dataframes. Each dataframe corresponds
+            to the identity information for an individual detected in the source image.
+            The DataFrame columns include:
+
+            - 'identity': Identity label of the detected individual.
+            - 'target_x', 'target_y', 'target_w', 'target_h': Bounding box coordinates of the
+                    target face in the database.
+            - 'source_x', 'source_y', 'source_w', 'source_h': Bounding box coordinates of the
+                    detected face in the source image.
+            - '{model_name}_{distance_metric}': Similarity score between the faces based on the
+                    specified model and distance metric
     """
 
     tic = time.time()

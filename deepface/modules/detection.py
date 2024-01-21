@@ -18,35 +18,32 @@ def extract_faces(
     grayscale: bool = False,
 ) -> List[Dict[str, Any]]:
     """
-    This function applies pre-processing stages of a face recognition pipeline
-    including detection and alignment
+    Extract faces from a given image
 
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image.
-            Source image can have many face. Then, result will be the size of number
-            of faces appearing in that source image.
+    Args:
+        img_path (str or np.ndarray): Path to the first image. Accepts exact image path
+            as a string, numpy array (BGR), or base64 encoded images.
 
-            target_size (tuple): final shape of facial image. black pixels will be
+        target_size (tuple): final shape of facial image. black pixels will be
             added to resize the image.
 
-            detector_backend (string): face detection backends are retinaface, mtcnn,
-            opencv, ssd or dlib
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv)
 
-            enforce_detection (boolean): function throws exception if face cannot be
-            detected in the fed image. Set this to False if you do not want to get
-            an exception and run the function anyway.
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Default is True. Set to False to avoid the exception for low-resolution images.
 
-            align (boolean): alignment according to the eye positions.
+        align (bool): Flag to enable face alignment (default is True).
 
-            grayscale (boolean): extracting faces in rgb or gray scale
+        grayscale (boolean): Flag to convert the image to grayscale before
+            processing (default is False).
+
 
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary contains:
         - "face" (np.ndarray): The detected face as a NumPy array.
         - "facial_area" (List[float]): The detected face's regions represented as a list of floats.
         - "confidence" (float): The confidence score associated with the detected face.
-
-
     """
 
     resp_objs = []

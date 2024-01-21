@@ -21,34 +21,38 @@ def verify(
     normalization: str = "base",
 ) -> Dict[str, Any]:
     """
-    This function verifies an image pair is same person or different persons. In the background,
-    verification function represents facial images as vectors and then calculates the similarity
-    between those vectors. Vectors of same person images should have more similarity (or less
-    distance) than vectors of different persons.
+    Verify if an image pair represents the same person or different persons.
 
-    Parameters:
-            img1_path, img2_path: exact image path as string. numpy array (BGR) or based64 encoded
-            images are also welcome. If one of pair has more than one face, then we will compare the
-            face pair with max similarity.
+    The verification function converts facial images to vectors and calculates the similarity
+    between those vectors. Vectors of images of the same person should exhibit higher similarity
+    (or lower distance) than vectors of images of different persons.
 
-            model_name (str): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib
-            , ArcFace and SFace
+    Args:
+        img1_path (str or np.ndarray): Path to the first image. Accepts exact image path
+            as a string, numpy array (BGR), or base64 encoded images.
 
-            distance_metric (string): cosine, euclidean, euclidean_l2
+        img2_path (str or np.ndarray): Path to the second image. Accepts exact image path
+            as a string, numpy array (BGR), or base64 encoded images.
 
-            enforce_detection (boolean): If no face could not be detected in an image, then this
-            function will return exception by default. Set this to False not to have this exception.
-            This might be convenient for low resolution images.
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
-            align (boolean): alignment according to the eye positions.
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'euclidean_l2'.
 
-            normalization (string): normalize the input image before feeding to model
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Default is True. Set to False to avoid the exception for low-resolution images.
+
+        align (bool): Flag to enable face alignment (default is True).
+
+        normalization (string): Normalize the input image before feeding it to the model.
+            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
 
     Returns:
-            Verify function returns a dictionary.
+        result (dict): A dictionary containing verification results.
 
             {
                     "verified": True
@@ -62,7 +66,6 @@ def verify(
                     }
                     , "time": 2
             }
-
     """
 
     tic = time.time()

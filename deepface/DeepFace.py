@@ -61,34 +61,38 @@ def verify(
     normalization: str = "base",
 ) -> Dict[str, Any]:
     """
-    This function verifies an image pair is same person or different persons. In the background,
-    verification function represents facial images as vectors and then calculates the similarity
-    between those vectors. Vectors of same person images should have more similarity (or less
-    distance) than vectors of different persons.
+    Verify if an image pair represents the same person or different persons.
 
-    Parameters:
-            img1_path, img2_path: exact image path as string. numpy array (BGR) or based64 encoded
-            images are also welcome. If one of pair has more than one face, then we will compare the
-            face pair with max similarity.
+    The verification function converts facial images to vectors and calculates the similarity
+    between those vectors. Vectors of images of the same person should exhibit higher similarity
+    (or lower distance) than vectors of images of different persons.
 
-            model_name (str): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib
-            , ArcFace and SFace
+    Args:
+        img1_path (str or np.ndarray): Path to the first image. Accepts exact image path
+            as a string, numpy array (BGR), or base64 encoded images.
 
-            distance_metric (string): cosine, euclidean, euclidean_l2
+        img2_path (str or np.ndarray): Path to the second image. Accepts exact image path
+            as a string, numpy array (BGR), or base64 encoded images.
 
-            enforce_detection (boolean): If no face could not be detected in an image, then this
-            function will return exception by default. Set this to False not to have this exception.
-            This might be convenient for low resolution images.
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
-            align (boolean): alignment according to the eye positions.
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'euclidean_l2'.
 
-            normalization (string): normalize the input image before feeding to model
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Default is True. Set to False to avoid the exception for low-resolution images.
+
+        align (bool): Flag to enable face alignment (default is True).
+
+        normalization (string): Normalize the input image before feeding it to the model.
+            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
 
     Returns:
-            Verify function returns a dictionary.
+        result (dict): A dictionary containing verification results.
 
             {
                     "verified": True
@@ -102,7 +106,6 @@ def verify(
                     }
                     , "time": 2
             }
-
     """
 
     return verification.verify(
@@ -126,63 +129,64 @@ def analyze(
     silent: bool = False,
 ) -> List[Dict[str, Any]]:
     """
-    This function analyzes facial attributes including age, gender, emotion and race.
-    In the background, analysis function builds convolutional neural network models to
-    classify age, gender, emotion and race of the input image.
+    Analyze facial attributes such as age, gender, emotion, and race in the provided image.
 
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image could be passed.
-            If source image has more than one face, then result will be size of number of faces
-            appearing in the image.
+    Args:
+        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
+            or a base64 encoded image. If the source image contains multiple faces, the result will
+            include information for each detected face.
 
-            actions (tuple): The default is ('age', 'gender', 'emotion', 'race'). You can drop
-            some of those attributes.
+        actions (tuple): Attributes to analyze. The default is ('age', 'gender', 'emotion', 'race').
+            You can exclude some of these attributes from the analysis if needed.
 
-            enforce_detection (bool): The function throws exception if no face detected by default.
-            Set this to False if you don't want to get exception. This might be convenient for low
-            resolution images.
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Default is True. Set to False to avoid the exception for low-resolution images.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
-            align (boolean): alignment according to the eye positions.
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'euclidean_l2'.
 
-            silent (boolean): disable (some) log messages
+        align (boolean): Perform alignment based on the eye positions.
+
+        silent (boolean): Suppress or allow some log messages for a quieter analysis process.
 
     Returns:
-            The function returns a list of dictionaries for each face appearing in the image.
+        results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
+        the analysis results for a detected face. Example:
 
-            [
-                    {
-                            "region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
-                            "age": 28.66,
-                            'face_confidence': 0.9993908405303955,
-                            "dominant_gender": "Woman",
-                            "gender": {
-                                    'Woman': 99.99407529830933,
-                                    'Man': 0.005928758764639497,
-                            }
-                            "dominant_emotion": "neutral",
-                            "emotion": {
-                                    'sad': 37.65260875225067,
-                                    'angry': 0.15512987738475204,
-                                    'surprise': 0.0022171278033056296,
-                                    'fear': 1.2489334680140018,
-                                    'happy': 4.609785228967667,
-                                    'disgust': 9.698561953541684e-07,
-                                    'neutral': 56.33133053779602
-                            }
-                            "dominant_race": "white",
-                            "race": {
-                                    'indian': 0.5480832420289516,
-                                    'asian': 0.7830780930817127,
-                                    'latino hispanic': 2.0677512511610985,
-                                    'black': 0.06337375962175429,
-                                    'middle eastern': 3.088453598320484,
-                                    'white': 93.44925880432129
-                            }
-                    }
-            ]
+        [
+                {
+                        "region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
+                        "age": 28.66,
+                        'face_confidence': 0.9993908405303955,
+                        "dominant_gender": "Woman",
+                        "gender": {
+                                'Woman': 99.99407529830933,
+                                'Man': 0.005928758764639497,
+                        }
+                        "dominant_emotion": "neutral",
+                        "emotion": {
+                                'sad': 37.65260875225067,
+                                'angry': 0.15512987738475204,
+                                'surprise': 0.0022171278033056296,
+                                'fear': 1.2489334680140018,
+                                'happy': 4.609785228967667,
+                                'disgust': 9.698561953541684e-07,
+                                'neutral': 56.33133053779602
+                        }
+                        "dominant_race": "white",
+                        "race": {
+                                'indian': 0.5480832420289516,
+                                'asian': 0.7830780930817127,
+                                'latino hispanic': 2.0677512511610985,
+                                'black': 0.06337375962175429,
+                                'middle eastern': 3.088453598320484,
+                                'white': 93.44925880432129
+                        }
+                }
+        ]
     """
     return demography.analyze(
         img_path=img_path,
@@ -206,38 +210,47 @@ def find(
     silent: bool = False,
 ) -> List[pd.DataFrame]:
     """
-    This function applies verification several times and find the identities in a database
+    Identify individuals in a database
 
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or based64 encoded image.
-            Source image can have many faces. Then, result will be the size of number of
-            faces in the source image.
+    Args:
+        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
+            or a base64 encoded image. If the source image contains multiple faces, the result will
+            include information for each detected face.
 
-            db_path (string): You should store some image files in a folder and pass the
-            exact folder path to this. A database image can also have many faces.
-            Then, all detected faces in db side will be considered in the decision.
+        db_path (string): Path to the folder containing image files. All detected faces
+            in the database will be considered in the decision-making process.
 
-            model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID,
-            Dlib, ArcFace, SFace or Ensemble
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace
 
-            distance_metric (string): cosine, euclidean, euclidean_l2
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'euclidean_l2'.
 
-            enforce_detection (bool): The function throws exception if a face could not be detected.
-            Set this to False if you don't want to get exception. This might be convenient for low
-            resolution images.
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Default is True. Set to False to avoid the exception for low-resolution images.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
-            align (boolean): alignment according to the eye positions.
+        align (boolean): Perform alignment based on the eye positions.
 
-            normalization (string): normalize the input image before feeding to model
+        normalization (string): Normalize the input image before feeding it to the model.
+            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
 
-            silent (boolean): disable some logging and progress bars
+        silent (boolean): Suppress or allow some log messages for a quieter analysis process.
 
     Returns:
-            This function returns list of pandas data frame. Each item of the list corresponding to
-            an identity in the img_path.
+        results (List[pd.DataFrame]): A list of pandas dataframes. Each dataframe corresponds
+            to the identity information for an individual detected in the source image.
+            The DataFrame columns include:
+
+            - 'identity': Identity label of the detected individual.
+            - 'target_x', 'target_y', 'target_w', 'target_h': Bounding box coordinates of the
+                    target face in the database.
+            - 'source_x', 'source_y', 'source_w', 'source_h': Bounding box coordinates of the
+                    detected face in the source image.
+            - '{model_name}_{distance_metric}': Similarity score between the faces based on the
+                    specified model and distance metric
     """
     return recognition.find(
         img_path=img_path,
@@ -261,47 +274,40 @@ def represent(
     normalization: str = "base",
 ) -> List[Dict[str, Any]]:
     """
-    This function represents facial images as vectors. The function uses convolutional neural
-    networks models to generate vector embeddings.
+    Represent facial images as multi-dimensional vector embeddings.
 
-    Parameters:
-            img_path (string): exact image path. Alternatively, numpy array (BGR) or based64
-            encoded images could be passed. Source image can have many faces. Then, result will
-            be the size of number of faces appearing in the source image.
+    Args:
+        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
+            or a base64 encoded image. If the source image contains multiple faces, the result will
+            include information for each detected face.
 
-            model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
-            ArcFace, SFace
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace
 
-            enforce_detection (boolean): If no face could not be detected in an image, then this
-            function will return exception by default. Set this to False not to have this exception.
-            This might be convenient for low resolution images.
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Default is True. Set to False to avoid the exception for low-resolution images.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8. A special value `skip` could be used to skip face-detection
-            and only encode the given image.
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
-            align (boolean): alignment according to the eye positions.
+        align (boolean): Perform alignment based on the eye positions.
 
-            normalization (string): normalize the input image before feeding to model
+        normalization (string): Normalize the input image before feeding it to the model.
+            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
 
     Returns:
-            Represent function returns a list of object, each object has fields as follows:
-            {
-                // Multidimensional vector
-                // The number of dimensions is changing based on the reference model.
-                // E.g. FaceNet returns 128 dimensional vector;
-                //      VGG-Face returns 2622 dimensional vector.
-                "embedding": np.array,
+        results (List[Dict[str, Any]]): A list of dictionaries, each containing the
+            following fields:
 
-                // Detected Facial-Area by Face detection in dict format.
-                // (x, y) is left-corner point, and (w, h) is the width and height
-                // If `detector_backend` == `skip`, it is the full image area and nonsense.
-                "facial_area": dict{"x": int, "y": int, "w": int, "h": int},
-
-                // Face detection confidence.
-                // If `detector_backend` == `skip`, will be 0 and nonsense.
-                "face_confidence": float
-            }
+        - embedding (np.array): Multidimensional vector representing facial features.
+            The number of dimensions varies based on the reference model
+            (e.g., FaceNet returns 128 dimensions, VGG-Face returns 4096 dimensions).
+        - facial_area (dict): Detected facial area by face detection in dictionary format.
+            Contains 'x' and 'y' as the left-corner point, and 'w' and 'h'
+            as the width and height. If `detector_backend` is set to 'skip', it represents
+            the full image area and is nonsensical.
+        - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
+            to 'skip', the confidence will be 0 and is nonsensical.
     """
     return representation.represent(
         img_path=img_path,
@@ -324,26 +330,31 @@ def stream(
     frame_threshold: int = 5,
 ) -> None:
     """
-    This function applies real time face recognition and facial attribute analysis
+    Run real time face recognition and facial attribute analysis
 
-    Parameters:
-            db_path (string): facial database path. You should store some .jpg files in this folder.
+    Args:
+        db_path (string): Path to the folder containing image files. All detected faces
+            in the database will be considered in the decision-making process.
 
-            model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
-            ArcFace, SFace
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace
 
-            detector_backend (string): opencv, retinaface, mtcnn, ssd, dlib, mediapipe or yolov8.
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
-            distance_metric (string): cosine, euclidean, euclidean_l2
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'euclidean_l2'.
 
-            enable_facial_analysis (boolean): Set this to False to just run face recognition
+        enable_face_analysis (bool): Flag to enable face analysis (default is True).
 
-            source: Set this to 0 for access web cam. Otherwise, pass exact video path.
+        source (Any): The source for the video stream (default is 0, which represents the
+            default camera).
 
-            time_threshold (int): how many second analyzed image will be displayed
+        time_threshold (int): The time threshold (in seconds) for face recognition (default is 5).
 
-            frame_threshold (int): how many frames required to focus on face
-
+        frame_threshold (int): The frame threshold for face recognition (default is 5).
+    Returns:
+        None
     """
 
     time_threshold = max(time_threshold, 1)
@@ -370,32 +381,32 @@ def extract_faces(
     grayscale: bool = False,
 ) -> List[Dict[str, Any]]:
     """
-    This function applies pre-processing stages of a face recognition pipeline
-    including detection and alignment
+    Extract faces from a given image
 
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image.
-            Source image can have many face. Then, result will be the size of number
-            of faces appearing in that source image.
+    Args:
+        img_path (str or np.ndarray): Path to the first image. Accepts exact image path
+            as a string, numpy array (BGR), or base64 encoded images.
 
-            target_size (tuple): final shape of facial image. black pixels will be
+        target_size (tuple): final shape of facial image. black pixels will be
             added to resize the image.
 
-            detector_backend (string): face detection backends are retinaface, mtcnn,
-            opencv, ssd or dlib
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv)
 
-            enforce_detection (boolean): function throws exception if face cannot be
-            detected in the fed image. Set this to False if you do not want to get
-            an exception and run the function anyway.
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Default is True. Set to False to avoid the exception for low-resolution images.
 
-            align (boolean): alignment according to the eye positions.
+        align (bool): Flag to enable face alignment (default is True).
 
-            grayscale (boolean): extracting faces in rgb or gray scale
+        grayscale (boolean): Flag to convert the image to grayscale before
+            processing (default is False).
+
 
     Returns:
-            list of dictionaries. Each dictionary will have facial image itself,
-            extracted area from the original image and confidence score.
-
+        results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary contains:
+        - "face" (np.ndarray): The detected face as a NumPy array.
+        - "facial_area" (List[float]): The detected face's regions represented as a list of floats.
+        - "confidence" (float): The confidence score associated with the detected face.
     """
 
     return detection.extract_faces(
