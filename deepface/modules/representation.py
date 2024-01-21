@@ -20,47 +20,40 @@ def represent(
     normalization: str = "base",
 ) -> List[Dict[str, Any]]:
     """
-    This function represents facial images as vectors. The function uses convolutional neural
-    networks models to generate vector embeddings.
+    Represent facial images as multi-dimensional vector embeddings.
 
-    Parameters:
-            img_path (string): exact image path. Alternatively, numpy array (BGR) or based64
-            encoded images could be passed. Source image can have many faces. Then, result will
-            be the size of number of faces appearing in the source image.
+    Args:
+        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
+            or a base64 encoded image. If the source image contains multiple faces, the result will
+            include information for each detected face.
 
-            model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
-            ArcFace, SFace
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace
 
-            enforce_detection (boolean): If no face could not be detected in an image, then this
-            function will return exception by default. Set this to False not to have this exception.
-            This might be convenient for low resolution images.
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Default is True. Set to False to avoid the exception for low-resolution images.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8. A special value `skip` could be used to skip face-detection
-            and only encode the given image.
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
-            align (boolean): alignment according to the eye positions.
+        align (boolean): Perform alignment based on the eye positions.
 
-            normalization (string): normalize the input image before feeding to model
+        normalization (string): Normalize the input image before feeding it to the model.
+            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
 
     Returns:
-            Represent function returns a list of object, each object has fields as follows:
-            {
-                // Multidimensional vector
-                // The number of dimensions is changing based on the reference model.
-                // E.g. FaceNet returns 128 dimensional vector;
-                //      VGG-Face returns 2622 dimensional vector.
-                "embedding": np.array,
+        results (List[Dict[str, Any]]): A list of dictionaries, each containing the
+            following fields:
 
-                // Detected Facial-Area by Face detection in dict format.
-                // (x, y) is left-corner point, and (w, h) is the width and height
-                // If `detector_backend` == `skip`, it is the full image area and nonsense.
-                "facial_area": dict{"x": int, "y": int, "w": int, "h": int},
-
-                // Face detection confidence.
-                // If `detector_backend` == `skip`, will be 0 and nonsense.
-                "face_confidence": float
-            }
+        - embedding (np.array): Multidimensional vector representing facial features.
+            The number of dimensions varies based on the reference model
+            (e.g., FaceNet returns 128 dimensions, VGG-Face returns 4096 dimensions).
+        - facial_area (dict): Detected facial area by face detection in dictionary format.
+            Contains 'x' and 'y' as the left-corner point, and 'w' and 'h'
+            as the width and height. If `detector_backend` is set to 'skip', it represents
+            the full image area and is nonsensical.
+        - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
+            to 'skip', the confidence will be 0 and is nonsensical.
     """
     resp_objs = []
 

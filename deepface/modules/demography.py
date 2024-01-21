@@ -20,63 +20,64 @@ def analyze(
     silent: bool = False,
 ) -> List[Dict[str, Any]]:
     """
-    This function analyzes facial attributes including age, gender, emotion and race.
-    In the background, analysis function builds convolutional neural network models to
-    classify age, gender, emotion and race of the input image.
+    Analyze facial attributes such as age, gender, emotion, and race in the provided image.
 
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image could be passed.
-            If source image has more than one face, then result will be size of number of faces
-            appearing in the image.
+    Args:
+        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
+            or a base64 encoded image. If the source image contains multiple faces, the result will
+            include information for each detected face.
 
-            actions (tuple): The default is ('age', 'gender', 'emotion', 'race'). You can drop
-            some of those attributes.
+        actions (tuple): Attributes to analyze. The default is ('age', 'gender', 'emotion', 'race').
+            You can exclude some of these attributes from the analysis if needed.
 
-            enforce_detection (bool): The function throws exception if no face detected by default.
-            Set this to False if you don't want to get exception. This might be convenient for low
-            resolution images.
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Default is True. Set to False to avoid the exception for low-resolution images.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
-            align (boolean): alignment according to the eye positions.
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'euclidean_l2'.
 
-            silent (boolean): disable (some) log messages
+        align (boolean): Perform alignment based on the eye positions.
+
+        silent (boolean): Suppress or allow some log messages for a quieter analysis process.
 
     Returns:
-            The function returns a list of dictionaries for each face appearing in the image.
+        results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
+        the analysis results for a detected face. Example:
 
-            [
-                    {
-                            "region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
-                            "age": 28.66,
-                            'face_confidence': 0.9993908405303955,
-                            "dominant_gender": "Woman",
-                            "gender": {
-                                    'Woman': 99.99407529830933,
-                                    'Man': 0.005928758764639497,
-                            }
-                            "dominant_emotion": "neutral",
-                            "emotion": {
-                                    'sad': 37.65260875225067,
-                                    'angry': 0.15512987738475204,
-                                    'surprise': 0.0022171278033056296,
-                                    'fear': 1.2489334680140018,
-                                    'happy': 4.609785228967667,
-                                    'disgust': 9.698561953541684e-07,
-                                    'neutral': 56.33133053779602
-                            }
-                            "dominant_race": "white",
-                            "race": {
-                                    'indian': 0.5480832420289516,
-                                    'asian': 0.7830780930817127,
-                                    'latino hispanic': 2.0677512511610985,
-                                    'black': 0.06337375962175429,
-                                    'middle eastern': 3.088453598320484,
-                                    'white': 93.44925880432129
-                            }
-                    }
-            ]
+        [
+                {
+                        "region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
+                        "age": 28.66,
+                        'face_confidence': 0.9993908405303955,
+                        "dominant_gender": "Woman",
+                        "gender": {
+                                'Woman': 99.99407529830933,
+                                'Man': 0.005928758764639497,
+                        }
+                        "dominant_emotion": "neutral",
+                        "emotion": {
+                                'sad': 37.65260875225067,
+                                'angry': 0.15512987738475204,
+                                'surprise': 0.0022171278033056296,
+                                'fear': 1.2489334680140018,
+                                'happy': 4.609785228967667,
+                                'disgust': 9.698561953541684e-07,
+                                'neutral': 56.33133053779602
+                        }
+                        "dominant_race": "white",
+                        "race": {
+                                'indian': 0.5480832420289516,
+                                'asian': 0.7830780930817127,
+                                'latino hispanic': 2.0677512511610985,
+                                'black': 0.06337375962175429,
+                                'middle eastern': 3.088453598320484,
+                                'white': 93.44925880432129
+                        }
+                }
+        ]
     """
     # ---------------------------------
     # validate actions
