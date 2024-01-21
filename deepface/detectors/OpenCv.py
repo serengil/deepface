@@ -5,7 +5,7 @@ import numpy as np
 from deepface.models.Detector import Detector
 
 
-class OpenCv(Detector):
+class OpenCvClient(Detector):
     """
     Class to cover common face detection functionalitiy for OpenCv backend
     """

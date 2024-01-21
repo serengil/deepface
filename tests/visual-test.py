@@ -14,11 +14,12 @@ model_names = [
     "Facenet512",
     "OpenFace",
     "DeepFace",
-    "DeepID",
+    # "DeepID",
     "Dlib",
     "ArcFace",
     "SFace",
 ]
+
 detector_backends = ["opencv", "ssd", "dlib", "mtcnn", "retinaface"]
 
 
@@ -44,10 +45,11 @@ dfs = DeepFace.find(
 for df in dfs:
     logger.info(df)
 
+
 # extract faces
 for detector_backend in detector_backends:
     face_objs = DeepFace.extract_faces(
-        img_path="dataset/img1.jpg", detector_backend=detector_backend
+        img_path="dataset/img11.jpg", detector_backend=detector_backend
     )
     for face_obj in face_objs:
         face = face_obj["face"]

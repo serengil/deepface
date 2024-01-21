@@ -3,7 +3,7 @@ import gdown
 import cv2
 import pandas as pd
 import numpy as np
-from deepface.detectors import OpenCvWrapper
+from deepface.detectors import OpenCv
 from deepface.commons import functions
 from deepface.models.Detector import Detector
 from deepface.commons.logger import Logger
@@ -13,7 +13,7 @@ logger = Logger(module="detectors.SsdWrapper")
 # pylint: disable=line-too-long
 
 
-class Ssd(Detector):
+class SsdClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 
@@ -65,7 +65,7 @@ class Ssd(Detector):
 
         detector = {}
         detector["face_detector"] = face_detector
-        detector["opencv_module"] = OpenCvWrapper.OpenCv()
+        detector["opencv_module"] = OpenCv.OpenCvClient()
 
         return detector
 
@@ -134,7 +134,7 @@ class Ssd(Detector):
                 confidence = instance["confidence"]
 
                 if align:
-                    opencv_module: OpenCvWrapper.OpenCv = self.model["opencv_module"]
+                    opencv_module: OpenCv.OpenCv = self.model["opencv_module"]
                     left_eye, right_eye = opencv_module.find_eyes(detected_face)
                     detected_face = self.align_face(
                         img=detected_face, left_eye=left_eye, right_eye=right_eye

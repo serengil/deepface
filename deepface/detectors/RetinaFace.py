@@ -4,7 +4,7 @@ from retinaface.commons import postprocess
 from deepface.models.Detector import Detector
 
 
-class RetinaFace(Detector):
+class RetinaFaceClient(Detector):
     def __init__(self):
         self.model = rf.build_model()
 

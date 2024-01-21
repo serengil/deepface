@@ -5,7 +5,7 @@ from deepface.models.Detector import Detector
 # Link - https://google.github.io/mediapipe/solutions/face_detection
 
 
-class MediaPipe(Detector):
+class MediaPipeClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 

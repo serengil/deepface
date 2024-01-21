@@ -10,7 +10,7 @@ from deepface.models.Detector import Detector
 logger = Logger(module="detectors.YunetWrapper")
 
 
-class YuNet(Detector):
+class YuNetClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 

@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any, Union
 import numpy as np
 from deepface.commons import functions
@@ -16,13 +16,6 @@ class FacialRecognition(ABC):
     model: Union[Model, Any]
     model_name: str
 
+    @abstractmethod
     def find_embeddings(self, img: np.ndarray) -> list:
-        if not isinstance(self.model, Model):
-            raise ValueError(
-                "If a facial recognition model is not type of (tf.)keras.models.Model,"
-                "Then its find_embeddings method must be implemented its own module."
-                f"However {self.model_name}'s model type is {type(self.model)}"
-            )
-        # model.predict causes memory issue when it is called in a for loop
-        # embedding = model.predict(img, verbose=0)[0].tolist()
-        return self.model(img, training=False).numpy()[0].tolist()
+        pass

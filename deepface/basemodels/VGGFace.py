@@ -1,5 +1,6 @@
 import os
 import gdown
+import numpy as np
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
@@ -37,7 +38,7 @@ else:
 # ---------------------------------------
 
 # pylint: disable=too-few-public-methods
-class VggFace(FacialRecognition):
+class VggFaceClient(FacialRecognition):
     """
     VGG-Face model class
     """
@@ -45,6 +46,18 @@ class VggFace(FacialRecognition):
     def __init__(self):
         self.model = load_model()
         self.model_name = "VGG-Face"
+
+    def find_embeddings(self, img: np.ndarray) -> list:
+        """
+        find embeddings with VGG-Face model
+        Args:
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
+        """
+        # model.predict causes memory issue when it is called in a for loop
+        # embedding = model.predict(img, verbose=0)[0].tolist()
+        return self.model(img, training=False).numpy()[0].tolist()
 
 
 def base_model() -> Sequential:

@@ -16,7 +16,7 @@ WEIGHT_URL = "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb"
 LANDMARKS_CONFIDENCE_THRESHOLD = 0.5
 
 
-class Yolo(Detector):
+class YoloClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 

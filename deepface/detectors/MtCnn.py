@@ -4,7 +4,7 @@ from mtcnn import MTCNN
 from deepface.models.Detector import Detector
 
 
-class MtCnn(Detector):
+class MtCnnClient(Detector):
     """
     Class to cover common face detection functionalitiy for MtCnn backend
     """

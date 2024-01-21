@@ -2,15 +2,15 @@ from typing import Any
 import numpy as np
 from deepface.models.Detector import Detector
 from deepface.detectors import (
-    OpenCvWrapper,
-    SsdWrapper,
-    DlibWrapper,
-    MtcnnWrapper,
-    RetinaFaceWrapper,
-    MediapipeWrapper,
-    YoloWrapper,
-    YunetWrapper,
-    FastMtcnnWrapper,
+    FastMtCnn,
+    MediaPipe,
+    MtCnn,
+    OpenCv,
+    Dlib,
+    RetinaFace,
+    Ssd,
+    Yolo,
+    YuNet,
 )
 
 
@@ -25,15 +25,15 @@ def build_model(detector_backend: str) -> Any:
     global face_detector_obj  # singleton design pattern
 
     backends = {
-        "opencv": OpenCvWrapper.OpenCv,
-        "mtcnn": MtcnnWrapper.MtCnn,
-        "ssd": SsdWrapper.Ssd,
-        "dlib": DlibWrapper.Dlib,
-        "retinaface": RetinaFaceWrapper.RetinaFace,
-        "mediapipe": MediapipeWrapper.MediaPipe,
-        "yolov8": YoloWrapper.Yolo,
-        "yunet": YunetWrapper.YuNet,
-        "fastmtcnn": FastMtcnnWrapper.FastMtCnn,
+        "opencv": OpenCv.OpenCvClient,
+        "mtcnn": MtCnn.MtCnnClient,
+        "ssd": Ssd.SsdClient,
+        "dlib": Dlib.DlibClient,
+        "retinaface": RetinaFace.RetinaFaceClient,
+        "mediapipe": MediaPipe.MediaPipeClient,
+        "yolov8": Yolo.YoloClient,
+        "yunet": YuNet.YuNetClient,
+        "fastmtcnn": FastMtCnn.FastMtCnnClient,
     }
 
     if not "face_detector_obj" in globals():

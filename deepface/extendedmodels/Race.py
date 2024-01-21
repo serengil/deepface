@@ -25,7 +25,7 @@ else:
 labels = ["asian", "indian", "black", "white", "middle eastern", "latino hispanic"]
 
 # pylint: disable=too-few-public-methods
-class Race(Demography):
+class RaceClient(Demography):
     """
     Race model class
     """

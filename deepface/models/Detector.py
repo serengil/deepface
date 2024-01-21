@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Union, Optional
 import numpy as np
 from PIL import Image
 
@@ -12,7 +12,10 @@ class Detector(ABC):
         pass
 
     def align_face(
-        self, img: np.ndarray, left_eye: Union[list, tuple], right_eye: Union[list, tuple]
+        self,
+        img: np.ndarray,
+        left_eye: Optional[Union[list, tuple]] = None,
+        right_eye: Optional[Union[list, tuple]] = None,
     ) -> np.ndarray:
         """
         Align a given image horizantally with respect to their left and right eye locations

@@ -23,7 +23,7 @@ else:
 # ----------------------------------------
 
 # pylint: disable=too-few-public-methods
-class ApparentAge(Demography):
+class ApparentAgeClient(Demography):
     """
     Age model class
     """

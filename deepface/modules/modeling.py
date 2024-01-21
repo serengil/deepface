@@ -5,12 +5,12 @@ from typing import Any
 from deepface.basemodels import (
     VGGFace,
     OpenFace,
-    Facenet,
     FbDeepFace,
     DeepID,
-    DlibResNet,
     ArcFace,
     SFace,
+    Dlib,
+    FaceNet,
 )
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 
@@ -31,19 +31,19 @@ def build_model(model_name: str) -> Any:
     global model_obj
 
     models = {
-        "VGG-Face": VGGFace.VggFace,
-        "OpenFace": OpenFace.OpenFace,
-        "Facenet": Facenet.FaceNet128d,
-        "Facenet512": Facenet.FaceNet512d,
-        "DeepFace": FbDeepFace.DeepFace,
-        "DeepID": DeepID.DeepId,
-        "Dlib": DlibResNet.Dlib,
-        "ArcFace": ArcFace.ArcFace,
-        "SFace": SFace.SFace,
-        "Emotion": Emotion.FacialExpression,
-        "Age": Age.ApparentAge,
-        "Gender": Gender.Gender,
-        "Race": Race.Race,
+        "VGG-Face": VGGFace.VggFaceClient,
+        "OpenFace": OpenFace.OpenFaceClient,
+        "Facenet": FaceNet.FaceNet128dClient,
+        "Facenet512": FaceNet.FaceNet512dClient,
+        "DeepFace": FbDeepFace.DeepFaceClient,
+        "DeepID": DeepID.DeepIdClient,
+        "Dlib": Dlib.DlibClient,
+        "ArcFace": ArcFace.ArcFaceClient,
+        "SFace": SFace.SFaceClient,
+        "Emotion": Emotion.EmotionClient,
+        "Age": Age.ApparentAgeClient,
+        "Gender": Gender.GenderClient,
+        "Race": Race.RaceClient,
     }
 
     if not "model_obj" in globals():

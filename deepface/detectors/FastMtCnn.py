@@ -7,7 +7,7 @@ from deepface.models.Detector import Detector
 # Examples https://www.kaggle.com/timesler/guide-to-mtcnn-in-facenet-pytorch
 
 
-class FastMtCnn(Detector):
+class FastMtCnnClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 

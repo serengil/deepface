@@ -9,7 +9,7 @@ from deepface.commons.logger import Logger
 logger = Logger(module="detectors.DlibWrapper")
 
 
-class Dlib(Detector):
+class DlibClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 

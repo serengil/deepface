@@ -26,7 +26,7 @@ else:
 labels = ["Woman", "Man"]
 
 # pylint: disable=too-few-public-methods
-class Gender(Demography):
+class GenderClient(Demography):
     """
     Gender model class
     """
