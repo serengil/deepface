@@ -1,42 +1,34 @@
+from typing import List, Tuple
 from abc import ABC, abstractmethod
-from typing import Union, Optional
 import numpy as np
-from PIL import Image
 
 # Notice that all facial detector models must be inherited from this class
 
 
+# pylint: disable=unnecessary-pass, too-few-public-methods
 class Detector(ABC):
     @abstractmethod
-    def detect_faces(self, img: np.ndarray, align: bool = True) -> list:
-        pass
-
-    def align_face(
-        self,
-        img: np.ndarray,
-        left_eye: Optional[Union[list, tuple]] = None,
-        right_eye: Optional[Union[list, tuple]] = None,
-    ) -> np.ndarray:
+    def detect_faces(
+        self, img: np.ndarray, align: bool = True
+    ) -> List[Tuple[np.ndarray, List[float], float]]:
         """
-        Align a given image horizantally with respect to their left and right eye locations
+        Detect faces from a given image
         Args:
-            img (np.ndarray): pre-loaded image with detected face
-            left_eye (list or tuple): coordinates of left eye with respect to the you
-            right_eye(list or tuple): coordinates of right eye with respect to the you
+            img (np.ndarray): pre-loaded image as a NumPy array
+            align (bool): enable or disable alignment after face detection
         Returns:
-            img (np.ndarray): aligned facial image
+            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
+                where each tuple contains:
+                - detected_face (np.ndarray): The detected face as a NumPy array.
+                - face_region (List[float]): The image region represented as
+                    a list of floats e.g. [x, y, w, h]
+                - confidence (float): The confidence score associated with the detected face.
+
+        Example:
+            results = [
+                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
+                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
+                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
+            ]
         """
-        # if eye could not be detected for the given image, return image itself
-        if left_eye is None or right_eye is None:
-            return img
-
-        # sometimes unexpectedly detected images come with nil dimensions
-        if img.shape[0] == 0 or img.shape[1] == 0:
-            return img
-
-        angle = float(
-            np.degrees(np.arctan2(right_eye[1] - left_eye[1], right_eye[0] - left_eye[0]))
-        )
-        img = Image.fromarray(img)
-        img = np.array(img.rotate(angle))
-        return img
+        pass

@@ -1,3 +1,4 @@
+from typing import List
 import os
 import gdown
 import tensorflow as tf
@@ -36,7 +37,7 @@ class OpenFaceClient(FacialRecognition):
         self.model = load_model()
         self.model_name = "OpenFace"
 
-    def find_embeddings(self, img: np.ndarray) -> list:
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
         find embeddings with OpenFace model
         Args:

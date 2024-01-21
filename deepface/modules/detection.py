@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Tuple, Union
 
 # 3rd part dependencies
 import numpy as np
+from PIL import Image
 
 # project dependencies
 from deepface.commons import functions
@@ -40,8 +41,11 @@ def extract_faces(
             grayscale (boolean): extracting faces in rgb or gray scale
 
     Returns:
-            list of dictionaries. Each dictionary will have facial image itself (RGB),
-            extracted area from the original image and confidence score.
+        results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary contains:
+        - "face" (np.ndarray): The detected face as a NumPy array.
+        - "facial_area" (List[float]): The detected face's regions represented as a list of floats.
+        - "confidence" (float): The confidence score associated with the detected face.
+
 
     """
 
@@ -70,3 +74,31 @@ def extract_faces(
         resp_objs.append(resp_obj)
 
     return resp_objs
+
+
+def align_face(
+    img: np.ndarray,
+    left_eye: Union[list, tuple],
+    right_eye: Union[list, tuple],
+) -> np.ndarray:
+    """
+    Align a given image horizantally with respect to their left and right eye locations
+    Args:
+        img (np.ndarray): pre-loaded image with detected face
+        left_eye (list or tuple): coordinates of left eye with respect to the you
+        right_eye(list or tuple): coordinates of right eye with respect to the you
+    Returns:
+        img (np.ndarray): aligned facial image
+    """
+    # if eye could not be detected for the given image, return image itself
+    if left_eye is None or right_eye is None:
+        return img
+
+    # sometimes unexpectedly detected images come with nil dimensions
+    if img.shape[0] == 0 or img.shape[1] == 0:
+        return img
+
+    angle = float(np.degrees(np.arctan2(right_eye[1] - left_eye[1], right_eye[0] - left_eye[0])))
+    img = Image.fromarray(img)
+    img = np.array(img.rotate(angle))
+    return img

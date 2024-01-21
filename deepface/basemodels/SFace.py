@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, List
 
 import numpy as np
 import cv2 as cv
@@ -23,7 +23,7 @@ class SFaceClient(FacialRecognition):
         self.model = load_model()
         self.model_name = "SFace"
 
-    def find_embeddings(self, img: np.ndarray) -> list:
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
         find embeddings with SFace model - different than regular models
         Args:

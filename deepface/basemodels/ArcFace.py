@@ -1,3 +1,4 @@
+from typing import List
 import os
 import gdown
 import numpy as np
@@ -53,7 +54,7 @@ class ArcFaceClient(FacialRecognition):
         self.model = load_model()
         self.model_name = "ArcFace"
 
-    def find_embeddings(self, img: np.ndarray) -> list:
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
         find embeddings with ArcFace model
         Args:

@@ -1,9 +1,11 @@
+from typing import List, Tuple
 import cv2
 import numpy as np
 from mtcnn import MTCNN
 from deepface.models.Detector import Detector
+from deepface.modules import detection
 
-
+# pylint: disable=too-few-public-methods
 class MtCnnClient(Detector):
     """
     Class to cover common face detection functionalitiy for MtCnn backend
@@ -12,14 +14,28 @@ class MtCnnClient(Detector):
     def __init__(self):
         self.model = MTCNN()
 
-    def detect_faces(self, img: np.ndarray, align: bool = True) -> list:
+    def detect_faces(
+        self, img: np.ndarray, align: bool = True
+    ) -> List[Tuple[np.ndarray, List[float], float]]:
         """
         Detect and align face with mtcnn
         Args:
             img (np.ndarray): pre-loaded image
             align (bool): default is true
         Returns:
-            list of detected and aligned faces
+            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
+                where each tuple contains:
+                - detected_face (np.ndarray): The detected face as a NumPy array.
+                - face_region (List[float]): The image region represented as
+                    a list of floats e.g. [x, y, w, h]
+                - confidence (float): The confidence score associated with the detected face.
+
+        Example:
+            results = [
+                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
+                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
+                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
+            ]
         """
 
         resp = []
@@ -32,17 +48,17 @@ class MtCnnClient(Detector):
 
         if len(detections) > 0:
 
-            for detection in detections:
-                x, y, w, h = detection["box"]
+            for current_detection in detections:
+                x, y, w, h = current_detection["box"]
                 detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
                 img_region = [x, y, w, h]
-                confidence = detection["confidence"]
+                confidence = current_detection["confidence"]
 
                 if align:
-                    keypoints = detection["keypoints"]
+                    keypoints = current_detection["keypoints"]
                     left_eye = keypoints["left_eye"]
                     right_eye = keypoints["right_eye"]
-                    detected_face = self.align_face(
+                    detected_face = detection.align_face(
                         img=detected_face, left_eye=left_eye, right_eye=right_eye
                     )
 

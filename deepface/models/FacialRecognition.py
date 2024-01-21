@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Union
+from typing import Any, Union, List
 import numpy as np
 from deepface.commons import functions
 
@@ -17,5 +17,5 @@ class FacialRecognition(ABC):
     model_name: str
 
     @abstractmethod
-    def find_embeddings(self, img: np.ndarray) -> list:
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
         pass

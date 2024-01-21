@@ -1,11 +1,12 @@
 import os
-from typing import Any
+from typing import Any, List, Tuple
 import cv2
 import numpy as np
 import gdown
 from deepface.commons import functions
-from deepface.commons.logger import Logger
 from deepface.models.Detector import Detector
+from deepface.modules import detection
+from deepface.commons.logger import Logger
 
 logger = Logger(module="detectors.YunetWrapper")
 
@@ -41,14 +42,28 @@ class YuNetClient(Detector):
             ) from err
         return face_detector
 
-    def detect_faces(self, img: np.ndarray, align: bool = True) -> list:
+    def detect_faces(
+        self, img: np.ndarray, align: bool = True
+    ) -> List[Tuple[np.ndarray, List[float], float]]:
         """
         Detect and align face with yunet
         Args:
             img (np.ndarray): pre-loaded image
             align (bool): default is true
         Returns:
-            list of detected and aligned faces
+            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
+                where each tuple contains:
+                - detected_face (np.ndarray): The detected face as a NumPy array.
+                - face_region (List[float]): The image region represented as
+                    a list of floats e.g. [x, y, w, h]
+                - confidence (float): The confidence score associated with the detected face.
+
+        Example:
+            results = [
+                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
+                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
+                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
+            ]
         """
         # FaceDetector.detect_faces does not support score_threshold parameter.
         # We can set it via environment variable.
@@ -107,6 +122,6 @@ class YuNetClient(Detector):
             detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
             img_region = [x, y, w, h]
             if align:
-                detected_face = self.align_face(detected_face, (x_re, y_re), (x_le, y_le))
+                detected_face = detection.align_face(detected_face, (x_re, y_re), (x_le, y_le))
             resp.append((detected_face, img_region, confidence))
         return resp

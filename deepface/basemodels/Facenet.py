@@ -1,3 +1,4 @@
+from typing import List
 import os
 import gdown
 import numpy as np
@@ -53,7 +54,7 @@ class FaceNet128dClient(FacialRecognition):
         self.model = load_facenet128d_model()
         self.model_name = "FaceNet-128d"
 
-    def find_embeddings(self, img: np.ndarray) -> list:
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
         find embeddings with FaceNet-128d model
         Args:
@@ -75,7 +76,7 @@ class FaceNet512dClient(FacialRecognition):
         self.model = load_facenet512d_model()
         self.model_name = "FaceNet-512d"
 
-    def find_embeddings(self, img: np.ndarray) -> list:
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
         find embeddings with FaceNet-512d model
         Args:

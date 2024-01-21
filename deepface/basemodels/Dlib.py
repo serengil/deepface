@@ -1,3 +1,4 @@
+from typing import List
 import os
 import bz2
 import gdown
@@ -20,7 +21,7 @@ class DlibClient(FacialRecognition):
         self.model = DlibResNet()
         self.model_name = "Dlib"
 
-    def find_embeddings(self, img: np.ndarray) -> list:
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
         find embeddings with Dlib model - different than regular models
         Args:

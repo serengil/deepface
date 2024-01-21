@@ -1,3 +1,4 @@
+from typing import List
 import os
 import zipfile
 import gdown
@@ -46,7 +47,7 @@ class DeepFaceClient(FacialRecognition):
         self.model = load_model()
         self.model_name = "DeepFace"
 
-    def find_embeddings(self, img: np.ndarray) -> list:
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
         find embeddings with OpenFace model
         Args:
