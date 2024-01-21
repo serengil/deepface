@@ -2,16 +2,7 @@
 from typing import Any
 
 # project dependencies
-from deepface.basemodels import (
-    VGGFace,
-    OpenFace,
-    FbDeepFace,
-    DeepID,
-    ArcFace,
-    SFace,
-    Dlib,
-    FaceNet,
-)
+from deepface.basemodels import VGGFace, OpenFace, FbDeepFace, DeepID, ArcFace, SFace, Dlib, Facenet
 from deepface.extendedmodels import Age, Gender, Race, Emotion
 
 
@@ -33,8 +24,8 @@ def build_model(model_name: str) -> Any:
     models = {
         "VGG-Face": VGGFace.VggFaceClient,
         "OpenFace": OpenFace.OpenFaceClient,
-        "Facenet": FaceNet.FaceNet128dClient,
-        "Facenet512": FaceNet.FaceNet512dClient,
+        "Facenet": Facenet.FaceNet128dClient,
+        "Facenet512": Facenet.FaceNet512dClient,
         "DeepFace": FbDeepFace.DeepFaceClient,
         "DeepID": DeepID.DeepIdClient,
         "Dlib": Dlib.DlibClient,
