@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Any, List, Tuple
 import numpy as np
 from deepface.models.Detector import Detector
+from deepface.modules import detection
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -16,7 +17,7 @@ WEIGHT_URL = "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb"
 LANDMARKS_CONFIDENCE_THRESHOLD = 0.5
 
 
-class Yolo(Detector):
+class YoloClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 
@@ -50,7 +51,9 @@ class Yolo(Detector):
         # Return face_detector
         return YOLO(weight_path)
 
-    def detect_faces(self, img: np.ndarray, align: bool = False) -> list:
+    def detect_faces(
+        self, img: np.ndarray, align: bool = False
+    ) -> List[Tuple[np.ndarray, List[float], float]]:
         """
         Detect and align face with yolo
         Args:
@@ -58,7 +61,19 @@ class Yolo(Detector):
             img (np.ndarray): pre-loaded image
             align (bool): default is true
         Returns:
-            list of detected and aligned faces
+            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
+                where each tuple contains:
+                - detected_face (np.ndarray): The detected face as a NumPy array.
+                - face_region (List[float]): The image region represented as
+                    a list of floats e.g. [x, y, w, h]
+                - confidence (float): The confidence score associated with the detected face.
+
+        Example:
+            results = [
+                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
+                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
+                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
+            ]
         """
         resp = []
 
@@ -85,7 +100,7 @@ class Yolo(Detector):
                     left_eye[1] > LANDMARKS_CONFIDENCE_THRESHOLD
                     and right_eye[1] > LANDMARKS_CONFIDENCE_THRESHOLD
                 ):
-                    detected_face = self.align_face(
+                    detected_face = detection.align_face(
                         img=detected_face, left_eye=left_eye[0].cpu(), right_eye=right_eye[0].cpu()
                     )
             resp.append((detected_face, [x, y, w, h], confidence))

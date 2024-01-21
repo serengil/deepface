@@ -1,3 +1,4 @@
+from typing import List, Tuple
 import os
 import bz2
 import gdown
@@ -9,7 +10,7 @@ from deepface.commons.logger import Logger
 logger = Logger(module="detectors.DlibWrapper")
 
 
-class Dlib(Detector):
+class DlibClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 
@@ -55,7 +56,9 @@ class Dlib(Detector):
         detector["sp"] = sp
         return detector
 
-    def detect_faces(self, img: np.ndarray, align: bool = True) -> list:
+    def detect_faces(
+        self, img: np.ndarray, align: bool = True
+    ) -> List[Tuple[np.ndarray, List[float], float]]:
         """
         Detect and align face with dlib
         Args:
@@ -63,7 +66,19 @@ class Dlib(Detector):
             img (np.ndarray): pre-loaded image
             align (bool): default is true
         Returns:
-            list of detected and aligned faces
+            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
+                where each tuple contains:
+                - detected_face (np.ndarray): The detected face as a NumPy array.
+                - face_region (List[float]): The image region represented as
+                    a list of floats e.g. [x, y, w, h]
+                - confidence (float): The confidence score associated with the detected face.
+
+        Example:
+            results = [
+                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
+                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
+                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
+            ]
         """
         # this is not a must dependency. do not import it in the global level.
         try:

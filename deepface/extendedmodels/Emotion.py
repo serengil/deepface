@@ -33,7 +33,7 @@ else:
 labels = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
 
 # pylint: disable=too-few-public-methods
-class FacialExpression(Demography):
+class EmotionClient(Demography):
     """
     Emotion model class
     """

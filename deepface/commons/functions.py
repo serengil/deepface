@@ -1,5 +1,5 @@
 import os
-from typing import Union, Tuple
+from typing import Union, Tuple, List
 import base64
 from pathlib import Path
 
@@ -140,9 +140,9 @@ def extract_faces(
     grayscale: bool = False,
     enforce_detection: bool = True,
     align: bool = True,
-) -> list:
-    """Extract faces from an image.
-
+) -> List[Tuple[np.ndarray, dict, float]]:
+    """
+    Extract faces from an image.
     Args:
         img: a path, url, base64 or numpy array.
         target_size (tuple, optional): the target size of the extracted faces.
@@ -157,7 +157,12 @@ def extract_faces(
         ValueError: if face could not be detected and enforce_detection is True.
 
     Returns:
-        list: a list of extracted faces.
+        results (List[Tuple[np.ndarray, dict, float]]): A list of tuples
+            where each tuple contains:
+            - detected_face (np.ndarray): The detected face as a NumPy array.
+            - face_region (dict): The image region represented as
+                {"x": x, "y": y, "w": w, "h": h}
+            - confidence (float): The confidence score associated with the detected face.
     """
 
     # this is going to store a list of img itself (numpy), it region and confidence
@@ -246,7 +251,7 @@ def extract_faces(
                 "h": int(current_region[3]),
             }
 
-            extracted_face = [img_pixels, region_obj, confidence]
+            extracted_face = (img_pixels, region_obj, confidence)
             extracted_faces.append(extracted_face)
 
     if len(extracted_faces) == 0 and enforce_detection == True:

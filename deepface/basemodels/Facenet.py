@@ -1,5 +1,7 @@
+from typing import List
 import os
 import gdown
+import numpy as np
 from deepface.commons import functions
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
@@ -43,7 +45,7 @@ else:
 # --------------------------------
 
 # pylint: disable=too-few-public-methods
-class FaceNet128d(FacialRecognition):
+class FaceNet128dClient(FacialRecognition):
     """
     FaceNet-128d model class
     """
@@ -52,8 +54,20 @@ class FaceNet128d(FacialRecognition):
         self.model = load_facenet128d_model()
         self.model_name = "FaceNet-128d"
 
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
+        """
+        find embeddings with FaceNet-128d model
+        Args:
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
+        """
+        # model.predict causes memory issue when it is called in a for loop
+        # embedding = model.predict(img, verbose=0)[0].tolist()
+        return self.model(img, training=False).numpy()[0].tolist()
 
-class FaceNet512d(FacialRecognition):
+
+class FaceNet512dClient(FacialRecognition):
     """
     FaceNet-1512d model class
     """
@@ -61,6 +75,18 @@ class FaceNet512d(FacialRecognition):
     def __init__(self):
         self.model = load_facenet512d_model()
         self.model_name = "FaceNet-512d"
+
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
+        """
+        find embeddings with FaceNet-512d model
+        Args:
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
+        """
+        # model.predict causes memory issue when it is called in a for loop
+        # embedding = model.predict(img, verbose=0)[0].tolist()
+        return self.model(img, training=False).numpy()[0].tolist()
 
 
 def scaling(x, scale):

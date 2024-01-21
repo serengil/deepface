@@ -1,11 +1,12 @@
-from typing import Any
+from typing import Any, List, Tuple
 import numpy as np
 from deepface.models.Detector import Detector
+from deepface.modules import detection
 
 # Link - https://google.github.io/mediapipe/solutions/face_detection
 
 
-class MediaPipe(Detector):
+class MediaPipeClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 
@@ -28,14 +29,28 @@ class MediaPipe(Detector):
         face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.7)
         return face_detection
 
-    def detect_faces(self, img: np.ndarray, align: bool = True) -> list:
+    def detect_faces(
+        self, img: np.ndarray, align: bool = True
+    ) -> List[Tuple[np.ndarray, List[float], float]]:
         """
         Detect and align face with mediapipe
         Args:
             img (np.ndarray): pre-loaded image
             align (bool): default is true
         Returns:
-            list of detected and aligned faces
+            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
+                where each tuple contains:
+                - detected_face (np.ndarray): The detected face as a NumPy array.
+                - face_region (List[float]): The image region represented as
+                    a list of floats e.g. [x, y, w, h]
+                - confidence (float): The confidence score associated with the detected face.
+
+        Example:
+            results = [
+                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
+                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
+                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
+            ]
         """
         resp = []
 
@@ -49,11 +64,11 @@ class MediaPipe(Detector):
             return resp
 
         # Extract the bounding box, the landmarks and the confidence score
-        for detection in results.detections:
-            (confidence,) = detection.score
+        for current_detection in results.detections:
+            (confidence,) = current_detection.score
 
-            bounding_box = detection.location_data.relative_bounding_box
-            landmarks = detection.location_data.relative_keypoints
+            bounding_box = current_detection.location_data.relative_bounding_box
+            landmarks = current_detection.location_data.relative_keypoints
 
             x = int(bounding_box.xmin * img_width)
             w = int(bounding_box.width * img_width)
@@ -73,7 +88,7 @@ class MediaPipe(Detector):
                 img_region = [x, y, w, h]
 
                 if align:
-                    detected_face = self.align_face(
+                    detected_face = detection.align_face(
                         img=detected_face, left_eye=left_eye, right_eye=right_eye
                     )
 

@@ -1,3 +1,4 @@
+from typing import List
 import os
 import bz2
 import gdown
@@ -11,7 +12,7 @@ logger = Logger(module="basemodels.DlibResNet")
 # pylint: disable=too-few-public-methods
 
 
-class Dlib(FacialRecognition):
+class DlibClient(FacialRecognition):
     """
     Dlib model class
     """
@@ -20,15 +21,33 @@ class Dlib(FacialRecognition):
         self.model = DlibResNet()
         self.model_name = "Dlib"
 
-    def find_embeddings(self, img: np.ndarray) -> list:
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
-        Custom find embeddings function of Dlib different than FacialRecognition's one
+        find embeddings with Dlib model - different than regular models
         Args:
-            img (np.ndarray)
-        Retunrs:
-            embeddings (list)
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
         """
-        return self.model.predict(img)[0].tolist()
+        # return self.model.predict(img)[0].tolist()
+
+        # extract_faces returns 4 dimensional images
+        if len(img.shape) == 4:
+            img = img[0]
+
+        # bgr to rgb
+        img = img[:, :, ::-1]  # bgr to rgb
+
+        # img is in scale of [0, 1] but expected [0, 255]
+        if img.max() <= 1:
+            img = img * 255
+
+        img = img.astype(np.uint8)
+
+        img_representation = self.model.model.compute_face_descriptor(img)
+        img_representation = np.array(img_representation)
+        img_representation = np.expand_dims(img_representation, axis=0)
+        return img_representation[0].tolist()
 
 
 class DlibResNet:
@@ -69,37 +88,11 @@ class DlibResNet:
 
         # ---------------------
 
-        model = dlib.face_recognition_model_v1(weight_file)
-        self.__model = model
+        self.model = dlib.face_recognition_model_v1(weight_file)
 
         # ---------------------
 
         # return None  # classes must return None
-
-    def predict(self, img_aligned: np.ndarray) -> np.ndarray:
-
-        # functions.detectFace returns 4 dimensional images
-        if len(img_aligned.shape) == 4:
-            img_aligned = img_aligned[0]
-
-        # functions.detectFace returns bgr images
-        img_aligned = img_aligned[:, :, ::-1]  # bgr to rgb
-
-        # deepface.detectFace returns an array in scale of [0, 1]
-        # but dlib expects in scale of [0, 255]
-        if img_aligned.max() <= 1:
-            img_aligned = img_aligned * 255
-
-        img_aligned = img_aligned.astype(np.uint8)
-
-        model = self.__model
-
-        img_representation = model.compute_face_descriptor(img_aligned)
-
-        img_representation = np.array(img_representation)
-        img_representation = np.expand_dims(img_representation, axis=0)
-
-        return img_representation
 
 
 class DlibMetaData:

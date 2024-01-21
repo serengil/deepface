@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, List
 
 import numpy as np
 import cv2 as cv
@@ -14,7 +14,7 @@ logger = Logger(module="basemodels.SFace")
 # pylint: disable=line-too-long, too-few-public-methods
 
 
-class SFace(FacialRecognition):
+class SFaceClient(FacialRecognition):
     """
     SFace model class
     """
@@ -23,15 +23,22 @@ class SFace(FacialRecognition):
         self.model = load_model()
         self.model_name = "SFace"
 
-    def find_embeddings(self, img: np.ndarray) -> list:
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
-        Custom find embeddings function of SFace different than FacialRecognition's one
+        find embeddings with SFace model - different than regular models
         Args:
-            img (np.ndarray)
-        Retunrs:
-            embeddings (list)
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
         """
-        return self.model.predict(img)[0].tolist()
+        # return self.model.predict(img)[0].tolist()
+
+        # revert the image to original format and preprocess using the model
+        input_blob = (img[0] * 255).astype(np.uint8)
+
+        embeddings = self.model.model.feature(input_blob)
+
+        return embeddings[0].tolist()
 
 
 def load_model(
@@ -73,17 +80,6 @@ class SFaceWrapper:
             ) from err
 
         self.layers = [_Layer()]
-
-    def predict(self, image: np.ndarray) -> np.ndarray:
-        # Preprocess
-        input_blob = (image[0] * 255).astype(
-            np.uint8
-        )  # revert the image to original format and preprocess using the model
-
-        # Forward
-        embeddings = self.model.feature(input_blob)
-
-        return embeddings
 
 
 class _Layer:
