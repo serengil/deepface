@@ -35,37 +35,45 @@ def verify(
             as a string, numpy array (BGR), or base64 encoded images.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv)
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2'.
+            'euclidean', 'euclidean_l2' (default is cosine).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
-            Default is True. Set to False to avoid the exception for low-resolution images.
+            Set to False to avoid the exception for low-resolution images (default is True).
 
         align (bool): Flag to enable face alignment (default is True).
 
         normalization (string): Normalize the input image before feeding it to the model.
-            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
+            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base)
 
     Returns:
         result (dict): A dictionary containing verification results.
 
-            {
-                    "verified": True
-                    , "distance": 0.2563
-                    , "max_threshold_to_verify": 0.40
-                    , "model": "VGG-Face"
-                    , "similarity_metric": "cosine"
-                    , 'facial_areas': {
-                            'img1': {'x': 345, 'y': 211, 'w': 769, 'h': 769},
-                            'img2': {'x': 318, 'y': 534, 'w': 779, 'h': 779}
-                    }
-                    , "time": 2
-            }
+        - 'verified' (bool): Indicates whether the images represent the same person (True)
+            or different persons (False).
+
+        - 'distance' (float): The distance measure between the face vectors.
+            A lower distance indicates higher similarity.
+
+        - 'max_threshold_to_verify' (float): The maximum threshold used for verification.
+            If the distance is below this threshold, the images are considered a match.
+
+        - 'model' (str): The chosen face recognition model.
+
+        - 'similarity_metric' (str): The chosen similarity metric for measuring distances.
+
+        - 'facial_areas' (dict): Rectangular regions of interest for faces in both images.
+            - 'img1': {'x': int, 'y': int, 'w': int, 'h': int}
+                    Region of interest for the first image.
+            - 'img2': {'x': int, 'y': int, 'w': int, 'h': int}
+                    Region of interest for the second image.
+
+        - 'time' (float): Time taken for the verification process in seconds.
     """
 
     tic = time.time()

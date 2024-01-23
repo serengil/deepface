@@ -75,37 +75,45 @@ def verify(
             as a string, numpy array (BGR), or base64 encoded images.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv)
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2'.
+            'euclidean', 'euclidean_l2' (default is cosine).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
-            Default is True. Set to False to avoid the exception for low-resolution images.
+            Set to False to avoid the exception for low-resolution images (default is True).
 
         align (bool): Flag to enable face alignment (default is True).
 
         normalization (string): Normalize the input image before feeding it to the model.
-            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
+            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base)
 
     Returns:
         result (dict): A dictionary containing verification results.
 
-            {
-                    "verified": True
-                    , "distance": 0.2563
-                    , "max_threshold_to_verify": 0.40
-                    , "model": "VGG-Face"
-                    , "similarity_metric": "cosine"
-                    , 'facial_areas': {
-                            'img1': {'x': 345, 'y': 211, 'w': 769, 'h': 769},
-                            'img2': {'x': 318, 'y': 534, 'w': 779, 'h': 779}
-                    }
-                    , "time": 2
-            }
+        - 'verified' (bool): Indicates whether the images represent the same person (True)
+            or different persons (False).
+
+        - 'distance' (float): The distance measure between the face vectors.
+            A lower distance indicates higher similarity.
+
+        - 'max_threshold_to_verify' (float): The maximum threshold used for verification.
+            If the distance is below this threshold, the images are considered a match.
+
+        - 'model' (str): The chosen face recognition model.
+
+        - 'similarity_metric' (str): The chosen similarity metric for measuring distances.
+
+        - 'facial_areas' (dict): Rectangular regions of interest for faces in both images.
+            - 'img1': {'x': int, 'y': int, 'w': int, 'h': int}
+                    Region of interest for the first image.
+            - 'img2': {'x': int, 'y': int, 'w': int, 'h': int}
+                    Region of interest for the second image.
+
+        - 'time' (float): Time taken for the verification process in seconds.
     """
 
     return verification.verify(
@@ -140,53 +148,67 @@ def analyze(
             You can exclude some of these attributes from the analysis if needed.
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
-            Default is True. Set to False to avoid the exception for low-resolution images.
+            Set to False to avoid the exception for low-resolution images (default is True).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2'.
+            'euclidean', 'euclidean_l2' (default is cosine).
 
-        align (boolean): Perform alignment based on the eye positions.
+        align (boolean): Perform alignment based on the eye positions (default is True).
 
-        silent (boolean): Suppress or allow some log messages for a quieter analysis process.
+        silent (boolean): Suppress or allow some log messages for a quieter analysis process
+            (default is False).
 
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
-        the analysis results for a detected face. Example:
+           the analysis results for a detected face.
 
-        [
-                {
-                        "region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
-                        "age": 28.66,
-                        'face_confidence': 0.9993908405303955,
-                        "dominant_gender": "Woman",
-                        "gender": {
-                                'Woman': 99.99407529830933,
-                                'Man': 0.005928758764639497,
-                        }
-                        "dominant_emotion": "neutral",
-                        "emotion": {
-                                'sad': 37.65260875225067,
-                                'angry': 0.15512987738475204,
-                                'surprise': 0.0022171278033056296,
-                                'fear': 1.2489334680140018,
-                                'happy': 4.609785228967667,
-                                'disgust': 9.698561953541684e-07,
-                                'neutral': 56.33133053779602
-                        }
-                        "dominant_race": "white",
-                        "race": {
-                                'indian': 0.5480832420289516,
-                                'asian': 0.7830780930817127,
-                                'latino hispanic': 2.0677512511610985,
-                                'black': 0.06337375962175429,
-                                'middle eastern': 3.088453598320484,
-                                'white': 93.44925880432129
-                        }
-                }
-        ]
+           Each dictionary in the list contains the following keys:
+
+           - 'region' (dict): Represents the rectangular region of the detected face in the image.
+               - 'x': x-coordinate of the top-left corner of the face.
+               - 'y': y-coordinate of the top-left corner of the face.
+               - 'w': Width of the detected face region.
+               - 'h': Height of the detected face region.
+
+           - 'age' (float): Estimated age of the detected face.
+
+           - 'face_confidence' (float): Confidence score for the detected face.
+                Indicates the reliability of the face detection.
+
+           - 'dominant_gender' (str): The dominant gender in the detected face.
+                Either "Man" or "Woman."
+
+           - 'gender' (dict): Confidence scores for each gender category.
+               - 'Man': Confidence score for the male gender.
+               - 'Woman': Confidence score for the female gender.
+
+           - 'dominant_emotion' (str): The dominant emotion in the detected face.
+                Possible values include "sad," "angry," "surprise," "fear," "happy,"
+                "disgust," and "neutral."
+
+           - 'emotion' (dict): Confidence scores for each emotion category.
+               - 'sad': Confidence score for sadness.
+               - 'angry': Confidence score for anger.
+               - 'surprise': Confidence score for surprise.
+               - 'fear': Confidence score for fear.
+               - 'happy': Confidence score for happiness.
+               - 'disgust': Confidence score for disgust.
+               - 'neutral': Confidence score for neutrality.
+
+           - 'dominant_race' (str): The dominant race in the detected face.
+                Possible values include "indian," "asian," "latino hispanic,"
+                "black," "middle eastern," and "white."
+
+           - 'race' (dict): Confidence scores for each race category.
+               - 'indian': Confidence score for Indian ethnicity.
+               - 'asian': Confidence score for Asian ethnicity.
+               - 'latino hispanic': Confidence score for Latino/Hispanic ethnicity.
+               - 'black': Confidence score for Black ethnicity.
+               - 'middle eastern': Confidence score for Middle Eastern ethnicity.
+               - 'white': Confidence score for White ethnicity.
     """
     return demography.analyze(
         img_path=img_path,
