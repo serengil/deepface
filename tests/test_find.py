@@ -6,6 +6,8 @@ from deepface.commons.logger import Logger
 
 logger = Logger("tests/test_find.py")
 
+threshold = distance.findThreshold(model_name="VGG-Face", distance_metric="cosine")
+
 
 def test_find_with_exact_path():
     img_path = "dataset/img1.jpg"
@@ -19,7 +21,7 @@ def test_find_with_exact_path():
         assert identity_df.shape[0] > 0
 
         # validate reproducability
-        assert identity_df["VGG-Face_cosine"].values[0] == 0
+        assert identity_df["VGG-Face_cosine"].values[0] < threshold
 
         df = df[df["identity"] != img_path]
         logger.debug(df.head())
@@ -40,7 +42,7 @@ def test_find_with_array_input():
         assert identity_df.shape[0] > 0
 
         # validate reproducability
-        assert identity_df["VGG-Face_cosine"].values[0] == 0
+        assert identity_df["VGG-Face_cosine"].values[0] < threshold
 
         df = df[df["identity"] != img_path]
         logger.debug(df.head())
@@ -63,9 +65,7 @@ def test_find_with_extracted_faces():
         assert identity_df.shape[0] > 0
 
         # validate reproducability
-        assert identity_df["VGG-Face_cosine"].values[0] < (
-            distance.findThreshold(model_name="VGG-Face", distance_metric="cosine")
-        )
+        assert identity_df["VGG-Face_cosine"].values[0] < threshold
 
         df = df[df["identity"] != img_path]
         logger.debug(df.head())

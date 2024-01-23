@@ -2,9 +2,9 @@ from typing import List
 import os
 import gdown
 import numpy as np
-from deepface.commons import functions
-from deepface.commons.logger import Logger
+from deepface.commons import functions, distance
 from deepface.models.FacialRecognition import FacialRecognition
+from deepface.commons.logger import Logger
 
 logger = Logger(module="basemodels.VGGFace")
 
@@ -20,9 +20,7 @@ if tf_version == 1:
         Flatten,
         Dropout,
         Activation,
-        Lambda,
     )
-    from keras import backend as K
 else:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import (
@@ -32,9 +30,7 @@ else:
         Flatten,
         Dropout,
         Activation,
-        Lambda,
     )
-    from tensorflow.keras import backend as K
 
 # ---------------------------------------
 
@@ -58,7 +54,11 @@ class VggFaceClient(FacialRecognition):
         """
         # model.predict causes memory issue when it is called in a for loop
         # embedding = model.predict(img, verbose=0)[0].tolist()
-        return self.model(img, training=False).numpy()[0].tolist()
+        # having normalization layer in descriptor troubles for some gpu users (e.g. issue 957, 966)
+        # instead we are now calculating it with traditional way not with keras backend
+        embedding = self.model(img, training=False).numpy()[0].tolist()
+        embedding = distance.l2_normalize(embedding)
+        return embedding.tolist()
 
 
 def base_model() -> Sequential:
@@ -144,9 +144,10 @@ def load_model(
     # as described here: https://github.com/serengil/deepface/issues/944
     base_model_output = Sequential()
     base_model_output = Flatten()(model.layers[-5].output)
-    base_model_output = Lambda(lambda x: K.l2_normalize(x, axis=1), name="norm_layer")(
-        base_model_output
-    )
+    # keras backend's l2 normalization layer troubles some gpu users (e.g. issue 957, 966)
+    # base_model_output = Lambda(lambda x: K.l2_normalize(x, axis=1), name="norm_layer")(
+    #     base_model_output
+    # )
     vgg_face_descriptor = Model(inputs=model.input, outputs=base_model_output)
 
     return vgg_face_descriptor
