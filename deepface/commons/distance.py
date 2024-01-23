@@ -32,7 +32,9 @@ def findEuclideanDistance(
     return euclidean_distance
 
 
-def l2_normalize(x: np.ndarray) -> np.ndarray:
+def l2_normalize(x: Union[np.ndarray, list]) -> np.ndarray:
+    if isinstance(x, list):
+        x = np.array(x)
     return x / np.sqrt(np.sum(np.multiply(x, x)))
 
 
