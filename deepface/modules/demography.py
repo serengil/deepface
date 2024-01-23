@@ -93,7 +93,7 @@ def analyze(
                - 'middle eastern': Confidence score for Middle Eastern ethnicity.
                - 'white': Confidence score for White ethnicity.
     """
-    
+
     # validate actions
     if isinstance(actions, str):
         actions = (actions,)
