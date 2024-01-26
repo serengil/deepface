@@ -21,6 +21,13 @@ class YuNetClient(Detector):
         Returns:
             model (Any)
         """
+
+        opencv_version = cv2.__version__.split(".")
+
+        if len(opencv_version) > 2 and int(opencv_version[0]) == 4 and int(opencv_version[1]) < 8:
+            # min requirement: https://github.com/opencv/opencv_zoo/issues/172
+            raise ValueError(f"YuNet requires opencv-python >= 4.8 but you have {cv2.__version__}")
+
         # pylint: disable=C0301
         url = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
         file_name = "face_detection_yunet_2023mar.onnx"
@@ -67,7 +74,7 @@ class YuNetClient(Detector):
         """
         # FaceDetector.detect_faces does not support score_threshold parameter.
         # We can set it via environment variable.
-        score_threshold = os.environ.get("yunet_score_threshold", "0.9")
+        score_threshold = float(os.environ.get("yunet_score_threshold", "0.9"))
         resp = []
         detected_face = None
         img_region = [0, 0, img.shape[1], img.shape[0]]

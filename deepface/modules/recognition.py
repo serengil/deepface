@@ -1,7 +1,7 @@
 # built-in dependencies
 import os
 import pickle
-from typing import List, Union
+from typing import List, Union, Optional
 import time
 
 # 3rd party dependencies
@@ -25,6 +25,7 @@ def find(
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
+    threshold: Optional[float] = None,
     normalization: str = "base",
     silent: bool = False,
 ) -> List[pd.DataFrame]:
@@ -53,6 +54,11 @@ def find(
 
         align (boolean): Perform alignment based on the eye positions.
 
+        threshold (float): Specify a threshold to determine whether a pair represents the same
+            person or different individuals. This threshold is used for comparing distances.
+            If left unset, default pre-tuned threshold values will be applied based on the specified
+            model name and distance metric (default is None).
+
         normalization (string): Normalize the input image before feeding it to the model.
             Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
 
@@ -64,11 +70,16 @@ def find(
             The DataFrame columns include:
 
             - 'identity': Identity label of the detected individual.
+
             - 'target_x', 'target_y', 'target_w', 'target_h': Bounding box coordinates of the
                     target face in the database.
+
             - 'source_x', 'source_y', 'source_w', 'source_h': Bounding box coordinates of the
                     detected face in the source image.
-            - '{model_name}_{distance_metric}': Similarity score between the faces based on the
+
+            - 'threshold': threshold to determine a pair whether same person or different persons
+
+            - 'distance': Similarity score between the faces based on the
                     specified model and distance metric
     """
 
@@ -248,16 +259,15 @@ def find(
             distances.append(distance)
 
             # ---------------------------
+        target_threshold = threshold or dst.findThreshold(model_name, distance_metric)
 
-        result_df[f"{model_name}_{distance_metric}"] = distances
+        result_df["threshold"] = target_threshold
+        result_df["distance"] = distances
 
-        threshold = dst.findThreshold(model_name, distance_metric)
         result_df = result_df.drop(columns=[f"{model_name}_representation"])
         # pylint: disable=unsubscriptable-object
-        result_df = result_df[result_df[f"{model_name}_{distance_metric}"] <= threshold]
-        result_df = result_df.sort_values(
-            by=[f"{model_name}_{distance_metric}"], ascending=True
-        ).reset_index(drop=True)
+        result_df = result_df[result_df["distance"] <= target_threshold]
+        result_df = result_df.sort_values(by=["distance"], ascending=True).reset_index(drop=True)
 
         resp_obj.append(result_df)
 
