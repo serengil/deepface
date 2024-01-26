@@ -21,7 +21,7 @@ def test_find_with_exact_path():
         assert identity_df.shape[0] > 0
 
         # validate reproducability
-        assert identity_df["VGG-Face_cosine"].values[0] < threshold
+        assert identity_df["distance"].values[0] < threshold
 
         df = df[df["identity"] != img_path]
         logger.debug(df.head())
@@ -42,7 +42,7 @@ def test_find_with_array_input():
         assert identity_df.shape[0] > 0
 
         # validate reproducability
-        assert identity_df["VGG-Face_cosine"].values[0] < threshold
+        assert identity_df["distance"].values[0] < threshold
 
         df = df[df["identity"] != img_path]
         logger.debug(df.head())
@@ -65,7 +65,7 @@ def test_find_with_extracted_faces():
         assert identity_df.shape[0] > 0
 
         # validate reproducability
-        assert identity_df["VGG-Face_cosine"].values[0] < threshold
+        assert identity_df["distance"].values[0] < threshold
 
         df = df[df["identity"] != img_path]
         logger.debug(df.head())

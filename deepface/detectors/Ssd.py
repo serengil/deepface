@@ -12,7 +12,7 @@ from deepface.commons.logger import Logger
 
 logger = Logger(module="detectors.SsdWrapper")
 
-# pylint: disable=line-too-long
+# pylint: disable=line-too-long, c-extension-no-member
 
 
 class SsdClient(Detector):

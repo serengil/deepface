@@ -20,7 +20,7 @@ model_names = [
     "SFace",
 ]
 
-detector_backends = ["opencv", "ssd", "dlib", "mtcnn", "retinaface"]
+detector_backends = ["opencv", "ssd", "dlib", "mtcnn", "retinaface", "yunet"]
 
 
 # verification
