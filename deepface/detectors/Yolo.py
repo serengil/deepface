@@ -1,6 +1,8 @@
-from typing import Any, List, Tuple
+import os
+from typing import Any, List
 import numpy as np
-from deepface.models.Detector import Detector
+import gdown
+from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.modules import detection
 from deepface.commons.logger import Logger
 
@@ -9,7 +11,7 @@ logger = Logger()
 # Model's weights paths
 PATH = "/.deepface/weights/yolov8n-face.pt"
 
-# Google Drive URL
+# Google Drive URL from repo (https://github.com/derronqi/yolov8-face) ~6MB
 WEIGHT_URL = "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb"
 
 # Confidence thresholds for landmarks detection
@@ -27,8 +29,6 @@ class YoloClient(Detector):
         Returns:
             model (Any)
         """
-        import gdown
-        import os
 
         # Import the Ultralytics YOLO model
         try:
@@ -51,9 +51,7 @@ class YoloClient(Detector):
         # Return face_detector
         return YOLO(weight_path)
 
-    def detect_faces(
-        self, img: np.ndarray, align: bool = False
-    ) -> List[Tuple[np.ndarray, List[float], float]]:
+    def detect_faces(self, img: np.ndarray, align: bool = False) -> List[DetectedFace]:
         """
         Detect and align face with yolo
         Args:
@@ -61,19 +59,11 @@ class YoloClient(Detector):
             img (np.ndarray): pre-loaded image
             align (bool): default is true
         Returns:
-            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
-                where each tuple contains:
-                - detected_face (np.ndarray): The detected face as a NumPy array.
-                - face_region (List[float]): The image region represented as
-                    a list of floats e.g. [x, y, w, h]
-                - confidence (float): The confidence score associated with the detected face.
-
-        Example:
-            results = [
-                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
-                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
-                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
-            ]
+            results (List[Tuple[DetectedFace]): A list of DetectedFace objects
+                where each object contains:
+            - img (np.ndarray): The detected face as a NumPy array.
+            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+            - confidence (float): The confidence score associated with the detected face.
         """
         resp = []
 
@@ -87,6 +77,7 @@ class YoloClient(Detector):
             confidence = result.boxes.conf.tolist()[0]
 
             x, y, w, h = int(x - w / 2), int(y - h / 2), int(w), int(h)
+            region = FacialAreaRegion(x=x, y=y, w=w, h=h)
             detected_face = img[y : y + h, x : x + w].copy()
 
             if align:
@@ -103,6 +94,10 @@ class YoloClient(Detector):
                     detected_face = detection.align_face(
                         img=detected_face, left_eye=left_eye[0].cpu(), right_eye=right_eye[0].cpu()
                     )
-            resp.append((detected_face, [x, y, w, h], confidence))
+
+            detected_face_obj = DetectedFace(
+                img=detected_face, facial_area=region, confidence=confidence
+            )
+            resp.append(detected_face_obj)
 
         return resp

@@ -1,10 +1,10 @@
-from typing import List, Tuple
+from typing import List
 import os
 import bz2
 import gdown
 import numpy as np
 from deepface.commons import functions
-from deepface.models.Detector import Detector
+from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.commons.logger import Logger
 
 logger = Logger(module="detectors.DlibWrapper")
@@ -56,9 +56,7 @@ class DlibClient(Detector):
         detector["sp"] = sp
         return detector
 
-    def detect_faces(
-        self, img: np.ndarray, align: bool = True
-    ) -> List[Tuple[np.ndarray, List[float], float]]:
+    def detect_faces(self, img: np.ndarray, align: bool = True) -> List[DetectedFace]:
         """
         Detect and align face with dlib
         Args:
@@ -66,19 +64,11 @@ class DlibClient(Detector):
             img (np.ndarray): pre-loaded image
             align (bool): default is true
         Returns:
-            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
-                where each tuple contains:
-                - detected_face (np.ndarray): The detected face as a NumPy array.
-                - face_region (List[float]): The image region represented as
-                    a list of floats e.g. [x, y, w, h]
-                - confidence (float): The confidence score associated with the detected face.
-
-        Example:
-            results = [
-                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
-                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
-                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
-            ]
+            results (List[DetectedFace]): A list of DetectedFace objects
+                where each object contains:
+            - img (np.ndarray): The detected face as a NumPy array.
+            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+            - confidence (float): The confidence score associated with the detected face.
         """
         # this is not a must dependency. do not import it in the global level.
         try:
@@ -94,8 +84,6 @@ class DlibClient(Detector):
         sp = self.model["sp"]
 
         detected_face = None
-
-        img_region = [0, 0, img.shape[1], img.shape[0]]
 
         face_detector = self.model["face_detector"]
 
@@ -115,13 +103,17 @@ class DlibClient(Detector):
                     max(0, top) : min(bottom, img.shape[0]), max(0, left) : min(right, img.shape[1])
                 ]
 
-                img_region = [left, top, right - left, bottom - top]
+                img_region = FacialAreaRegion(x=left, y=right, w=right - left, h=bottom - top)
                 confidence = scores[idx]
 
                 if align:
                     img_shape = sp(img, detections[idx])
                     detected_face = dlib.get_face_chip(img, img_shape, size=detected_face.shape[0])
 
-                resp.append((detected_face, img_region, confidence))
+                detected_face_obj = DetectedFace(
+                    img=detected_face, facial_area=img_region, confidence=confidence
+                )
+
+                resp.append(detected_face_obj)
 
         return resp

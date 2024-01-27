@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 import os
 import gdown
 import cv2
@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from deepface.detectors import OpenCv
 from deepface.commons import functions
-from deepface.models.Detector import Detector
+from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.modules import detection
 from deepface.commons.logger import Logger
 
@@ -71,33 +71,22 @@ class SsdClient(Detector):
 
         return detector
 
-    def detect_faces(
-        self, img: np.ndarray, align: bool = True
-    ) -> List[Tuple[np.ndarray, List[float], float]]:
+    def detect_faces(self, img: np.ndarray, align: bool = True) -> List[DetectedFace]:
         """
         Detect and align face with ssd
         Args:
             img (np.ndarray): pre-loaded image
             align (bool): default is true
         Returns:
-            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
-                where each tuple contains:
-                - detected_face (np.ndarray): The detected face as a NumPy array.
-                - face_region (List[float]): The image region represented as
-                    a list of floats e.g. [x, y, w, h]
-                - confidence (float): The confidence score associated with the detected face.
-
-        Example:
-            results = [
-                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
-                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
-                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
-            ]
+            results (List[DetectedFace]): A list of DetectedFace object
+                where each object contains:
+            - img (np.ndarray): The detected face as a NumPy array.
+            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+            - confidence (float): The confidence score associated with the detected face.
         """
         resp = []
 
         detected_face = None
-        img_region = [0, 0, img.shape[1], img.shape[0]]
 
         ssd_labels = ["img_id", "is_face", "confidence", "left", "top", "right", "bottom"]
 
@@ -141,12 +130,14 @@ class SsdClient(Detector):
                     int(top * aspect_ratio_y) : int(bottom * aspect_ratio_y),
                     int(left * aspect_ratio_x) : int(right * aspect_ratio_x),
                 ]
-                img_region = [
-                    int(left * aspect_ratio_x),
-                    int(top * aspect_ratio_y),
-                    int(right * aspect_ratio_x) - int(left * aspect_ratio_x),
-                    int(bottom * aspect_ratio_y) - int(top * aspect_ratio_y),
-                ]
+
+                face_region = FacialAreaRegion(
+                    x=int(left * aspect_ratio_x),
+                    y=int(top * aspect_ratio_y),
+                    w=int(right * aspect_ratio_x) - int(left * aspect_ratio_x),
+                    h=int(bottom * aspect_ratio_y) - int(top * aspect_ratio_y),
+                )
+
                 confidence = instance["confidence"]
 
                 if align:
@@ -156,5 +147,11 @@ class SsdClient(Detector):
                         img=detected_face, left_eye=left_eye, right_eye=right_eye
                     )
 
-                resp.append((detected_face, img_region, confidence))
+                detected_face_obj = DetectedFace(
+                    img=detected_face,
+                    facial_area=face_region,
+                    confidence=confidence,
+                )
+
+                resp.append(detected_face_obj)
         return resp

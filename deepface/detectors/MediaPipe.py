@@ -1,6 +1,6 @@
-from typing import Any, List, Tuple
+from typing import Any, List
 import numpy as np
-from deepface.models.Detector import Detector
+from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.modules import detection
 
 # Link - https://google.github.io/mediapipe/solutions/face_detection
@@ -29,28 +29,18 @@ class MediaPipeClient(Detector):
         face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.7)
         return face_detection
 
-    def detect_faces(
-        self, img: np.ndarray, align: bool = True
-    ) -> List[Tuple[np.ndarray, List[float], float]]:
+    def detect_faces(self, img: np.ndarray, align: bool = True) -> List[DetectedFace]:
         """
         Detect and align face with mediapipe
         Args:
             img (np.ndarray): pre-loaded image
             align (bool): default is true
         Returns:
-            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
-                where each tuple contains:
-                - detected_face (np.ndarray): The detected face as a NumPy array.
-                - face_region (List[float]): The image region represented as
-                    a list of floats e.g. [x, y, w, h]
-                - confidence (float): The confidence score associated with the detected face.
-
-        Example:
-            results = [
-                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
-                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
-                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
-            ]
+            results (List[DetectedFace): A list of DetectedFace objects
+                where each object contains:
+            - img (np.ndarray): The detected face as a NumPy array.
+            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+            - confidence (float): The confidence score associated with the detected face.
         """
         resp = []
 
@@ -85,13 +75,19 @@ class MediaPipeClient(Detector):
 
             if x > 0 and y > 0:
                 detected_face = img[y : y + h, x : x + w]
-                img_region = [x, y, w, h]
+                img_region = FacialAreaRegion(x=x, y=y, w=w, h=h)
 
                 if align:
                     detected_face = detection.align_face(
                         img=detected_face, left_eye=left_eye, right_eye=right_eye
                     )
 
-                resp.append((detected_face, img_region, confidence))
+                detected_face_obj = DetectedFace(
+                    img=detected_face,
+                    facial_area=img_region,
+                    confidence=confidence,
+                )
+
+                resp.append(detected_face_obj)
 
         return resp

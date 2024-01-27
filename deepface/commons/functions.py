@@ -12,6 +12,7 @@ import tensorflow as tf
 
 # package dependencies
 from deepface.detectors import DetectorWrapper
+from deepface.models.Detector import DetectedFace, FacialAreaRegion
 from deepface.commons.logger import Logger
 
 logger = Logger(module="commons.functions")
@@ -170,10 +171,11 @@ def extract_faces(
 
     # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
     img, img_name = load_image(img)
-    img_region = [0, 0, img.shape[1], img.shape[0]]
+
+    base_region = FacialAreaRegion(x=0, y=0, w=img.shape[1], h=img.shape[0])
 
     if detector_backend == "skip":
-        face_objs = [(img, img_region, 0)]
+        face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
     else:
         face_objs = DetectorWrapper.detect_faces(detector_backend, img, align)
 
@@ -192,9 +194,12 @@ def extract_faces(
             )
 
     if len(face_objs) == 0 and enforce_detection is False:
-        face_objs = [(img, img_region, 0)]
+        face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
 
-    for current_img, current_region, confidence in face_objs:
+    for face_obj in face_objs:
+        current_img = face_obj.img
+        current_region = face_obj.facial_area
+        confidence = face_obj.confidence
         if current_img.shape[0] > 0 and current_img.shape[1] > 0:
             if grayscale is True:
                 current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
@@ -245,10 +250,10 @@ def extract_faces(
 
             # int cast is for the exception - object of type 'float32' is not JSON serializable
             region_obj = {
-                "x": int(current_region[0]),
-                "y": int(current_region[1]),
-                "w": int(current_region[2]),
-                "h": int(current_region[3]),
+                "x": current_region.x,
+                "y": current_region.y,
+                "w": current_region.w,
+                "h": current_region.h,
             }
 
             extracted_face = (img_pixels, region_obj, confidence)
