@@ -46,7 +46,7 @@ class MtCnnClient(Detector):
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # mtcnn expects RGB but OpenCV read BGR
         detections = self.model.detect_faces(img_rgb)
 
-        if len(detections) > 0:
+        if detections is not None and len(detections) > 0:
 
             for current_detection in detections:
                 x, y, w, h = current_detection["box"]
