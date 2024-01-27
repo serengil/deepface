@@ -20,8 +20,7 @@ model_names = [
     "SFace",
 ]
 
-detector_backends = ["opencv", "ssd", "dlib", "mtcnn", "retinaface", "yunet"]
-
+detector_backends = ["opencv", "ssd", "dlib", "mtcnn", "retinaface", "yunet", "yolov8"]
 
 # verification
 for model_name in model_names:
@@ -44,7 +43,6 @@ dfs = DeepFace.find(
 )
 for df in dfs:
     logger.info(df)
-
 
 # extract faces
 for detector_backend in detector_backends:

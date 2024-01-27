@@ -1,36 +1,26 @@
-from typing import List, Tuple
+from typing import List
 import numpy as np
 from retinaface import RetinaFace as rf
 from retinaface.commons import postprocess
-from deepface.models.Detector import Detector
+from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 
 # pylint: disable=too-few-public-methods
 class RetinaFaceClient(Detector):
     def __init__(self):
         self.model = rf.build_model()
 
-    def detect_faces(
-        self, img: np.ndarray, align: bool = True
-    ) -> List[Tuple[np.ndarray, List[float], float]]:
+    def detect_faces(self, img: np.ndarray, align: bool = True) -> List[DetectedFace]:
         """
         Detect and align face with retinaface
         Args:
             img (np.ndarray): pre-loaded image
             align (bool): default is true
         Returns:
-            results (List[Tuple[np.ndarray, List[float], float]]): A list of tuples
-                where each tuple contains:
-                - detected_face (np.ndarray): The detected face as a NumPy array.
-                - face_region (List[float]): The image region represented as
-                    a list of floats e.g. [x, y, w, h]
-                - confidence (float): The confidence score associated with the detected face.
-
-        Example:
-            results = [
-                (array(..., dtype=uint8), [110, 60, 150, 380], 0.99),
-                (array(..., dtype=uint8), [150, 50, 299, 375], 0.98),
-                (array(..., dtype=uint8), [120, 55, 300, 371], 0.96),
-            ]
+            results (List[DetectedFace]): A list of DetectedFace object
+                where each object contains:
+            - img (np.ndarray): The detected face as a NumPy array.
+            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+            - confidence (float): The confidence score associated with the detected face.
         """
         resp = []
 
@@ -45,7 +35,7 @@ class RetinaFaceClient(Detector):
                 h = facial_area[3] - y
                 x = facial_area[0]
                 w = facial_area[2] - x
-                img_region = [x, y, w, h]
+                img_region = FacialAreaRegion(x=x, y=y, w=w, h=h)
                 confidence = identity["score"]
 
                 # detected_face = img[int(y):int(y+h), int(x):int(x+w)] #opencv
@@ -65,6 +55,12 @@ class RetinaFaceClient(Detector):
                         detected_face, right_eye, left_eye, nose
                     )
 
-                resp.append((detected_face, img_region, confidence))
+                detected_face_obj = DetectedFace(
+                    img=detected_face,
+                    facial_area=img_region,
+                    confidence=confidence,
+                )
+
+                resp.append(detected_face_obj)
 
         return resp
