@@ -1,5 +1,4 @@
 from typing import List
-import cv2
 import numpy as np
 from mtcnn import MTCNN
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
@@ -14,17 +13,27 @@ class MtCnnClient(Detector):
     def __init__(self):
         self.model = MTCNN()
 
-    def detect_faces(self, img: np.ndarray, align: bool = True) -> List[DetectedFace]:
+    def detect_faces(
+        self, img: np.ndarray, align: bool = True, expand_percentage: int = 0
+    ) -> List[DetectedFace]:
         """
         Detect and align face with mtcnn
+
         Args:
-            img (np.ndarray): pre-loaded image
-            align (bool): default is true
+            img (np.ndarray): pre-loaded image as numpy array
+
+            align (bool): flag to enable or disable alignment after detection (default is True)
+
+            expand_percentage (int): expand detected facial area with a percentage
+
         Returns:
-            results (List[DetectedFace]): A list of DetectedFace objects
+            results (List[Tuple[DetectedFace]): A list of DetectedFace objects
                 where each object contains:
+
             - img (np.ndarray): The detected face as a NumPy array.
+
             - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+
             - confidence (float): The confidence score associated with the detected face.
         """
 
@@ -32,14 +41,25 @@ class MtCnnClient(Detector):
 
         detected_face = None
 
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # mtcnn expects RGB but OpenCV read BGR
+        # mtcnn expects RGB but OpenCV read BGR
+        # img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img_rgb = img[:, :, ::-1]
         detections = self.model.detect_faces(img_rgb)
 
         if detections is not None and len(detections) > 0:
 
             for current_detection in detections:
                 x, y, w, h = current_detection["box"]
-                detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+
+                # expand the facial area to be extracted and stay within img.shape limits
+                x2 = max(0, x - int((w * expand_percentage) / 100))  # expand left
+                y2 = max(0, y - int((h * expand_percentage) / 100))  # expand top
+                w2 = min(img.shape[1], w + int((w * expand_percentage) / 100))  # expand right
+                h2 = min(img.shape[0], h + int((h * expand_percentage) / 100))  # expand bottom
+
+                # detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+                detected_face = img[int(y2) : int(y2 + h2), int(x2) : int(x2 + w2)]
+
                 img_region = FacialAreaRegion(x=x, y=y, w=w, h=h)
                 confidence = current_detection["confidence"]
 

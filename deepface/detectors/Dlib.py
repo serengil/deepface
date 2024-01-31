@@ -56,18 +56,27 @@ class DlibClient(Detector):
         detector["sp"] = sp
         return detector
 
-    def detect_faces(self, img: np.ndarray, align: bool = True) -> List[DetectedFace]:
+    def detect_faces(
+        self, img: np.ndarray, align: bool = True, expand_percentage: int = 0
+    ) -> List[DetectedFace]:
         """
         Detect and align face with dlib
+
         Args:
-            face_detector (Any): dlib face detector object
-            img (np.ndarray): pre-loaded image
-            align (bool): default is true
+            img (np.ndarray): pre-loaded image as numpy array
+
+            align (bool): flag to enable or disable alignment after detection (default is True)
+
+            expand_percentage (int): expand detected facial area with a percentage
+
         Returns:
-            results (List[DetectedFace]): A list of DetectedFace objects
+            results (List[Tuple[DetectedFace]): A list of DetectedFace objects
                 where each object contains:
+
             - img (np.ndarray): The detected face as a NumPy array.
+
             - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+
             - confidence (float): The confidence score associated with the detected face.
         """
         # this is not a must dependency. do not import it in the global level.
@@ -78,6 +87,12 @@ class DlibClient(Detector):
                 "Dlib is an optional detector, ensure the library is installed."
                 "Please install using 'pip install dlib' "
             ) from e
+
+        if expand_percentage != 0:
+            logger.warn(
+                f"You set expand_percentage argument to {expand_percentage},"
+                "but dlib hog handles detection by itself"
+            )
 
         resp = []
 

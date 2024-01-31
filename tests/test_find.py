@@ -6,7 +6,7 @@ from deepface.commons.logger import Logger
 
 logger = Logger("tests/test_find.py")
 
-threshold = distance.findThreshold(model_name="VGG-Face", distance_metric="cosine")
+threshold = distance.find_threshold(model_name="VGG-Face", distance_metric="cosine")
 
 
 def test_find_with_exact_path():

@@ -6,8 +6,9 @@ from typing import Any, Dict, Union
 import numpy as np
 
 # project dependencies
-from deepface.commons import functions, distance as dst
-from deepface.modules import representation
+from deepface.commons import distance as dst
+from deepface.modules import representation, detection, modeling
+from deepface.models.FacialRecognition import FacialRecognition
 
 
 def verify(
@@ -18,6 +19,7 @@ def verify(
     distance_metric: str = "cosine",
     enforce_detection: bool = True,
     align: bool = True,
+    expand_percentage: int = 0,
     normalization: str = "base",
 ) -> Dict[str, Any]:
     """
@@ -47,6 +49,8 @@ def verify(
             Set to False to avoid the exception for low-resolution images (default is True).
 
         align (bool): Flag to enable face alignment (default is True).
+
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
         normalization (string): Normalize the input image before feeding it to the model.
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base)
@@ -79,32 +83,39 @@ def verify(
     tic = time.time()
 
     # --------------------------------
-    target_size = functions.find_target_size(model_name=model_name)
+    model: FacialRecognition = modeling.build_model(model_name)
+    target_size = model.input_shape
 
     # img pairs might have many faces
-    img1_objs = functions.extract_faces(
-        img=img1_path,
+    img1_objs = detection.extract_faces(
+        img_path=img1_path,
         target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
         enforce_detection=enforce_detection,
         align=align,
+        expand_percentage=expand_percentage,
     )
 
-    img2_objs = functions.extract_faces(
-        img=img2_path,
+    img2_objs = detection.extract_faces(
+        img_path=img2_path,
         target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
         enforce_detection=enforce_detection,
         align=align,
+        expand_percentage=expand_percentage,
     )
     # --------------------------------
     distances = []
     regions = []
     # now we will find the face pair with minimum distance
-    for img1_content, img1_region, _ in img1_objs:
-        for img2_content, img2_region, _ in img2_objs:
+    for img1_obj in img1_objs:
+        img1_content = img1_obj["face"]
+        img1_region = img1_obj["facial_area"]
+        for img2_obj in img2_objs:
+            img2_content = img2_obj["face"]
+            img2_region = img2_obj["facial_area"]
             img1_embedding_obj = representation.represent(
                 img_path=img1_content,
                 model_name=model_name,
@@ -127,11 +138,11 @@ def verify(
             img2_representation = img2_embedding_obj[0]["embedding"]
 
             if distance_metric == "cosine":
-                distance = dst.findCosineDistance(img1_representation, img2_representation)
+                distance = dst.find_cosine_distance(img1_representation, img2_representation)
             elif distance_metric == "euclidean":
-                distance = dst.findEuclideanDistance(img1_representation, img2_representation)
+                distance = dst.find_euclidean_distance(img1_representation, img2_representation)
             elif distance_metric == "euclidean_l2":
-                distance = dst.findEuclideanDistance(
+                distance = dst.find_euclidean_distance(
                     dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation)
                 )
             else:
@@ -141,7 +152,7 @@ def verify(
             regions.append((img1_region, img2_region))
 
     # -------------------------------
-    threshold = dst.findThreshold(model_name, distance_metric)
+    threshold = dst.find_threshold(model_name, distance_metric)
     distance = min(distances)  # best distance
     facial_areas = regions[np.argmin(distances)]
 

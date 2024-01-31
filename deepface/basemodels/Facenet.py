@@ -53,6 +53,8 @@ class FaceNet128dClient(FacialRecognition):
     def __init__(self):
         self.model = load_facenet128d_model()
         self.model_name = "FaceNet-128d"
+        self.input_shape = (160, 160)
+        self.output_shape = 128
 
     def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
@@ -75,6 +77,8 @@ class FaceNet512dClient(FacialRecognition):
     def __init__(self):
         self.model = load_facenet512d_model()
         self.model_name = "FaceNet-512d"
+        self.input_shape = (160, 160)
+        self.output_shape = 512
 
     def find_embeddings(self, img: np.ndarray) -> List[float]:
         """

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import cv2
 from deepface import DeepFace
-from deepface.commons import functions
+from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
 
 logger = Logger(module="commons.realtime")
@@ -32,12 +32,13 @@ def analysis(
     enable_emotion = True
     enable_age_gender = True
     # ------------------------
-    # find custom values for this input set
-    target_size = functions.find_target_size(model_name=model_name)
-    # ------------------------
     # build models once to store them in the memory
     # otherwise, they will be built after cam started and this will cause delays
-    DeepFace.build_model(model_name=model_name)
+    model: FacialRecognition = DeepFace.build_model(model_name=model_name)
+
+    # find custom values for this input set
+    target_size = model.input_shape
+
     logger.info(f"facial recognition model {model_name} is just built")
 
     if enable_face_analysis:

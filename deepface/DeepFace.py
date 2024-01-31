@@ -58,6 +58,7 @@ def verify(
     distance_metric: str = "cosine",
     enforce_detection: bool = True,
     align: bool = True,
+    expand_percentage: int = 0,
     normalization: str = "base",
 ) -> Dict[str, Any]:
     """
@@ -82,6 +83,8 @@ def verify(
             Set to False to avoid the exception for low-resolution images (default is True).
 
         align (bool): Flag to enable face alignment (default is True).
+
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
         normalization (string): Normalize the input image before feeding it to the model.
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base)
@@ -119,6 +122,7 @@ def verify(
         distance_metric=distance_metric,
         enforce_detection=enforce_detection,
         align=align,
+        expand_percentage=expand_percentage,
         normalization=normalization,
     )
 
@@ -129,6 +133,7 @@ def analyze(
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
+    expand_percentage: int = 0,
     silent: bool = False,
 ) -> List[Dict[str, Any]]:
     """
@@ -151,6 +156,8 @@ def analyze(
             'euclidean', 'euclidean_l2' (default is cosine).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
+
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
@@ -209,6 +216,7 @@ def analyze(
         enforce_detection=enforce_detection,
         detector_backend=detector_backend,
         align=align,
+        expand_percentage=expand_percentage,
         silent=silent,
     )
 
@@ -221,6 +229,7 @@ def find(
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
+    expand_percentage: int = 0,
     threshold: Optional[float] = None,
     normalization: str = "base",
     silent: bool = False,
@@ -248,6 +257,8 @@ def find(
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
+
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
         threshold (float): Specify a threshold to determine whether a pair represents the same
             person or different individuals. This threshold is used for comparing distances.
@@ -286,6 +297,7 @@ def find(
         enforce_detection=enforce_detection,
         detector_backend=detector_backend,
         align=align,
+        expand_percentage=expand_percentage,
         threshold=threshold,
         normalization=normalization,
         silent=silent,
@@ -298,6 +310,7 @@ def represent(
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
+    expand_percentage: int = 0,
     normalization: str = "base",
 ) -> List[Dict[str, Any]]:
     """
@@ -319,6 +332,8 @@ def represent(
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
+
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
         normalization (string): Normalize the input image before feeding it to the model.
             Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
@@ -346,6 +361,7 @@ def represent(
         enforce_detection=enforce_detection,
         detector_backend=detector_backend,
         align=align,
+        expand_percentage=expand_percentage,
         normalization=normalization,
     )
 
@@ -409,6 +425,7 @@ def extract_faces(
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
+    expand_percentage: int = 0,
     grayscale: bool = False,
 ) -> List[Dict[str, Any]]:
     """
@@ -429,6 +446,8 @@ def extract_faces(
 
         align (bool): Flag to enable face alignment (default is True).
 
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+
         grayscale (boolean): Flag to convert the image to grayscale before
             processing (default is False).
 
@@ -448,7 +467,9 @@ def extract_faces(
         detector_backend=detector_backend,
         enforce_detection=enforce_detection,
         align=align,
+        expand_percentage=expand_percentage,
         grayscale=grayscale,
+        human_readable=True,
     )
 
 
@@ -459,3 +480,49 @@ def cli() -> None:
     import fire
 
     fire.Fire()
+
+
+# deprecated function(s)
+
+
+def detectFace(
+    img_path: Union[str, np.ndarray],
+    target_size: tuple = (224, 224),
+    detector_backend: str = "opencv",
+    enforce_detection: bool = True,
+    align: bool = True,
+) -> Union[np.ndarray, None]:
+    """
+    Deprecated face detection function. Use extract_faces for same functionality.
+
+    Args:
+        img_path (str or np.ndarray): Path to the first image. Accepts exact image path
+            as a string, numpy array (BGR), or base64 encoded images.
+
+        target_size (tuple): final shape of facial image. black pixels will be
+            added to resize the image (default is (224, 224)).
+
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv).
+
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Set to False to avoid the exception for low-resolution images (default is True).
+
+        align (bool): Flag to enable face alignment (default is True).
+
+    Returns:
+            img (np.ndarray): detected (and aligned) facial area image as numpy array
+    """
+    logger.warn("Function detectFace is deprecated. Use extract_faces instead.")
+    face_objs = extract_faces(
+        img_path=img_path,
+        target_size=target_size,
+        detector_backend=detector_backend,
+        enforce_detection=enforce_detection,
+        align=align,
+        grayscale=False,
+    )
+    extracted_face = None
+    if len(face_objs) > 0:
+        extracted_face = face_objs[0]["face"]
+    return extracted_face

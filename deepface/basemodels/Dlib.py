@@ -20,6 +20,8 @@ class DlibClient(FacialRecognition):
     def __init__(self):
         self.model = DlibResNet()
         self.model_name = "Dlib"
+        self.input_shape = (150, 150)
+        self.output_shape = 128
 
     def find_embeddings(self, img: np.ndarray) -> List[float]:
         """

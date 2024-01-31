@@ -10,9 +10,10 @@ import pandas as pd
 from tqdm import tqdm
 
 # project dependencies
-from deepface.commons import functions, distance as dst
+from deepface.commons import distance as dst
 from deepface.commons.logger import Logger
-from deepface.modules import representation
+from deepface.modules import representation, detection, modeling
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="deepface/modules/recognition.py")
 
@@ -25,6 +26,7 @@ def find(
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
+    expand_percentage: int = 0,
     threshold: Optional[float] = None,
     normalization: str = "base",
     silent: bool = False,
@@ -53,6 +55,8 @@ def find(
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
         align (boolean): Perform alignment based on the eye positions.
+
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
         threshold (float): Specify a threshold to determine whether a pair represents the same
             person or different individuals. This threshold is used for comparing distances.
@@ -89,7 +93,8 @@ def find(
     if os.path.isdir(db_path) is not True:
         raise ValueError("Passed db_path does not exist!")
 
-    target_size = functions.find_target_size(model_name=model_name)
+    model: FacialRecognition = modeling.build_model(model_name)
+    target_size = model.input_shape
 
     # ---------------------------------------
 
@@ -202,18 +207,21 @@ def find(
     )
 
     # img path might have more than once face
-    source_objs = functions.extract_faces(
-        img=img_path,
+    source_objs = detection.extract_faces(
+        img_path=img_path,
         target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
         enforce_detection=enforce_detection,
         align=align,
+        expand_percentage=expand_percentage,
     )
 
     resp_obj = []
 
-    for source_img, source_region, _ in source_objs:
+    for source_obj in source_objs:
+        source_img = source_obj["face"]
+        source_region = source_obj["facial_area"]
         target_embedding_obj = representation.represent(
             img_path=source_img,
             model_name=model_name,
@@ -245,11 +253,11 @@ def find(
                 )
 
             if distance_metric == "cosine":
-                distance = dst.findCosineDistance(source_representation, target_representation)
+                distance = dst.find_cosine_distance(source_representation, target_representation)
             elif distance_metric == "euclidean":
-                distance = dst.findEuclideanDistance(source_representation, target_representation)
+                distance = dst.find_euclidean_distance(source_representation, target_representation)
             elif distance_metric == "euclidean_l2":
-                distance = dst.findEuclideanDistance(
+                distance = dst.find_euclidean_distance(
                     dst.l2_normalize(source_representation),
                     dst.l2_normalize(target_representation),
                 )
@@ -259,7 +267,7 @@ def find(
             distances.append(distance)
 
             # ---------------------------
-        target_threshold = threshold or dst.findThreshold(model_name, distance_metric)
+        target_threshold = threshold or dst.find_threshold(model_name, distance_metric)
 
         result_df["threshold"] = target_threshold
         result_df["distance"] = distances
@@ -305,6 +313,7 @@ def __find_bulk_embeddings(
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
+    expand_percentage: int = 0,
     normalization: str = "base",
     silent: bool = False,
 ):
@@ -313,15 +322,24 @@ def __find_bulk_embeddings(
 
     Args:
         employees (list): list of exact image paths
+
         model_name (str): facial recognition model name
-        target_size (tuple): expected input shape of facial
-            recognition model
+
+        target_size (tuple): expected input shape of facial recognition model
+
         detector_backend (str): face detector model name
+
         enforce_detection (bool): set this to False if you
             want to proceed when you cannot detect any face
+
         align (bool): enable or disable alignment of image
             before feeding to facial recognition model
+
+        expand_percentage (int): expand detected facial area with a
+            percentage (default is 0).
+
         normalization (bool): normalization technique
+
         silent (bool): enable or disable informative logging
     Returns:
         representations (list): pivot list of embeddings with
@@ -333,16 +351,19 @@ def __find_bulk_embeddings(
         desc="Finding representations",
         disable=silent,
     ):
-        img_objs = functions.extract_faces(
-            img=employee,
+        img_objs = detection.extract_faces(
+            img_path=employee,
             target_size=target_size,
             detector_backend=detector_backend,
             grayscale=False,
             enforce_detection=enforce_detection,
             align=align,
+            expand_percentage=expand_percentage,
         )
 
-        for img_content, img_region, _ in img_objs:
+        for img_obj in img_objs:
+            img_content = img_obj["face"]
+            img_region = img_obj["facial_area"]
             embedding_obj = representation.represent(
                 img_path=img_content,
                 model_name=model_name,

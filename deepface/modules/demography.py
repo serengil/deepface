@@ -6,8 +6,7 @@ import numpy as np
 from tqdm import tqdm
 
 # project dependencies
-from deepface.modules import modeling
-from deepface.commons import functions
+from deepface.modules import modeling, detection
 from deepface.extendedmodels import Gender, Race, Emotion
 
 
@@ -17,6 +16,7 @@ def analyze(
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
+    expand_percentage: int = 0,
     silent: bool = False,
 ) -> List[Dict[str, Any]]:
     """
@@ -40,6 +40,8 @@ def analyze(
             'euclidean', 'euclidean_l2' (default is cosine).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
+
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
@@ -114,16 +116,20 @@ def analyze(
     # ---------------------------------
     resp_objects = []
 
-    img_objs = functions.extract_faces(
-        img=img_path,
+    img_objs = detection.extract_faces(
+        img_path=img_path,
         target_size=(224, 224),
         detector_backend=detector_backend,
         grayscale=False,
         enforce_detection=enforce_detection,
         align=align,
+        expand_percentage=expand_percentage,
     )
 
-    for img_content, img_region, img_confidence in img_objs:
+    for img_obj in img_objs:
+        img_content = img_obj["face"]
+        img_region = img_obj["facial_area"]
+        img_confidence = img_obj["confidence"]
         if img_content.shape[0] > 0 and img_content.shape[1] > 0:
             obj = {}
             # facial attribute analysis

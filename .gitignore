@@ -11,3 +11,5 @@ tests/dataset/*.pkl
 tests/*.ipynb
 tests/*.csv
 *.pyc
+**/.coverage
+**/.coverage.*

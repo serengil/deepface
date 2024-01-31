@@ -2,7 +2,7 @@ from typing import Union
 import numpy as np
 
 
-def findCosineDistance(
+def find_cosine_distance(
     source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]
 ) -> np.float64:
     if isinstance(source_representation, list):
@@ -17,7 +17,7 @@ def findCosineDistance(
     return 1 - (a / (np.sqrt(b) * np.sqrt(c)))
 
 
-def findEuclideanDistance(
+def find_euclidean_distance(
     source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]
 ) -> np.float64:
     if isinstance(source_representation, list):
@@ -38,7 +38,7 @@ def l2_normalize(x: Union[np.ndarray, list]) -> np.ndarray:
     return x / np.sqrt(np.sum(np.multiply(x, x)))
 
 
-def findThreshold(model_name: str, distance_metric: str) -> float:
+def find_threshold(model_name: str, distance_metric: str) -> float:
 
     base_threshold = {"cosine": 0.40, "euclidean": 0.55, "euclidean_l2": 0.75}
 

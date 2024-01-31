@@ -12,6 +12,9 @@ from deepface.detectors import (
     Yolo,
     YuNet,
 )
+from deepface.commons.logger import Logger
+
+logger = Logger(module="deepface/detectors/DetectorWrapper.py")
 
 
 def build_model(detector_backend: str) -> Any:
@@ -52,19 +55,35 @@ def build_model(detector_backend: str) -> Any:
     return face_detector_obj[detector_backend]
 
 
-def detect_faces(detector_backend: str, img: np.ndarray, align: bool = True) -> List[DetectedFace]:
+def detect_faces(
+    detector_backend: str, img: np.ndarray, align: bool = True, expand_percentage: int = 0
+) -> List[DetectedFace]:
     """
     Detect face(s) from a given image
     Args:
         detector_backend (str): detector name
+
         img (np.ndarray): pre-loaded image
-        alig (bool): enable or disable alignment after detection
+
+        align (bool): enable or disable alignment after detection
+
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+
     Returns:
         results (List[DetectedFace]): A list of DetectedFace objects
             where each object contains:
-            - img (np.ndarray): The detected face as a NumPy array.
-            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
-            - confidence (float): The confidence score associated with the detected face.
+
+        - img (np.ndarray): The detected face as a NumPy array.
+
+        - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+
+        - confidence (float): The confidence score associated with the detected face.
     """
     face_detector: Detector = build_model(detector_backend)
-    return face_detector.detect_faces(img=img, align=align)
+    if expand_percentage < 0:
+        logger.warn(
+            f"Expand percentage cannot be negative but you set it to {expand_percentage}."
+            "Overwritten it to 0."
+        )
+        expand_percentage = 0
+    return face_detector.detect_faces(img=img, align=align, expand_percentage=expand_percentage)
