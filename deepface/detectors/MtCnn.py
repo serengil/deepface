@@ -1,5 +1,4 @@
 from typing import List
-import cv2
 import numpy as np
 from mtcnn import MTCNN
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
@@ -32,7 +31,9 @@ class MtCnnClient(Detector):
 
         detected_face = None
 
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # mtcnn expects RGB but OpenCV read BGR
+        # mtcnn expects RGB but OpenCV read BGR
+        # img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img_rgb = img[:, :, ::-1]
         detections = self.model.detect_faces(img_rgb)
 
         if detections is not None and len(detections) > 0:
