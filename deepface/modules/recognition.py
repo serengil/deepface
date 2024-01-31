@@ -26,6 +26,7 @@ def find(
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
+    expand_percentage: int = 0,
     threshold: Optional[float] = None,
     normalization: str = "base",
     silent: bool = False,
@@ -54,6 +55,8 @@ def find(
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
 
         align (boolean): Perform alignment based on the eye positions.
+
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
         threshold (float): Specify a threshold to determine whether a pair represents the same
             person or different individuals. This threshold is used for comparing distances.
@@ -211,6 +214,7 @@ def find(
         grayscale=False,
         enforce_detection=enforce_detection,
         align=align,
+        expand_percentage=expand_percentage,
     )
 
     resp_obj = []
@@ -309,6 +313,7 @@ def __find_bulk_embeddings(
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
+    expand_percentage: int = 0,
     normalization: str = "base",
     silent: bool = False,
 ):
@@ -317,15 +322,24 @@ def __find_bulk_embeddings(
 
     Args:
         employees (list): list of exact image paths
+
         model_name (str): facial recognition model name
-        target_size (tuple): expected input shape of facial
-            recognition model
+
+        target_size (tuple): expected input shape of facial recognition model
+
         detector_backend (str): face detector model name
+
         enforce_detection (bool): set this to False if you
             want to proceed when you cannot detect any face
+
         align (bool): enable or disable alignment of image
             before feeding to facial recognition model
+
+        expand_percentage (int): expand detected facial area with a
+            percentage (default is 0).
+
         normalization (bool): normalization technique
+
         silent (bool): enable or disable informative logging
     Returns:
         representations (list): pivot list of embeddings with
@@ -344,6 +358,7 @@ def __find_bulk_embeddings(
             grayscale=False,
             enforce_detection=enforce_detection,
             align=align,
+            expand_percentage=expand_percentage,
         )
 
         for img_obj in img_objs:

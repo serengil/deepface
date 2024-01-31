@@ -31,6 +31,7 @@ def extract_faces(
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
+    expand_percentage: int = 0,
     grayscale: bool = False,
     human_readable=False,
 ) -> List[Dict[str, Any]]:
@@ -51,6 +52,8 @@ def extract_faces(
             Default is True. Set to False to avoid the exception for low-resolution images.
 
         align (bool): Flag to enable face alignment (default is True).
+
+        expand_percentage (int): expand detected facial area with a percentage
 
         grayscale (boolean): Flag to convert the image to grayscale before
             processing (default is False).
@@ -75,7 +78,12 @@ def extract_faces(
     if detector_backend == "skip":
         face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
     else:
-        face_objs = DetectorWrapper.detect_faces(detector_backend, img, align)
+        face_objs = DetectorWrapper.detect_faces(
+            detector_backend=detector_backend,
+            img=img,
+            align=align,
+            expand_percentage=expand_percentage,
+        )
 
     # in case of no face found
     if len(face_objs) == 0 and enforce_detection is True:

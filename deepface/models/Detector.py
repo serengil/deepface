@@ -8,19 +8,28 @@ import numpy as np
 # pylint: disable=unnecessary-pass, too-few-public-methods
 class Detector(ABC):
     @abstractmethod
-    def detect_faces(self, img: np.ndarray, align: bool = True) -> List["DetectedFace"]:
+    def detect_faces(
+        self, img: np.ndarray, align: bool = True, expand_percentage: int = 0
+    ) -> List["DetectedFace"]:
         """
-        Detect faces from a given image
+        Interface for detect and align face
+
         Args:
-            img (np.ndarray): pre-loaded image as a NumPy array
-            align (bool): enable or disable alignment after face detection
+            img (np.ndarray): pre-loaded image as numpy array
+
+            align (bool): flag to enable or disable alignment after detection (default is True)
+
+            expand_percentage (int): expand detected facial area with a percentage
+
         Returns:
-            results (List[DetectedFace]): A list of DetectedFace object
+            results (List[Tuple[DetectedFace]): A list of DetectedFace objects
                 where each object contains:
-                - face (np.ndarray): The detected face as a NumPy array.
-                - face_region (List[float]): The image region represented as
-                    a list of floats e.g. [x, y, w, h]
-                - confidence (float): The confidence score associated with the detected face.
+
+            - img (np.ndarray): The detected face as a NumPy array.
+
+            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+
+            - confidence (float): The confidence score associated with the detected face.
         """
         pass
 

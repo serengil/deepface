@@ -25,18 +25,27 @@ class OpenCvClient(Detector):
         detector["eye_detector"] = self.__build_cascade("haarcascade_eye")
         return detector
 
-    def detect_faces(self, img: np.ndarray, align: bool = True) -> List[DetectedFace]:
+    def detect_faces(
+        self, img: np.ndarray, align: bool = True, expand_percentage: int = 0
+    ) -> List[DetectedFace]:
         """
         Detect and align face with opencv
+
         Args:
-            face_detector (Any): opencv face detector object
-            img (np.ndarray): pre-loaded image
-            align (bool): default is true
+            img (np.ndarray): pre-loaded image as numpy array
+
+            align (bool): flag to enable or disable alignment after detection (default is True)
+
+            expand_percentage (int): expand detected facial area with a percentage
+
         Returns:
             results (List[Tuple[DetectedFace]): A list of DetectedFace objects
                 where each object contains:
+
             - img (np.ndarray): The detected face as a NumPy array.
+
             - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+
             - confidence (float): The confidence score associated with the detected face.
         """
         resp = []
@@ -56,7 +65,15 @@ class OpenCvClient(Detector):
 
         if len(faces) > 0:
             for (x, y, w, h), confidence in zip(faces, scores):
-                detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+
+                # expand the facial area to be extracted and stay within img.shape limits
+                x2 = max(0, x - int((w * expand_percentage) / 100))  # expand left
+                y2 = max(0, y - int((h * expand_percentage) / 100))  # expand top
+                w2 = min(img.shape[1], w + int((w * expand_percentage) / 100))  # expand right
+                h2 = min(img.shape[0], h + int((h * expand_percentage) / 100))  # expand bottom
+
+                # detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+                detected_face = img[int(y2) : int(y2 + h2), int(x2) : int(x2 + w2)]
 
                 if align:
                     left_eye, right_eye = self.find_eyes(img=detected_face)
