@@ -249,11 +249,11 @@ def find(
                 )
 
             if distance_metric == "cosine":
-                distance = dst.findCosineDistance(source_representation, target_representation)
+                distance = dst.find_cosine_distance(source_representation, target_representation)
             elif distance_metric == "euclidean":
-                distance = dst.findEuclideanDistance(source_representation, target_representation)
+                distance = dst.find_euclidean_distance(source_representation, target_representation)
             elif distance_metric == "euclidean_l2":
-                distance = dst.findEuclideanDistance(
+                distance = dst.find_euclidean_distance(
                     dst.l2_normalize(source_representation),
                     dst.l2_normalize(target_representation),
                 )
@@ -263,7 +263,7 @@ def find(
             distances.append(distance)
 
             # ---------------------------
-        target_threshold = threshold or dst.findThreshold(model_name, distance_metric)
+        target_threshold = threshold or dst.find_threshold(model_name, distance_metric)
 
         result_df["threshold"] = target_threshold
         result_df["distance"] = distances

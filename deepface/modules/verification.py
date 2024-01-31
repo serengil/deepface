@@ -133,11 +133,11 @@ def verify(
             img2_representation = img2_embedding_obj[0]["embedding"]
 
             if distance_metric == "cosine":
-                distance = dst.findCosineDistance(img1_representation, img2_representation)
+                distance = dst.find_cosine_distance(img1_representation, img2_representation)
             elif distance_metric == "euclidean":
-                distance = dst.findEuclideanDistance(img1_representation, img2_representation)
+                distance = dst.find_euclidean_distance(img1_representation, img2_representation)
             elif distance_metric == "euclidean_l2":
-                distance = dst.findEuclideanDistance(
+                distance = dst.find_euclidean_distance(
                     dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation)
                 )
             else:
@@ -147,7 +147,7 @@ def verify(
             regions.append((img1_region, img2_region))
 
     # -------------------------------
-    threshold = dst.findThreshold(model_name, distance_metric)
+    threshold = dst.find_threshold(model_name, distance_metric)
     distance = min(distances)  # best distance
     facial_areas = regions[np.argmin(distances)]
 
