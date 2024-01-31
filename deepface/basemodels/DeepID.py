@@ -49,6 +49,8 @@ class DeepIdClient(FacialRecognition):
     def __init__(self):
         self.model = load_model()
         self.model_name = "DeepId"
+        self.input_shape = (47, 55)
+        self.output_shape = 160
 
     def find_embeddings(self, img: np.ndarray) -> List[float]:
         """

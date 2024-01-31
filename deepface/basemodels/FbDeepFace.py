@@ -46,6 +46,8 @@ class DeepFaceClient(FacialRecognition):
     def __init__(self):
         self.model = load_model()
         self.model_name = "DeepFace"
+        self.input_shape = (152, 152)
+        self.output_shape = 4096
 
     def find_embeddings(self, img: np.ndarray) -> List[float]:
         """

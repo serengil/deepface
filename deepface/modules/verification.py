@@ -6,8 +6,9 @@ from typing import Any, Dict, Union
 import numpy as np
 
 # project dependencies
-from deepface.commons import functions, distance as dst
-from deepface.modules import representation, detection
+from deepface.commons import distance as dst
+from deepface.modules import representation, detection, modeling
+from deepface.models.FacialRecognition import FacialRecognition
 
 
 def verify(
@@ -79,7 +80,8 @@ def verify(
     tic = time.time()
 
     # --------------------------------
-    target_size = functions.find_target_size(model_name=model_name)
+    model: FacialRecognition = modeling.build_model(model_name)
+    target_size = model.input_shape
 
     # img pairs might have many faces
     img1_objs = detection.extract_faces(

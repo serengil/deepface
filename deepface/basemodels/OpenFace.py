@@ -36,6 +36,8 @@ class OpenFaceClient(FacialRecognition):
     def __init__(self):
         self.model = load_model()
         self.model_name = "OpenFace"
+        self.input_shape = (96, 96)
+        self.output_shape = 128
 
     def find_embeddings(self, img: np.ndarray) -> List[float]:
         """

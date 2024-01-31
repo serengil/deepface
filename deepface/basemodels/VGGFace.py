@@ -43,6 +43,8 @@ class VggFaceClient(FacialRecognition):
     def __init__(self):
         self.model = load_model()
         self.model_name = "VGG-Face"
+        self.input_shape = (224, 224)
+        self.output_shape = 4096
 
     def find_embeddings(self, img: np.ndarray) -> List[float]:
         """

@@ -10,9 +10,10 @@ import pandas as pd
 from tqdm import tqdm
 
 # project dependencies
-from deepface.commons import functions, distance as dst
+from deepface.commons import distance as dst
 from deepface.commons.logger import Logger
-from deepface.modules import representation, detection
+from deepface.modules import representation, detection, modeling
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="deepface/modules/recognition.py")
 
@@ -89,7 +90,8 @@ def find(
     if os.path.isdir(db_path) is not True:
         raise ValueError("Passed db_path does not exist!")
 
-    target_size = functions.find_target_size(model_name=model_name)
+    model: FacialRecognition = modeling.build_model(model_name)
+    target_size = model.input_shape
 
     # ---------------------------------------
 

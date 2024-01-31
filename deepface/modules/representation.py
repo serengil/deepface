@@ -7,7 +7,6 @@ import cv2
 
 # project dependencies
 from deepface.modules import modeling, detection, preprocessing
-from deepface.commons import functions
 from deepface.models.FacialRecognition import FacialRecognition
 
 
@@ -61,7 +60,7 @@ def represent(
 
     # ---------------------------------
     # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
-    target_size = functions.find_target_size(model_name=model_name)
+    target_size = model.input_shape
     if detector_backend != "skip":
         img_objs = detection.extract_faces(
             img_path=img_path,

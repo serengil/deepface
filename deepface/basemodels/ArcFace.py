@@ -53,6 +53,8 @@ class ArcFaceClient(FacialRecognition):
     def __init__(self):
         self.model = load_model()
         self.model_name = "ArcFace"
+        self.input_shape = (112, 112)
+        self.output_shape = 512
 
     def find_embeddings(self, img: np.ndarray) -> List[float]:
         """

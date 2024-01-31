@@ -22,6 +22,8 @@ class SFaceClient(FacialRecognition):
     def __init__(self):
         self.model = load_model()
         self.model_name = "SFace"
+        self.input_shape = (112, 112)
+        self.output_shape = 128
 
     def find_embeddings(self, img: np.ndarray) -> List[float]:
         """
