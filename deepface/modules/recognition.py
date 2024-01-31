@@ -12,7 +12,7 @@ from tqdm import tqdm
 # project dependencies
 from deepface.commons import functions, distance as dst
 from deepface.commons.logger import Logger
-from deepface.modules import representation
+from deepface.modules import representation, detection
 
 logger = Logger(module="deepface/modules/recognition.py")
 
@@ -202,8 +202,8 @@ def find(
     )
 
     # img path might have more than once face
-    source_objs = functions.extract_faces(
-        img=img_path,
+    source_objs = detection.extract_faces(
+        img_path=img_path,
         target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
@@ -213,7 +213,9 @@ def find(
 
     resp_obj = []
 
-    for source_img, source_region, _ in source_objs:
+    for source_obj in source_objs:
+        source_img = source_obj["face"]
+        source_region = source_obj["facial_area"]
         target_embedding_obj = representation.represent(
             img_path=source_img,
             model_name=model_name,
@@ -333,8 +335,8 @@ def __find_bulk_embeddings(
         desc="Finding representations",
         disable=silent,
     ):
-        img_objs = functions.extract_faces(
-            img=employee,
+        img_objs = detection.extract_faces(
+            img_path=employee,
             target_size=target_size,
             detector_backend=detector_backend,
             grayscale=False,
@@ -342,7 +344,9 @@ def __find_bulk_embeddings(
             align=align,
         )
 
-        for img_content, img_region, _ in img_objs:
+        for img_obj in img_objs:
+            img_content = img_obj["face"]
+            img_region = img_obj["facial_area"]
             embedding_obj = representation.represent(
                 img_path=img_content,
                 model_name=model_name,

@@ -449,6 +449,7 @@ def extract_faces(
         enforce_detection=enforce_detection,
         align=align,
         grayscale=grayscale,
+        human_readable=True,
     )
 
 

@@ -7,7 +7,7 @@ import numpy as np
 
 # project dependencies
 from deepface.commons import functions, distance as dst
-from deepface.modules import representation
+from deepface.modules import representation, detection
 
 
 def verify(
@@ -82,8 +82,8 @@ def verify(
     target_size = functions.find_target_size(model_name=model_name)
 
     # img pairs might have many faces
-    img1_objs = functions.extract_faces(
-        img=img1_path,
+    img1_objs = detection.extract_faces(
+        img_path=img1_path,
         target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
@@ -91,8 +91,8 @@ def verify(
         align=align,
     )
 
-    img2_objs = functions.extract_faces(
-        img=img2_path,
+    img2_objs = detection.extract_faces(
+        img_path=img2_path,
         target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
@@ -103,8 +103,12 @@ def verify(
     distances = []
     regions = []
     # now we will find the face pair with minimum distance
-    for img1_content, img1_region, _ in img1_objs:
-        for img2_content, img2_region, _ in img2_objs:
+    for img1_obj in img1_objs:
+        img1_content = img1_obj["face"]
+        img1_region = img1_obj["facial_area"]
+        for img2_obj in img2_objs:
+            img2_content = img2_obj["face"]
+            img2_region = img2_obj["facial_area"]
             img1_embedding_obj = representation.represent(
                 img_path=img1_content,
                 model_name=model_name,

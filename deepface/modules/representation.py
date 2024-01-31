@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 
 # project dependencies
-from deepface.modules import modeling
+from deepface.modules import modeling, detection, preprocessing
 from deepface.commons import functions
 from deepface.models.FacialRecognition import FacialRecognition
 
@@ -63,8 +63,8 @@ def represent(
     # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
     target_size = functions.find_target_size(model_name=model_name)
     if detector_backend != "skip":
-        img_objs = functions.extract_faces(
-            img=img_path,
+        img_objs = detection.extract_faces(
+            img_path=img_path,
             target_size=(target_size[1], target_size[0]),
             detector_backend=detector_backend,
             grayscale=False,
@@ -73,7 +73,7 @@ def represent(
         )
     else:  # skip
         # Try load. If load error, will raise exception internal
-        img, _ = functions.load_image(img_path)
+        img, _ = preprocessing.load_image(img_path)
         # --------------------------------
         if len(img.shape) == 4:
             img = img[0]  # e.g. (1, 224, 224, 3) to (224, 224, 3)
@@ -85,13 +85,21 @@ def represent(
                 img = (img.astype(np.float32) / 255.0).astype(np.float32)
         # --------------------------------
         # make dummy region and confidence to keep compatibility with `extract_faces`
-        img_region = {"x": 0, "y": 0, "w": img.shape[1], "h": img.shape[2]}
-        img_objs = [(img, img_region, 0)]
+        img_objs = [
+            {
+                "face": img,
+                "facial_area": {"x": 0, "y": 0, "w": img.shape[1], "h": img.shape[2]},
+                "confidence": 0,
+            }
+        ]
     # ---------------------------------
 
-    for img, region, confidence in img_objs:
+    for img_obj in img_objs:
+        img = img_obj["face"]
+        region = img_obj["facial_area"]
+        confidence = img_obj["confidence"]
         # custom normalization
-        img = functions.normalize_input(img=img, normalization=normalization)
+        img = preprocessing.normalize_input(img=img, normalization=normalization)
 
         embedding = model.find_embeddings(img)
 

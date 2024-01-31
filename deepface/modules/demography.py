@@ -6,8 +6,7 @@ import numpy as np
 from tqdm import tqdm
 
 # project dependencies
-from deepface.modules import modeling
-from deepface.commons import functions
+from deepface.modules import modeling, detection
 from deepface.extendedmodels import Gender, Race, Emotion
 
 
@@ -114,8 +113,8 @@ def analyze(
     # ---------------------------------
     resp_objects = []
 
-    img_objs = functions.extract_faces(
-        img=img_path,
+    img_objs = detection.extract_faces(
+        img_path=img_path,
         target_size=(224, 224),
         detector_backend=detector_backend,
         grayscale=False,
@@ -123,7 +122,10 @@ def analyze(
         align=align,
     )
 
-    for img_content, img_region, img_confidence in img_objs:
+    for img_obj in img_objs:
+        img_content = img_obj["face"]
+        img_region = img_obj["facial_area"]
+        img_confidence = img_obj["confidence"]
         if img_content.shape[0] > 0 and img_content.shape[1] > 0:
             obj = {}
             # facial attribute analysis
