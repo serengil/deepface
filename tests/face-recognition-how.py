@@ -10,11 +10,14 @@ logger = Logger()
 # ----------------------------------------------
 # build face recognition model
 
-model_name = "VGG-Face"
+model_name = "ArcFace"
 
 model: FacialRecognition = DeepFace.build_model(model_name=model_name)
 
-target_size = model.input_shape
+'''target_size = model.input_shape 
+Since input_shape is not present for the new deepface
+'''
+target_size = (112, 112)
 
 logger.info(f"target_size: {target_size}")
 
@@ -38,7 +41,8 @@ distance_vector = np.square(img1_representation - img2_representation)
 current_distance = np.sqrt(distance_vector.sum())
 logger.info(f"Euclidean distance: {current_distance}")
 
-threshold = distance.find_threshold(model_name=model_name, distance_metric="euclidean")
+'''find_threshould Attribute not found error resolved'''
+threshold = distance.findThreshold(model_name=model_name, distance_metric="euclidean")
 logger.info(f"Threshold for {model_name}-euclidean pair is {threshold}")
 
 if current_distance < threshold:
