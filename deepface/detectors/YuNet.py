@@ -3,7 +3,7 @@ from typing import Any, List
 import cv2
 import numpy as np
 import gdown
-from deepface.commons import functions
+from deepface.commons import folder_utils
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.modules import detection
 from deepface.commons.logger import Logger
@@ -31,7 +31,7 @@ class YuNetClient(Detector):
         # pylint: disable=C0301
         url = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
         file_name = "face_detection_yunet_2023mar.onnx"
-        home = functions.get_deepface_home()
+        home = folder_utils.get_deepface_home()
         if os.path.isfile(home + f"/.deepface/weights/{file_name}") is False:
             logger.info(f"{file_name} will be downloaded...")
             output = home + f"/.deepface/weights/{file_name}"

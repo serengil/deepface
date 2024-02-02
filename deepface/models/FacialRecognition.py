@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, Union, List, Tuple
 import numpy as np
-from deepface.commons import functions
+from deepface.commons import package_utils
 
-tf_version = functions.get_tf_major_version()
+tf_version = package_utils.get_tf_major_version()
 if tf_version == 2:
     from tensorflow.keras.models import Model
 else:

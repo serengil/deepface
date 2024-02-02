@@ -2,7 +2,7 @@ import os
 import gdown
 import numpy as np
 from deepface.basemodels import VGGFace
-from deepface.commons import functions
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.Demography import Demography
 
@@ -13,7 +13,7 @@ logger = Logger(module="extendedmodels.Gender")
 # -------------------------------------
 # dependency configurations
 
-tf_version = functions.get_tf_major_version()
+tf_version = package_utils.get_tf_major_version()
 if tf_version == 1:
     from keras.models import Model, Sequential
     from keras.layers import Convolution2D, Flatten, Activation
@@ -66,7 +66,7 @@ def load_model(
 
     # load weights
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/gender_model_weights.h5") != True:
         logger.info("gender_model_weights.h5 will be downloaded...")

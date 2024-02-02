@@ -2,7 +2,7 @@ from typing import List
 import os
 import gdown
 import numpy as np
-from deepface.commons import functions
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
 
@@ -11,7 +11,7 @@ logger = Logger(module="basemodels.Facenet")
 # --------------------------------
 # dependency configuration
 
-tf_version = functions.get_tf_major_version()
+tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
     from keras.models import Model
@@ -1689,7 +1689,7 @@ def load_facenet128d_model(
 
     # -----------------------------------
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/facenet_weights.h5") != True:
         logger.info("facenet_weights.h5 will be downloaded...")
@@ -1719,7 +1719,7 @@ def load_facenet512d_model(
 
     # -------------------------
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/facenet512_weights.h5") != True:
         logger.info("facenet512_weights.h5 will be downloaded...")

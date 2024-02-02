@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from deepface import DeepFace
-from deepface.commons import distance
+from deepface.modules import verification
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
 
@@ -38,7 +38,7 @@ distance_vector = np.square(img1_representation - img2_representation)
 current_distance = np.sqrt(distance_vector.sum())
 logger.info(f"Euclidean distance: {current_distance}")
 
-threshold = distance.find_threshold(model_name=model_name, distance_metric="euclidean")
+threshold = verification.find_threshold(model_name=model_name, distance_metric="euclidean")
 logger.info(f"Threshold for {model_name}-euclidean pair is {threshold}")
 
 if current_distance < threshold:

@@ -3,7 +3,7 @@ import os
 import bz2
 import gdown
 import numpy as np
-from deepface.commons import functions
+from deepface.commons import folder_utils
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.commons.logger import Logger
 
@@ -20,7 +20,7 @@ class DlibClient(Detector):
         Returns:
             model (Any)
         """
-        home = functions.get_deepface_home()
+        home = folder_utils.get_deepface_home()
 
         # this is not a must dependency. do not import it in the global level.
         try:

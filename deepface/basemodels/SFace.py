@@ -5,7 +5,7 @@ import numpy as np
 import cv2 as cv
 import gdown
 
-from deepface.commons import functions
+from deepface.commons import folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
 
@@ -50,7 +50,7 @@ def load_model(
     Construct SFace model, download its weights and load
     """
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     file_name = home + "/.deepface/weights/face_recognition_sface_2021dec.onnx"
 

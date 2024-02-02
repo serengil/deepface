@@ -2,7 +2,8 @@ from typing import List
 import os
 import gdown
 import numpy as np
-from deepface.commons import functions, distance
+from deepface.commons import package_utils, folder_utils
+from deepface.modules import verification
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
 
@@ -10,7 +11,7 @@ logger = Logger(module="basemodels.VGGFace")
 
 # ---------------------------------------
 
-tf_version = functions.get_tf_major_version()
+tf_version = package_utils.get_tf_major_version()
 if tf_version == 1:
     from keras.models import Model, Sequential
     from keras.layers import (
@@ -59,7 +60,7 @@ class VggFaceClient(FacialRecognition):
         # having normalization layer in descriptor troubles for some gpu users (e.g. issue 957, 966)
         # instead we are now calculating it with traditional way not with keras backend
         embedding = self.model(img, training=False).numpy()[0].tolist()
-        embedding = distance.l2_normalize(embedding)
+        embedding = verification.l2_normalize(embedding)
         return embedding.tolist()
 
 
@@ -128,7 +129,7 @@ def load_model(
 
     model = base_model()
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
     output = home + "/.deepface/weights/vgg_face_weights.h5"
 
     if os.path.isfile(output) != True:
