@@ -5,7 +5,7 @@ import cv2
 import pandas as pd
 import numpy as np
 from deepface.detectors import OpenCv
-from deepface.commons import functions
+from deepface.commons import folder_utils
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.modules import detection
 from deepface.commons.logger import Logger
@@ -26,7 +26,7 @@ class SsdClient(Detector):
             model (dict)
         """
 
-        home = functions.get_deepface_home()
+        home = folder_utils.get_deepface_home()
 
         # model structure
         if os.path.isfile(home + "/.deepface/weights/deploy.prototxt") != True:

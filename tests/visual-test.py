@@ -20,7 +20,16 @@ model_names = [
     "SFace",
 ]
 
-detector_backends = ["opencv", "ssd", "dlib", "mtcnn", "retinaface", "yunet", "yolov8"]
+detector_backends = [
+    "opencv",
+    "ssd",
+    "dlib",
+    "mtcnn",
+    # "mediapipe", # crashed in mac
+    "retinaface",
+    "yunet",
+    "yolov8",
+]
 
 # verification
 for model_name in model_names:

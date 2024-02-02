@@ -2,7 +2,7 @@ from typing import List
 import os
 import gdown
 import numpy as np
-from deepface.commons import functions
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
 
@@ -13,7 +13,7 @@ logger = Logger(module="basemodels.ArcFace")
 # --------------------------------
 # dependency configuration
 
-tf_version = functions.get_tf_major_version()
+tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
     from keras.models import Model
@@ -94,7 +94,7 @@ def load_model(
     # ---------------------------------------
     # check the availability of pre-trained weights
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     file_name = "arcface_weights.h5"
     output = home + "/.deepface/weights/" + file_name

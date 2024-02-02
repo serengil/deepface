@@ -3,7 +3,7 @@ import os
 import zipfile
 import gdown
 import numpy as np
-from deepface.commons import functions
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
 
@@ -12,7 +12,7 @@ logger = Logger(module="basemodels.FbDeepFace")
 # --------------------------------
 # dependency configuration
 
-tf_version = functions.get_tf_major_version()
+tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
     from keras.models import Model, Sequential
@@ -84,7 +84,7 @@ def load_model(
 
     # ---------------------------------
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5") != True:
         logger.info("VGGFace2_DeepFace_weights_val-0.9034.h5 will be downloaded...")

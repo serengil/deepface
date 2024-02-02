@@ -2,7 +2,7 @@ import os
 import gdown
 import numpy as np
 from deepface.basemodels import VGGFace
-from deepface.commons import functions
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.Demography import Demography
 
@@ -12,7 +12,7 @@ logger = Logger(module="extendedmodels.Race")
 # pylint: disable=line-too-long
 # --------------------------
 # dependency configurations
-tf_version = functions.get_tf_major_version()
+tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
     from keras.models import Model, Sequential
@@ -63,7 +63,7 @@ def load_model(
 
     # load weights
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/race_model_single_batch.h5") != True:
         logger.info("race_model_single_batch.h5 will be downloaded...")

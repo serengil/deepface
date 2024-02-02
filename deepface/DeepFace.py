@@ -10,7 +10,7 @@ import pandas as pd
 import tensorflow as tf
 
 # package dependencies
-from deepface.commons import functions
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.modules import (
     modeling,
@@ -24,17 +24,21 @@ from deepface.modules import (
 
 logger = Logger(module="DeepFace")
 
+# current package version of deepface
+__version__ = package_utils.find_package_version()
+
 # -----------------------------------
 # configurations for dependencies
 
 warnings.filterwarnings("ignore")
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-tf_version = functions.get_tf_major_version()
+tf_version = package_utils.get_tf_major_version()
 if tf_version == 2:
     tf.get_logger().setLevel(logging.ERROR)
 # -----------------------------------
 
-functions.initialize_folder()
+# create required folders if necessary to store model weights
+folder_utils.initialize_folder()
 
 
 def build_model(model_name: str) -> Any:
@@ -511,7 +515,7 @@ def detectFace(
         align (bool): Flag to enable face alignment (default is True).
 
     Returns:
-            img (np.ndarray): detected (and aligned) facial area image as numpy array
+        img (np.ndarray): detected (and aligned) facial area image as numpy array
     """
     logger.warn("Function detectFace is deprecated. Use extract_faces instead.")
     face_objs = extract_faces(

@@ -36,45 +36,47 @@ class RetinaFaceClient(Detector):
 
         obj = rf.detect_faces(img, model=self.model, threshold=0.9)
 
-        if isinstance(obj, dict):
-            for face_idx in obj.keys():
-                identity = obj[face_idx]
-                facial_area = identity["facial_area"]
+        if not isinstance(obj, dict):
+            return resp
 
-                y = facial_area[1]
-                h = facial_area[3] - y
-                x = facial_area[0]
-                w = facial_area[2] - x
-                img_region = FacialAreaRegion(x=x, y=y, w=w, h=h)
-                confidence = identity["score"]
+        for face_idx in obj.keys():
+            identity = obj[face_idx]
+            facial_area = identity["facial_area"]
 
-                # expand the facial area to be extracted and stay within img.shape limits
-                x2 = max(0, x - int((w * expand_percentage) / 100))  # expand left
-                y2 = max(0, y - int((h * expand_percentage) / 100))  # expand top
-                w2 = min(img.shape[1], w + int((w * expand_percentage) / 100))  # expand right
-                h2 = min(img.shape[0], h + int((h * expand_percentage) / 100))  # expand bottom
+            y = facial_area[1]
+            h = facial_area[3] - y
+            x = facial_area[0]
+            w = facial_area[2] - x
+            img_region = FacialAreaRegion(x=x, y=y, w=w, h=h)
+            confidence = identity["score"]
 
-                # detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
-                detected_face = img[int(y2) : int(y2 + h2), int(x2) : int(x2 + w2)]
+            # expand the facial area to be extracted and stay within img.shape limits
+            x2 = max(0, x - int((w * expand_percentage) / 100))  # expand left
+            y2 = max(0, y - int((h * expand_percentage) / 100))  # expand top
+            w2 = min(img.shape[1], w + int((w * expand_percentage) / 100))  # expand right
+            h2 = min(img.shape[0], h + int((h * expand_percentage) / 100))  # expand bottom
 
-                if align:
-                    landmarks = identity["landmarks"]
-                    left_eye = landmarks["left_eye"]
-                    right_eye = landmarks["right_eye"]
-                    nose = landmarks["nose"]
-                    # mouth_right = landmarks["mouth_right"]
-                    # mouth_left = landmarks["mouth_left"]
+            # detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+            detected_face = img[int(y2) : int(y2 + h2), int(x2) : int(x2 + w2)]
 
-                    detected_face = postprocess.alignment_procedure(
-                        detected_face, right_eye, left_eye, nose
-                    )
+            if align:
+                landmarks = identity["landmarks"]
+                left_eye = landmarks["left_eye"]
+                right_eye = landmarks["right_eye"]
+                nose = landmarks["nose"]
+                # mouth_right = landmarks["mouth_right"]
+                # mouth_left = landmarks["mouth_left"]
 
-                detected_face_obj = DetectedFace(
-                    img=detected_face,
-                    facial_area=img_region,
-                    confidence=confidence,
+                detected_face = postprocess.alignment_procedure(
+                    detected_face, right_eye, left_eye, nose
                 )
 
-                resp.append(detected_face_obj)
+            detected_face_obj = DetectedFace(
+                img=detected_face,
+                facial_area=img_region,
+                confidence=confidence,
+            )
+
+            resp.append(detected_face_obj)
 
         return resp

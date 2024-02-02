@@ -3,7 +3,7 @@ import os
 import bz2
 import gdown
 import numpy as np
-from deepface.commons import functions
+from deepface.commons import folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
 
@@ -68,7 +68,7 @@ class DlibResNet:
 
         # ---------------------
 
-        home = functions.get_deepface_home()
+        home = folder_utils.get_deepface_home()
         weight_file = home + "/.deepface/weights/dlib_face_recognition_resnet_model_v1.dat"
 
         # ---------------------

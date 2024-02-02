@@ -10,7 +10,7 @@ from PIL import Image
 from deepface.modules import preprocessing
 from deepface.models.Detector import DetectedFace, FacialAreaRegion
 from deepface.detectors import DetectorWrapper
-from deepface.commons import functions
+from deepface.commons import package_utils
 from deepface.commons.logger import Logger
 
 logger = Logger(module="deepface/modules/detection.py")
@@ -18,7 +18,7 @@ logger = Logger(module="deepface/modules/detection.py")
 # pylint: disable=no-else-raise
 
 
-tf_major_version = functions.get_tf_major_version()
+tf_major_version = package_utils.get_tf_major_version()
 if tf_major_version == 1:
     from keras.preprocessing import image
 elif tf_major_version == 2:
@@ -63,8 +63,11 @@ def extract_faces(
 
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary contains:
+
         - "face" (np.ndarray): The detected face as a NumPy array.
+
         - "facial_area" (List[float]): The detected face's regions represented as a list of floats.
+
         - "confidence" (float): The confidence score associated with the detected face.
     """
 

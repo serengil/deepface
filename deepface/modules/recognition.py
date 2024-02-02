@@ -10,9 +10,8 @@ import pandas as pd
 from tqdm import tqdm
 
 # project dependencies
-from deepface.commons import distance as dst
 from deepface.commons.logger import Logger
-from deepface.modules import representation, detection, modeling
+from deepface.modules import representation, detection, modeling, verification
 from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="deepface/modules/recognition.py")
@@ -253,13 +252,17 @@ def find(
                 )
 
             if distance_metric == "cosine":
-                distance = dst.find_cosine_distance(source_representation, target_representation)
+                distance = verification.find_cosine_distance(
+                    source_representation, target_representation
+                )
             elif distance_metric == "euclidean":
-                distance = dst.find_euclidean_distance(source_representation, target_representation)
+                distance = verification.find_euclidean_distance(
+                    source_representation, target_representation
+                )
             elif distance_metric == "euclidean_l2":
-                distance = dst.find_euclidean_distance(
-                    dst.l2_normalize(source_representation),
-                    dst.l2_normalize(target_representation),
+                distance = verification.find_euclidean_distance(
+                    verification.l2_normalize(source_representation),
+                    verification.l2_normalize(target_representation),
                 )
             else:
                 raise ValueError(f"invalid distance metric passes - {distance_metric}")
@@ -267,7 +270,7 @@ def find(
             distances.append(distance)
 
             # ---------------------------
-        target_threshold = threshold or dst.find_threshold(model_name, distance_metric)
+        target_threshold = threshold or verification.find_threshold(model_name, distance_metric)
 
         result_df["threshold"] = target_threshold
         result_df["distance"] = distances

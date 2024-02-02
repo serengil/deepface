@@ -1,12 +1,12 @@
 import cv2
 import pandas as pd
 from deepface import DeepFace
-from deepface.commons import distance
+from deepface.modules import verification
 from deepface.commons.logger import Logger
 
 logger = Logger("tests/test_find.py")
 
-threshold = distance.find_threshold(model_name="VGG-Face", distance_metric="cosine")
+threshold = verification.find_threshold(model_name="VGG-Face", distance_metric="cosine")
 
 
 def test_find_with_exact_path():

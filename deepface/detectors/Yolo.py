@@ -4,6 +4,7 @@ import numpy as np
 import gdown
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.modules import detection
+from deepface.commons import folder_utils
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -39,9 +40,7 @@ class YoloClient(Detector):
                 Please install using 'pip install ultralytics' "
             ) from e
 
-        from deepface.commons.functions import get_deepface_home
-
-        weight_path = f"{get_deepface_home()}{PATH}"
+        weight_path = f"{folder_utils.get_deepface_home()}{PATH}"
 
         # Download the model's weights if they don't exist
         if not os.path.isfile(weight_path):

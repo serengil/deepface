@@ -3,13 +3,13 @@ import os
 import gdown
 import tensorflow as tf
 import numpy as np
-from deepface.commons import functions
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.OpenFace")
 
-tf_version = functions.get_tf_major_version()
+tf_version = package_utils.get_tf_major_version()
 if tf_version == 1:
     from keras.models import Model
     from keras.layers import Conv2D, ZeroPadding2D, Input, concatenate
@@ -394,7 +394,7 @@ def load_model(
 
     # -----------------------------------
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/openface_weights.h5") != True:
         logger.info("openface_weights.h5 will be downloaded...")

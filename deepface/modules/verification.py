@@ -6,7 +6,6 @@ from typing import Any, Dict, Union
 import numpy as np
 
 # project dependencies
-from deepface.commons import distance as dst
 from deepface.modules import representation, detection, modeling
 from deepface.models.FacialRecognition import FacialRecognition
 
@@ -138,12 +137,12 @@ def verify(
             img2_representation = img2_embedding_obj[0]["embedding"]
 
             if distance_metric == "cosine":
-                distance = dst.find_cosine_distance(img1_representation, img2_representation)
+                distance = find_cosine_distance(img1_representation, img2_representation)
             elif distance_metric == "euclidean":
-                distance = dst.find_euclidean_distance(img1_representation, img2_representation)
+                distance = find_euclidean_distance(img1_representation, img2_representation)
             elif distance_metric == "euclidean_l2":
-                distance = dst.find_euclidean_distance(
-                    dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation)
+                distance = find_euclidean_distance(
+                    l2_normalize(img1_representation), l2_normalize(img2_representation)
                 )
             else:
                 raise ValueError("Invalid distance_metric passed - ", distance_metric)
@@ -152,7 +151,7 @@ def verify(
             regions.append((img1_region, img2_region))
 
     # -------------------------------
-    threshold = dst.find_threshold(model_name, distance_metric)
+    threshold = find_threshold(model_name, distance_metric)
     distance = min(distances)  # best distance
     facial_areas = regions[np.argmin(distances)]
 
@@ -171,3 +170,65 @@ def verify(
     }
 
     return resp_obj
+
+
+def find_cosine_distance(
+    source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]
+) -> np.float64:
+    if isinstance(source_representation, list):
+        source_representation = np.array(source_representation)
+
+    if isinstance(test_representation, list):
+        test_representation = np.array(test_representation)
+
+    a = np.matmul(np.transpose(source_representation), test_representation)
+    b = np.sum(np.multiply(source_representation, source_representation))
+    c = np.sum(np.multiply(test_representation, test_representation))
+    return 1 - (a / (np.sqrt(b) * np.sqrt(c)))
+
+
+def find_euclidean_distance(
+    source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]
+) -> np.float64:
+    if isinstance(source_representation, list):
+        source_representation = np.array(source_representation)
+
+    if isinstance(test_representation, list):
+        test_representation = np.array(test_representation)
+
+    euclidean_distance = source_representation - test_representation
+    euclidean_distance = np.sum(np.multiply(euclidean_distance, euclidean_distance))
+    euclidean_distance = np.sqrt(euclidean_distance)
+    return euclidean_distance
+
+
+def l2_normalize(x: Union[np.ndarray, list]) -> np.ndarray:
+    if isinstance(x, list):
+        x = np.array(x)
+    return x / np.sqrt(np.sum(np.multiply(x, x)))
+
+
+def find_threshold(model_name: str, distance_metric: str) -> float:
+
+    base_threshold = {"cosine": 0.40, "euclidean": 0.55, "euclidean_l2": 0.75}
+
+    thresholds = {
+        # "VGG-Face": {"cosine": 0.40, "euclidean": 0.60, "euclidean_l2": 0.86}, # 2622d
+        "VGG-Face": {
+            "cosine": 0.68,
+            "euclidean": 1.17,
+            "euclidean_l2": 1.17,
+        },  # 4096d - tuned with LFW
+        "Facenet": {"cosine": 0.40, "euclidean": 10, "euclidean_l2": 0.80},
+        "Facenet512": {"cosine": 0.30, "euclidean": 23.56, "euclidean_l2": 1.04},
+        "ArcFace": {"cosine": 0.68, "euclidean": 4.15, "euclidean_l2": 1.13},
+        "Dlib": {"cosine": 0.07, "euclidean": 0.6, "euclidean_l2": 0.4},
+        "SFace": {"cosine": 0.593, "euclidean": 10.734, "euclidean_l2": 1.055},
+        "OpenFace": {"cosine": 0.10, "euclidean": 0.55, "euclidean_l2": 0.55},
+        "DeepFace": {"cosine": 0.23, "euclidean": 64, "euclidean_l2": 0.64},
+        "DeepID": {"cosine": 0.015, "euclidean": 45, "euclidean_l2": 0.17},
+    }
+
+    threshold = thresholds.get(model_name, base_threshold).get(distance_metric, 0.4)
+
+    return threshold
