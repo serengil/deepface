@@ -64,35 +64,35 @@ def match_face(
     """
     time example:
     Verifying faces
-Data Frame Creating took 0.0s
-Time to represent the face took 2.9250380992889404s
-Time to calculate all of the distances 0.030328989028930664s
-time to sort dataframe: 0.0022847652435302734s
-no images close
-None
-Finished Verifying
-Verifying faces
-Data Frame Creating took 0.0s
-Time to represent the face took 0.22372913360595703s
-Time to calculate all of the distances 0.0254971981048584s
-time to sort dataframe: 0.0s
-no images close
-Data Frame Creating took 0.002573728561401367s
-Time to represent the face took 0.21585488319396973s
-Time to calculate all of the distances 0.0336298942565918s
-time to sort dataframe: 0.0s
-Data Frame Creating took 0.0s
-Time to represent the face took 0.20081400871276855s
-Time to calculate all of the distances 0.03176164627075195s
-time to sort dataframe: 0.0s
-no images close
-Data Frame Creating took 0.00616145133972168s
-Time to represent the face took 0.21006035804748535s
-Time to calculate all of the distances 0.03065037727355957s
-time to sort dataframe: 0.0s
-no images close
-None
-Finished Verifying
+    Data Frame Creating took 0.0s
+    Time to represent the face took 2.9250380992889404s
+    Time to calculate all of the distances 0.030328989028930664s
+    time to sort dataframe: 0.0022847652435302734s
+    no images close
+    None
+    Finished Verifying
+    Verifying faces
+    Data Frame Creating took 0.0s
+    Time to represent the face took 0.22372913360595703s
+    Time to calculate all of the distances 0.0254971981048584s
+    time to sort dataframe: 0.0s
+    no images close
+    Data Frame Creating took 0.002573728561401367s
+    Time to represent the face took 0.21585488319396973s
+    Time to calculate all of the distances 0.0336298942565918s
+    time to sort dataframe: 0.0s
+    Data Frame Creating took 0.0s
+    Time to represent the face took 0.20081400871276855s
+    Time to calculate all of the distances 0.03176164627075195s
+    time to sort dataframe: 0.0s
+    no images close
+    Data Frame Creating took 0.00616145133972168s
+    Time to represent the face took 0.21006035804748535s
+    Time to calculate all of the distances 0.03065037727355957s
+    time to sort dataframe: 0.0s
+    no images close
+    None
+    Finished Verifying
     """
 
     tic = time.time()
@@ -210,17 +210,24 @@ Finished Verifying
     target_region = facial_data["facial_area"]
     # confidence = facial_data["confidence"]
     # rep_time = time.time()
-    target_embedding_obj = represent(
-        img_path=target_img,
-        model_name=model_name,
-        enforce_detection=enforce_detection,
-        detector_backend="skip",
-        align=align,
-        normalization=normalization,
-    )
-    # print(f"Time to represent the face took {time.time()-rep_time}s")
 
-    target_representation = target_embedding_obj[0]["embedding"]
+    # If the face is already embedded, skip that step to increase speed
+    if "embedding" in facial_data.keys():
+        print("match_face embedding mode on")
+        target_representation = facial_data["embedding"]
+    else:
+    
+        target_embedding_obj = represent(
+            img_path=target_img,
+            model_name=model_name,
+            enforce_detection=enforce_detection,
+            detector_backend="skip",
+            align=align,
+            normalization=normalization,
+        )
+        # print(f"Time to represent the face took {time.time()-rep_time}s")
+
+        target_representation = target_embedding_obj[0]["embedding"]
 
     result_df = df.copy()  # df will be filtered in each img
     result_df["source_x"] = target_region["x"]
@@ -272,15 +279,30 @@ Finished Verifying
 
     return resp_obj
 
+def get_embedding(img, model_name="ArcFace", enforce_detection=True, align=True, normalization="base"):
+    """
+    Designed for rooster to return the embedding of the face, so it only has to be computed once
+    """
+    img1_embedding_obj = represent(
+            img_path=img,
+            model_name=model_name,
+            enforce_detection=enforce_detection,
+            detector_backend="skip",
+            align=align,
+            normalization=normalization,
+        )
+    
+    return img1_embedding_obj[0]["embedding"]
+
 def verify(
-    img1_path,
-    img2_path,
+    img1,
+    img2,
     model_name="VGG-Face",
-    detector_backend="opencv",
     distance_metric="cosine",
     enforce_detection=True,
     align=True,
     normalization="base",
+    embedded_mode=False,
 ):
     """
     This is Rooster's adaptation of DeepFace.
@@ -310,6 +332,9 @@ def verify(
 
             normalization (string): normalize the input image before feeding to model
 
+            embedded_mode (boolean): if True, assumes that img1 and img2 are embeddings, 
+            not images so it skips the embedding function
+
     Returns:
             Verify function returns a dictionary.
 
@@ -331,27 +356,32 @@ def verify(
     tic = time.time()
     # --------------------------------
     distances = []
-    # now we will find the face pair with minimum distance
-    img1_embedding_obj = represent(
-        img_path=img1_path,
-        model_name=model_name,
-        enforce_detection=enforce_detection,
-        detector_backend="skip",
-        align=align,
-        normalization=normalization,
-    )
 
-    img2_embedding_obj = represent(
-        img_path=img2_path,
-        model_name=model_name,
-        enforce_detection=enforce_detection,
-        detector_backend="skip",
-        align=align,
-        normalization=normalization,
-    )
+    if not embedded_mode:
+        # now we will find the face pair with minimum distance
+        img1_embedding_obj = represent(
+            img_path=img1,
+            model_name=model_name,
+            enforce_detection=enforce_detection,
+            detector_backend="skip",
+            align=align,
+            normalization=normalization,
+        )
 
-    img1_representation = img1_embedding_obj[0]["embedding"]
-    img2_representation = img2_embedding_obj[0]["embedding"]
+        img2_embedding_obj = represent(
+            img_path=img2,
+            model_name=model_name,
+            enforce_detection=enforce_detection,
+            detector_backend="skip",
+            align=align,
+            normalization=normalization,
+        )
+
+        img1_representation = img1_embedding_obj[0]["embedding"]
+        img2_representation = img2_embedding_obj[0]["embedding"]
+    else:
+        img1_representation = img1
+        img2_representation = img2
 
     if distance_metric == "cosine":
         distance = dst.findCosineDistance(img1_representation, img2_representation)
@@ -377,7 +407,6 @@ def verify(
         "distance": distance,
         "threshold": threshold,
         "model": model_name,
-        "detector_backend": detector_backend,
         "similarity_metric": distance_metric,
         "time": round(toc - tic, 2),
     }
