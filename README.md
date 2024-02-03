@@ -318,7 +318,7 @@ You can also run these commands if you are running deepface with docker. Please 
 
 ## Contribution [![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
 
-Pull requests are more than welcome! You should run the unit tests locally by running [`test/unit_tests.py`](https://github.com/serengil/deepface/blob/master/tests/unit_tests.py) before creating a PR. Once a PR sent, GitHub test workflow will be run automatically and unit test results will be available in [GitHub actions](https://github.com/serengil/deepface/actions) before approval. Besides, workflow will evaluate the code with pylint as well.
+Pull requests are more than welcome! You should run the unit tests and linting locally by running `make test && make lint` before creating a PR. Once a PR sent, GitHub test workflow will be run automatically and unit test results will be available in [GitHub actions](https://github.com/serengil/deepface/actions) before approval. Besides, workflow will evaluate the code with pylint as well.
 
 ## Support
 
@@ -332,7 +332,7 @@ You can also support this work on [Patreon](https://www.patreon.com/serengil?rep
 
 ## Citation
 
-Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATIONS.md) for more details. Here are its BibTex entries:
+Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATION.md) for more details. Here are its BibTex entries:
 
 If you use deepface in your research for facial recogntion purposes, please cite this publication.
 
