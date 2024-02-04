@@ -1,6 +1,12 @@
 # 3rd parth dependencies
 from flask import Flask
-from modules.core.routes import blueprint
+
+try:
+    # unit tests
+    from api.src.modules.core.routes import blueprint
+except:
+    # runtime
+    from modules.core.routes import blueprint
 
 
 def create_app():
