@@ -24,9 +24,6 @@ from deepface.modules import (
 
 logger = Logger(module="DeepFace")
 
-# current package version of deepface
-__version__ = package_utils.find_package_version()
-
 # -----------------------------------
 # configurations for dependencies
 

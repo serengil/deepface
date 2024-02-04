@@ -1,4 +1,3 @@
-import json
 import setuptools
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -7,19 +6,16 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open("requirements.txt", "r", encoding="utf-8") as f:
     requirements = f.read().split("\n")
 
-with open("package_info.json", "r", encoding="utf-8") as f:
-    package_info = json.load(f)
-
 setuptools.setup(
     name="deepface",
-    version=package_info["version"],
+    version="0.0.85",
     author="Sefik Ilkin Serengil",
     author_email="serengil@gmail.com",
     description=(
         "A Lightweight Face Recognition and Facial Attribute Analysis Framework"
         " (Age, Gender, Emotion, Race) for Python"
     ),
-    data_files=[("", ["README.md", "requirements.txt", "package_info.json"])],
+    data_files=[("", ["README.md", "requirements.txt"])],
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/serengil/deepface",
