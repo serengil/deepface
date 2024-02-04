@@ -20,7 +20,7 @@ RUN apt-get install ffmpeg libsm6 libxext6 -y
 # Copy required files from repo into image
 COPY ./deepface /app/deepface
 COPY ./requirements.txt /app/
-COPY ./package_info.json /app/package_info.json
+COPY ./package_info.json /app/
 COPY ./setup.py /app/
 COPY ./README.md /app/
 
