@@ -1,4 +1,3 @@
-import json
 import setuptools
 from deepface import __version__
 
