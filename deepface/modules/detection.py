@@ -167,10 +167,10 @@ def extract_faces(
             {
                 "face": img_pixels[:, :, ::-1] if human_readable is True else img_pixels,
                 "facial_area": {
-                    "x": current_region.x,
-                    "y": current_region.y,
-                    "w": current_region.w,
-                    "h": current_region.h,
+                    "x": int(current_region.x),
+                    "y": int(current_region.y),
+                    "w": int(current_region.w),
+                    "h": int(current_region.h),
                 },
                 "confidence": confidence,
             }

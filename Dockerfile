@@ -19,11 +19,8 @@ RUN apt-get install ffmpeg libsm6 libxext6 -y
 # -----------------------------------
 # Copy required files from repo into image
 COPY ./deepface /app/deepface
-COPY ./api/src/app.py /app/
-COPY ./api/src/api.py /app/
-COPY ./api/src/routes.py /app/
-COPY ./api/src/service.py /app/
 COPY ./requirements.txt /app/
+COPY ./package_info.json /app/package_info.json
 COPY ./setup.py /app/
 COPY ./README.md /app/
 
@@ -50,5 +47,6 @@ ENV PYTHONUNBUFFERED=1
 
 # -----------------------------------
 # run the app (re-configure port if necessary)
+WORKDIR /app/deepface/api/src
 EXPOSE 5000
 CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]

@@ -280,7 +280,7 @@ user
 
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
-DeepFace serves an API as well. You can clone [`/api`](https://github.com/serengil/deepface/tree/master/api) folder and run the api via gunicorn server. This will get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
+DeepFace serves an API as well. You can clone deepface source code and run the api via gunicorn server with the following command. This will get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
 
 ```shell
 cd scripts
