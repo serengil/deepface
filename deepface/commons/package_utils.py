@@ -30,7 +30,7 @@ def find_package_version() -> str:
         with open(f"{constant.ROOT_DIR}/package_info.json", "r", encoding="utf-8") as f:
             package_info = json.load(f)
         version_info = package_info["version"]
-    except Exception as err:  # pylint: disable=broad-except
-        logger.error(f"Exception while getting version info: {str(err)}")
+    except Exception as err:  # pylint: disable=broad-except, unused-variable
+        pass
 
     return version_info
