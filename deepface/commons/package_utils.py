@@ -27,10 +27,10 @@ def find_package_version() -> str:
     """
     version_info = "N/A"
     try:
-        with open(f"{constant.ROOT_DIR}/package_info.json", "r", encoding="utf-8") as f:
+        with open(f"{constant.SRC_DIR}/package_info.json", "r", encoding="utf-8") as f:
             package_info = json.load(f)
         version_info = package_info["version"]
     except Exception as err:  # pylint: disable=broad-except, unused-variable
-        pass
+        logger.error(f"Exception while getting deepface version: {str(err)}")
 
     return version_info

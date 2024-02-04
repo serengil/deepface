@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open("requirements.txt", "r", encoding="utf-8") as f:
     requirements = f.read().split("\n")
 
-with open("package_info.json", "r", encoding="utf-8") as f:
+with open("deepface/package_info.json", "r", encoding="utf-8") as f:
     package_info = json.load(f)
 
 setuptools.setup(
