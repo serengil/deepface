@@ -1,5 +1,8 @@
 from flask import Blueprint, request
-import service
+from modules.core import service
+from deepface.commons.logger import Logger
+
+logger = Logger(module="api/src/routes.py")
 
 blueprint = Blueprint("routes", __name__)
 
@@ -16,7 +19,7 @@ def represent():
     if input_args is None:
         return {"message": "empty input set passed"}
 
-    img_path = input_args.get("img")
+    img_path = input_args.get("img") or input_args.get("img_path")
     if img_path is None:
         return {"message": "you must pass img_path input"}
 
@@ -33,6 +36,8 @@ def represent():
         align=align,
     )
 
+    logger.debug(obj)
+
     return obj
 
 
@@ -43,8 +48,8 @@ def verify():
     if input_args is None:
         return {"message": "empty input set passed"}
 
-    img1_path = input_args.get("img1_path")
-    img2_path = input_args.get("img2_path")
+    img1_path = input_args.get("img1") or input_args.get("img1_path")
+    img2_path = input_args.get("img2") or input_args.get("img2_path")
 
     if img1_path is None:
         return {"message": "you must pass img1_path input"}
@@ -68,7 +73,7 @@ def verify():
         enforce_detection=enforce_detection,
     )
 
-    verification["verified"] = str(verification["verified"])
+    logger.debug(verification)
 
     return verification
 
@@ -80,7 +85,7 @@ def analyze():
     if input_args is None:
         return {"message": "empty input set passed"}
 
-    img_path = input_args.get("img_path")
+    img_path = input_args.get("img") or input_args.get("img_path")
     if img_path is None:
         return {"message": "you must pass img_path input"}
 
@@ -96,5 +101,7 @@ def analyze():
         enforce_detection=enforce_detection,
         align=align,
     )
+
+    logger.debug(demographies)
 
     return demographies
