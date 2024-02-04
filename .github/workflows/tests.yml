@@ -66,4 +66,4 @@ jobs:
         
     - name: Lint with pylint
       run: |
-        pylint --fail-under=10 deepface/
+        pylint --fail-under=10 deepface/ api/
