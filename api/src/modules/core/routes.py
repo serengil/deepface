@@ -1,12 +1,5 @@
 from flask import Blueprint, request
-
-try:
-    # unit tests
-    from api.src.modules.core import service
-except:
-    # runtime
-    from modules.core import service
-
+from modules.core import service
 from deepface.commons.logger import Logger
 
 logger = Logger(module="api/src/routes.py")

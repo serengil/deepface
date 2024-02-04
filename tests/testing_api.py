@@ -1,7 +1,12 @@
+import sys
 import unittest
+from deepface.commons import constant
 from deepface.commons.logger import Logger
 
-from api.src.app import create_app
+# api is not available under deepface import
+sys.path.insert(1, f"{constant.ROOT_DIR}/api/src")
+# pylint: disable=wrong-import-order, wrong-import-position
+from app import create_app
 
 logger = Logger("tests/test_api.py")
 
