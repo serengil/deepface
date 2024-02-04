@@ -5,7 +5,7 @@ import tensorflow as tf
 
 # package dependencies
 from deepface.commons.logger import Logger
-from deepface.commons import constant
+from deepface import __version__
 
 logger = Logger(module="commons.package_utils")
 
@@ -27,10 +27,7 @@ def find_package_version() -> str:
     """
     version_info = "N/A"
     try:
-        with open(f"{constant.SRC_DIR}/package_info.json", "r", encoding="utf-8") as f:
-            package_info = json.load(f)
-        version_info = package_info["version"]
+        version_info = __version__
     except Exception as err:  # pylint: disable=broad-except, unused-variable
         logger.error(f"Exception while getting deepface version: {str(err)}")
-
     return version_info

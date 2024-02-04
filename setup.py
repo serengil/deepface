@@ -1,5 +1,6 @@
 import json
 import setuptools
+from deepface import __version__
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -7,12 +8,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open("requirements.txt", "r", encoding="utf-8") as f:
     requirements = f.read().split("\n")
 
-with open("deepface/package_info.json", "r", encoding="utf-8") as f:
-    package_info = json.load(f)
-
 setuptools.setup(
     name="deepface",
-    version=package_info["version"],
+    version=__version__,
     author="Sefik Ilkin Serengil",
     author_email="serengil@gmail.com",
     description=(
