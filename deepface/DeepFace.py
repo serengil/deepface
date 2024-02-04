@@ -21,11 +21,9 @@ from deepface.modules import (
     detection,
     realtime,
 )
+from deepface import __version__
 
 logger = Logger(module="DeepFace")
-
-# current package version of deepface
-__version__ = package_utils.find_package_version()
 
 # -----------------------------------
 # configurations for dependencies

@@ -17,17 +17,3 @@ def get_tf_major_version() -> int:
         major_version (int)
     """
     return int(tf.__version__.split(".", maxsplit=1)[0])
-
-
-def find_package_version() -> str:
-    """
-    Find the currenct package version
-    Returns:
-        version (str)
-    """
-    version_info = "N/A"
-    try:
-        version_info = __version__
-    except Exception as err:  # pylint: disable=broad-except, unused-variable
-        logger.error(f"Exception while getting deepface version: {str(err)}")
-    return version_info
