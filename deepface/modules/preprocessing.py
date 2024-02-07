@@ -78,7 +78,7 @@ def load_base64(uri: str) -> np.ndarray:
     # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
     return img_bgr
 
-def loadVideo_base64(uri: str) -> np.ndarray:
+def load_video_base64(uri: str) -> np.ndarray:
     
 
     frames = extract_frames_with_faces(uri.split(",")[1])
