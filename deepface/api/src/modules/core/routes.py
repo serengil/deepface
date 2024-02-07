@@ -19,7 +19,7 @@ def represent():
     if input_args is None:
         return {"message": "empty input set passed"}
 
-    img_path = input_args.get("img") or input_args.get("img_path")
+    img_path = input_args.get("img1_path")
     if img_path is None:
         return {"message": "you must pass img_path input"}
 
@@ -48,8 +48,8 @@ def verify():
     if input_args is None:
         return {"message": "empty input set passed"}
 
-    img1_path = input_args.get("img1") or input_args.get("img1_path")
-    img2_path = input_args.get("img2") or input_args.get("img2_path")
+    img1_path = input_args.get("img1_path")
+    img2_path = input_args.get("img2_path")
 
     if img1_path is None:
         return {"message": "you must pass img1_path input"}
@@ -73,8 +73,9 @@ def verify():
         enforce_detection=enforce_detection,
     )
 
+    verification["verified"] = str(verification["verified"])
+    del verification["facial_areas"]
     logger.debug(verification)
-
     return verification
 
 
@@ -85,9 +86,9 @@ def analyze():
     if input_args is None:
         return {"message": "empty input set passed"}
 
-    img_path = input_args.get("img") or input_args.get("img_path")
+    img_path = input_args.get("img1_path")
     if img_path is None:
-        return {"message": "you must pass img_path input"}
+        return {"message": "you must pass img1_path input"}
 
     detector_backend = input_args.get("detector_backend", "opencv")
     enforce_detection = input_args.get("enforce_detection", True)
@@ -102,6 +103,10 @@ def analyze():
         align=align,
     )
 
+    del demographies["results"][0]["region"]
+    del demographies["results"][0]["emotion"]
+    del demographies["results"][0]["race"]
+    del demographies["results"][0]["gender"]
+    del demographies["results"][0]["face_confidence"]
     logger.debug(demographies)
-
-    return demographies
+    return demographies["results"][0]
