@@ -40,7 +40,7 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
     if img.startswith("selfie_data:image/"):
         return load_base64(img), "base64 encoded string"   
     
-    # The kyc video is a base64 string
+    # The kyc image is a base64 string
     if img.startswith("identity_data:image/"):
         return load_base64(img), "base64 encoded string"   
     
