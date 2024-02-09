@@ -59,6 +59,7 @@ def verify():
 
     model_name = input_args.get("model_name", "VGG-Face")
     detector_backend = input_args.get("detector_backend", "opencv")
+    print("using detector_backend: " + detector_backend)
     enforce_detection = input_args.get("enforce_detection", True)
     distance_metric = input_args.get("distance_metric", "cosine")
     align = input_args.get("align", True)
@@ -78,6 +79,9 @@ def verify():
     return verification
 
 
+
+
+
 @blueprint.route("/analyze", methods=["POST"])
 def analyze():
     input_args = request.get_json()
@@ -90,6 +94,7 @@ def analyze():
         return {"message": "you must pass img_path input"}
 
     detector_backend = input_args.get("detector_backend", "opencv")
+    print("using detector_backend: " + detector_backend)
     enforce_detection = input_args.get("enforce_detection", True)
     align = input_args.get("align", True)
     actions = input_args.get("actions", ["age", "gender", "emotion", "race"])

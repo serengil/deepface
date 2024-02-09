@@ -527,3 +527,7 @@ def detectFace(
     if len(face_objs) > 0:
         extracted_face = face_objs[0]["face"]
     return extracted_face
+
+
+
+

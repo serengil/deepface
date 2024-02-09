@@ -13,3 +13,4 @@ tests/*.csv
 *.pyc
 **/.coverage
 **/.coverage.*
+compose.yaml

@@ -2,13 +2,13 @@ import os
 from typing import Union, Tuple
 import base64
 from pathlib import Path
-import io
-import random
 # 3rd party
 import numpy as np
 import cv2
 from PIL import Image
 import requests
+from deepface.modules.kyc_validation import extract_frame_with_face
+
 
 
 
@@ -35,10 +35,19 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
     # The image is a base64 string
     if img.startswith("data:image/"):
         return load_base64(img), "base64 encoded string"
+
+    # The kyc image is a base64 string
+    if img.startswith("selfie_data:image/"):
+        return load_base64(img), "base64 encoded string"   
     
-    # The video is a base64 string
-    if img.startswith("data:video/"):
-        return loadVideo_base64(img), "base64 encoded string"   
+    # The kyc video is a base64 string
+    if img.startswith("identity_data:image/"):
+        return load_base64(img), "base64 encoded string"   
+    
+    # The kyc video is a base64 string
+    if img.startswith("selfie_data:video/"):
+        return load_base64_kyc_video(img), "base64 encoded string"       
+
 
     # The image is a url
     if img.startswith("http"):
@@ -78,14 +87,22 @@ def load_base64(uri: str) -> np.ndarray:
     # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
     return img_bgr
 
-def load_video_base64(uri: str) -> np.ndarray:
-    
 
-    frames = extract_frames_with_faces(uri.split(",")[1])
-    nparr = np.fromstring(base64.b64decode(frames[0]), np.uint8)
+def load_base64_kyc_video(uri: str) -> np.ndarray:
+    """Load video from base64 string.
+
+    Args:
+        uri: a base64 string.
+
+    Returns:
+        numpy array: the loaded image.
+    """
+    encoded_data = uri.split(",")[1]
+    nparr = np.fromstring(base64.b64decode(extract_frame_with_face(encoded_data)), np.uint8)
     img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
     return img_bgr
+
 
 def normalize_input(img: np.ndarray, normalization: str = "base") -> np.ndarray:
     """Normalize input image.
@@ -145,56 +162,3 @@ def normalize_input(img: np.ndarray, normalization: str = "base") -> np.ndarray:
     return img
 
 
-def extract_frames_with_faces(video_bytes):
-  """Extracts frames with faces from a video as base64 bytes.
-
-  Args:
-    video_bytes: The video bytes.
-
-  Returns:
-    A list of base64-encoded frames with faces.
-  """
-  video_bytes = base64.b64decode(video_bytes)
-
-  # Create a file-like object to write the video to.
-  hash = str(random.getrandbits(128))
-  with io.open("./"+ hash + ".mp4", "wb") as f:
-    f.write(video_bytes)
-  # Decode the video bytes.
-  video_capture = cv2.VideoCapture("./"+ hash + ".mp4")
-
-  # Create a face detector.
-  face_detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-
-  # Extract frames with faces.
-  frames_with_faces = []
-  tempFrame = None
-  while True:
-    ret, frame = video_capture.read()
-    if not ret:
-        frame_bytes = cv2.imencode('.jpg', tempFrame)[1].tobytes()
-        frame_base64 = base64.b64encode(frame_bytes).decode('utf-8')
-        frames_with_faces.append(frame_base64)
-        break
-    else:
-        tempFrame = frame
-
-    # Convert the frame to grayscale.
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    # Detect faces in the frame.
-    faces = face_detector.detectMultiScale(gray, 1.3, 5)
-
-    # If there are faces in the frame, add it to the list of frames with faces.
-    if len(faces) > 0:
-      # Encode the frame as a base64 string.
-      frame_bytes = cv2.imencode('.jpg', frame)[1].tobytes()
-      frame_base64 = base64.b64encode(frame_bytes).decode('utf-8')
-      frames_with_faces.append(frame_base64)
-      break
-
-  # Close the video capture.
-    os.remove("./"+ hash + ".mp4")
-  video_capture.release()
-
-  return frames_with_faces

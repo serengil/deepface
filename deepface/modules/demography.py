@@ -1,6 +1,7 @@
 # built-in dependencies
 from typing import Any, Dict, List, Union
 
+
 # 3rd party dependencies
 import numpy as np
 from tqdm import tqdm
@@ -126,6 +127,16 @@ def analyze(
         expand_percentage=expand_percentage,
     )
 
+    #kyc checking
+    if isinstance(img_path, str):
+        if img_path.startswith("selfie_data:image/"):
+            #If more than 1 face in frame, violate kyc rules, throw exception
+            if len(img_objs) > 1:
+                raise RuntimeError('More than 1 person detected: len(img_objs) > 1')
+            
+
+
+
     for img_obj in img_objs:
         img_content = img_obj["face"]
         img_region = img_obj["facial_area"]
@@ -187,3 +198,4 @@ def analyze(
             resp_objects.append(obj)
 
     return resp_objects
+

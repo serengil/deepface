@@ -105,6 +105,22 @@ def verify(
         align=align,
         expand_percentage=expand_percentage,
     )
+
+    #kyc checking
+    if isinstance(img1_path, str):
+        if img1_path.startswith("selfie_data:image/"):
+            #If more than 1 face in frame, violate kyc rules, throw exception
+            if len(img1_objs) > 1:
+                raise RuntimeError('More than 1 person detected: len(img1_objs) > 1')
+            
+    #kyc checking
+    if isinstance(img2_path, str):
+        if img2_path.startswith("selfie_data:image/"):
+            #If more than 1 face in frame, violate kyc rules, throw exception
+            if len(img2_objs) > 1:
+                raise RuntimeError('More than 1 person detected: len(img2_objs) > 1')            
+
+
     # --------------------------------
     distances = []
     regions = []
@@ -232,3 +248,6 @@ def find_threshold(model_name: str, distance_metric: str) -> float:
     threshold = thresholds.get(model_name, base_threshold).get(distance_metric, 0.4)
 
     return threshold
+
+
+
