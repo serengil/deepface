@@ -1,8 +1,0 @@
-services:
-  app-1:
-    build:
-      context: .
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./:/app-1
