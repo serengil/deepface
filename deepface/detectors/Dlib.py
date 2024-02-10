@@ -113,12 +113,14 @@ class DlibClient(Detector):
                 top = d.top()
                 bottom = d.bottom()
 
-                # detected_face = img[top:bottom, left:right]
-                detected_face = img[
-                    max(0, top) : min(bottom, img.shape[0]), max(0, left) : min(right, img.shape[1])
-                ]
+                y = int(max(0, top))
+                h = int(min(bottom, img.shape[0]) - y)
+                x = int(max(0, left))
+                w = int(min(right, img.shape[1]) - x)
 
-                img_region = FacialAreaRegion(x=left, y=right, w=right - left, h=bottom - top)
+                detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+
+                img_region = FacialAreaRegion(x=x, y=y, w=w, h=h)
                 confidence = scores[idx]
 
                 if align:
