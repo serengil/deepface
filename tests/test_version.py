@@ -1,5 +1,8 @@
 import json
 from deepface import DeepFace
+from deepface.commons.logger import Logger
+
+logger = Logger("tests/test_version.py")
 
 
 def test_version():
@@ -7,3 +10,4 @@ def test_version():
         package_info = json.load(f)
 
     assert DeepFace.__version__ == package_info["version"]
+    logger.info("✅ versions are matching in both package_info.json and deepface/__init__.py")
