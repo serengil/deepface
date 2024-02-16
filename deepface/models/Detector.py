@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple, Optional
 from abc import ABC, abstractmethod
 import numpy as np
 
@@ -8,28 +8,19 @@ import numpy as np
 # pylint: disable=unnecessary-pass, too-few-public-methods
 class Detector(ABC):
     @abstractmethod
-    def detect_faces(
-        self, img: np.ndarray, align: bool = True, expand_percentage: int = 0
-    ) -> List["DetectedFace"]:
+    def detect_faces(self, img: np.ndarray) -> List["FacialAreaRegion"]:
         """
         Interface for detect and align face
 
         Args:
             img (np.ndarray): pre-loaded image as numpy array
 
-            align (bool): flag to enable or disable alignment after detection (default is True)
-
-            expand_percentage (int): expand detected facial area with a percentage
-
         Returns:
-            results (List[Tuple[DetectedFace]): A list of DetectedFace objects
+            results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
                 where each object contains:
 
-            - img (np.ndarray): The detected face as a NumPy array.
-
-            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
-
-            - confidence (float): The confidence score associated with the detected face.
+            - facial_area (FacialAreaRegion): The facial area region represented
+                as x, y, w, h, left_eye and right_eye
         """
         pass
 
@@ -39,12 +30,27 @@ class FacialAreaRegion:
     y: int
     w: int
     h: int
+    left_eye: Tuple[int, int]
+    right_eye: Tuple[int, int]
+    confidence: float
 
-    def __init__(self, x: int, y: int, w: int, h: int):
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        left_eye: Optional[Tuple[int, int]] = None,
+        right_eye: Optional[Tuple[int, int]] = None,
+        confidence: Optional[float] = None,
+    ):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
+        self.left_eye = left_eye
+        self.right_eye = right_eye
+        self.confidence = confidence
 
 
 class DetectedFace:

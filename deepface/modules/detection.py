@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union, Optional
 
 # 3rd part dependencies
 import numpy as np
@@ -27,7 +27,7 @@ elif tf_major_version == 2:
 
 def extract_faces(
     img_path: Union[str, np.ndarray],
-    target_size: Tuple[int, int] = (224, 224),
+    target_size: Optional[Tuple[int, int]] = (224, 224),
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -76,7 +76,7 @@ def extract_faces(
     # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
     img, img_name = preprocessing.load_image(img_path)
 
-    base_region = FacialAreaRegion(x=0, y=0, w=img.shape[1], h=img.shape[0])
+    base_region = FacialAreaRegion(x=0, y=0, w=img.shape[1], h=img.shape[0], confidence=0)
 
     if detector_backend == "skip":
         face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
@@ -108,7 +108,6 @@ def extract_faces(
     for face_obj in face_objs:
         current_img = face_obj.img
         current_region = face_obj.facial_area
-        confidence = face_obj.confidence
 
         if current_img.shape[0] == 0 or current_img.shape[1] == 0:
             continue
@@ -117,42 +116,43 @@ def extract_faces(
             current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
 
         # resize and padding
-        factor_0 = target_size[0] / current_img.shape[0]
-        factor_1 = target_size[1] / current_img.shape[1]
-        factor = min(factor_0, factor_1)
+        if target_size is not None:
+            factor_0 = target_size[0] / current_img.shape[0]
+            factor_1 = target_size[1] / current_img.shape[1]
+            factor = min(factor_0, factor_1)
 
-        dsize = (
-            int(current_img.shape[1] * factor),
-            int(current_img.shape[0] * factor),
-        )
-        current_img = cv2.resize(current_img, dsize)
-
-        diff_0 = target_size[0] - current_img.shape[0]
-        diff_1 = target_size[1] - current_img.shape[1]
-        if grayscale is False:
-            # Put the base image in the middle of the padded image
-            current_img = np.pad(
-                current_img,
-                (
-                    (diff_0 // 2, diff_0 - diff_0 // 2),
-                    (diff_1 // 2, diff_1 - diff_1 // 2),
-                    (0, 0),
-                ),
-                "constant",
+            dsize = (
+                int(current_img.shape[1] * factor),
+                int(current_img.shape[0] * factor),
             )
-        else:
-            current_img = np.pad(
-                current_img,
-                (
-                    (diff_0 // 2, diff_0 - diff_0 // 2),
-                    (diff_1 // 2, diff_1 - diff_1 // 2),
-                ),
-                "constant",
-            )
+            current_img = cv2.resize(current_img, dsize)
 
-        # double check: if target image is not still the same size with target.
-        if current_img.shape[0:2] != target_size:
-            current_img = cv2.resize(current_img, target_size)
+            diff_0 = target_size[0] - current_img.shape[0]
+            diff_1 = target_size[1] - current_img.shape[1]
+            if grayscale is False:
+                # Put the base image in the middle of the padded image
+                current_img = np.pad(
+                    current_img,
+                    (
+                        (diff_0 // 2, diff_0 - diff_0 // 2),
+                        (diff_1 // 2, diff_1 - diff_1 // 2),
+                        (0, 0),
+                    ),
+                    "constant",
+                )
+            else:
+                current_img = np.pad(
+                    current_img,
+                    (
+                        (diff_0 // 2, diff_0 - diff_0 // 2),
+                        (diff_1 // 2, diff_1 - diff_1 // 2),
+                    ),
+                    "constant",
+                )
+
+            # double check: if target image is not still the same size with target.
+            if current_img.shape[0:2] != target_size:
+                current_img = cv2.resize(current_img, target_size)
 
         # normalizing the image pixels
         # what this line doing? must?
@@ -171,14 +171,17 @@ def extract_faces(
                     "y": int(current_region.y),
                     "w": int(current_region.w),
                     "h": int(current_region.h),
+                    "left_eye": current_region.left_eye,
+                    "right_eye": current_region.right_eye,
                 },
-                "confidence": confidence,
+                "confidence": round(current_region.confidence, 2),
             }
         )
 
     if len(resp_objs) == 0 and enforce_detection == True:
         raise ValueError(
-            f"Detected face shape is {img.shape}. Consider to set enforce_detection arg to False."
+            f"Exception while extracting faces from {img_name}."
+            "Consider to set enforce_detection arg to False."
         )
 
     return resp_objs
@@ -188,7 +191,7 @@ def align_face(
     img: np.ndarray,
     left_eye: Union[list, tuple],
     right_eye: Union[list, tuple],
-) -> np.ndarray:
+) -> Tuple[np.ndarray, float]:
     """
     Align a given image horizantally with respect to their left and right eye locations
     Args:
@@ -200,13 +203,13 @@ def align_face(
     """
     # if eye could not be detected for the given image, return image itself
     if left_eye is None or right_eye is None:
-        return img
+        return img, 0
 
     # sometimes unexpectedly detected images come with nil dimensions
     if img.shape[0] == 0 or img.shape[1] == 0:
-        return img
+        return img, 0
 
     angle = float(np.degrees(np.arctan2(right_eye[1] - left_eye[1], right_eye[0] - left_eye[0])))
     img = Image.fromarray(img)
     img = np.array(img.rotate(angle))
-    return img
+    return img, angle

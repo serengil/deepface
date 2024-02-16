@@ -354,15 +354,21 @@ def __find_bulk_embeddings(
         desc="Finding representations",
         disable=silent,
     ):
-        img_objs = detection.extract_faces(
-            img_path=employee,
-            target_size=target_size,
-            detector_backend=detector_backend,
-            grayscale=False,
-            enforce_detection=enforce_detection,
-            align=align,
-            expand_percentage=expand_percentage,
-        )
+        try:
+            img_objs = detection.extract_faces(
+                img_path=employee,
+                target_size=target_size,
+                detector_backend=detector_backend,
+                grayscale=False,
+                enforce_detection=enforce_detection,
+                align=align,
+                expand_percentage=expand_percentage,
+            )
+        except ValueError as err:
+            logger.warn(
+                f"Exception while extracting faces from {employee}: {str(err)}. Skipping it."
+            )
+            img_objs = []
 
         for img_obj in img_objs:
             img_content = img_obj["face"]

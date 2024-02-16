@@ -4,8 +4,7 @@ import cv2
 import numpy as np
 import gdown
 from deepface.commons import folder_utils
-from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
-from deepface.modules import detection
+from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger
 
 logger = Logger(module="detectors.YunetWrapper")
@@ -49,34 +48,20 @@ class YuNetClient(Detector):
             ) from err
         return face_detector
 
-    def detect_faces(
-        self, img: np.ndarray, align: bool = True, expand_percentage: int = 0
-    ) -> List[DetectedFace]:
+    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
         Detect and align face with yunet
 
         Args:
             img (np.ndarray): pre-loaded image as numpy array
 
-            align (bool): flag to enable or disable alignment after detection (default is True)
-
-            expand_percentage (int): expand detected facial area with a percentage
-
         Returns:
-            results (List[Tuple[DetectedFace]): A list of DetectedFace objects
-                where each object contains:
-
-            - img (np.ndarray): The detected face as a NumPy array.
-
-            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
-
-            - confidence (float): The confidence score associated with the detected face.
+            results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
         """
         # FaceDetector.detect_faces does not support score_threshold parameter.
         # We can set it via environment variable.
         score_threshold = float(os.environ.get("yunet_score_threshold", "0.9"))
         resp = []
-        detected_face = None
         faces = []
         height, width = img.shape[0], img.shape[1]
         # resize image if it is too large (Yunet fails to detect faces on large input sometimes)
@@ -108,6 +93,8 @@ class YuNetClient(Detector):
             left eye, nose tip, the right corner and left corner of the mouth respectively.
             """
             (x, y, w, h, x_re, y_re, x_le, y_le) = list(map(int, face[:8]))
+            left_eye = (x_re, y_re)
+            right_eye = (x_le, y_le)
 
             # Yunet returns negative coordinates if it thinks part of
             # the detected face is outside the frame.
@@ -123,24 +110,16 @@ class YuNetClient(Detector):
                     int(x_le / r),
                     int(y_le / r),
                 )
-            confidence = face[-1]
-            confidence = f"{confidence:.2f}"
+            confidence = float(face[-1])
 
-            # expand the facial area to be extracted and stay within img.shape limits
-            x2 = max(0, x - int((w * expand_percentage) / 100))  # expand left
-            y2 = max(0, y - int((h * expand_percentage) / 100))  # expand top
-            w2 = min(img.shape[1], w + int((w * expand_percentage) / 100))  # expand right
-            h2 = min(img.shape[0], h + int((h * expand_percentage) / 100))  # expand bottom
-
-            # detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
-            detected_face = img[int(y2) : int(y2 + h2), int(x2) : int(x2 + w2)]
-
-            img_region = FacialAreaRegion(x=x, y=y, w=w, h=h)
-            if align:
-                detected_face = detection.align_face(detected_face, (x_re, y_re), (x_le, y_le))
-
-            detected_face_obj = DetectedFace(
-                img=detected_face, facial_area=img_region, confidence=confidence
+            facial_area = FacialAreaRegion(
+                x=x,
+                y=y,
+                w=w,
+                h=h,
+                confidence=confidence,
+                left_eye=left_eye,
+                right_eye=right_eye,
             )
-            resp.append(detected_face_obj)
+            resp.append(facial_area)
         return resp
