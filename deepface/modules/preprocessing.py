@@ -6,7 +6,6 @@ from pathlib import Path
 # 3rd party
 import numpy as np
 import cv2
-from PIL import Image
 import requests
 
 
@@ -36,11 +35,7 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
 
     # The image is a url
     if img.startswith("http"):
-        return (
-            np.array(Image.open(requests.get(img, stream=True, timeout=60).raw).convert("BGR")),
-            # return url as image name
-            img,
-        )
+        return load_image_from_web(url=img), img
 
     # The image is a path
     if os.path.isfile(img) is not True:
@@ -55,6 +50,21 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
     img_obj_bgr = cv2.imread(img)
     # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
     return img_obj_bgr, img
+
+
+def load_image_from_web(url: str) -> np.ndarray:
+    """
+    Loading an image from web
+    Args:
+        url: link for the image
+    Returns:
+        img (np.ndarray): equivalent to pre-loaded image from opencv (BGR format)
+    """
+    response = requests.get(url, stream=True, timeout=60)
+    response.raise_for_status()
+    image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
+    image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    return image
 
 
 def load_base64(uri: str) -> np.ndarray:
