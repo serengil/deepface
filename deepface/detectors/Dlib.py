@@ -4,7 +4,7 @@ import bz2
 import gdown
 import numpy as np
 from deepface.commons import folder_utils
-from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
+from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger
 
 logger = Logger(module="detectors.DlibWrapper")
@@ -56,49 +56,17 @@ class DlibClient(Detector):
         detector["sp"] = sp
         return detector
 
-    def detect_faces(
-        self, img: np.ndarray, align: bool = True, expand_percentage: int = 0
-    ) -> List[DetectedFace]:
+    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
         Detect and align face with dlib
 
         Args:
             img (np.ndarray): pre-loaded image as numpy array
 
-            align (bool): flag to enable or disable alignment after detection (default is True)
-
-            expand_percentage (int): expand detected facial area with a percentage
-
         Returns:
-            results (List[Tuple[DetectedFace]): A list of DetectedFace objects
-                where each object contains:
-
-            - img (np.ndarray): The detected face as a NumPy array.
-
-            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
-
-            - confidence (float): The confidence score associated with the detected face.
+            results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
         """
-        # this is not a must dependency. do not import it in the global level.
-        try:
-            import dlib
-        except ModuleNotFoundError as e:
-            raise ImportError(
-                "Dlib is an optional detector, ensure the library is installed."
-                "Please install using 'pip install dlib' "
-            ) from e
-
-        if expand_percentage != 0:
-            logger.warn(
-                f"You set expand_percentage argument to {expand_percentage},"
-                "but dlib hog handles detection by itself"
-            )
-
         resp = []
-
-        sp = self.model["sp"]
-
-        detected_face = None
 
         face_detector = self.model["face_detector"]
 
@@ -107,30 +75,32 @@ class DlibClient(Detector):
 
         if len(detections) > 0:
 
-            for idx, d in enumerate(detections):
-                left = d.left()
-                right = d.right()
-                top = d.top()
-                bottom = d.bottom()
+            for idx, detection in enumerate(detections):
+                left = detection.left()
+                right = detection.right()
+                top = detection.top()
+                bottom = detection.bottom()
 
                 y = int(max(0, top))
                 h = int(min(bottom, img.shape[0]) - y)
                 x = int(max(0, left))
                 w = int(min(right, img.shape[1]) - x)
 
-                detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+                shape = self.model["sp"](img, detection)
+                left_eye = (shape.part(2).x, shape.part(2).y)
+                right_eye = (shape.part(0).x, shape.part(0).y)
 
-                img_region = FacialAreaRegion(x=x, y=y, w=w, h=h)
                 confidence = scores[idx]
 
-                if align:
-                    img_shape = sp(img, detections[idx])
-                    detected_face = dlib.get_face_chip(img, img_shape, size=detected_face.shape[0])
-
-                detected_face_obj = DetectedFace(
-                    img=detected_face, facial_area=img_region, confidence=confidence
+                facial_area = FacialAreaRegion(
+                    x=x,
+                    y=y,
+                    w=w,
+                    h=h,
+                    left_eye=left_eye,
+                    right_eye=right_eye,
+                    confidence=confidence,
                 )
-
-                resp.append(detected_face_obj)
+                resp.append(facial_area)
 
         return resp

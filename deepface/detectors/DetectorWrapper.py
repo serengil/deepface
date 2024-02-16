@@ -1,6 +1,7 @@
 from typing import Any, List
 import numpy as np
-from deepface.models.Detector import Detector, DetectedFace
+from deepface.modules import detection
+from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.detectors import (
     FastMtCnn,
     MediaPipe,
@@ -80,10 +81,49 @@ def detect_faces(
         - confidence (float): The confidence score associated with the detected face.
     """
     face_detector: Detector = build_model(detector_backend)
+
+    # validate expand percentage score
     if expand_percentage < 0:
         logger.warn(
             f"Expand percentage cannot be negative but you set it to {expand_percentage}."
             "Overwritten it to 0."
         )
         expand_percentage = 0
-    return face_detector.detect_faces(img=img, align=align, expand_percentage=expand_percentage)
+
+    # find facial areas of given image
+    facial_areas = face_detector.detect_faces(img=img)
+
+    results = []
+    for facial_area in facial_areas:
+        x = facial_area.x
+        y = facial_area.y
+        w = facial_area.w
+        h = facial_area.h
+        left_eye = facial_area.left_eye
+        right_eye = facial_area.right_eye
+        confidence = facial_area.confidence
+
+        # expand the facial area to be extracted and stay within img.shape limits
+        x2 = max(0, x - int((w * expand_percentage) / 100))  # expand left
+        y2 = max(0, y - int((h * expand_percentage) / 100))  # expand top
+        w2 = min(img.shape[1], w + int((w * expand_percentage) / 100))  # expand right
+        h2 = min(img.shape[0], h + int((h * expand_percentage) / 100))  # expand bottom
+
+        # extract detected face unaligned
+        detected_face = img[int(y2) : int(y2 + h2), int(x2) : int(x2 + w2)]
+
+        # align detected face
+        if align is True:
+            detected_face = detection.align_face(
+                img=detected_face, left_eye=left_eye, right_eye=right_eye
+            )
+
+        result = DetectedFace(
+            img=detected_face,
+            facial_area=FacialAreaRegion(
+                x=x, y=y, h=h, w=w, confidence=confidence, left_eye=left_eye, right_eye=right_eye
+            ),
+            confidence=confidence,
+        )
+        results.append(result)
+    return results

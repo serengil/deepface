@@ -1,7 +1,6 @@
 from typing import Any, List
 import numpy as np
-from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
-from deepface.modules import detection
+from deepface.models.Detector import Detector, FacialAreaRegion
 
 # Link - https://google.github.io/mediapipe/solutions/face_detection
 
@@ -29,28 +28,15 @@ class MediaPipeClient(Detector):
         face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.7)
         return face_detection
 
-    def detect_faces(
-        self, img: np.ndarray, align: bool = True, expand_percentage: int = 0
-    ) -> List[DetectedFace]:
+    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
         Detect and align face with mediapipe
 
         Args:
             img (np.ndarray): pre-loaded image as numpy array
 
-            align (bool): flag to enable or disable alignment after detection (default is True)
-
-            expand_percentage (int): expand detected facial area with a percentage
-
         Returns:
-            results (List[Tuple[DetectedFace]): A list of DetectedFace objects
-                where each object contains:
-
-            - img (np.ndarray): The detected face as a NumPy array.
-
-            - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
-
-            - confidence (float): The confidence score associated with the detected face.
+            results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
         """
         resp = []
 
@@ -75,7 +61,6 @@ class MediaPipeClient(Detector):
             y = int(bounding_box.ymin * img_height)
             h = int(bounding_box.height * img_height)
 
-            # Extract landmarks
             left_eye = (int(landmarks[0].x * img_width), int(landmarks[0].y * img_height))
             right_eye = (int(landmarks[1].x * img_width), int(landmarks[1].y * img_height))
             # nose = (int(landmarks[2].x * img_width), int(landmarks[2].y * img_height))
@@ -83,30 +68,9 @@ class MediaPipeClient(Detector):
             # right_ear = (int(landmarks[4].x * img_width), int(landmarks[4].y * img_height))
             # left_ear = (int(landmarks[5].x * img_width), int(landmarks[5].y * img_height))
 
-            if x > 0 and y > 0:
-
-                # expand the facial area to be extracted and stay within img.shape limits
-                x2 = max(0, x - int((w * expand_percentage) / 100))  # expand left
-                y2 = max(0, y - int((h * expand_percentage) / 100))  # expand top
-                w2 = min(img.shape[1], w + int((w * expand_percentage) / 100))  # expand right
-                h2 = min(img.shape[0], h + int((h * expand_percentage) / 100))  # expand bottom
-
-                # detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
-                detected_face = img[int(y2) : int(y2 + h2), int(x2) : int(x2 + w2)]
-
-                img_region = FacialAreaRegion(x=x, y=y, w=w, h=h)
-
-                if align:
-                    detected_face = detection.align_face(
-                        img=detected_face, left_eye=left_eye, right_eye=right_eye
-                    )
-
-                detected_face_obj = DetectedFace(
-                    img=detected_face,
-                    facial_area=img_region,
-                    confidence=confidence,
-                )
-
-                resp.append(detected_face_obj)
+            facial_area = FacialAreaRegion(
+                x=x, y=y, w=w, h=h, left_eye=left_eye, right_eye=right_eye, confidence=confidence
+            )
+            resp.append(facial_area)
 
         return resp

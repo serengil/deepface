@@ -56,11 +56,20 @@ for df in dfs:
 # extract faces
 for detector_backend in detector_backends:
     face_objs = DeepFace.extract_faces(
-        img_path="dataset/img11.jpg", detector_backend=detector_backend
+        img_path="dataset/img11.jpg", detector_backend=detector_backend, align=True
     )
     for face_obj in face_objs:
         face = face_obj["face"]
         logger.info(detector_backend)
+        logger.info(face_obj["facial_area"])
+        logger.info(face_obj["confidence"])
+        assert isinstance(face_obj["facial_area"]["left_eye"], tuple)
+        assert isinstance(face_obj["facial_area"]["right_eye"], tuple)
+        assert isinstance(face_obj["facial_area"]["left_eye"][0], int)
+        assert isinstance(face_obj["facial_area"]["right_eye"][0], int)
+        assert isinstance(face_obj["facial_area"]["left_eye"][1], int)
+        assert isinstance(face_obj["facial_area"]["right_eye"][1], int)
+        assert isinstance(face_obj["confidence"], float)
         plt.imshow(face)
         plt.axis("off")
         plt.show()
