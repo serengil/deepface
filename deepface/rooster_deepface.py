@@ -20,83 +20,23 @@ THRESHOLDS = {
   },
 }
 
-def match_face(
-    facial_data,
-    db_path,
-    model_name="VGG-Face",
-    distance_metric="cosine",
-    enforce_detection=True,
-    detector_backend="opencv",
-    align=True,
-    normalization="base",
-    silent=True,
-):
-
+def create_encodings_database(
+        db_path,
+        model_name="VGG-Face",
+        enforce_detection=True,
+        detector_backend="opencv",
+        align=True,
+        normalization="base",
+        silent=True,
+        force_recreate=False,
+    ):  
     """
-    This is Rooster's adaptation of DeepFace.find
+        Create the necessary pkl files for a folder of images
+        If a file is already there, it will use that unless force_recreate=True, then it will delete it and recreate it
 
-    Parameters:
-            facial_data: from extract faces
-
-            db_path (string): You should store some image files in a folder and pass the
-            exact folder path to this. A database image can also have many faces.
-            Then, all detected faces in db side will be considered in the decision.
-
-            model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID,
-            Dlib, ArcFace, SFace or Ensemble
-
-            distance_metric (string): cosine, euclidean, euclidean_l2
-
-            enforce_detection (bool): The function throws exception if a face could not be detected.
-            Set this to True if you don't want to get exception. This might be convenient for low
-            resolution images.
-
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib or mediapipe
-
-            silent (boolean): disable some logging and progress bars
-
-    Returns:
-            This function returns list of pandas data frame. Each item of the list corresponding to
-            an identity in the img_path.
+        returns:
+            reperesentations
     """
-
-    """
-    time example:
-    Verifying faces
-    Data Frame Creating took 0.0s
-    Time to represent the face took 2.9250380992889404s
-    Time to calculate all of the distances 0.030328989028930664s
-    time to sort dataframe: 0.0022847652435302734s
-    no images close
-    None
-    Finished Verifying
-    Verifying faces
-    Data Frame Creating took 0.0s
-    Time to represent the face took 0.22372913360595703s
-    Time to calculate all of the distances 0.0254971981048584s
-    time to sort dataframe: 0.0s
-    no images close
-    Data Frame Creating took 0.002573728561401367s
-    Time to represent the face took 0.21585488319396973s
-    Time to calculate all of the distances 0.0336298942565918s
-    time to sort dataframe: 0.0s
-    Data Frame Creating took 0.0s
-    Time to represent the face took 0.20081400871276855s
-    Time to calculate all of the distances 0.03176164627075195s
-    time to sort dataframe: 0.0s
-    no images close
-    Data Frame Creating took 0.00616145133972168s
-    Time to represent the face took 0.21006035804748535s
-    Time to calculate all of the distances 0.03065037727355957s
-    time to sort dataframe: 0.0s
-    no images close
-    None
-    Finished Verifying
-    """
-
-    tic = time.time()
-
     # -------------------------------
     if os.path.isdir(db_path) is not True:
         raise ValueError("Passed db_path does not exist!")
@@ -106,10 +46,10 @@ def match_face(
     # ---------------------------------------
 
     # file_name = f"representations_{model_name}.pkl"
-    file_name = f"representations_arcface_mtcnn.pkl"
+    file_name = f"representations_{model_name}_{detector_backend}.pkl"
     file_name = file_name.replace("-", "_").lower()
 
-    if path.exists(db_path + "/" + file_name):
+    if path.exists(db_path + "/" + file_name) and not force_recreate:
 
         if not silent:
             print(
@@ -194,6 +134,63 @@ def match_face(
                 f"Representations stored in {db_path}/{file_name} file."
                 + "Please delete this file when you add new identities in your database."
             )
+
+    return representations
+
+def match_face(
+    facial_data,
+    db_path,
+    model_name="VGG-Face",
+    distance_metric="cosine",
+    enforce_detection=True,
+    detector_backend="opencv",
+    align=True,
+    normalization="base",
+    silent=True,
+):
+
+    """
+    This is Rooster's adaptation of DeepFace.find
+
+    Parameters:
+            facial_data: from extract faces
+
+            db_path (string): You should store some image files in a folder and pass the
+            exact folder path to this. A database image can also have many faces.
+            Then, all detected faces in db side will be considered in the decision.
+
+            model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID,
+            Dlib, ArcFace, SFace or Ensemble
+
+            distance_metric (string): cosine, euclidean, euclidean_l2
+
+            enforce_detection (bool): The function throws exception if a face could not be detected.
+            Set this to True if you don't want to get exception. This might be convenient for low
+            resolution images.
+
+            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
+            dlib or mediapipe
+
+            silent (boolean): disable some logging and progress bars
+
+    Returns:
+            This function returns list of pandas data frame. Each item of the list corresponding to
+            an identity in the img_path.
+    """
+
+    tic = time.time()
+
+    representations = create_encodings_database(
+        db_path=db_path,
+        model_name=model_name,
+        enforce_detection=enforce_detection,
+        detector_backend=detector_backend,
+        align=align,
+        normalization=normalization,
+        silent=silent,
+        force_recreate=False
+    )
+        
 
     # ----------------------------
     # now, we got representations for facial database
