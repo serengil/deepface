@@ -180,7 +180,8 @@ def extract_faces(
 
     if len(resp_objs) == 0 and enforce_detection == True:
         raise ValueError(
-            f"Detected face shape is {img.shape}. Consider to set enforce_detection arg to False."
+            f"Exception while extracting faces from {img_name}."
+            "Consider to set enforce_detection arg to False."
         )
 
     return resp_objs
