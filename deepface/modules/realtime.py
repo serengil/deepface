@@ -91,6 +91,8 @@ def analysis(
                 faces = []
                 for face_obj in face_objs:
                     facial_area = face_obj["facial_area"]
+                    if facial_area["w"] <= 130: # discard small detected faces
+                        continue
                     faces.append(
                         (
                             facial_area["x"],
@@ -110,8 +112,6 @@ def analysis(
         detected_faces = []
         face_index = 0
         for x, y, w, h in faces:
-            if w <= 130:  # discard small detected faces
-                continue
             face_detected = True
             if face_index == 0:
                 face_included_frames += 1  # increase frame for a single face
