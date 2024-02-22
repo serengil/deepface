@@ -115,12 +115,10 @@ def find(
     if not os.path.exists(datastore_path):
         with open(datastore_path, "wb") as f:
             pickle.dump([], f)
-            f.close()
 
     # Load the representations from the pickle file
     with open(datastore_path, "rb") as f:
         representations = pickle.load(f)
-        f.close()
 
     # Check if the representations are out-of-date
     if len(representations) > 0:
