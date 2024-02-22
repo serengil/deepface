@@ -139,7 +139,7 @@ def find(
     new_images = list(set(storage_images) - set(pickled_images)) # images added to storage
     old_images = list(set(pickled_images) - set(storage_images)) # images removed from storage
 
-    if not silent:
+    if not silent and (len(new_images) > 0 or len(old_images) > 0):
         logger.info(f"Found {len(new_images)} new images and {len(old_images)} removed images")
 
     # remove old images first
@@ -164,7 +164,6 @@ def find(
     if must_save_pickle:
         with open(datastore_path, "wb") as f:
             pickle.dump(representations, f)
-            f.close()
         if not silent:
             logger.info(f"There are now {len(representations)} representations in {file_name}")
 
