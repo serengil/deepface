@@ -297,7 +297,7 @@ def find(
     return resp_obj
 
 
-def __list_images(path: str) -> list[str]:
+def __list_images(path: str) -> List[str]:
     """
     List images in a given path
     Args:
@@ -305,7 +305,7 @@ def __list_images(path: str) -> list[str]:
     Returns:
         images (list): list of exact image paths
     """
-    images = list[str]()
+    images = []
     pattern = re.compile(r".*\.(jpg|jpeg|png)$", re.IGNORECASE)
     for file_name in os.listdir(path):
         if pattern.match(file_name):
