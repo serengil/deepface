@@ -391,11 +391,11 @@ def __find_bulk_embeddings(
 
                 img_representation = embedding_obj[0]["embedding"]
                 representations.append((
-                    employee, 
-                    img_representation, 
-                    img_region["x"], 
-                    img_region["y"], 
-                    img_region["w"], 
+                    employee,
+                    img_representation,
+                    img_region["x"],
+                    img_region["y"],
+                    img_region["w"],
                     img_region["h"]
                     ))
 
