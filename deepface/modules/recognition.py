@@ -1,6 +1,5 @@
 # built-in dependencies
 import os
-import re
 import pickle
 from typing import List, Union, Optional
 import time
@@ -14,7 +13,6 @@ from tqdm import tqdm
 from deepface.commons.logger import Logger
 from deepface.modules import representation, detection, modeling, verification
 from deepface.models.FacialRecognition import FacialRecognition
-
 
 logger = Logger(module="deepface/modules/recognition.py")
 
@@ -306,11 +304,11 @@ def __list_images(path: str) -> List[str]:
         images (list): list of exact image paths
     """
     images = []
-    pattern = re.compile(r".*\.(jpg|jpeg|png)$", re.IGNORECASE)
-    for file_name in os.listdir(path):
-        if pattern.match(file_name):
-            images.append(os.path.join(path, file_name))
-    
+    for r, _, f in os.walk(path):
+        for file in f:
+            if file.lower().endswith((".jpg", ".jpeg", ".png")):
+                exact_path = os.path.join(r, file)
+                images.append(exact_path)
     return images
 
 
