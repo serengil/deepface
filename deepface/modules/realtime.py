@@ -68,9 +68,8 @@ def analysis(
 
     cap = cv2.VideoCapture(source)  # webcam
     while True:
-        _, img = cap.read()
-
-        if img is None:
+        has_frame, img = cap.read()
+        if not has_frame:
             break
 
         # cv2.namedWindow('img', cv2.WINDOW_FREERATIO)
@@ -92,6 +91,8 @@ def analysis(
                 faces = []
                 for face_obj in face_objs:
                     facial_area = face_obj["facial_area"]
+                    if facial_area["w"] <= 130: # discard small detected faces
+                        continue
                     faces.append(
                         (
                             facial_area["x"],
@@ -111,36 +112,32 @@ def analysis(
         detected_faces = []
         face_index = 0
         for x, y, w, h in faces:
-            if w > 130:  # discard small detected faces
+            face_detected = True
+            if face_index == 0:
+                face_included_frames += 1  # increase frame for a single face
 
-                face_detected = True
-                if face_index == 0:
-                    face_included_frames = (
-                        face_included_frames + 1
-                    )  # increase frame for a single face
+            cv2.rectangle(
+                img, (x, y), (x + w, y + h), (67, 67, 67), 1
+            )  # draw rectangle to main image
 
-                cv2.rectangle(
-                    img, (x, y), (x + w, y + h), (67, 67, 67), 1
-                )  # draw rectangle to main image
+            cv2.putText(
+                img,
+                str(frame_threshold - face_included_frames),
+                (int(x + w / 4), int(y + h / 1.5)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                4,
+                (255, 255, 255),
+                2,
+            )
 
-                cv2.putText(
-                    img,
-                    str(frame_threshold - face_included_frames),
-                    (int(x + w / 4), int(y + h / 1.5)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    4,
-                    (255, 255, 255),
-                    2,
-                )
+            detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]  # crop detected face
 
-                detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]  # crop detected face
+            # -------------------------------------
 
-                # -------------------------------------
+            detected_faces.append((x, y, w, h))
+            face_index = face_index + 1
 
-                detected_faces.append((x, y, w, h))
-                face_index = face_index + 1
-
-                # -------------------------------------
+            # -------------------------------------
 
         if face_detected == True and face_included_frames == frame_threshold and freeze == False:
             freeze = True

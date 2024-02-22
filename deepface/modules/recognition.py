@@ -99,7 +99,7 @@ def find(
 
     file_name = f"representations_{model_name}.pkl"
     file_name = file_name.replace("-", "_").lower()
-    datastore_path = f"{db_path}/{file_name}"
+    datastore_path = os.path.join(db_path, file_name)
 
     df_cols = [
         "identity",
@@ -162,7 +162,7 @@ def find(
                 logger.info(
                     f"{len(newbies)} new representations are just added"
                     f" whereas {len(oldies)} represented one(s) are just dropped"
-                    f" in {db_path}/{file_name} file."
+                    f" in {os.path.join(db_path,file_name)} file."
                 )
 
         if not silent:
@@ -173,8 +173,8 @@ def find(
 
         if len(employees) == 0:
             raise ValueError(
-                f"There is no image in {db_path} folder!"
-                "Validate .jpg, .jpeg or .png files exist in this path.",
+                f"Could not find any valid image in {db_path} folder!"
+                "Valid images are .jpg, .jpeg or .png files.",
             )
 
         # ------------------------
@@ -196,7 +196,7 @@ def find(
             pickle.dump(representations, f)
 
         if not silent:
-            logger.info(f"Representations stored in {db_path}/{file_name} file.")
+            logger.info(f"Representations stored in {datastore_path} file.")
 
     # ----------------------------
     # now, we got representations for facial database
@@ -241,6 +241,9 @@ def find(
         distances = []
         for _, instance in df.iterrows():
             source_representation = instance[f"{model_name}_representation"]
+            if source_representation is None:
+                distances.append(float("inf")) # no representation for this image
+                continue
 
             target_dims = len(list(target_representation))
             source_dims = len(list(source_representation))
@@ -292,7 +295,7 @@ def find(
     return resp_obj
 
 
-def __list_images(path: str) -> list:
+def __list_images(path: str) -> List[str]:
     """
     List images in a given path
     Args:
@@ -304,7 +307,7 @@ def __list_images(path: str) -> list:
     for r, _, f in os.walk(path):
         for file in f:
             if file.lower().endswith((".jpg", ".jpeg", ".png")):
-                exact_path = f"{r}/{file}"
+                exact_path = os.path.join(r, file)
                 images.append(exact_path)
     return images
 
@@ -365,31 +368,35 @@ def __find_bulk_embeddings(
                 expand_percentage=expand_percentage,
             )
         except ValueError as err:
-            logger.warn(
-                f"Exception while extracting faces from {employee}: {str(err)}. Skipping it."
+            logger.error(
+                f"Exception while extracting faces from {employee}: {str(err)}"
             )
             img_objs = []
 
-        for img_obj in img_objs:
-            img_content = img_obj["face"]
-            img_region = img_obj["facial_area"]
-            embedding_obj = representation.represent(
-                img_path=img_content,
-                model_name=model_name,
-                enforce_detection=enforce_detection,
-                detector_backend="skip",
-                align=align,
-                normalization=normalization,
-            )
+        if len(img_objs) == 0:
+            logger.warn(f"No face detected in {employee}. It will be skipped in detection.")
+            representations.append((employee, None, 0, 0, 0, 0))
+        else:
+            for img_obj in img_objs:
+                img_content = img_obj["face"]
+                img_region = img_obj["facial_area"]
+                embedding_obj = representation.represent(
+                    img_path=img_content,
+                    model_name=model_name,
+                    enforce_detection=enforce_detection,
+                    detector_backend="skip",
+                    align=align,
+                    normalization=normalization,
+                )
 
-            img_representation = embedding_obj[0]["embedding"]
+                img_representation = embedding_obj[0]["embedding"]
+                representations.append((
+                    employee,
+                    img_representation,
+                    img_region["x"],
+                    img_region["y"],
+                    img_region["w"],
+                    img_region["h"]
+                    ))
 
-            instance = []
-            instance.append(employee)
-            instance.append(img_representation)
-            instance.append(img_region["x"])
-            instance.append(img_region["y"])
-            instance.append(img_region["w"])
-            instance.append(img_region["h"])
-            representations.append(instance)
     return representations

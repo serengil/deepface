@@ -40,11 +40,10 @@ def build_model(model_name: str) -> Any:
     if not "model_obj" in globals():
         model_obj = {}
 
-    if not model_name in model_obj:
+    if not model_name in model_obj.keys():
         model = models.get(model_name)
         if model:
-            model = model()
-            model_obj[model_name] = model
+            model_obj[model_name] = model()
         else:
             raise ValueError(f"Invalid model_name passed - {model_name}")
 
