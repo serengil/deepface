@@ -1,4 +1,4 @@
-name: Tests
+name: Tests and Linting
 
 on: 
   push:
@@ -42,7 +42,7 @@ jobs:
     - name: Test with pytest
       run: |
         cd tests
-        pytest unit_tests.py
+        python -m pytest . -s --disable-warnings
   linting:
     needs: unit-tests
     

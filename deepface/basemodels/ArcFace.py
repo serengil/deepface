@@ -1,18 +1,23 @@
+from typing import List
 import os
 import gdown
-import tensorflow as tf
-from deepface.commons import functions
+import numpy as np
+from deepface.commons import package_utils, folder_utils
+from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
+
+logger = Logger(module="basemodels.ArcFace")
 
 # pylint: disable=unsubscriptable-object
 
 # --------------------------------
 # dependency configuration
 
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
+tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
+    from keras.models import Model
     from keras.engine import training
-    import keras
     from keras.layers import (
         ZeroPadding2D,
         Input,
@@ -25,8 +30,8 @@ if tf_version == 1:
         Dense,
     )
 else:
+    from tensorflow.keras.models import Model
     from tensorflow.python.keras.engine import training
-    from tensorflow import keras
     from tensorflow.keras.layers import (
         ZeroPadding2D,
         Input,
@@ -38,15 +43,40 @@ else:
         Flatten,
         Dense,
     )
-# --------------------------------
+
+# pylint: disable=too-few-public-methods
+class ArcFaceClient(FacialRecognition):
+    """
+    ArcFace model class
+    """
+
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "ArcFace"
+        self.input_shape = (112, 112)
+        self.output_shape = 512
+
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
+        """
+        find embeddings with ArcFace model
+        Args:
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
+        """
+        # model.predict causes memory issue when it is called in a for loop
+        # embedding = model.predict(img, verbose=0)[0].tolist()
+        return self.model(img, training=False).numpy()[0].tolist()
 
 
-# url = "https://drive.google.com/uc?id=1LVB3CdVejpmGHM28BpqqkbZP5hDEcdZY"
-
-
-def loadModel(
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.h5",
-):
+) -> Model:
+    """
+    Construct ArcFace model, download its weights and load
+    Returns:
+        model (Model)
+    """
     base_model = ResNet34()
     inputs = base_model.inputs[0]
     arcface_model = base_model.outputs[0]
@@ -59,19 +89,19 @@ def loadModel(
     embedding = BatchNormalization(momentum=0.9, epsilon=2e-5, name="embedding", scale=True)(
         arcface_model
     )
-    model = keras.models.Model(inputs, embedding, name=base_model.name)
+    model = Model(inputs, embedding, name=base_model.name)
 
     # ---------------------------------------
     # check the availability of pre-trained weights
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     file_name = "arcface_weights.h5"
     output = home + "/.deepface/weights/" + file_name
 
     if os.path.isfile(output) != True:
 
-        print(file_name, " will be downloaded to ", output)
+        logger.info(f"{file_name} will be downloaded to {output}")
         gdown.download(url, output, quiet=False)
 
     # ---------------------------------------
@@ -81,8 +111,12 @@ def loadModel(
     return model
 
 
-def ResNet34():
-
+def ResNet34() -> Model:
+    """
+    ResNet34 model
+    Returns:
+        model (Model)
+    """
     img_input = Input(shape=(112, 112, 3))
 
     x = ZeroPadding2D(padding=1, name="conv1_pad")(img_input)

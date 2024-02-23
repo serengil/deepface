@@ -1,9 +1,14 @@
+from typing import List
 import os
 import gdown
-import tensorflow as tf
-from deepface.commons import functions
+import numpy as np
+from deepface.commons import package_utils, folder_utils
+from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
+logger = Logger(module="basemodels.DeepID")
+
+tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
     from keras.models import Model
@@ -35,10 +40,37 @@ else:
 
 # -------------------------------------
 
+# pylint: disable=too-few-public-methods
+class DeepIdClient(FacialRecognition):
+    """
+    DeepId model class
+    """
 
-def loadModel(
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "DeepId"
+        self.input_shape = (47, 55)
+        self.output_shape = 160
+
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
+        """
+        find embeddings with DeepId model
+        Args:
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
+        """
+        # model.predict causes memory issue when it is called in a for loop
+        # embedding = model.predict(img, verbose=0)[0].tolist()
+        return self.model(img, training=False).numpy()[0].tolist()
+
+
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_keras_weights.h5",
-):
+) -> Model:
+    """
+    Construct DeepId model, download its weights and load
+    """
 
     myInput = Input(shape=(55, 47, 3))
 
@@ -68,10 +100,10 @@ def loadModel(
 
     # ---------------------------------
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/deepid_keras_weights.h5") != True:
-        print("deepid_keras_weights.h5 will be downloaded...")
+        logger.info("deepid_keras_weights.h5 will be downloaded...")
 
         output = home + "/.deepface/weights/deepid_keras_weights.h5"
         gdown.download(url, output, quiet=False)

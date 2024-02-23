@@ -1,53 +1,89 @@
 import os
+from typing import Any, List
+
 import numpy as np
 import cv2 as cv
 import gdown
 
-from deepface.commons import functions
+from deepface.commons import folder_utils
+from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
+
+logger = Logger(module="basemodels.SFace")
 
 # pylint: disable=line-too-long, too-few-public-methods
 
 
-class _Layer:
-    input_shape = (None, 112, 112, 3)
-    output_shape = (None, 1, 128)
+class SFaceClient(FacialRecognition):
+    """
+    SFace model class
+    """
 
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "SFace"
+        self.input_shape = (112, 112)
+        self.output_shape = 128
 
-class SFaceModel:
-    def __init__(self, model_path):
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
+        """
+        find embeddings with SFace model - different than regular models
+        Args:
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
+        """
+        # return self.model.predict(img)[0].tolist()
 
-        self.model = cv.FaceRecognizerSF.create(
-            model=model_path, config="", backend_id=0, target_id=0
-        )
+        # revert the image to original format and preprocess using the model
+        input_blob = (img[0] * 255).astype(np.uint8)
 
-        self.layers = [_Layer()]
+        embeddings = self.model.model.feature(input_blob)
 
-    def predict(self, image):
-        # Preprocess
-        input_blob = (image[0] * 255).astype(
-            np.uint8
-        )  # revert the image to original format and preprocess using the model
-
-        # Forward
-        embeddings = self.model.feature(input_blob)
-
-        return embeddings
+        return embeddings[0].tolist()
 
 
 def load_model(
     url="https://github.com/opencv/opencv_zoo/raw/main/models/face_recognition_sface/face_recognition_sface_2021dec.onnx",
-):
+) -> Any:
+    """
+    Construct SFace model, download its weights and load
+    """
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     file_name = home + "/.deepface/weights/face_recognition_sface_2021dec.onnx"
 
     if not os.path.isfile(file_name):
 
-        print("sface weights will be downloaded...")
+        logger.info("sface weights will be downloaded...")
 
         gdown.download(url, file_name, quiet=False)
 
-    model = SFaceModel(model_path=file_name)
+    model = SFaceWrapper(model_path=file_name)
 
     return model
+
+
+class SFaceWrapper:
+    def __init__(self, model_path):
+        """
+        SFace wrapper covering model construction, layer infos and predict
+        """
+        try:
+            self.model = cv.FaceRecognizerSF.create(
+                model=model_path, config="", backend_id=0, target_id=0
+            )
+        except Exception as err:
+            raise ValueError(
+                "Exception while calling opencv.FaceRecognizerSF module."
+                + "This is an optional dependency."
+                + "You can install it as pip install opencv-contrib-python."
+            ) from err
+
+        self.layers = [_Layer()]
+
+
+class _Layer:
+    input_shape = (None, 112, 112, 3)
+    output_shape = (None, 1, 128)
