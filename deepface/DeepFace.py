@@ -19,7 +19,7 @@ from deepface.modules import (
     recognition,
     demography,
     detection,
-    realtime,
+    streaming,
 )
 from deepface import __version__
 
@@ -409,7 +409,7 @@ def stream(
     time_threshold = max(time_threshold, 1)
     frame_threshold = max(frame_threshold, 1)
 
-    realtime.analysis(
+    streaming.analysis(
         db_path=db_path,
         model_name=model_name,
         detector_backend=detector_backend,

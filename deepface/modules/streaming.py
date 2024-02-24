@@ -91,7 +91,7 @@ def analysis(
                 faces = []
                 for face_obj in face_objs:
                     facial_area = face_obj["facial_area"]
-                    if facial_area["w"] <= 130: # discard small detected faces
+                    if facial_area["w"] <= 130:  # discard small detected faces
                         continue
                     faces.append(
                         (
@@ -176,7 +176,7 @@ def analysis(
 
                             demographies = DeepFace.analyze(
                                 img_path=custom_face,
-                                detector_backend=detector_backend,
+                                detector_backend="skip",
                                 enforce_detection=False,
                                 silent=True,
                             )
@@ -411,7 +411,7 @@ def analysis(
                             img_path=custom_face,
                             db_path=db_path,
                             model_name=model_name,
-                            detector_backend=detector_backend,
+                            detector_backend="skip",
                             distance_metric=distance_metric,
                             enforce_detection=False,
                             silent=True,
@@ -429,7 +429,7 @@ def analysis(
                                 display_img = cv2.imread(label)
                                 # to use extracted face
                                 source_objs = DeepFace.extract_faces(
-                                    img_path=label,
+                                    img_path=display_img,
                                     target_size=(pivot_img_size, pivot_img_size),
                                     detector_backend=detector_backend,
                                     enforce_detection=False,
