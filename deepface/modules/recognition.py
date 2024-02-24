@@ -181,16 +181,19 @@ def find(
         columns=df_cols,
     )
 
-    # img path might have more than once face
-    source_objs = detection.extract_faces(
-        img_path=img_path,
-        target_size=target_size,
-        detector_backend=detector_backend,
-        grayscale=False,
-        enforce_detection=enforce_detection,
-        align=align,
-        expand_percentage=expand_percentage,
-    )
+    try:
+        # img path might have more than once face
+        source_objs = detection.extract_faces(
+            img_path=img_path,
+            target_size=target_size,
+            detector_backend=detector_backend,
+            grayscale=False,
+            enforce_detection=enforce_detection,
+            align=align,
+            expand_percentage=expand_percentage,
+        )
+    except ValueError as err:
+        source_objs = []
 
     resp_obj = []
 
