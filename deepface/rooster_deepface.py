@@ -10,32 +10,29 @@ import numpy as np
 
 # These are thresholds that we have computed. Add to the list as more are
 THRESHOLDS = {
-  "VGG-Face" : {
-    "cosine": 0.34,
-  },
-  "ArcFace": {
-    "cosine": 0.68,
-    "euclidean": 4.15, 
-    "euclidean_l2": 1.13
-  },
+    "VGG-Face": {
+        "cosine": 0.34,
+    },
+    "ArcFace": {"cosine": 0.68, "euclidean": 4.15, "euclidean_l2": 1.13},
 }
 
-def create_encodings_database(
-        db_path,
-        model_name="VGG-Face",
-        enforce_detection=True,
-        detector_backend="opencv",
-        align=True,
-        normalization="base",
-        silent=True,
-        force_recreate=False,
-    ):  
-    """
-        Create the necessary pkl files for a folder of images
-        If a file is already there, it will use that unless force_recreate=True, then it will delete it and recreate it
 
-        returns:
-            reperesentations
+def create_encodings_database(
+    db_path,
+    model_name="VGG-Face",
+    enforce_detection=True,
+    detector_backend="opencv",
+    align=True,
+    normalization="base",
+    silent=True,
+    force_recreate=False,
+):
+    """
+    Create the necessary pkl files for a folder of images
+    If a file is already there, it will use that unless force_recreate=True, then it will delete it and recreate it
+
+    returns:
+        reperesentations
     """
     # -------------------------------
     if os.path.isdir(db_path) is not True:
@@ -45,24 +42,37 @@ def create_encodings_database(
 
     # ---------------------------------------
 
-    # file_name = f"representations_{model_name}.pkl"
     file_name = f"representations_{model_name}_{detector_backend}.pkl"
     file_name = file_name.replace("-", "_").lower()
 
-    if path.exists(db_path + "/" + file_name) and not force_recreate:
+    df_cols = [
+        "identity",
+        f"{model_name}_representation",
+        "target_x",
+        "target_y",
+        "target_w",
+        "target_h",
+    ]
 
+    if path.exists(db_path + "/" + file_name) and not force_recreate:
         if not silent:
             print(
-                f"WARNING: Representations for images in {db_path} folder were previously stored"
-                + f" in {file_name}. If you added new instances after the creation, then please "
-                + "delete this file and call find function again. It will create it again."
+                f"Representations for images in {db_path} folder were previously stored"
+                f" in {file_name}. If you added new instances after the creation, then please "
+                "delete this file and call find function again. It will create it again."
             )
 
         with open(f"{db_path}/{file_name}", "rb") as f:
             representations = pickle.load(f)
 
+            if len(representations) > 0 and len(representations[0]) != len(df_cols):
+                raise ValueError(
+                    f"Seems existing {db_path}/{file_name} is out-of-the-date."
+                    "Delete it and re-run."
+                )
+
         if not silent:
-            print("There are ", len(representations), " representations found in ", file_name)
+            print(f"There are {len(representations)} representations found in {file_name}")
 
     else:  # create representation.pkl from scratch
         employees = []
@@ -107,7 +117,7 @@ def create_encodings_database(
                 align=align,
             )
 
-            for img_content, _, _ in img_objs:
+            for img_content, img_region, _ in img_objs:
                 embedding_obj = represent(
                     img_path=img_content,
                     model_name=model_name,
@@ -122,6 +132,10 @@ def create_encodings_database(
                 instance = []
                 instance.append(employee)
                 instance.append(img_representation)
+                instance.append(img_region["x"])
+                instance.append(img_region["y"])
+                instance.append(img_region["w"])
+                instance.append(img_region["h"])
                 representations.append(instance)
 
         # -------------------------------
@@ -137,6 +151,7 @@ def create_encodings_database(
 
     return representations
 
+
 def match_face(
     facial_data,
     db_path,
@@ -148,7 +163,6 @@ def match_face(
     normalization="base",
     silent=True,
 ):
-
     """
     This is Rooster's adaptation of DeepFace.find
 
@@ -188,19 +202,22 @@ def match_face(
         align=align,
         normalization=normalization,
         silent=silent,
-        force_recreate=False
+        force_recreate=False,
     )
-        
 
     # ----------------------------
     # now, we got representations for facial database
-    df = pd.DataFrame(representations, columns=[
-        "identity", 
-        f"{model_name}_representation",
-        "target_x",
-        "target_y",
-        "target_w",
-        "target_h"])
+    df = pd.DataFrame(
+        representations,
+        columns=[
+            "identity",
+            f"{model_name}_representation",
+            "target_x",
+            "target_y",
+            "target_w",
+            "target_h",
+        ],
+    )
     # print(f"Data Frame Creating took {time.time()-tic}s")
     resp_obj = []
     target_img = facial_data["face"]
@@ -213,7 +230,7 @@ def match_face(
         print("match_face embedding mode on")
         target_representation = facial_data["embedding"]
     else:
-    
+
         target_embedding_obj = represent(
             img_path=target_img,
             model_name=model_name,
@@ -276,20 +293,24 @@ def match_face(
 
     return resp_obj
 
-def get_embedding(img, model_name="ArcFace", enforce_detection=True, align=True, normalization="base"):
+
+def get_embedding(
+    img, model_name="ArcFace", enforce_detection=True, align=True, normalization="base"
+):
     """
     Designed for rooster to return the embedding of the face, so it only has to be computed once
     """
     img1_embedding_obj = represent(
-            img_path=img,
-            model_name=model_name,
-            enforce_detection=enforce_detection,
-            detector_backend="skip",
-            align=align,
-            normalization=normalization,
-        )
-    
+        img_path=img,
+        model_name=model_name,
+        enforce_detection=enforce_detection,
+        detector_backend="skip",
+        align=align,
+        normalization=normalization,
+    )
+
     return img1_embedding_obj[0]["embedding"]
+
 
 def verify(
     img1,
@@ -329,7 +350,7 @@ def verify(
 
             normalization (string): normalize the input image before feeding to model
 
-            embedded_mode (boolean): if True, assumes that img1 and img2 are embeddings, 
+            embedded_mode (boolean): if True, assumes that img1 and img2 are embeddings,
             not images so it skips the embedding function
 
     Returns:
