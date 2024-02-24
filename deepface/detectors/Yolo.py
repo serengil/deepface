@@ -43,8 +43,15 @@ class YoloClient(Detector):
 
         # Download the model's weights if they don't exist
         if not os.path.isfile(weight_path):
-            gdown.download(WEIGHT_URL, weight_path, quiet=False)
-            logger.info(f"Downloaded YOLO model {os.path.basename(weight_path)}")
+            logger.info(f"Downloading Yolo weights from {WEIGHT_URL} to {weight_path}...")
+            try:
+                gdown.download(WEIGHT_URL, weight_path, quiet=False)
+            except Exception as err:
+                raise ValueError(
+                    f"Exception while downloading Yolo weights from {WEIGHT_URL}."
+                    f"You may consider to download it to {weight_path} manually."
+                ) from err
+            logger.info(f"Yolo model is just downloaded to {os.path.basename(weight_path)}")
 
         # Return face_detector
         return YOLO(weight_path)
