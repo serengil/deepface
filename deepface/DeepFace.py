@@ -458,7 +458,9 @@ def extract_faces(
 
         - "face" (np.ndarray): The detected face as a NumPy array.
 
-        - "facial_area" (List[float]): The detected face's regions represented as a list of floats.
+        - "facial_area" (Dict[str, Any]): The detected face's regions as a dictionary containing:
+            - keys 'x', 'y', 'w', 'h' with int values
+            - keys 'left_eye', 'right_eye' with a tuple of 2 ints as values
 
         - "confidence" (float): The confidence score associated with the detected face.
     """
