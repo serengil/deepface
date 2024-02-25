@@ -31,6 +31,7 @@ detector_backends = [
     "yolov8",
 ]
 
+
 # verification
 for model_name in model_names:
     obj = DeepFace.verify(
@@ -46,12 +47,14 @@ for model_name in model_names:
         embedding = embedding_obj["embedding"]
         logger.info(f"{model_name} produced {len(embedding)}D vector")
 
+
 # find
 dfs = DeepFace.find(
     img_path="dataset/img1.jpg", db_path="dataset", model_name="Facenet", detector_backend="mtcnn"
 )
 for df in dfs:
     logger.info(df)
+
 
 
 # img_paths = ["dataset/img11.jpg", "dataset/img11_reflection.jpg", "dataset/couple.jpg"]
@@ -84,6 +87,8 @@ for img_path in img_paths:
                 assert isinstance(face_obj["facial_area"]["right_eye"][1], int)
 
             assert isinstance(face_obj["confidence"], float)
+            assert face_obj["confidence"] <= 1
+
             plt.imshow(face)
             plt.axis("off")
             plt.show()

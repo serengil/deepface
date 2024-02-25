@@ -60,7 +60,7 @@ class OpenCvClient(Detector):
                     h=h,
                     left_eye=left_eye,
                     right_eye=right_eye,
-                    confidence=confidence,
+                    confidence=(100 - confidence) / 100,
                 )
                 resp.append(facial_area)
 

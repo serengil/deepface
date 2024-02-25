@@ -90,6 +90,7 @@ class DlibClient(Detector):
                 left_eye = (shape.part(2).x, shape.part(2).y)
                 right_eye = (shape.part(0).x, shape.part(0).y)
 
+                # never saw confidence higher than +3.5 github.com/davisking/dlib/issues/761
                 confidence = scores[idx]
 
                 facial_area = FacialAreaRegion(
@@ -99,7 +100,7 @@ class DlibClient(Detector):
                     h=h,
                     left_eye=left_eye,
                     right_eye=right_eye,
-                    confidence=confidence,
+                    confidence=min(max(0, confidence), 1.0),
                 )
                 resp.append(facial_area)
 
