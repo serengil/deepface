@@ -345,7 +345,7 @@ def represent(
         results (List[Dict[str, Any]]): A list of dictionaries, each containing the
             following fields:
 
-        - embedding (np.array): Multidimensional vector representing facial features.
+        - embedding (List[float]): Multidimensional vector representing facial features.
             The number of dimensions varies based on the reference model
             (e.g., FaceNet returns 128 dimensions, VGG-Face returns 4096 dimensions).
 
