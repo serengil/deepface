@@ -167,7 +167,7 @@ def rotate_facial_area(
     # worry about rotations greater than 360 degrees.
     # We workaround the quirky behavior of the modulo operator
     # for negative angle values.
-    direction = (1, -1)[angle < 0]
+    direction = 1 if angle >= 0 else -1
     angle = abs(angle) % 360
     if angle == 0:
         return facial_area
