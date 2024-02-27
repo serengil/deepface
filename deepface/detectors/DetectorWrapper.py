@@ -104,18 +104,6 @@ def detect_faces(
         confidence = facial_area.confidence
 
         if expand_percentage > 0:
-            # Uncomment this if you want to :
-            # Expand the facial area to be extracted and recompute the height and width
-            # keeping the same aspect ratio and ensuring that the expanded area stays
-            # within img.shape limits
-
-            # current_area = w * h
-            # expanded_area = current_area + int((current_area * expand_percentage) / 100)
-            # scale_factor = math.sqrt(expanded_area / current_area)
-            # expanded_w = int(w * scale_factor)
-            # expanded_h = int(h * scale_factor)
-
-            # Or uncomment this if you want to :
             # Expand the facial region height and width by the provided percentage
             # ensuring that the expanded region stays within img.shape limits
             expanded_w = w + int(w * expand_percentage / 100)
