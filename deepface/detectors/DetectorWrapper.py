@@ -103,14 +103,31 @@ def detect_faces(
         right_eye = facial_area.right_eye
         confidence = facial_area.confidence
 
-        # expand the facial area to be extracted and stay within img.shape limits
-        x2 = max(0, x - int((w * expand_percentage) / 100))  # expand left
-        y2 = max(0, y - int((h * expand_percentage) / 100))  # expand top
-        w2 = min(img.shape[1], w + int((w * 2 * expand_percentage) / 100))  # expand right
-        h2 = min(img.shape[0], h + int((h * 2 * expand_percentage) / 100))  # expand bottom
+        if expand_percentage > 0:
+            # Uncomment this if you want to :
+            # Expand the facial area to be extracted and recompute the height and width
+            # keeping the same aspect ratio and ensuring that the expanded area stays
+            # within img.shape limits
+
+            # current_area = w * h
+            # expanded_area = current_area + int((current_area * expand_percentage) / 100)
+            # scale_factor = math.sqrt(expanded_area / current_area)
+            # expanded_w = int(w * scale_factor)
+            # expanded_h = int(h * scale_factor)
+
+            # Or uncomment this if you want to :
+            # Expand the facial region height and width by the provided percentage
+            # ensuring that the expanded region stays within img.shape limits
+            expanded_w = int(w * expand_percentage / 100)
+            expanded_h = int(h * expand_percentage / 100)
+
+            x = max(0, x - int((expanded_w - w) / 2))
+            y = max(0, y - int((expanded_h - h) / 2))
+            w = min(img.shape[1] - x, expanded_w)
+            h = min(img.shape[0] - y, expanded_h)
 
         # extract detected face unaligned
-        detected_face = img[int(y2) : int(y2 + h2), int(x2) : int(x2 + w2)]
+        detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
 
         # aligning detected face causes a lot of black pixels
         # if align is True:
