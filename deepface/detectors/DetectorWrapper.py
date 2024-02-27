@@ -129,12 +129,6 @@ def detect_faces(
         # extract detected face unaligned
         detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
 
-        # aligning detected face causes a lot of black pixels
-        # if align is True:
-        #     detected_face, _ = detection.align_face(
-        #         img=detected_face, left_eye=left_eye, right_eye=right_eye
-        #     )
-
         # align original image, then find projection of detected face area after alignment
         if align is True:  # and left_eye is not None and right_eye is not None:
             aligned_img, angle = detection.align_face(
