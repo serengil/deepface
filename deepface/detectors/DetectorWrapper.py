@@ -118,8 +118,8 @@ def detect_faces(
             # Or uncomment this if you want to :
             # Expand the facial region height and width by the provided percentage
             # ensuring that the expanded region stays within img.shape limits
-            expanded_w = int(w * expand_percentage / 100)
-            expanded_h = int(h * expand_percentage / 100)
+            expanded_w = w + int(w * expand_percentage / 100)
+            expanded_h = h + int(h * expand_percentage / 100)
 
             x = max(0, x - int((expanded_w - w) / 2))
             y = max(0, y - int((expanded_h - h) / 2))
