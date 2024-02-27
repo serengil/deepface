@@ -124,11 +124,13 @@ def detect_faces(
                 img=img, left_eye=left_eye, right_eye=right_eye
             )
             rotated_x1, rotated_y1, rotated_x2, rotated_y2 = rotate_facial_area(
-                facial_area=(x, y, x + w, y + h), 
-                angle=angle, 
+                facial_area=(x, y, x + w, y + h),
+                angle=angle,
                 size=(img.shape[0], img.shape[1])
             )
-            detected_face = aligned_img[int(rotated_y1) : int(rotated_y2), int(rotated_x1) : int(rotated_x2)]
+            detected_face = aligned_img[
+                int(rotated_y1) : int(rotated_y2),
+                int(rotated_x1) : int(rotated_x2)]
 
         result = DetectedFace(
             img=detected_face,
@@ -142,7 +144,7 @@ def detect_faces(
 
 
 def rotate_facial_area(
-    facial_area: Tuple[int, int, int, int], 
+    facial_area: Tuple[int, int, int, int],
     angle: float,               # in degrees. The sign determines the direction of rotation
     size: Tuple[int, int]       # (width, height)
 ) -> Tuple[int, int, int, int]:
