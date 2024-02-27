@@ -164,11 +164,13 @@ def rotate_facial_area(
     """
 
     # Normalize the witdh of the angle so we don't have to
-    # worry about rotations greater than 360 degrees
-    angle = angle % 360
+    # worry about rotations greater than 360 degrees.
+    # We workaround the quirky behavior of the modulo operator
+    # for negative angle values.
+    direction = (1, -1)[angle < 0]
+    angle = abs(angle) % 360
     if angle == 0:
-        return facial_area # No rotation needed
-    direction = 1 if angle > 0 else -1
+        return facial_area
 
     # Angle in radians
     angle = angle * np.pi / 180
