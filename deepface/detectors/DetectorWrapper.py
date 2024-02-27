@@ -144,8 +144,8 @@ def detect_faces(
 
 def rotate_facial_area(
     facial_area: Tuple[int, int, int, int],
-    angle: float,               # in degrees. The sign determines the direction of rotation
-    size: Tuple[int, int]       # (width, height)
+    angle: float,
+    size: Tuple[int, int]
 ) -> Tuple[int, int, int, int]:
     """
     Rotate the facial area around its center.
