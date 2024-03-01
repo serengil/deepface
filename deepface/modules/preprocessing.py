@@ -9,7 +9,10 @@ import cv2
 import requests
 
 
-def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
+def load_image(
+    img: Union[str, np.ndarray],
+    img_name: str = ""
+) -> Tuple[np.ndarray, str]:
     """
     Load image from path, url, base64 or numpy array.
     Args:
@@ -21,17 +24,17 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
 
     # The image is already a numpy array
     if isinstance(img, np.ndarray):
-        return img, "numpy array"
+        return img, f"{img_name} numpy array"
 
     if isinstance(img, Path):
         img = str(img)
 
     if not isinstance(img, str):
-        raise ValueError(f"img must be numpy array or str but it is {type(img)}")
+        raise ValueError(f"{img_name} must be numpy array or str but it is {type(img)}")
 
     # The image is a base64 string
     if img.startswith("data:image/"):
-        return load_base64(img), "base64 encoded string"
+        return load_base64(img), f"{img_name} base64 encoded string"
 
     # The image is a url
     if img.startswith("http"):

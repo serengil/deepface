@@ -27,6 +27,7 @@ elif tf_major_version == 2:
 
 def extract_faces(
     img_path: Union[str, np.ndarray],
+    img_name: str = "",
     target_size: Optional[Tuple[int, int]] = (224, 224),
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
@@ -76,7 +77,7 @@ def extract_faces(
     resp_objs = []
 
     # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
-    img, img_name = preprocessing.load_image(img_path)
+    img, img_name = preprocessing.load_image(img_path, img_name)
 
     if img is None:
         raise ValueError(f"Exception while loading {img_name}")

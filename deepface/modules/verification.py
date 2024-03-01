@@ -88,6 +88,7 @@ def verify(
     # img pairs might have many faces
     img1_objs = detection.extract_faces(
         img_path=img1_path,
+        img_name = "img1_path",
         target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
@@ -98,6 +99,7 @@ def verify(
 
     img2_objs = detection.extract_faces(
         img_path=img2_path,
+        img_name = "img2_path",
         target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,

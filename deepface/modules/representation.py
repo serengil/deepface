@@ -64,9 +64,11 @@ def represent(
     # ---------------------------------
     # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
     target_size = model.input_shape
+    img_name = "img"
     if detector_backend != "skip":
         img_objs = detection.extract_faces(
             img_path=img_path,
+            img_name= img_name,
             target_size=(target_size[1], target_size[0]),
             detector_backend=detector_backend,
             grayscale=False,
@@ -76,7 +78,7 @@ def represent(
         )
     else:  # skip
         # Try load. If load error, will raise exception internal
-        img, _ = preprocessing.load_image(img_path)
+        img, _ = preprocessing.load_image(img_path, img_name)
         # --------------------------------
         if len(img.shape) == 4:
             img = img[0]  # e.g. (1, 224, 224, 3) to (224, 224, 3)
