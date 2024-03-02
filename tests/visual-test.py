@@ -25,6 +25,7 @@ detector_backends = [
     "ssd",
     "dlib",
     "mtcnn",
+    "fastmtcnn",
     # "mediapipe", # crashed in mac
     "retinaface",
     "yunet",
@@ -56,40 +57,39 @@ for df in dfs:
     logger.info(df)
 
 
+expand_areas = [0, 25]
+img_paths = ["dataset/img11.jpg", "dataset/img11_reflection.jpg"]
+for expand_area in expand_areas:
+    for img_path in img_paths:
+        # extract faces
+        for detector_backend in detector_backends:
+            face_objs = DeepFace.extract_faces(
+                img_path=img_path,
+                detector_backend=detector_backend,
+                align=True,
+                expand_percentage=expand_area,
+            )
+            for face_obj in face_objs:
+                face = face_obj["face"]
+                logger.info(detector_backend)
+                logger.info(face_obj["facial_area"])
+                logger.info(face_obj["confidence"])
 
-# img_paths = ["dataset/img11.jpg", "dataset/img11_reflection.jpg", "dataset/couple.jpg"]
-img_paths = ["dataset/img11.jpg"]
-for img_path in img_paths:
-    # extract faces
-    for detector_backend in detector_backends:
-        face_objs = DeepFace.extract_faces(
-            img_path=img_path,
-            detector_backend=detector_backend,
-            align=True,
-            # expand_percentage=10,
-            # target_size=None,
-        )
-        for face_obj in face_objs:
-            face = face_obj["face"]
-            logger.info(detector_backend)
-            logger.info(face_obj["facial_area"])
-            logger.info(face_obj["confidence"])
+                # we know opencv sometimes cannot find eyes
+                if face_obj["facial_area"]["left_eye"] is not None:
+                    assert isinstance(face_obj["facial_area"]["left_eye"], tuple)
+                    assert isinstance(face_obj["facial_area"]["left_eye"][0], int)
+                    assert isinstance(face_obj["facial_area"]["left_eye"][1], int)
 
-            # we know opencv sometimes cannot find eyes
-            if face_obj["facial_area"]["left_eye"] is not None:
-                assert isinstance(face_obj["facial_area"]["left_eye"], tuple)
-                assert isinstance(face_obj["facial_area"]["left_eye"][0], int)
-                assert isinstance(face_obj["facial_area"]["left_eye"][1], int)
+                if face_obj["facial_area"]["right_eye"] is not None:
+                    assert isinstance(face_obj["facial_area"]["right_eye"], tuple)
+                    assert isinstance(face_obj["facial_area"]["right_eye"][0], int)
+                    assert isinstance(face_obj["facial_area"]["right_eye"][1], int)
 
-            if face_obj["facial_area"]["right_eye"] is not None:
-                assert isinstance(face_obj["facial_area"]["right_eye"], tuple)
-                assert isinstance(face_obj["facial_area"]["right_eye"][0], int)
-                assert isinstance(face_obj["facial_area"]["right_eye"][1], int)
+                assert isinstance(face_obj["confidence"], float)
+                assert face_obj["confidence"] <= 1
 
-            assert isinstance(face_obj["confidence"], float)
-            assert face_obj["confidence"] <= 1
-
-            plt.imshow(face)
-            plt.axis("off")
-            plt.show()
-            logger.info("-----------")
+                plt.imshow(face)
+                plt.axis("off")
+                plt.show()
+                logger.info("-----------")
