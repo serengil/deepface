@@ -85,26 +85,31 @@ def verify(
     model: FacialRecognition = modeling.build_model(model_name)
     target_size = model.input_shape
 
-    # img pairs might have many faces
-    img1_objs = detection.extract_faces(
-        img_path=img1_path,
-        target_size=target_size,
-        detector_backend=detector_backend,
-        grayscale=False,
-        enforce_detection=enforce_detection,
-        align=align,
-        expand_percentage=expand_percentage,
-    )
+    try:
+        img1_objs = detection.extract_faces(
+            img_path=img1_path,
+            target_size=target_size,
+            detector_backend=detector_backend,
+            grayscale=False,
+            enforce_detection=enforce_detection,
+            align=align,
+            expand_percentage=expand_percentage,
+        )
+    except ValueError as err:
+        raise ValueError("Exception while processing img1_path") from err
 
-    img2_objs = detection.extract_faces(
-        img_path=img2_path,
-        target_size=target_size,
-        detector_backend=detector_backend,
-        grayscale=False,
-        enforce_detection=enforce_detection,
-        align=align,
-        expand_percentage=expand_percentage,
-    )
+    try:
+        img2_objs = detection.extract_faces(
+            img_path=img2_path,
+            target_size=target_size,
+            detector_backend=detector_backend,
+            grayscale=False,
+            enforce_detection=enforce_detection,
+            align=align,
+            expand_percentage=expand_percentage,
+        )
+    except ValueError as err:
+        raise ValueError("Exception while processing img2_path") from err
     # --------------------------------
     distances = []
     regions = []
