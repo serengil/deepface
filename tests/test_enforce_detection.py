@@ -9,10 +9,10 @@ logger = Logger("tests/test_enforce_detection.py")
 def test_enabled_enforce_detection_for_non_facial_input():
     black_img = np.zeros([224, 224, 3])
 
-    with pytest.raises(ValueError, match="Face could not be detected."):
+    with pytest.raises(ValueError):
         DeepFace.represent(img_path=black_img)
 
-    with pytest.raises(ValueError, match="Face could not be detected."):
+    with pytest.raises(ValueError):
         DeepFace.verify(img1_path=black_img, img2_path=black_img)
 
     logger.info("✅ enabled enforce detection with non facial input tests done")

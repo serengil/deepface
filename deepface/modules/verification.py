@@ -85,81 +85,84 @@ def verify(
     model: FacialRecognition = modeling.build_model(model_name)
     target_size = model.input_shape
 
-    # img pairs might have many faces
-    img1_objs = detection.extract_faces(
-        img_path=img1_path,
-        target_size=target_size,
-        detector_backend=detector_backend,
-        grayscale=False,
-        enforce_detection=enforce_detection,
-        align=align,
-        expand_percentage=expand_percentage,
-    )
+    try:
+        img1_objs = detection.extract_faces(
+            img_path=img1_path,
+            target_size=target_size,
+            detector_backend=detector_backend,
+            grayscale=False,
+            enforce_detection=enforce_detection,
+            align=align,
+            expand_percentage=expand_percentage,
+        )
+    except ValueError as err:
+        raise ValueError("Exception while processing img1_path") from err
 
-    img2_objs = detection.extract_faces(
-        img_path=img2_path,
-        target_size=target_size,
-        detector_backend=detector_backend,
-        grayscale=False,
-        enforce_detection=enforce_detection,
-        align=align,
-        expand_percentage=expand_percentage,
-    )
-    # --------------------------------
+    try:
+        img2_objs = detection.extract_faces(
+            img_path=img2_path,
+            target_size=target_size,
+            detector_backend=detector_backend,
+            grayscale=False,
+            enforce_detection=enforce_detection,
+            align=align,
+            expand_percentage=expand_percentage,
+        )
+    except ValueError as err:
+        raise ValueError("Exception while processing img2_path") from err
+
+    img1_embeddings = []
+    for img1_obj in img1_objs:
+        img1_embedding_obj = representation.represent(
+            img_path=img1_obj["face"],
+            model_name=model_name,
+            enforce_detection=enforce_detection,
+            detector_backend="skip",
+            align=align,
+            normalization=normalization,
+        )
+        img1_embedding = img1_embedding_obj[0]["embedding"]
+        img1_embeddings.append(img1_embedding)
+
+    img2_embeddings = []
+    for img2_obj in img2_objs:
+        img2_embedding_obj = representation.represent(
+            img_path=img2_obj["face"],
+            model_name=model_name,
+            enforce_detection=enforce_detection,
+            detector_backend="skip",
+            align=align,
+            normalization=normalization,
+        )
+        img2_embedding = img2_embedding_obj[0]["embedding"]
+        img2_embeddings.append(img2_embedding)
+
     distances = []
     regions = []
-    # now we will find the face pair with minimum distance
-    for img1_obj in img1_objs:
-        img1_content = img1_obj["face"]
-        img1_region = img1_obj["facial_area"]
-        for img2_obj in img2_objs:
-            img2_content = img2_obj["face"]
-            img2_region = img2_obj["facial_area"]
-            img1_embedding_obj = representation.represent(
-                img_path=img1_content,
-                model_name=model_name,
-                enforce_detection=enforce_detection,
-                detector_backend="skip",
-                align=align,
-                normalization=normalization,
-            )
-
-            img2_embedding_obj = representation.represent(
-                img_path=img2_content,
-                model_name=model_name,
-                enforce_detection=enforce_detection,
-                detector_backend="skip",
-                align=align,
-                normalization=normalization,
-            )
-
-            img1_representation = img1_embedding_obj[0]["embedding"]
-            img2_representation = img2_embedding_obj[0]["embedding"]
-
+    for idx, img1_embedding in enumerate(img1_embeddings):
+        for idy, img2_embedding in enumerate(img2_embeddings):
             if distance_metric == "cosine":
-                distance = find_cosine_distance(img1_representation, img2_representation)
+                distance = find_cosine_distance(img1_embedding, img2_embedding)
             elif distance_metric == "euclidean":
-                distance = find_euclidean_distance(img1_representation, img2_representation)
+                distance = find_euclidean_distance(img1_embedding, img2_embedding)
             elif distance_metric == "euclidean_l2":
                 distance = find_euclidean_distance(
-                    l2_normalize(img1_representation), l2_normalize(img2_representation)
+                    l2_normalize(img1_embedding), l2_normalize(img2_embedding)
                 )
             else:
                 raise ValueError("Invalid distance_metric passed - ", distance_metric)
-
             distances.append(distance)
-            regions.append((img1_region, img2_region))
+            regions.append((img1_objs[idx]["facial_area"], img2_objs[idy]["facial_area"]))
 
-    # -------------------------------
+    # find the face pair with minimum distance
     threshold = find_threshold(model_name, distance_metric)
-    distance = min(distances)  # best distance
+    distance = float(min(distances))  # best distance
     facial_areas = regions[np.argmin(distances)]
 
     toc = time.time()
 
-    # pylint: disable=simplifiable-if-expression
     resp_obj = {
-        "verified": True if distance <= threshold else False,
+        "verified": distance <= threshold,
         "distance": distance,
         "threshold": threshold,
         "model": model_name,

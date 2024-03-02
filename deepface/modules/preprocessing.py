@@ -34,7 +34,7 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
         return load_base64(img), "base64 encoded string"
 
     # The image is a url
-    if img.startswith("http"):
+    if img.startswith("http://") or img.startswith("https://"):
         return load_image_from_web(url=img), img
 
     # The image is a path
@@ -76,7 +76,21 @@ def load_base64(uri: str) -> np.ndarray:
     Returns:
         numpy array: the loaded image.
     """
-    encoded_data = uri.split(",")[1]
+
+    encoded_data_parts = uri.split(",")
+
+    if len(encoded_data_parts) < 2:
+        raise ValueError("format error in base64 encoded string")
+
+    # similar to find functionality, we are just considering these extensions
+    if not (
+        uri.startswith("data:image/jpeg")
+        or uri.startswith("data:image/jpg")
+        or uri.startswith("data:image/png")
+    ):
+        raise ValueError(f"input image can be jpg, jpeg or png, but it is {encoded_data_parts}")
+
+    encoded_data = encoded_data_parts[1]
     nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
     img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)

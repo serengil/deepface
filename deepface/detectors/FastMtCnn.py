@@ -27,13 +27,20 @@ class FastMtCnnClient(Detector):
         detections = self.model.detect(
             img_rgb, landmarks=True
         )  # returns boundingbox, prob, landmark
-        if detections is not None and len(detections) > 0:
-
+        if (
+            detections is not None
+            and len(detections) > 0
+            and not any(detection is None for detection in detections)  # issue 1043
+        ):
             for current_detection in zip(*detections):
                 x, y, w, h = xyxy_to_xywh(current_detection[0])
                 confidence = current_detection[1]
+
                 left_eye = current_detection[2][0]
                 right_eye = current_detection[2][1]
+
+                left_eye = tuple(int(i) for i in left_eye)
+                right_eye = tuple(int(i) for i in right_eye)
 
                 facial_area = FacialAreaRegion(
                     x=x,
