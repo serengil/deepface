@@ -27,8 +27,11 @@ class FastMtCnnClient(Detector):
         detections = self.model.detect(
             img_rgb, landmarks=True
         )  # returns boundingbox, prob, landmark
-        if detections is not None and len(detections) > 0:
-
+        if (
+            detections is not None
+            and len(detections) > 0
+            and not any(detection is None for detection in detections)  # issue 1043
+        ):
             for current_detection in zip(*detections):
                 x, y, w, h = xyxy_to_xywh(current_detection[0])
                 confidence = current_detection[1]
