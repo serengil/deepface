@@ -35,8 +35,12 @@ class FastMtCnnClient(Detector):
             for current_detection in zip(*detections):
                 x, y, w, h = xyxy_to_xywh(current_detection[0])
                 confidence = current_detection[1]
+
                 left_eye = current_detection[2][0]
                 right_eye = current_detection[2][1]
+
+                left_eye = tuple(int(i) for i in left_eye)
+                right_eye = tuple(int(i) for i in right_eye)
 
                 facial_area = FacialAreaRegion(
                     x=x,
