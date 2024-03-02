@@ -156,7 +156,7 @@ def verify(
 
     # find the face pair with minimum distance
     threshold = find_threshold(model_name, distance_metric)
-    distance = min(distances)  # best distance
+    distance = float(min(distances))  # best distance
     facial_areas = regions[np.argmin(distances)]
 
     toc = time.time()
