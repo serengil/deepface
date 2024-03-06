@@ -20,6 +20,8 @@ from deepface.modules import (
     demography,
     detection,
     streaming,
+    verificationEmbbeding,
+    
 )
 from deepface import __version__
 
@@ -63,6 +65,8 @@ def verify(
     expand_percentage: int = 0,
     normalization: str = "base",
 ) -> Dict[str, Any]:
+    
+ 
     """
     Verify if an image pair represents the same person or different persons.
     Args:
@@ -127,7 +131,28 @@ def verify(
         expand_percentage=expand_percentage,
         normalization=normalization,
     )
-
+    
+def verify_embeddings(
+    emb1: np.ndarray,
+    emb2: np.ndarray,
+    model_name: str = "VGG-Face",
+    distance_metric: str = "cosine",
+) -> Dict[str, Any]:
+    """
+    A wrapper function for verify_embeddings to integrate it into the existing DeepFace framework.
+    
+    :param emb1: The first embedding to compare.
+    :param emb2: The second embedding to compare.
+    :param model_name: The model name used for generating embeddings, affects the threshold.
+    :param distance_metric: The distance metric to use for comparison.
+    :return: A dictionary with verification result, distance, and other info.
+    """
+    return verificationEmbbeding.verify_embeddings(
+        emb1=emb1,
+        emb2=emb2,
+        model_name=model_name,
+        distance_metric=distance_metric,
+    )
 
 def analyze(
     img_path: Union[str, np.ndarray],
@@ -345,7 +370,7 @@ def represent(
         results (List[Dict[str, Any]]): A list of dictionaries, each containing the
             following fields:
 
-        - embedding (List[float]): Multidimensional vector representing facial features.
+        - embedding (np.array): Multidimensional vector representing facial features.
             The number of dimensions varies based on the reference model
             (e.g., FaceNet returns 128 dimensions, VGG-Face returns 4096 dimensions).
 
