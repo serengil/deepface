@@ -34,7 +34,7 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
         return load_base64(img), "base64 encoded string"
 
     # The image is a url
-    if img.startswith("http://") or img.startswith("https://"):
+    if img.lower().startswith("http://") or img.lower().startswith("https://"):
         return load_image_from_web(url=img), img
 
     # The image is a path
