@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 # project dependencies
 from deepface.commons.logger import Logger
+from deepface.commons.sets_utils import is_subset, intersection
 from deepface.modules import representation, detection, modeling, verification
 from deepface.models.FacialRecognition import FacialRecognition
 
@@ -28,7 +29,9 @@ def find(
     expand_percentage: int = 0,
     threshold: Optional[float] = None,
     normalization: str = "base",
-    silent: bool = False,
+    silent: bool = True,
+    refresh_database: bool = True,
+    updated_images: list[str] = []
 ) -> List[pd.DataFrame]:
     """
     Identify individuals in a database
@@ -66,6 +69,17 @@ def find(
             Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process.
+
+        refresh_database (boolean): Checks if the files contained in the database directory/folder
+        were altered and updates the pkl file if the updated_images is empty, else it will check 
+        specifically for the images in the path (should be the same as the database) and will try 
+        to upload/reload them into the picke file
+
+        updated_images (list[str]): list of the images in the same path as the db (example: 
+        ['home/user/database/img_92.jpg'] would be a valid list if and only if the database also 
+        was given by 'home/user/database/') that sould be updated
+
+        
 
     Returns:
         results (List[pd.DataFrame]): A list of pandas dataframes. Each dataframe corresponds
@@ -136,8 +150,27 @@ def find(
 
     # Enforce data consistency amongst on disk images and pickle file
     must_save_pickle = False
-    new_images = list(set(storage_images) - set(pickled_images)) # images added to storage
-    old_images = list(set(pickled_images) - set(storage_images)) # images removed from storage
+    if refresh_database:
+        if len(updated_images) == 0:
+            #update in the regular way (checks the whole database)
+            new_images = list(set(storage_images) - set(pickled_images)) # images added to storage
+            old_images = list(set(pickled_images) - set(storage_images)) # images removed from storage
+
+        if (not is_subset(set(updated_images), set(pickled_images)) and 
+                not is_subset(set(updated_images), set(storage_images))): 
+
+            raise ValueError(f"""
+            The following files to be updated_images are neither in the pickled_images
+            not in the database directory: {updated_images}
+            """)
+
+        else:
+            old_images = list(intersection(set(pickled_images), set(updated_images)))
+            new_images = list(intersection(set(storage_images), set(updated_images)))
+
+    else:
+        new_images = []
+        old_images = []
 
     if not silent and (len(new_images) > 0 or len(old_images) > 0):
         logger.info(f"Found {len(new_images)} new images and {len(old_images)} removed images")

@@ -235,6 +235,8 @@ def find(
     threshold: Optional[float] = None,
     normalization: str = "base",
     silent: bool = False,
+    refresh_database: bool = True,
+    updated_images: list[str] = []
 ) -> List[pd.DataFrame]:
     """
     Identify individuals in a database
@@ -272,6 +274,16 @@ def find(
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
+            
+        refresh_database (boolean): Checks if the files contained in the database directory/folder
+        were altered and updates the pkl file if the updated_images is empty, else it will check 
+        specifically for the images in the path (should be the same as the database) and will try 
+        to upload/reload them into the picke file
+
+        updated_images (list[str]): list of the images in the same path as the db (example: 
+        ['home/user/database/img_92.jpg'] would be a valid list if and only if the database also 
+        was given by 'home/user/database/') that sould be updated
+
 
     Returns:
         results (List[pd.DataFrame]): A list of pandas dataframes. Each dataframe corresponds
@@ -303,6 +315,8 @@ def find(
         threshold=threshold,
         normalization=normalization,
         silent=silent,
+        refresh_database = refresh_database,
+        updated_images= updated_images,
     )
 
 
