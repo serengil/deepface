@@ -62,6 +62,7 @@ def verify(
     align: bool = True,
     expand_percentage: int = 0,
     normalization: str = "base",
+    silent: bool = False,
 ) -> Dict[str, Any]:
     """
     Verify if an image pair represents the same person or different persons.
@@ -90,6 +91,9 @@ def verify(
 
         normalization (string): Normalize the input image before feeding it to the model.
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base)
+
+        silent (boolean): Suppress or allow some log messages for a quieter analysis process
+            (default is False).
 
     Returns:
         result (dict): A dictionary containing verification results with following keys.
@@ -126,6 +130,7 @@ def verify(
         align=align,
         expand_percentage=expand_percentage,
         normalization=normalization,
+        silent=silent,
     )
 
 

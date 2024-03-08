@@ -1,3 +1,4 @@
+import pytest
 import cv2
 from deepface import DeepFace
 from deepface.commons.logger import Logger
@@ -100,3 +101,53 @@ def test_verify_for_preloaded_image():
     res = DeepFace.verify(img1, img2)
     assert res["verified"] is True
     logger.info("✅ test verify for pre-loaded image done")
+
+
+def test_verify_for_precalculated_embeddings():
+    model_name = "Facenet"
+
+    img1_path = "dataset/img1.jpg"
+    img2_path = "dataset/img2.jpg"
+
+    img1_embedding = DeepFace.represent(img_path=img1_path, model_name=model_name)[0]["embedding"]
+    img2_embedding = DeepFace.represent(img_path=img2_path, model_name=model_name)[0]["embedding"]
+
+    result = DeepFace.verify(
+        img1_path=img1_embedding, img2_path=img2_embedding, model_name=model_name, silent=True
+    )
+
+    assert result["verified"] is True
+    assert result["distance"] < result["threshold"]
+    assert result["model"] == model_name
+
+    logger.info("✅ test verify for pre-calculated embeddings done")
+
+
+def test_verify_with_precalculated_embeddings_for_incorrect_model():
+    # generate embeddings with VGG (default)
+    img1_path = "dataset/img1.jpg"
+    img2_path = "dataset/img2.jpg"
+    img1_embedding = DeepFace.represent(img_path=img1_path)[0]["embedding"]
+    img2_embedding = DeepFace.represent(img_path=img2_path)[0]["embedding"]
+
+    with pytest.raises(
+        ValueError,
+        match="embeddings of Facenet should have 128 dimensions, but it has 4096 dimensions input",
+    ):
+        _ = DeepFace.verify(
+            img1_path=img1_embedding, img2_path=img2_embedding, model_name="Facenet", silent=True
+        )
+
+    logger.info("✅ test verify with pre-calculated embeddings for incorrect model done")
+
+
+def test_verify_for_broken_embeddings():
+    img1_embeddings = ["a", "b", "c"]
+    img2_embeddings = [1, 2, 3]
+
+    with pytest.raises(
+        ValueError,
+        match="When passing img1_path as a list, ensure that all its items are of type float.",
+    ):
+        _ = DeepFace.verify(img1_path=img1_embeddings, img2_path=img2_embeddings)
+    logger.info("✅ test verify for broken embeddings content is done")
