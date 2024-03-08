@@ -132,22 +132,19 @@ def find(
                 f"Consider to delete {datastore_path}"
             )
 
-    # Check if the representations are out-of-date
-    if len(representations) > 0:
-        pickled_images = [representation["identity"] for representation in representations]
-    else:
-        pickled_images = []
+    # embedded images
+    pickled_images = [representation["identity"] for representation in representations]
 
     # Get the list of images on storage
     storage_images = __list_images(path=db_path)
+
+    if len(storage_images) == 0:
+        raise ValueError(f"No item found in {db_path}")
 
     # Enforce data consistency amongst on disk images and pickle file
     must_save_pickle = False
     new_images = list(set(storage_images) - set(pickled_images))  # images added to storage
     old_images = list(set(pickled_images) - set(storage_images))  # images removed from storage
-
-    if not silent and (len(new_images) > 0 or len(old_images) > 0):
-        logger.info(f"Found {len(new_images)} new images and {len(old_images)} removed images")
 
     # detect replaced images
     replaced_images = []
@@ -158,8 +155,15 @@ def find(
         alpha_hash = current_representation["hash"]
         beta_hash = package_utils.find_hash_of_file(identity)
         if alpha_hash != beta_hash:
-            logger.warn(f"Even though {identity} represented before, it's replaced later.")
+            logger.debug(f"Even though {identity} represented before, it's replaced later.")
             replaced_images.append(identity)
+
+    if not silent and (len(new_images) > 0 or len(old_images) > 0 or len(replaced_images) > 0):
+        logger.info(
+            f"Found {len(new_images)} newly added image(s)"
+            f", {len(old_images)} removed image(s)"
+            f", {len(replaced_images)} replaced image(s)."
+        )
 
     # append replaced images into both old and new images. these will be dropped and re-added.
     new_images = new_images + replaced_images
@@ -200,6 +204,9 @@ def find(
     # ----------------------------
     # now, we got representations for facial database
     df = pd.DataFrame(representations)
+
+    if silent is False:
+        logger.info(f"Searching {img_path} in {df.shape[0]} length datastore")
 
     # img path might have more than once face
     source_objs = detection.extract_faces(
