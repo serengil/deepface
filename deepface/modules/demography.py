@@ -96,7 +96,7 @@ def analyze(
                - 'white': Confidence score for White ethnicity.
     """
 
-    # validate actions
+    # if actions is passed as tuple with single item, interestingly it becomes str here
     if isinstance(actions, str):
         actions = (actions,)
 

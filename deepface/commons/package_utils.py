@@ -1,7 +1,6 @@
 # built-in dependencies
 import os
 import hashlib
-import platform
 
 # 3rd party dependencies
 import tensorflow as tf
