@@ -141,16 +141,7 @@ def verify(
     regions = []
     for idx, img1_embedding in enumerate(img1_embeddings):
         for idy, img2_embedding in enumerate(img2_embeddings):
-            if distance_metric == "cosine":
-                distance = find_cosine_distance(img1_embedding, img2_embedding)
-            elif distance_metric == "euclidean":
-                distance = find_euclidean_distance(img1_embedding, img2_embedding)
-            elif distance_metric == "euclidean_l2":
-                distance = find_euclidean_distance(
-                    l2_normalize(img1_embedding), l2_normalize(img2_embedding)
-                )
-            else:
-                raise ValueError("Invalid distance_metric passed - ", distance_metric)
+            distance = find_distance(img1_embedding, img2_embedding, distance_metric)
             distances.append(distance)
             regions.append((img1_objs[idx]["facial_area"], img2_objs[idy]["facial_area"]))
 
@@ -232,6 +223,32 @@ def l2_normalize(x: Union[np.ndarray, list]) -> np.ndarray:
     if isinstance(x, list):
         x = np.array(x)
     return x / np.sqrt(np.sum(np.multiply(x, x)))
+
+
+def find_distance(
+    alpha_embedding: Union[np.ndarray, list],
+    beta_embedding: Union[np.ndarray, list],
+    distance_metric: str,
+) -> np.float64:
+    """
+    Wrapper to find distance between vectors according to the given distance metric
+    Args:
+        source_representation (np.ndarray or list): 1st vector
+        test_representation (np.ndarray or list): 2nd vector
+    Returns
+        distance (np.float64): calculated cosine distance
+    """
+    if distance_metric == "cosine":
+        distance = find_cosine_distance(alpha_embedding, beta_embedding)
+    elif distance_metric == "euclidean":
+        distance = find_euclidean_distance(alpha_embedding, beta_embedding)
+    elif distance_metric == "euclidean_l2":
+        distance = find_euclidean_distance(
+            l2_normalize(alpha_embedding), l2_normalize(beta_embedding)
+        )
+    else:
+        raise ValueError("Invalid distance_metric passed - ", distance_metric)
+    return distance
 
 
 def find_threshold(model_name: str, distance_metric: str) -> float:

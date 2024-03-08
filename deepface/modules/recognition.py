@@ -250,21 +250,9 @@ def find(
                     + " after pickle created. Delete the {file_name} and re-run."
                 )
 
-            if distance_metric == "cosine":
-                distance = verification.find_cosine_distance(
-                    source_representation, target_representation
-                )
-            elif distance_metric == "euclidean":
-                distance = verification.find_euclidean_distance(
-                    source_representation, target_representation
-                )
-            elif distance_metric == "euclidean_l2":
-                distance = verification.find_euclidean_distance(
-                    verification.l2_normalize(source_representation),
-                    verification.l2_normalize(target_representation),
-                )
-            else:
-                raise ValueError(f"invalid distance metric passes - {distance_metric}")
+            distance = verification.find_distance(
+                source_representation, target_representation, distance_metric
+            )
 
             distances.append(distance)
 
