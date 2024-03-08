@@ -53,8 +53,8 @@ def build_model(model_name: str) -> Any:
 
 
 def verify(
-    img1_path: Union[str, np.ndarray],
-    img2_path: Union[str, np.ndarray],
+    img1_path: Union[str, np.ndarray, List[float]],
+    img2_path: Union[str, np.ndarray, List[float]],
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",
     distance_metric: str = "cosine",
@@ -67,11 +67,13 @@ def verify(
     """
     Verify if an image pair represents the same person or different persons.
     Args:
-        img1_path (str or np.ndarray): Path to the first image. Accepts exact image path
-            as a string, numpy array (BGR), or base64 encoded images.
+        img1_path (str or np.ndarray or List[float]): Path to the first image.
+            Accepts exact image path as a string, numpy array (BGR), base64 encoded images
+            or pre-calculated embeddings.
 
-        img2_path (str or np.ndarray): Path to the second image. Accepts exact image path
-            as a string, numpy array (BGR), or base64 encoded images.
+        img2_path (str or np.ndarray or List[float]): Path to the second image.
+            Accepts exact image path as a string, numpy array (BGR), base64 encoded images
+            or pre-calculated embeddings.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace (default is VGG-Face).

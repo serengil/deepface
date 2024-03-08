@@ -33,11 +33,13 @@ def verify(
     (or lower distance) than vectors of images of different persons.
 
     Args:
-        img1_path (str or np.ndarray): Path to the first image. Accepts exact image path
-            as a string, numpy array (BGR), base64 encoded images or pre-calculated embeddings.
+        img1_path (str or np.ndarray or List[float]): Path to the first image.
+            Accepts exact image path as a string, numpy array (BGR), base64 encoded images
+            or pre-calculated embeddings.
 
-        img2_path (str or np.ndarray): Path to the second image. Accepts exact image path
-            as a string, numpy array (BGR), base64 encoded images or pre-calculated embeddings.
+        img2_path (str or np.ndarray or  or List[float]): Path to the second image.
+            Accepts exact image path as a string, numpy array (BGR), base64 encoded images
+            or pre-calculated embeddings.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace (default is VGG-Face).
