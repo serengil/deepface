@@ -27,7 +27,7 @@ Experiments show that human beings have 97.53% accuracy on facial recognition ta
 
 ## Installation [![PyPI](https://img.shields.io/pypi/v/deepface.svg)](https://pypi.org/project/deepface/) [![Conda](https://img.shields.io/conda/vn/conda-forge/deepface.svg)](https://anaconda.org/conda-forge/deepface)
 
-The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well.
+The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well. If Tensor Flow is already installed, you might need to downgrade tensorflow to 2.12 bc LocallyConnected2D layer is no longer available in TensorFlow 2.x Keras API.
 
 ```shell
 $ pip install deepface
