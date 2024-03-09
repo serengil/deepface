@@ -44,6 +44,15 @@ class DeepFaceClient(FacialRecognition):
     """
 
     def __init__(self):
+        major = package_utils.get_tf_major_version()
+        minor = package_utils.get_tf_minor_version()
+        if major == 2 and minor > 12:
+            # Ref: https://github.com/serengil/deepface/pull/1079
+            raise ValueError(
+                "DeepFace model requires LocallyConnected2D but it is no longer supported"
+                f" after tf 2.12 but you have {major}.{minor}. You need to downgrade your tf."
+            )
+
         self.model = load_model()
         self.model_name = "DeepFace"
         self.input_shape = (152, 152)

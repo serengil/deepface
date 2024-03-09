@@ -20,6 +20,15 @@ def get_tf_major_version() -> int:
     return int(tf.__version__.split(".", maxsplit=1)[0])
 
 
+def get_tf_minor_version() -> int:
+    """
+    Find tensorflow's minor version
+    Returns
+        minor_version (int)
+    """
+    return int(tf.__version__.split(".", maxsplit=-1)[1])
+
+
 def find_hash_of_file(file_path: str) -> str:
     """
     Find the hash of given image file with its properties

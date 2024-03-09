@@ -111,7 +111,7 @@ def verify(
 
         - 'model' (str): The chosen face recognition model.
 
-        - 'similarity_metric' (str): The chosen similarity metric for measuring distances.
+        - 'distance_metric' (str): The chosen similarity metric for measuring distances.
 
         - 'facial_areas' (dict): Rectangular regions of interest for faces in both images.
             - 'img1': {'x': int, 'y': int, 'w': int, 'h': int}
