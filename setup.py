@@ -32,6 +32,6 @@ setuptools.setup(
     entry_points={
         "console_scripts": ["deepface = deepface.DeepFace:cli"],
     },
-    python_requires=">=3.5.5",
+    python_requires=">=3.7",
     install_requires=requirements,
 )
