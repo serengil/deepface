@@ -80,10 +80,3 @@ class SFaceWrapper:
                 + "This is an optional dependency."
                 + "You can install it as pip install opencv-contrib-python."
             ) from err
-
-        self.layers = [_Layer()]
-
-
-class _Layer:
-    input_shape = (None, 112, 112, 3)
-    output_shape = (None, 1, 128)

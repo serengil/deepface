@@ -64,14 +64,8 @@ class DlibResNet:
                 "Please install using 'pip install dlib' "
             ) from e
 
-        self.layers = [DlibMetaData()]
-
-        # ---------------------
-
         home = folder_utils.get_deepface_home()
         weight_file = home + "/.deepface/weights/dlib_face_recognition_resnet_model_v1.dat"
-
-        # ---------------------
 
         # download pre-trained model if it does not exist
         if os.path.isfile(weight_file) != True:
@@ -88,15 +82,6 @@ class DlibResNet:
             with open(newfilepath, "wb") as f:
                 f.write(data)
 
-        # ---------------------
-
         self.model = dlib.face_recognition_model_v1(weight_file)
 
-        # ---------------------
-
         # return None  # classes must return None
-
-
-class DlibMetaData:
-    def __init__(self):
-        self.input_shape = [[1, 150, 150, 3]]
