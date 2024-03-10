@@ -312,6 +312,12 @@ $ deepface analyze -img_path tests/dataset/img1.jpg
 
 You can also run these commands if you are running deepface with docker. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh#L17).
 
+## FAQ and Troubleshooting
+
+If you believe you have identified a bug or encountered a limitation in DeepFace that is not covered in the [existing issues](https://github.com/serengil/deepface/issues) or [closed issues](https://github.com/serengil/deepface/issues?q=is%3Aissue+is%3Aclosed), kindly open a new issue. Ensure that your submission includes clear and detailed reproduction steps, such as your Python version, your DeepFace version (provided by `DeepFace.__version__`), versions of dependent packages (provided by pip freeze), specifics of any exception messages, details about how you are calling DeepFace, and the input image(s) you are using.
+
+Additionally, it is possible to encounter issues due to recently released dependencies, primarily Python itself or TensorFlow. It is recommended to synchronize your dependencies with the versions [specified in my environment](https://github.com/serengil/deepface/blob/master/requirements_local) and [same python version](https://github.com/serengil/deepface/blob/master/Dockerfile#L2) not to have potential compatibility issues.
+
 ## Contribution
 
 Pull requests are more than welcome! If you are planning to contribute a large patch, please create an issue first to get any upfront questions or design decisions out of the way first.
