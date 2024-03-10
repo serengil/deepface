@@ -10,4 +10,4 @@ gdown==4.2.0
 tqdm==4.66.1
 fire==0.4.0
 gunicorn==20.1.0
-Flask==2.0.2
+Flask==2.2.5
