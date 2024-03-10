@@ -1,5 +1,5 @@
 # base image
-FROM python:3.8
+FROM python:3.8.12
 LABEL org.opencontainers.image.source https://github.com/serengil/deepface
 
 # -----------------------------------
@@ -20,6 +20,7 @@ RUN apt-get install ffmpeg libsm6 libxext6 -y
 # Copy required files from repo into image
 COPY ./deepface /app/deepface
 COPY ./requirements.txt /app/
+COPY ./requirements_local.txt /app/
 COPY ./package_info.json /app/
 COPY ./setup.py /app/
 COPY ./README.md /app/
@@ -32,6 +33,8 @@ COPY ./README.md /app/
 # install deepface from pypi release (might be out-of-date)
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
 # -----------------------------------
+# install dependencies - deepface with these dependency versions is working
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local.txt
 # install deepface from source code (always up-to-date)
 RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
 
