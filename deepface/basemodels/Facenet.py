@@ -1670,7 +1670,7 @@ def InceptionResNetV2(dimension: int = 128) -> Model:
     )
 
     # Create model
-    model = Model(inputs, x, name="inception_resnet_v1")
+    model = Model(inputs, x, name="inception_resnet_v2")
 
     return model
 
