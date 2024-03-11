@@ -2,12 +2,5 @@ numpy==1.22.3
 pandas==2.0.3
 Pillow==9.0.0
 opencv-python==4.9.0.80
-tensorflow==2.7.0
-keras==2.7.0
-mtcnn
-retina-face
-gdown==4.2.0
-tqdm==4.66.1
-fire==0.4.0
-gunicorn==20.1.0
-Flask==2.0.2
+tensorflow==2.9.0
+keras==2.9.0
