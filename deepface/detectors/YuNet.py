@@ -74,9 +74,9 @@ class YuNetClient(Detector):
         # resize image if it is too large (Yunet fails to detect faces on large input sometimes)
         # I picked 640 as a threshold because it is the default value of max_size in Yunet.
         resized = False
+        r = 1  # resize factor
         if height > 640 or width > 640:
             r = 640.0 / max(height, width)
-            original_image = img.copy()
             img = cv2.resize(img, (int(width * r), int(height * r)))
             height, width = img.shape[0], img.shape[1]
             resized = True
@@ -109,7 +109,6 @@ class YuNetClient(Detector):
             x = max(x, 0)
             y = max(y, 0)
             if resized:
-                img = original_image
                 x, y, w, h = int(x / r), int(y / r), int(w / r), int(h / r)
                 x_re, y_re, x_le, y_le = (
                     int(x_re / r),
