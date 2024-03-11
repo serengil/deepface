@@ -22,8 +22,15 @@ class YuNetClient(Detector):
         """
 
         opencv_version = cv2.__version__.split(".")
+        if not len(opencv_version) >= 2:
+            raise ValueError(
+                f"OpenCv's version must have major and minor values but it is {opencv_version}"
+            )
 
-        if len(opencv_version) > 2 and int(opencv_version[0]) == 4 and int(opencv_version[1]) < 8:
+        opencv_version_major = int(opencv_version[0])
+        opencv_version_minor = int(opencv_version[1])
+
+        if opencv_version_major < 4 or (opencv_version_major == 4 and opencv_version_minor < 8):
             # min requirement: https://github.com/opencv/opencv_zoo/issues/172
             raise ValueError(f"YuNet requires opencv-python >= 4.8 but you have {cv2.__version__}")
 
@@ -67,9 +74,9 @@ class YuNetClient(Detector):
         # resize image if it is too large (Yunet fails to detect faces on large input sometimes)
         # I picked 640 as a threshold because it is the default value of max_size in Yunet.
         resized = False
+        r = 1  # resize factor
         if height > 640 or width > 640:
             r = 640.0 / max(height, width)
-            original_image = img.copy()
             img = cv2.resize(img, (int(width * r), int(height * r)))
             height, width = img.shape[0], img.shape[1]
             resized = True
@@ -93,16 +100,12 @@ class YuNetClient(Detector):
             left eye, nose tip, the right corner and left corner of the mouth respectively.
             """
             (x, y, w, h, x_re, y_re, x_le, y_le) = list(map(int, face[:8]))
-            left_eye = (x_re, y_re)
-            right_eye = (x_le, y_le)
 
-            # Yunet returns negative coordinates if it thinks part of
-            # the detected face is outside the frame.
-            # We set the coordinate to 0 if they are negative.
+            # YuNet returns negative coordinates if it thinks part of the detected face
+            # is outside the frame.
             x = max(x, 0)
             y = max(y, 0)
             if resized:
-                img = original_image
                 x, y, w, h = int(x / r), int(y / r), int(w / r), int(h / r)
                 x_re, y_re, x_le, y_le = (
                     int(x_re / r),
@@ -118,8 +121,8 @@ class YuNetClient(Detector):
                 w=w,
                 h=h,
                 confidence=confidence,
-                left_eye=left_eye,
-                right_eye=right_eye,
+                left_eye=(x_re, y_re),
+                right_eye=(x_le, y_le),
             )
             resp.append(facial_area)
         return resp
