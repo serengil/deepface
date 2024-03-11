@@ -100,12 +100,9 @@ class YuNetClient(Detector):
             left eye, nose tip, the right corner and left corner of the mouth respectively.
             """
             (x, y, w, h, x_re, y_re, x_le, y_le) = list(map(int, face[:8]))
-            left_eye = (x_re, y_re)
-            right_eye = (x_le, y_le)
 
-            # Yunet returns negative coordinates if it thinks part of
-            # the detected face is outside the frame.
-            # We set the coordinate to 0 if they are negative.
+            # YuNet returns negative coordinates if it thinks part of the detected face
+            # is outside the frame.
             x = max(x, 0)
             y = max(y, 0)
             if resized:
@@ -124,8 +121,8 @@ class YuNetClient(Detector):
                 w=w,
                 h=h,
                 confidence=confidence,
-                left_eye=left_eye,
-                right_eye=right_eye,
+                left_eye=(x_re, y_re),
+                right_eye=(x_le, y_le),
             )
             resp.append(facial_area)
         return resp
