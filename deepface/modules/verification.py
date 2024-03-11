@@ -93,6 +93,7 @@ def verify(
     model: FacialRecognition = modeling.build_model(model_name)
     dims = model.output_shape
 
+    # extract faces from img1
     if isinstance(img1_path, list):
         # given image is already pre-calculated embedding
         if not all(isinstance(dim, float) for dim in img1_path):
@@ -115,16 +116,20 @@ def verify(
         img1_embeddings = [img1_path]
         img1_facial_areas = [None]
     else:
-        img1_embeddings, img1_facial_areas = __extract_faces_and_embeddings(
-            img_path=img1_path,
-            model_name=model_name,
-            detector_backend=detector_backend,
-            enforce_detection=enforce_detection,
-            align=align,
-            expand_percentage=expand_percentage,
-            normalization=normalization,
-        )
+        try:
+            img1_embeddings, img1_facial_areas = __extract_faces_and_embeddings(
+                img_path=img1_path,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                enforce_detection=enforce_detection,
+                align=align,
+                expand_percentage=expand_percentage,
+                normalization=normalization,
+            )
+        except ValueError as err:
+            raise ValueError("Exception while processing img1_path") from err
 
+    # extract faces from img2
     if isinstance(img2_path, list):
         # given image is already pre-calculated embedding
         if not all(isinstance(dim, float) for dim in img2_path):
@@ -147,15 +152,18 @@ def verify(
         img2_embeddings = [img2_path]
         img2_facial_areas = [None]
     else:
-        img2_embeddings, img2_facial_areas = __extract_faces_and_embeddings(
-            img_path=img2_path,
-            model_name=model_name,
-            detector_backend=detector_backend,
-            enforce_detection=enforce_detection,
-            align=align,
-            expand_percentage=expand_percentage,
-            normalization=normalization,
-        )
+        try:
+            img2_embeddings, img2_facial_areas = __extract_faces_and_embeddings(
+                img_path=img2_path,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                enforce_detection=enforce_detection,
+                align=align,
+                expand_percentage=expand_percentage,
+                normalization=normalization,
+            )
+        except ValueError as err:
+            raise ValueError("Exception while processing img2_path") from err
 
     no_facial_area = {
         "x": None,
@@ -218,18 +226,15 @@ def __extract_faces_and_embeddings(
     model: FacialRecognition = modeling.build_model(model_name)
     target_size = model.input_shape
 
-    try:
-        img_objs = detection.extract_faces(
-            img_path=img_path,
-            target_size=target_size,
-            detector_backend=detector_backend,
-            grayscale=False,
-            enforce_detection=enforce_detection,
-            align=align,
-            expand_percentage=expand_percentage,
-        )
-    except ValueError as err:
-        raise ValueError("Exception while processing img1_path") from err
+    img_objs = detection.extract_faces(
+        img_path=img_path,
+        target_size=target_size,
+        detector_backend=detector_backend,
+        grayscale=False,
+        enforce_detection=enforce_detection,
+        align=align,
+        expand_percentage=expand_percentage,
+    )
 
     # find embeddings for each face
     for img_obj in img_objs:
