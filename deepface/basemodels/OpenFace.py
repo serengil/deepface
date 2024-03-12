@@ -1,12 +1,15 @@
+from typing import List
 import os
 import gdown
 import tensorflow as tf
-from deepface.commons import functions
+import numpy as np
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.OpenFace")
 
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
+tf_version = package_utils.get_tf_major_version()
 if tf_version == 1:
     from keras.models import Model
     from keras.layers import Conv2D, ZeroPadding2D, Input, concatenate
@@ -24,10 +27,39 @@ else:
 
 # ---------------------------------------
 
+# pylint: disable=too-few-public-methods
+class OpenFaceClient(FacialRecognition):
+    """
+    OpenFace model class
+    """
 
-def loadModel(
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "OpenFace"
+        self.input_shape = (96, 96)
+        self.output_shape = 128
+
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
+        """
+        find embeddings with OpenFace model
+        Args:
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
+        """
+        # model.predict causes memory issue when it is called in a for loop
+        # embedding = model.predict(img, verbose=0)[0].tolist()
+        return self.model(img, training=False).numpy()[0].tolist()
+
+
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5",
-):
+) -> Model:
+    """
+    Consturct OpenFace model, download its weights and load
+    Returns:
+        model (Model)
+    """
     myInput = Input(shape=(96, 96, 3))
 
     x = ZeroPadding2D(padding=(3, 3), input_shape=(96, 96, 3))(myInput)
@@ -362,7 +394,7 @@ def loadModel(
 
     # -----------------------------------
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/openface_weights.h5") != True:
         logger.info("openface_weights.h5 will be downloaded...")

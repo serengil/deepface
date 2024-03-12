@@ -12,7 +12,8 @@ class Logger:
         except Exception as err:
             self.dump_log(
                 f"Exception while parsing $DEEPFACE_LOG_LEVEL."
-                f"Expected int but it is {log_level} ({str(err)})"
+                f"Expected int but it is {log_level} ({str(err)})."
+                "Setting app log level to info."
             )
             self.log_level = logging.INFO
 

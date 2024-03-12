@@ -1,22 +1,11 @@
 # base image
-FROM python:3.8
+FROM python:3.8.12
 LABEL org.opencontainers.image.source https://github.com/serengil/deepface
 
 # -----------------------------------
 # create required folder
 RUN mkdir /app
 RUN mkdir /app/deepface
-
-# -----------------------------------
-# Copy required files from repo into image
-COPY ./deepface /app/deepface
-COPY ./api/app.py /app/
-COPY ./api/api.py /app/
-COPY ./api/routes.py /app/
-COPY ./api/service.py /app/
-COPY ./requirements.txt /app/
-COPY ./setup.py /app/
-COPY ./README.md /app/
 
 # -----------------------------------
 # switch to application directory
@@ -28,6 +17,16 @@ RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6 -y
 
 # -----------------------------------
+# Copy required files from repo into image
+COPY ./deepface /app/deepface
+# even though we will use local requirements, this one is required to perform install deepface from source code
+COPY ./requirements.txt /app/requirements.txt
+COPY ./requirements_local /app/requirements_local.txt
+COPY ./package_info.json /app/
+COPY ./setup.py /app/
+COPY ./README.md /app/
+
+# -----------------------------------
 # if you plan to use a GPU, you should install the 'tensorflow-gpu' package
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org tensorflow-gpu
 
@@ -35,6 +34,8 @@ RUN apt-get install ffmpeg libsm6 libxext6 -y
 # install deepface from pypi release (might be out-of-date)
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
 # -----------------------------------
+# install dependencies - deepface with these dependency versions is working
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local.txt
 # install deepface from source code (always up-to-date)
 RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
 
@@ -50,5 +51,6 @@ ENV PYTHONUNBUFFERED=1
 
 # -----------------------------------
 # run the app (re-configure port if necessary)
+WORKDIR /app/deepface/api/src
 EXPOSE 5000
 CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]

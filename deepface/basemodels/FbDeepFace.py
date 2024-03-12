@@ -1,22 +1,24 @@
+from typing import List
 import os
 import zipfile
 import gdown
-import tensorflow as tf
-from deepface.commons import functions
+import numpy as np
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.FbDeepFace")
 
 # --------------------------------
 # dependency configuration
 
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
+tf_major = package_utils.get_tf_major_version()
+tf_minor = package_utils.get_tf_minor_version()
 
-if tf_version == 1:
+if tf_major == 1:
     from keras.models import Model, Sequential
     from keras.layers import (
         Convolution2D,
-        LocallyConnected2D,
         MaxPooling2D,
         Flatten,
         Dense,
@@ -26,7 +28,6 @@ else:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import (
         Convolution2D,
-        LocallyConnected2D,
         MaxPooling2D,
         Flatten,
         Dense,
@@ -35,12 +36,52 @@ else:
 
 
 # -------------------------------------
-# pylint: disable=line-too-long
+# pylint: disable=line-too-long, too-few-public-methods
+class DeepFaceClient(FacialRecognition):
+    """
+    Fb's DeepFace model class
+    """
+
+    def __init__(self):
+        # DeepFace requires tf 2.12 or less
+        if tf_major == 2 and tf_minor > 12:
+            # Ref: https://github.com/serengil/deepface/pull/1079
+            raise ValueError(
+                "DeepFace model requires LocallyConnected2D but it is no longer supported"
+                f" after tf 2.12 but you have {tf_major}.{tf_minor}. You need to downgrade your tf."
+            )
+
+        self.model = load_model()
+        self.model_name = "DeepFace"
+        self.input_shape = (152, 152)
+        self.output_shape = 4096
+
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
+        """
+        find embeddings with OpenFace model
+        Args:
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
+        """
+        # model.predict causes memory issue when it is called in a for loop
+        # embedding = model.predict(img, verbose=0)[0].tolist()
+        return self.model(img, training=False).numpy()[0].tolist()
 
 
-def loadModel(
+def load_model(
     url="https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip",
-):
+) -> Model:
+    """
+    Construct DeepFace model, download its weights and load
+    """
+    # we have some checks for this dependency in the init of client
+    # putting this in global causes library initialization
+    if tf_major == 1:
+        from keras.layers import LocallyConnected2D
+    else:
+        from tensorflow.keras.layers import LocallyConnected2D
+
     base_model = Sequential()
     base_model.add(
         Convolution2D(32, (11, 11), activation="relu", name="C1", input_shape=(152, 152, 3))
@@ -57,7 +98,7 @@ def loadModel(
 
     # ---------------------------------
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5") != True:
         logger.info("VGGFace2_DeepFace_weights_val-0.9034.h5 will be downloaded...")

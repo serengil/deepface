@@ -1,8 +1,10 @@
 import os
 import gdown
-import tensorflow as tf
-from deepface.commons import functions
+import numpy as np
+import cv2
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
+from deepface.models.Demography import Demography
 
 logger = Logger(module="extendedmodels.Emotion")
 
@@ -10,12 +12,12 @@ logger = Logger(module="extendedmodels.Emotion")
 # pylint: disable=line-too-long
 # -------------------------------------------
 # dependency configuration
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
+tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
     from keras.models import Sequential
     from keras.layers import Conv2D, MaxPooling2D, AveragePooling2D, Flatten, Dense, Dropout
-elif tf_version == 2:
+else:
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import (
         Conv2D,
@@ -30,10 +32,31 @@ elif tf_version == 2:
 # Labels for the emotions that can be detected by the model.
 labels = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
 
+# pylint: disable=too-few-public-methods
+class EmotionClient(Demography):
+    """
+    Emotion model class
+    """
 
-def loadModel(
+    def __init__(self):
+        self.model = load_model()
+        self.model_name = "Emotion"
+
+    def predict(self, img: np.ndarray) -> np.ndarray:
+        img_gray = cv2.cvtColor(img[0], cv2.COLOR_BGR2GRAY)
+        img_gray = cv2.resize(img_gray, (48, 48))
+        img_gray = np.expand_dims(img_gray, axis=0)
+
+        emotion_predictions = self.model.predict(img_gray, verbose=0)[0, :]
+        return emotion_predictions
+
+
+def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5",
-):
+) -> Sequential:
+    """
+    Consruct emotion model, download and load weights
+    """
 
     num_classes = 7
 
@@ -65,7 +88,7 @@ def loadModel(
 
     # ----------------------------
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/facial_expression_model_weights.h5") != True:
         logger.info("facial_expression_model_weights.h5 will be downloaded...")

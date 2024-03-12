@@ -1,15 +1,17 @@
+from typing import List
 import os
 import gdown
-import tensorflow as tf
-from deepface.commons import functions
+import numpy as np
+from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
+from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger(module="basemodels.Facenet")
 
 # --------------------------------
 # dependency configuration
 
-tf_version = int(tf.__version__.split(".", maxsplit=1)[0])
+tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
     from keras.models import Model
@@ -42,12 +44,67 @@ else:
 
 # --------------------------------
 
+# pylint: disable=too-few-public-methods
+class FaceNet128dClient(FacialRecognition):
+    """
+    FaceNet-128d model class
+    """
+
+    def __init__(self):
+        self.model = load_facenet128d_model()
+        self.model_name = "FaceNet-128d"
+        self.input_shape = (160, 160)
+        self.output_shape = 128
+
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
+        """
+        find embeddings with FaceNet-128d model
+        Args:
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
+        """
+        # model.predict causes memory issue when it is called in a for loop
+        # embedding = model.predict(img, verbose=0)[0].tolist()
+        return self.model(img, training=False).numpy()[0].tolist()
+
+
+class FaceNet512dClient(FacialRecognition):
+    """
+    FaceNet-1512d model class
+    """
+
+    def __init__(self):
+        self.model = load_facenet512d_model()
+        self.model_name = "FaceNet-512d"
+        self.input_shape = (160, 160)
+        self.output_shape = 512
+
+    def find_embeddings(self, img: np.ndarray) -> List[float]:
+        """
+        find embeddings with FaceNet-512d model
+        Args:
+            img (np.ndarray): pre-loaded image in BGR
+        Returns
+            embeddings (list): multi-dimensional vector
+        """
+        # model.predict causes memory issue when it is called in a for loop
+        # embedding = model.predict(img, verbose=0)[0].tolist()
+        return self.model(img, training=False).numpy()[0].tolist()
+
 
 def scaling(x, scale):
     return x * scale
 
 
-def InceptionResNetV2(dimension=128):
+def InceptionResNetV2(dimension: int = 128) -> Model:
+    """
+    InceptionResNetV2 model
+    Args:
+        dimension (int): number of dimensions in the embedding layer
+    Returns:
+        model (Model)
+    """
 
     inputs = Input(shape=(160, 160, 3))
     x = Conv2D(32, 3, strides=2, padding="valid", use_bias=False, name="Conv2d_1a_3x3")(inputs)
@@ -1618,17 +1675,21 @@ def InceptionResNetV2(dimension=128):
     return model
 
 
-# url = 'https://drive.google.com/uc?id=1971Xk5RwedbudGgTIrGAL4F7Aifu7id1'
-
-
-def loadModel(
+def load_facenet128d_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.h5",
-):
+) -> Model:
+    """
+    Construct FaceNet-128d model, download weights and then load weights
+    Args:
+        dimension (int): construct FaceNet-128d or FaceNet-512d models
+    Returns:
+        model (Model)
+    """
     model = InceptionResNetV2()
 
     # -----------------------------------
 
-    home = functions.get_deepface_home()
+    home = folder_utils.get_deepface_home()
 
     if os.path.isfile(home + "/.deepface/weights/facenet_weights.h5") != True:
         logger.info("facenet_weights.h5 will be downloaded...")
@@ -1641,5 +1702,35 @@ def loadModel(
     model.load_weights(home + "/.deepface/weights/facenet_weights.h5")
 
     # -----------------------------------
+
+    return model
+
+
+def load_facenet512d_model(
+    url="https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.h5",
+) -> Model:
+    """
+    Construct FaceNet-512d model, download its weights and load
+    Returns:
+        model (Model)
+    """
+
+    model = InceptionResNetV2(dimension=512)
+
+    # -------------------------
+
+    home = folder_utils.get_deepface_home()
+
+    if os.path.isfile(home + "/.deepface/weights/facenet512_weights.h5") != True:
+        logger.info("facenet512_weights.h5 will be downloaded...")
+
+        output = home + "/.deepface/weights/facenet512_weights.h5"
+        gdown.download(url, output, quiet=False)
+
+    # -------------------------
+
+    model.load_weights(home + "/.deepface/weights/facenet512_weights.h5")
+
+    # -------------------------
 
     return model

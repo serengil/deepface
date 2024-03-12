@@ -4,17 +4,18 @@
 
 [![PyPI Downloads](https://static.pepy.tech/personalized-badge/deepface?period=total&units=international_system&left_color=grey&right_color=blue&left_text=pypi%20downloads)](https://pepy.tech/project/deepface)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/deepface?color=green&label=conda%20downloads)](https://anaconda.org/conda-forge/deepface)
-[![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow&style=flat)](https://github.com/serengil/deepface/stargazers)
+[![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow&style=flat&label=%E2%AD%90%20stars)](https://github.com/serengil/deepface/stargazers)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
+[![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
+
+[![Blog](https://img.shields.io/:blog-sefiks.com-blue.svg?style=flat&logo=wordpress)](https://sefiks.com)
+[![YouTube](https://img.shields.io/:youtube-@sefiks-red.svg?style=flat&logo=youtube)](https://www.youtube.com/@sefiks?sub_confirmation=1)
+[![Twitter](https://img.shields.io/:follow-@serengil-blue.svg?style=flat&logo=twitter)](https://twitter.com/intent/user?screen_name=serengil)
 [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dserengil%26type%3Dpatrons&style=flat)](https://www.patreon.com/serengil?repo=deepface)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/serengil?logo=GitHub&color=lightgray)](https://github.com/sponsors/serengil)
 
 [![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802)
 [![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697)
-
-[![Blog](https://img.shields.io/:blog-sefiks.com-blue.svg?style=flat&logo=wordpress)](https://sefiks.com)
-[![YouTube](https://img.shields.io/:youtube-@sefiks-red.svg?style=flat&logo=youtube)](https://www.youtube.com/@sefiks?sub_confirmation=1)
-[![Twitter](https://img.shields.io/:follow-@serengil-blue.svg?style=flat&logo=twitter)](https://twitter.com/intent/user?screen_name=serengil)
 
 </div>
 
@@ -66,10 +67,6 @@ result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-1.jpg" width="95%" height="95%"></p>
 
-Verification function can also handle many faces in the face pairs. In this case, the most similar faces will be compared.
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/verify-many-faces.jpg" width="95%" height="95%"></p>
-
 **Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
 [Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. Herein, deepface has an out-of-the-box find function to handle this action. It's going to look for the identity of input image in the database path and it will return list of pandas data frame as output. Meanwhile, facial embeddings of the facial database are stored in a pickle file to be searched faster in next time. Result is going to be the size of faces appearing in the source image. Besides, target images in the database can have many faces as well.
@@ -89,15 +86,15 @@ Face recognition models basically represent facial images as multi-dimensional v
 embedding_objs = DeepFace.represent(img_path = "img.jpg")
 ```
 
-This function returns an array as embedding. The size of the embedding array would be different based on the model name. For instance, VGG-Face is the default model and it represents facial images as 2622 dimensional vectors.
+This function returns an array as embedding. The size of the embedding array would be different based on the model name. For instance, VGG-Face is the default model and it represents facial images as 4096 dimensional vectors.
 
 ```python
 embedding = embedding_objs[0]["embedding"]
 assert isinstance(embedding, list)
-assert model_name = "VGG-Face" and len(embedding) == 2622
+assert model_name = "VGG-Face" and len(embedding) == 4096
 ```
 
-Here, embedding is also [plotted](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) with 2622 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right. Similar to 2D barcodes, vertical dimension stores no information in the illustration.
+Here, embedding is also [plotted](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) with 4096 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right. Similar to 2D barcodes, vertical dimension stores no information in the illustration.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/embedding.jpg" width="95%" height="95%"></p>
 
@@ -243,7 +240,7 @@ face_objs = DeepFace.extract_faces(img_path = "img.jpg",
 
 Face recognition models are actually CNN models and they expect standard sized inputs. So, resizing is required before representation. To avoid deformation, deepface adds black padding pixels according to the target size argument after detection and alignment.
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-detectors-v3.jpg" width="90%" height="90%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/detector-outputs-20240302.jpg" width="90%" height="90%"></p>
 
 [RetinaFace](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/) and [MTCNN](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) seem to overperform in detection and alignment stages but they are much slower. If the speed of your pipeline is more important, then you should use opencv or ssd. On the other hand, if you consider the accuracy, then you should use retinaface or mtcnn.
 
@@ -279,7 +276,7 @@ user
 
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
 
-DeepFace serves an API as well. You can clone [`/api`](https://github.com/serengil/deepface/tree/master/api) folder and run the api via gunicorn server. This will get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
+DeepFace serves an API as well - see [`api folder`](https://github.com/serengil/deepface/tree/master/deepface/api/src) for more details. You can clone deepface source code and run the api with the following command. It will use gunicorn server to get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
 
 ```shell
 cd scripts
@@ -288,7 +285,7 @@ cd scripts
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
 
-Face recognition, facial attribute analysis and vector representation functions are covered in the API. You are expected to call these functions as http post methods. Default service endpoints will be `http://localhost:5000/verify` for face recognition, `http://localhost:5000/analyze` for facial attribute analysis, and `http://localhost:5000/represent` for vector representation. You can pass input images as exact image paths on your environment, base64 encoded strings or images on web. [Here](https://github.com/serengil/deepface/tree/master/api), you can find a postman project to find out how these methods should be called.
+Face recognition, facial attribute analysis and vector representation functions are covered in the API. You are expected to call these functions as http post methods. Default service endpoints will be `http://localhost:5000/verify` for face recognition, `http://localhost:5000/analyze` for facial attribute analysis, and `http://localhost:5000/represent` for vector representation. You can pass input images as exact image paths on your environment, base64 encoded strings or images on web. [Here](https://github.com/serengil/deepface/tree/master/api/postman), you can find a postman project to find out how these methods should be called.
 
 **Dockerized Service**
 
@@ -315,9 +312,17 @@ $ deepface analyze -img_path tests/dataset/img1.jpg
 
 You can also run these commands if you are running deepface with docker. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh#L17).
 
-## Contribution [![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
+## FAQ and Troubleshooting
 
-Pull requests are more than welcome! You should run the unit tests locally by running [`test/unit_tests.py`](https://github.com/serengil/deepface/blob/master/tests/unit_tests.py) before creating a PR. Once a PR sent, GitHub test workflow will be run automatically and unit test results will be available in [GitHub actions](https://github.com/serengil/deepface/actions) before approval. Besides, workflow will evaluate the code with pylint as well.
+If you believe you have identified a bug or encountered a limitation in DeepFace that is not covered in the [existing issues](https://github.com/serengil/deepface/issues) or [closed issues](https://github.com/serengil/deepface/issues?q=is%3Aissue+is%3Aclosed), kindly open a new issue. Ensure that your submission includes clear and detailed reproduction steps, such as your Python version, your DeepFace version (provided by `DeepFace.__version__`), versions of dependent packages (provided by pip freeze), specifics of any exception messages, details about how you are calling DeepFace, and the input image(s) you are using.
+
+Additionally, it is possible to encounter issues due to recently released dependencies, primarily Python itself or TensorFlow. It is recommended to synchronize your dependencies with the versions [specified in my environment](https://github.com/serengil/deepface/blob/master/requirements_local) and [same python version](https://github.com/serengil/deepface/blob/master/Dockerfile#L2) not to have potential compatibility issues.
+
+## Contribution
+
+Pull requests are more than welcome! If you are planning to contribute a large patch, please create an issue first to get any upfront questions or design decisions out of the way first.
+
+Before creating a PR, you should run the unit tests and linting locally by running `make test && make lint` command. Once a PR sent, GitHub test workflow will be run automatically and unit test and linting jobs will be available in [GitHub actions](https://github.com/serengil/deepface/actions) before approval.
 
 ## Support
 
@@ -331,9 +336,9 @@ You can also support this work on [Patreon](https://www.patreon.com/serengil?rep
 
 ## Citation
 
-Please cite deepface in your publications if it helps your research. Here are its BibTex entries:
+Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATION.md) for more details. Here are its BibTex entries:
 
-If you use deepface for facial recogntion purposes, please cite the this publication.
+If you use deepface in your research for facial recogntion purposes, please cite this publication.
 
 ```BibTeX
 @inproceedings{serengil2020lightface,
@@ -348,7 +353,7 @@ If you use deepface for facial recogntion purposes, please cite the this publica
 }
 ```
 
- If you use deepface for facial attribute analysis purposes such as age, gender, emotion or ethnicity prediction or face detection purposes, please cite the this publication.
+If you use deepface in your research for facial attribute analysis purposes such as age, gender, emotion or ethnicity prediction or face detection purposes, please cite this publication.
 
 ```BibTeX
 @inproceedings{serengil2021lightface,
