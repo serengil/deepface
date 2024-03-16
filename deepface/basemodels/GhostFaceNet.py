@@ -53,7 +53,7 @@ else:
     )
 
 
-# pylint: disable=line-too-long, too-few-public-methods, no-else-return, unsubscriptable-object
+# pylint: disable=line-too-long, too-few-public-methods, no-else-return, unsubscriptable-object, comparison-with-callable
 PRETRAINED_WEIGHTS = "https://github.com/HamadYA/GhostFaceNets/releases/download/v1.2/GhostFaceNet_W1.3_S1_ArcFace.h5"
 
 
