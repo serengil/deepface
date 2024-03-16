@@ -41,7 +41,7 @@ def analysis(
             in the database will be considered in the decision-making process.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv).
@@ -161,7 +161,7 @@ def build_facial_recognition_model(model_name: str) -> tuple:
     Build facial recognition model
     Args:
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
     Returns
         input_shape (tuple): input shape of given facial recognitio n model.
     """
@@ -184,7 +184,7 @@ def search_identity(
         db_path (string): Path to the folder containing image files. All detected faces
             in the database will be considered in the decision-making process.
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv).
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
@@ -424,7 +424,7 @@ def perform_facial_recognition(
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
             'euclidean', 'euclidean_l2' (default is cosine).
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
     Returns:
         img (np.ndarray): image with identified face informations
     """
