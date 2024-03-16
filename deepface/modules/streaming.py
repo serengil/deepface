@@ -18,8 +18,6 @@ logger = Logger(module="commons.realtime")
 # dependency configuration
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-# TODO: analyze icin race'e ihtiyacin yok
-
 
 IDENTIFIED_IMG_SIZE = 112
 TEXT_COLOR = (255, 255, 255)
