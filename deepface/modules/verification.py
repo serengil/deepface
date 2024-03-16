@@ -42,7 +42,7 @@ def verify(
             or pre-calculated embeddings.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace and SFace (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv)
@@ -343,7 +343,8 @@ def find_threshold(model_name: str, distance_metric: str) -> float:
     """
     Retrieve pre-tuned threshold values for a model and distance metric pair
     Args:
-        model_name (str): facial recognition model name
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
         distance_metric (str): distance metric name. Options are cosine, euclidean
             and euclidean_l2.
     Returns:
@@ -368,6 +369,7 @@ def find_threshold(model_name: str, distance_metric: str) -> float:
         "OpenFace": {"cosine": 0.10, "euclidean": 0.55, "euclidean_l2": 0.55},
         "DeepFace": {"cosine": 0.23, "euclidean": 64, "euclidean_l2": 0.64},
         "DeepID": {"cosine": 0.015, "euclidean": 45, "euclidean_l2": 0.17},
+        "GhostFaceNet": {"cosine": 0.65, "euclidean": 35.71, "euclidean_l2": 1.10},
     }
 
     threshold = thresholds.get(model_name, base_threshold).get(distance_metric, 0.4)
