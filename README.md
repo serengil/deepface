@@ -138,18 +138,18 @@ embedding_objs = DeepFace.represent(img_path = "img.jpg",
 
 FaceNet, VGG-Face, ArcFace and Dlib are [overperforming](https://youtu.be/i_MOwvhbLdI) ones based on experiments. You can find out the scores of those models below on [Labeled Faces in the Wild](https://sefiks.com/2020/08/27/labeled-faces-in-the-wild-for-face-recognition/) set declared by its creators. 
 
-| Model | Declared LFW Score |
-| ---   | --- |
-| VGG-Face | 98.9% |
-| Facenet | 99.2% |
-| Facenet512 | 99.6% |
-| OpenFace | 92.9% |
-| DeepID | 97.4% |
-| Dlib | 99.3 % |
-| SFace | 99.5% |
-| ArcFace | 99.5% |
-| GhostFaceNet | 99.7% |
-| *Human-beings* | *97.5%* |
+| Model          | Declared LFW Score |
+| -------------- | ------------------ |
+| VGG-Face       | 98.9%              |
+| Facenet        | 99.2%              |
+| Facenet512     | 99.6%              |
+| OpenFace       | 92.9%              |
+| DeepID         | 97.4%              |
+| Dlib           | 99.3 %             |
+| SFace          | 99.5%              |
+| ArcFace        | 99.5%              |
+| GhostFaceNet   | 99.7%              |
+| *Human-beings* | *97.5%*            |
 
 Conducting experiments with those models within DeepFace may reveal disparities compared to the original studies, owing to the adoption of distinct detection or normalization techniques. Furthermore, some models have been released solely with their backbones, lacking pre-trained weights. Thus, we are utilizing their re-implementations instead of the original pre-trained weights.
 
@@ -289,7 +289,7 @@ cd scripts
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
 
-Face recognition, facial attribute analysis and vector representation functions are covered in the API. You are expected to call these functions as http post methods. Default service endpoints will be `http://localhost:5000/verify` for face recognition, `http://localhost:5000/analyze` for facial attribute analysis, and `http://localhost:5000/represent` for vector representation. You can pass input images as exact image paths on your environment, base64 encoded strings or images on web. [Here](https://github.com/serengil/deepface/tree/master/api/postman), you can find a postman project to find out how these methods should be called.
+Face recognition, facial attribute analysis and vector representation functions are covered in the API. You are expected to call these functions as http post methods. Default service endpoints will be `http://localhost:5000/verify` for face recognition, `http://localhost:5000/analyze` for facial attribute analysis, and `http://localhost:5000/represent` for vector representation. You can pass input images as exact image paths on your environment, base64 encoded strings or images on web. [Here](https://github.com/serengil/deepface/tree/master/deepface/api/postman), you can find a postman project to find out how these methods should be called.
 
 **Dockerized Service**
 
