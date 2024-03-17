@@ -140,16 +140,16 @@ FaceNet, VGG-Face, ArcFace and Dlib are [overperforming](https://youtu.be/i_MOwv
 
 | Model | Declared LFW Score |
 | ---   | --- |
-| VGG-Face | 98.78% |
-| Facenet | 99.20% |
-| Facenet512 | 99.65% |
-| OpenFace | 93.80% |
+| VGG-Face | 98.9% |
+| Facenet | 99.2% |
+| Facenet512 | 99.6% |
+| OpenFace | 92.9% |
 | DeepID | - |
-| Dlib | 99.38 % |
-| SFace | 99.60% |
-| ArcFace | 99.41% |
-| GhostFaceNet | 99.76 |
-| *Human-beings* | *97.53%* |
+| Dlib | 97.4 % |
+| SFace | 99.5% |
+| ArcFace | 99.5% |
+| GhostFaceNet | 99.7% |
+| *Human-beings* | *97.5%* |
 
 Conducting experiments with those models within DeepFace may reveal disparities compared to the original studies, owing to the adoption of distinct detection or normalization techniques. Furthermore, some models have been released solely with their backbones, lacking pre-trained weights. Thus, we are utilizing their re-implementations instead of the original pre-trained weights.
 
