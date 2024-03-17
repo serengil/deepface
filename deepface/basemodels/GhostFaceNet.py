@@ -12,7 +12,7 @@ from deepface.commons import package_utils, folder_utils
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
 
-logger = Logger(module="basemodels.VGGFace")
+logger = Logger(module="basemodels.GhostFaceNet")
 
 tf_major = package_utils.get_tf_major_version()
 if tf_major == 1:
