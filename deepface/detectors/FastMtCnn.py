@@ -32,12 +32,10 @@ class FastMtCnnClient(Detector):
             and len(detections) > 0
             and not any(detection is None for detection in detections)  # issue 1043
         ):
-            for current_detection in zip(*detections):
-                x, y, w, h = xyxy_to_xywh(current_detection[0])
-                confidence = current_detection[1]
-
-                left_eye = current_detection[2][0]
-                right_eye = current_detection[2][1]
+            for regions, confidence, eyes in zip(*detections):
+                x, y, w, h = xyxy_to_xywh(regions)
+                left_eye = eyes[0]
+                right_eye = eyes[1]
 
                 left_eye = tuple(int(i) for i in left_eye)
                 right_eye = tuple(int(i) for i in right_eye)
@@ -70,21 +68,19 @@ class FastMtCnnClient(Detector):
                 "Please install using 'pip install facenet-pytorch' "
             ) from e
 
-        face_detector = fast_mtcnn(
-            image_size=160,
-            thresholds=[0.6, 0.7, 0.7],  # MTCNN thresholds
-            post_process=True,
-            device="cpu",
-            select_largest=False,  # return result in descending order
-        )
+        face_detector = fast_mtcnn(device="cpu")
         return face_detector
 
 
-def xyxy_to_xywh(xyxy: Union[list, tuple]) -> list:
+def xyxy_to_xywh(regions: Union[list, tuple]) -> tuple:
     """
-    Convert xyxy format to xywh format.
+    Convert (x1, y1, x2, y2) format to (x, y, w, h) format.
+    Args:
+        regions (list or tuple): facial area coordinates as x, y, x+w, y+h
+    Returns:
+        regions (tuple): facial area coordinates as x, y, w, h
     """
-    x, y = xyxy[0], xyxy[1]
-    w = xyxy[2] - x + 1
-    h = xyxy[3] - y + 1
-    return [x, y, w, h]
+    x, y, x_plus_w, y_plus_h = regions[0], regions[1], regions[2], regions[3]
+    w = x_plus_w - x
+    h = y_plus_h - y
+    return (x, y, w, h)
