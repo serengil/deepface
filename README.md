@@ -144,8 +144,8 @@ FaceNet, VGG-Face, ArcFace and Dlib are [overperforming](https://youtu.be/i_MOwv
 | Facenet | 99.2% |
 | Facenet512 | 99.6% |
 | OpenFace | 92.9% |
-| DeepID | - |
-| Dlib | 97.4 % |
+| DeepID | 97.4% |
+| Dlib | 99.3 % |
 | SFace | 99.5% |
 | ArcFace | 99.5% |
 | GhostFaceNet | 99.7% |
