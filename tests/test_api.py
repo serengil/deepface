@@ -2,7 +2,6 @@ import unittest
 from deepface.commons.logger import Logger
 from deepface.api.src.app import create_app
 import base64
-import json
 
 
 logger = Logger("tests/test_api.py")
@@ -80,6 +79,7 @@ class TestVerifyEndpoint(unittest.TestCase):
         logger.info("✅ representation api test is done")
 
     def test_represent_encoded(self):
+        image_path = "dataset/img1.jpg"
         with open(image_path, "rb") as image_file:
             encoded_string = "data:image/jpeg;base64," + \
                 base64.b64encode(image_file.read()).decode("utf8")
