@@ -1,6 +1,8 @@
 import unittest
 from deepface.commons.logger import Logger
 from deepface.api.src.app import create_app
+import base64
+import json
 
 
 logger = Logger("tests/test_api.py")
@@ -61,6 +63,33 @@ class TestVerifyEndpoint(unittest.TestCase):
         data = {
             "img": "dataset/img1.jpg",
         }
+        response = self.app.post("/represent", json=data)
+        assert response.status_code == 200
+        result = response.json
+        logger.debug(result)
+        assert result.get("results") is not None
+        assert isinstance(result["results"], list) is True
+        assert len(result["results"]) > 0
+        for i in result["results"]:
+            assert i.get("embedding") is not None
+            assert isinstance(i.get("embedding"), list) is True
+            assert len(i.get("embedding")) == 4096
+            assert i.get("face_confidence") is not None
+            assert i.get("facial_area") is not None
+
+        logger.info("✅ representation api test is done")
+
+    def test_represent_encoded(self):
+        with open(image_path, "rb") as image_file:
+            encoded_string = "data:image/jpeg;base64," + \
+                base64.b64encode(image_file.read()).decode("utf8")
+
+        data = {
+            "model_name": "Facenet",
+            "detector_backend": "mtcnn",
+            "img": encoded_string
+        }
+
         response = self.app.post("/represent", json=data)
         assert response.status_code == 200
         result = response.json
