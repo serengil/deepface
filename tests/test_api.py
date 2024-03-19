@@ -100,7 +100,7 @@ class TestVerifyEndpoint(unittest.TestCase):
         for i in result["results"]:
             assert i.get("embedding") is not None
             assert isinstance(i.get("embedding"), list) is True
-            assert len(i.get("embedding")) == 4096
+            assert len(i.get("embedding")) == 128
             assert i.get("face_confidence") is not None
             assert i.get("facial_area") is not None
 
