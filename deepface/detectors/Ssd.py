@@ -135,9 +135,9 @@ class SsdClient(Detector):
                 # eyes found in the detected face instead image itself
                 # detected face's coordinates should be added
                 if left_eye is not None:
-                    left_eye = (x + left_eye[0], y + left_eye[1])
+                    left_eye = (int(x + left_eye[0]), int(y + left_eye[1]))
                 if right_eye is not None:
-                    right_eye = (x + right_eye[0], y + right_eye[1])
+                    right_eye = (int(x + right_eye[0]), int(y + right_eye[1]))
 
                 facial_area = FacialAreaRegion(
                     x=x,
