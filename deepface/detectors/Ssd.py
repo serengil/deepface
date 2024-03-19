@@ -132,6 +132,13 @@ class SsdClient(Detector):
 
                 left_eye, right_eye = opencv_module.find_eyes(detected_face)
 
+                # eyes found in the detected face instead image itself
+                # detected face's coordinates should be added
+                if left_eye is not None:
+                    left_eye = (int(x + left_eye[0]), int(y + left_eye[1]))
+                if right_eye is not None:
+                    right_eye = (int(x + right_eye[0]), int(y + right_eye[1]))
+
                 facial_area = FacialAreaRegion(
                     x=x,
                     y=y,

@@ -4,6 +4,11 @@ import warnings
 import logging
 from typing import Any, Dict, List, Tuple, Union, Optional
 
+# this has to be set before importing tensorflow
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
+
+# pylint: disable=wrong-import-position
+
 # 3rd party dependencies
 import numpy as np
 import pandas as pd
@@ -27,6 +32,9 @@ logger = Logger(module="DeepFace")
 
 # -----------------------------------
 # configurations for dependencies
+
+# users should install tf_keras package if they are using tf 2.16 or later versions
+package_utils.validate_for_keras3()
 
 warnings.filterwarnings("ignore")
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"

@@ -53,6 +53,14 @@ class OpenCvClient(Detector):
             for (x, y, w, h), confidence in zip(faces, scores):
                 detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
                 left_eye, right_eye = self.find_eyes(img=detected_face)
+
+                # eyes found in the detected face instead image itself
+                # detected face's coordinates should be added
+                if left_eye is not None:
+                    left_eye = (int(x + left_eye[0]), int(y + left_eye[1]))
+                if right_eye is not None:
+                    right_eye = (int(x + right_eye[0]), int(y + right_eye[1]))
+
                 facial_area = FacialAreaRegion(
                     x=x,
                     y=y,
