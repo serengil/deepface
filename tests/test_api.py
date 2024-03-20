@@ -76,7 +76,7 @@ class TestVerifyEndpoint(unittest.TestCase):
             assert i.get("face_confidence") is not None
             assert i.get("facial_area") is not None
 
-        logger.info("✅ representation api test is done")
+        logger.info("✅ representation api test is done (for image path)")
 
     def test_represent_encoded(self):
         image_path = "dataset/img1.jpg"
@@ -104,7 +104,7 @@ class TestVerifyEndpoint(unittest.TestCase):
             assert i.get("face_confidence") is not None
             assert i.get("facial_area") is not None
 
-        logger.info("✅ representation api test is done")
+        logger.info("✅ representation api test is done (for encoded image)")
 
     def test_represent_url(self):
         data = {
@@ -127,7 +127,7 @@ class TestVerifyEndpoint(unittest.TestCase):
             assert i.get("face_confidence") is not None
             assert i.get("facial_area") is not None
 
-        logger.info("✅ representation api test is done")
+        logger.info("✅ representation api test is done (for image url)")
 
     def test_analyze(self):
         data = {
