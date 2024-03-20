@@ -150,6 +150,58 @@ class TestVerifyEndpoint(unittest.TestCase):
 
         logger.info("✅ analyze api test is done")
 
+    def test_analyze_inputformats(self):
+        image_path = "dataset/couple.jpg"
+        with open(image_path, "rb") as image_file:
+            encoded_image = "data:image/jpeg;base64," + \
+                base64.b64encode(image_file.read()).decode("utf8")
+
+        image_sources = [
+            # image path
+            image_path,
+            # image url
+            f"https://github.com/serengil/deepface/blob/master/tests/{image_path}?raw=true",
+            # encoded image
+            encoded_image
+        ]
+
+        results = []
+        for img in image_sources:
+            data = {
+                "img": img,
+            }
+            response = self.app.post("/analyze", json=data)
+
+            assert response.status_code == 200
+            result = response.json
+            results.append(result)
+
+            assert result.get("results") is not None
+            assert isinstance(result["results"], list) is True
+            assert len(result["results"]) > 0
+            for i in result["results"]:
+                assert i.get("age") is not None
+                assert isinstance(i.get("age"), (int, float))
+                assert i.get("dominant_gender") is not None
+                assert i.get("dominant_gender") in ["Man", "Woman"]
+                assert i.get("dominant_emotion") is not None
+                assert i.get("dominant_race") is not None
+
+        assert len(results[0]["results"]) == len(results[1]["results"])\
+            and len(results[0]["results"]) == len(results[2]["results"])
+
+        for i in range(len(results[0]['results'])):
+            assert results[0]["results"][i]["dominant_emotion"] == results[1]["results"][i]["dominant_emotion"]\
+                and results[0]["results"][i]["dominant_emotion"] == results[2]["results"][i]["dominant_emotion"]
+
+            assert results[0]["results"][i]["dominant_gender"] == results[1]["results"][i]["dominant_gender"]\
+                and results[0]["results"][i]["dominant_gender"] == results[2]["results"][i]["dominant_gender"]
+
+            assert results[0]["results"][i]["dominant_race"] == results[1]["results"][i]["dominant_race"]\
+                and results[0]["results"][i]["dominant_race"] == results[2]["results"][i]["dominant_race"]
+
+        logger.info("✅ different inputs test is done")
+
     def test_invalid_verify(self):
         data = {
             "img1_path": "dataset/invalid_1.jpg",
