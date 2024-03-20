@@ -106,6 +106,29 @@ class TestVerifyEndpoint(unittest.TestCase):
 
         logger.info("✅ representation api test is done")
 
+    def test_represent_url(self):
+        data = {
+            "model_name": "Facenet",
+            "detector_backend": "mtcnn",
+            "img": "https://github.com/serengil/deepface/blob/master/tests/dataset/couple.jpg?raw=true"
+        }
+
+        response = self.app.post("/represent", json=data)
+        assert response.status_code == 200
+        result = response.json
+        logger.debug(result)
+        assert result.get("results") is not None
+        assert isinstance(result["results"], list) is True
+        assert len(result["results"]) == 2  # 2 faces are in the image link
+        for i in result["results"]:
+            assert i.get("embedding") is not None
+            assert isinstance(i.get("embedding"), list) is True
+            assert len(i.get("embedding")) == 128
+            assert i.get("face_confidence") is not None
+            assert i.get("facial_area") is not None
+
+        logger.info("✅ representation api test is done")
+
     def test_analyze(self):
         data = {
             "img": "dataset/img1.jpg",
