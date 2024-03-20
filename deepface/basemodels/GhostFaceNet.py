@@ -85,7 +85,7 @@ def load_model():
     output = home + "/.deepface/weights/ghostfacenet_v1.h5"
 
     if os.path.isfile(output) is not True:
-        logger.info("Pre-trained weights is downloaded from {PRETRAINED_WEIGHTS} to {output}")
+        logger.info(f"Pre-trained weights is downloaded from {PRETRAINED_WEIGHTS} to {output}")
         gdown.download(PRETRAINED_WEIGHTS, output, quiet=False)
         logger.info(f"Pre-trained weights is just downloaded to {output}")
 
