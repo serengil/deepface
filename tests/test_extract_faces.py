@@ -19,6 +19,12 @@ def test_different_detectors():
             assert "y" in img_obj["facial_area"].keys()
             assert "w" in img_obj["facial_area"].keys()
             assert "h" in img_obj["facial_area"].keys()
+            # is left eye set with respect to the person instead of observer
+            assert "left_eye" in img_obj["facial_area"].keys()
+            assert "right_eye" in img_obj["facial_area"].keys()
+            right_eye = img_obj["facial_area"]["right_eye"]
+            left_eye = img_obj["facial_area"]["left_eye"]
+            assert left_eye[0] > right_eye[0]
             assert "confidence" in img_obj.keys()
 
             img = img_obj["face"]

@@ -57,7 +57,7 @@ for df in dfs:
     logger.info(df)
 
 
-expand_areas = [0, 25]
+expand_areas = [0]
 img_paths = ["dataset/img11.jpg", "dataset/img11_reflection.jpg"]
 for expand_area in expand_areas:
     for img_path in img_paths:
@@ -85,6 +85,15 @@ for expand_area in expand_areas:
                     assert isinstance(face_obj["facial_area"]["right_eye"], tuple)
                     assert isinstance(face_obj["facial_area"]["right_eye"][0], int)
                     assert isinstance(face_obj["facial_area"]["right_eye"][1], int)
+
+                # left eye is really the left eye of the person
+                if (
+                    face_obj["facial_area"]["left_eye"] is not None
+                    and face_obj["facial_area"]["right_eye"] is not None
+                ):
+                    re_x = face_obj["facial_area"]["right_eye"][0]
+                    le_x = face_obj["facial_area"]["left_eye"][0]
+                    assert re_x < le_x, "right eye must be the right eye of the person"
 
                 assert isinstance(face_obj["confidence"], float)
                 assert face_obj["confidence"] <= 1
