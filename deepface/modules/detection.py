@@ -68,7 +68,9 @@ def extract_faces(
 
         - "facial_area" (Dict[str, Any]): The detected face's regions as a dictionary containing:
             - keys 'x', 'y', 'w', 'h' with int values
-            - keys 'left_eye', 'right_eye' with a tuple of 2 ints as values
+            - keys 'left_eye', 'right_eye' with a tuple of 2 ints as values.
+                left eye and right eye are eyes on the left and right respectively with respect
+                to the person itself instead of observer.
 
         - "confidence" (float): The confidence score associated with the detected face.
     """
@@ -201,8 +203,8 @@ def align_face(
     Align a given image horizantally with respect to their left and right eye locations
     Args:
         img (np.ndarray): pre-loaded image with detected face
-        left_eye (list or tuple): coordinates of left eye with respect to the you
-        right_eye(list or tuple): coordinates of right eye with respect to the you
+        left_eye (list or tuple): coordinates of left eye with respect to the person itself
+        right_eye(list or tuple): coordinates of right eye with respect to the person itself
     Returns:
         img (np.ndarray): aligned facial image
     """
@@ -214,6 +216,6 @@ def align_face(
     if img.shape[0] == 0 or img.shape[1] == 0:
         return img, 0
 
-    angle = float(np.degrees(np.arctan2(right_eye[1] - left_eye[1], right_eye[0] - left_eye[0])))
+    angle = float(np.degrees(np.arctan2(left_eye[1] - right_eye[1], left_eye[0] - right_eye[0])))
     img = np.array(Image.fromarray(img).rotate(angle))
     return img, angle

@@ -34,8 +34,8 @@ class FastMtCnnClient(Detector):
         ):
             for regions, confidence, eyes in zip(*detections):
                 x, y, w, h = xyxy_to_xywh(regions)
-                left_eye = eyes[0]
-                right_eye = eyes[1]
+                right_eye = eyes[0]
+                left_eye = eyes[1]
 
                 left_eye = tuple(int(i) for i in left_eye)
                 right_eye = tuple(int(i) for i in right_eye)

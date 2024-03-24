@@ -99,7 +99,7 @@ class YuNetClient(Detector):
             {x, y}_{re, le, nt, rcm, lcm} stands for the coordinates of right eye,
             left eye, nose tip, the right corner and left corner of the mouth respectively.
             """
-            (x, y, w, h, x_re, y_re, x_le, y_le) = list(map(int, face[:8]))
+            (x, y, w, h, x_le, y_le, x_re, y_re) = list(map(int, face[:8]))
 
             # YuNet returns negative coordinates if it thinks part of the detected face
             # is outside the frame.

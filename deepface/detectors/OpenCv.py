@@ -112,15 +112,18 @@ class OpenCvClient(Detector):
             eye_2 = eyes[1]
 
             if eye_1[0] < eye_2[0]:
-                left_eye = eye_1
-                right_eye = eye_2
-            else:
-                left_eye = eye_2
                 right_eye = eye_1
+                left_eye = eye_2
+            else:
+                right_eye = eye_2
+                left_eye = eye_1
 
             # -----------------------
             # find center of eyes
-            left_eye = (int(left_eye[0] + (left_eye[2] / 2)), int(left_eye[1] + (left_eye[3] / 2)))
+            left_eye = (
+                int(left_eye[0] + (left_eye[2] / 2)),
+                int(left_eye[1] + (left_eye[3] / 2)),
+            )
             right_eye = (
                 int(right_eye[0] + (right_eye[2] / 2)),
                 int(right_eye[1] + (right_eye[3] / 2)),
