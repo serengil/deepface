@@ -76,7 +76,9 @@ def detect_faces(
 
         - img (np.ndarray): The detected face as a NumPy array.
 
-        - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h
+        - facial_area (FacialAreaRegion): The facial area region represented as x, y, w, h,
+            left_eye and right eye. left eye and right eye are eyes on the left and right
+            with respect to the person instead of observer.
 
         - confidence (float): The confidence score associated with the detected face.
     """
@@ -123,13 +125,11 @@ def detect_faces(
                 img=img, left_eye=left_eye, right_eye=right_eye
             )
             rotated_x1, rotated_y1, rotated_x2, rotated_y2 = rotate_facial_area(
-                facial_area=(x, y, x + w, y + h),
-                angle=angle,
-                size=(img.shape[0], img.shape[1])
+                facial_area=(x, y, x + w, y + h), angle=angle, size=(img.shape[0], img.shape[1])
             )
             detected_face = aligned_img[
-                int(rotated_y1) : int(rotated_y2),
-                int(rotated_x1) : int(rotated_x2)]
+                int(rotated_y1) : int(rotated_y2), int(rotated_x1) : int(rotated_x2)
+            ]
 
         result = DetectedFace(
             img=detected_face,
@@ -143,9 +143,7 @@ def detect_faces(
 
 
 def rotate_facial_area(
-    facial_area: Tuple[int, int, int, int],
-    angle: float,
-    size: Tuple[int, int]
+    facial_area: Tuple[int, int, int, int], angle: float, size: Tuple[int, int]
 ) -> Tuple[int, int, int, int]:
     """
     Rotate the facial area around its center.

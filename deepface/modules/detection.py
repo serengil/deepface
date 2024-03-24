@@ -68,7 +68,9 @@ def extract_faces(
 
         - "facial_area" (Dict[str, Any]): The detected face's regions as a dictionary containing:
             - keys 'x', 'y', 'w', 'h' with int values
-            - keys 'left_eye', 'right_eye' with a tuple of 2 ints as values
+            - keys 'left_eye', 'right_eye' with a tuple of 2 ints as values.
+                left eye and right eye are eyes on the left and right respectively with respect
+                to the person itself instead of observer.
 
         - "confidence" (float): The confidence score associated with the detected face.
     """
