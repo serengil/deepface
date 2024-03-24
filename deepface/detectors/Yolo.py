@@ -81,10 +81,10 @@ class YoloClient(Detector):
             x, y, w, h = result.boxes.xywh.tolist()[0]
             confidence = result.boxes.conf.tolist()[0]
 
-            # left_eye_conf = result.keypoints.conf[0][0]
-            # right_eye_conf = result.keypoints.conf[0][1]
-            left_eye = result.keypoints.xy[0][0].tolist()
-            right_eye = result.keypoints.xy[0][1].tolist()
+            # right_eye_conf = result.keypoints.conf[0][0]
+            # left_eye_conf = result.keypoints.conf[0][1]
+            right_eye = result.keypoints.xy[0][0].tolist()
+            left_eye = result.keypoints.xy[0][1].tolist()
 
             # eyes are list of float, need to cast them tuple of int
             left_eye = tuple(int(i) for i in left_eye)

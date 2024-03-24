@@ -88,11 +88,11 @@ class DlibClient(Detector):
 
                 shape = self.model["sp"](img, detection)
 
-                left_eye = (
+                right_eye = (
                     int((shape.part(2).x + shape.part(3).x) // 2),
                     int((shape.part(2).y + shape.part(3).y) // 2),
                 )
-                right_eye = (
+                left_eye = (
                     int((shape.part(0).x + shape.part(1).x) // 2),
                     int((shape.part(0).y + shape.part(1).y) // 2),
                 )

@@ -35,8 +35,10 @@ class MtCnnClient(Detector):
             for current_detection in detections:
                 x, y, w, h = current_detection["box"]
                 confidence = current_detection["confidence"]
-                left_eye = current_detection["keypoints"]["left_eye"]
-                right_eye = current_detection["keypoints"]["right_eye"]
+                # mtcnn detector assigns left eye with respect to the observer
+                # but we are setting it with respect to the person itself
+                left_eye = current_detection["keypoints"]["right_eye"]
+                right_eye = current_detection["keypoints"]["left_eye"]
 
                 facial_area = FacialAreaRegion(
                     x=x,

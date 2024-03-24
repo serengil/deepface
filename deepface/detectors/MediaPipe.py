@@ -61,8 +61,8 @@ class MediaPipeClient(Detector):
             y = int(bounding_box.ymin * img_height)
             h = int(bounding_box.height * img_height)
 
-            left_eye = (int(landmarks[0].x * img_width), int(landmarks[0].y * img_height))
-            right_eye = (int(landmarks[1].x * img_width), int(landmarks[1].y * img_height))
+            right_eye = (int(landmarks[0].x * img_width), int(landmarks[0].y * img_height))
+            left_eye = (int(landmarks[1].x * img_width), int(landmarks[1].y * img_height))
             # nose = (int(landmarks[2].x * img_width), int(landmarks[2].y * img_height))
             # mouth = (int(landmarks[3].x * img_width), int(landmarks[3].y * img_height))
             # right_ear = (int(landmarks[4].x * img_width), int(landmarks[4].y * img_height))

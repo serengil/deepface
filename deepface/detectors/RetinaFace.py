@@ -34,9 +34,9 @@ class RetinaFaceClient(Detector):
             x = detection[0]
             w = detection[2] - x
 
-            # notice that these must be inverse for retinaface
-            left_eye = identity["landmarks"]["right_eye"]
-            right_eye = identity["landmarks"]["left_eye"]
+            # retinaface sets left and right eyes with respect to the person
+            left_eye = identity["landmarks"]["left_eye"]
+            right_eye = identity["landmarks"]["right_eye"]
 
             # eyes are list of float, need to cast them tuple of int
             left_eye = tuple(int(i) for i in left_eye)
