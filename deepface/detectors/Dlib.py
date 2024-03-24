@@ -87,8 +87,15 @@ class DlibClient(Detector):
                 w = int(min(right, img.shape[1]) - x)
 
                 shape = self.model["sp"](img, detection)
-                left_eye = (shape.part(2).x, shape.part(2).y)
-                right_eye = (shape.part(0).x, shape.part(0).y)
+
+                left_eye = (
+                    int((shape.part(2).x + shape.part(3).x) // 2),
+                    int((shape.part(2).y + shape.part(3).y) // 2),
+                )
+                right_eye = (
+                    int((shape.part(0).x + shape.part(1).x) // 2),
+                    int((shape.part(0).y + shape.part(1).y) // 2),
+                )
 
                 # never saw confidence higher than +3.5 github.com/davisking/dlib/issues/761
                 confidence = scores[idx]
