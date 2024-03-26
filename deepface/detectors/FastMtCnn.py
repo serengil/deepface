@@ -68,7 +68,9 @@ class FastMtCnnClient(Detector):
                 "Please install using 'pip install facenet-pytorch' "
             ) from e
 
-        face_detector = fast_mtcnn(device="cuda:0")
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        face_detector = fast_mtcnn(device=device)
+
         return face_detector
 
 
