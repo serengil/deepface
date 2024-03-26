@@ -2,6 +2,7 @@ from typing import Any, Union, List
 import cv2
 import numpy as np
 from deepface.models.Detector import Detector, FacialAreaRegion
+import torch
 
 # Link -> https://github.com/timesler/facenet-pytorch
 # Examples https://www.kaggle.com/timesler/guide-to-mtcnn-in-facenet-pytorch
@@ -68,7 +69,9 @@ class FastMtCnnClient(Detector):
                 "Please install using 'pip install facenet-pytorch' "
             ) from e
 
-        face_detector = fast_mtcnn(device="cpu")
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        face_detector = fast_mtcnn(device=device)
+
         return face_detector
 
 
