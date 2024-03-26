@@ -2,6 +2,7 @@ from typing import Any, Union, List
 import cv2
 import numpy as np
 from deepface.models.Detector import Detector, FacialAreaRegion
+import torch
 
 # Link -> https://github.com/timesler/facenet-pytorch
 # Examples https://www.kaggle.com/timesler/guide-to-mtcnn-in-facenet-pytorch
