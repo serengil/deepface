@@ -129,8 +129,8 @@ def extract_faces(
             factor = min(factor_0, factor_1)
 
             dsize = (
-                int(current_img.shape[1] * factor),
-                int(current_img.shape[0] * factor),
+                max(int(current_img.shape[1] * factor),1),
+                max(int(current_img.shape[0] * factor),1),
             )
             current_img = cv2.resize(current_img, dsize)
 
