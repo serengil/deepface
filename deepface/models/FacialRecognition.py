@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any, Union, List, Tuple
 import numpy as np
 from deepface.commons import package_utils
