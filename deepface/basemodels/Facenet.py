@@ -97,9 +97,14 @@ def scaling(x, scale):
     return x * scale
 
 
-def InceptionResNetV2(dimension: int = 128) -> Model:
+def InceptionResNetV1(dimension: int = 128) -> Model:
     """
-    InceptionResNetV2 model
+    InceptionResNetV1 model heavily inspired from
+    github.com/davidsandberg/facenet/blob/master/src/models/inception_resnet_v1.py
+    As mentioned in Sandberg's repo's readme, pre-trained models are using Inception ResNet v1
+    Besides training process is documented at
+    sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/
+
     Args:
         dimension (int): number of dimensions in the embedding layer
     Returns:
@@ -1685,7 +1690,7 @@ def load_facenet128d_model(
     Returns:
         model (Model)
     """
-    model = InceptionResNetV2()
+    model = InceptionResNetV1()
 
     # -----------------------------------
 
@@ -1715,7 +1720,7 @@ def load_facenet512d_model(
         model (Model)
     """
 
-    model = InceptionResNetV2(dimension=512)
+    model = InceptionResNetV1(dimension=512)
 
     # -------------------------
 
