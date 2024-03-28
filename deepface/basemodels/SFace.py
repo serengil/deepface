@@ -25,9 +25,10 @@ class SFaceClient(FacialRecognition):
         self.input_shape = (112, 112)
         self.output_shape = 128
 
-    def find_embeddings(self, img: np.ndarray) -> List[float]:
+    def forward(self, img: np.ndarray) -> List[float]:
         """
-        find embeddings with SFace model - different than regular models
+        Find embeddings with SFace model
+            Overwritten because it is different than regular models
         Args:
             img (np.ndarray): pre-loaded image in BGR
         Returns

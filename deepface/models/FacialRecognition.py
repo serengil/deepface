@@ -18,7 +18,12 @@ class FacialRecognition(ABC):
     input_shape: Tuple[int, int]
     output_shape: int
 
-
-    @abstractmethod
-    def find_embeddings(self, img: np.ndarray) -> List[float]:
-        pass
+    def forward(self, img: np.ndarray) -> List[float]:
+        if not isinstance(self.model, Model):
+            raise ValueError(
+                "You must overwrite forward method if it is not a keras model,"
+                f"but {self.model_name} not overwritten!"
+            )
+        # model.predict causes memory issue when it is called in a for loop
+        # embedding = model.predict(img, verbose=0)[0].tolist()
+        return self.model(img, training=False).numpy()[0].tolist()

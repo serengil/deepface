@@ -52,18 +52,6 @@ class DeepIdClient(FacialRecognition):
         self.input_shape = (47, 55)
         self.output_shape = 160
 
-    def find_embeddings(self, img: np.ndarray) -> List[float]:
-        """
-        find embeddings with DeepId model
-        Args:
-            img (np.ndarray): pre-loaded image in BGR
-        Returns
-            embeddings (list): multi-dimensional vector
-        """
-        # model.predict causes memory issue when it is called in a for loop
-        # embedding = model.predict(img, verbose=0)[0].tolist()
-        return self.model(img, training=False).numpy()[0].tolist()
-
 
 def load_model(
     url="https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_keras_weights.h5",
