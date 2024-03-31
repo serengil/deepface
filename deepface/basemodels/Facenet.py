@@ -1,7 +1,5 @@
-from typing import List
 import os
 import gdown
-import numpy as np
 from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
@@ -56,18 +54,6 @@ class FaceNet128dClient(FacialRecognition):
         self.input_shape = (160, 160)
         self.output_shape = 128
 
-    def find_embeddings(self, img: np.ndarray) -> List[float]:
-        """
-        find embeddings with FaceNet-128d model
-        Args:
-            img (np.ndarray): pre-loaded image in BGR
-        Returns
-            embeddings (list): multi-dimensional vector
-        """
-        # model.predict causes memory issue when it is called in a for loop
-        # embedding = model.predict(img, verbose=0)[0].tolist()
-        return self.model(img, training=False).numpy()[0].tolist()
-
 
 class FaceNet512dClient(FacialRecognition):
     """
@@ -79,18 +65,6 @@ class FaceNet512dClient(FacialRecognition):
         self.model_name = "FaceNet-512d"
         self.input_shape = (160, 160)
         self.output_shape = 512
-
-    def find_embeddings(self, img: np.ndarray) -> List[float]:
-        """
-        find embeddings with FaceNet-512d model
-        Args:
-            img (np.ndarray): pre-loaded image in BGR
-        Returns
-            embeddings (list): multi-dimensional vector
-        """
-        # model.predict causes memory issue when it is called in a for loop
-        # embedding = model.predict(img, verbose=0)[0].tolist()
-        return self.model(img, training=False).numpy()[0].tolist()
 
 
 def scaling(x, scale):

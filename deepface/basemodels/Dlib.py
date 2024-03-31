@@ -23,9 +23,11 @@ class DlibClient(FacialRecognition):
         self.input_shape = (150, 150)
         self.output_shape = 128
 
-    def find_embeddings(self, img: np.ndarray) -> List[float]:
+    def forward(self, img: np.ndarray) -> List[float]:
         """
-        find embeddings with Dlib model - different than regular models
+        Find embeddings with Dlib model.
+            This model necessitates the override of the forward method
+            because it is not a keras model.
         Args:
             img (np.ndarray): pre-loaded image in BGR
         Returns

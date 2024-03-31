@@ -1,10 +1,8 @@
 # built-in dependencies
 import os
-from typing import List
 
 # 3rd party dependencies
 import gdown
-import numpy as np
 import tensorflow as tf
 
 # project dependencies
@@ -71,11 +69,6 @@ class GhostFaceNetClient(FacialRecognition):
         self.input_shape = (112, 112)
         self.output_shape = 512
         self.model = load_model()
-
-    def find_embeddings(self, img: np.ndarray) -> List[float]:
-        # model.predict causes memory issue when it is called in a for loop
-        # embedding = model.predict(img, verbose=0)[0].tolist()
-        return self.model(img, training=False).numpy()[0].tolist()
 
 
 def load_model():
