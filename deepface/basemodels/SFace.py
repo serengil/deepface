@@ -28,7 +28,8 @@ class SFaceClient(FacialRecognition):
     def forward(self, img: np.ndarray) -> List[float]:
         """
         Find embeddings with SFace model
-            Overwritten because it is different than regular models
+            This model necessitates the override of the forward method
+            because it is not a keras model.
         Args:
             img (np.ndarray): pre-loaded image in BGR
         Returns

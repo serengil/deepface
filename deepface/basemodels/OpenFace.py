@@ -1,8 +1,6 @@
-from typing import List
 import os
 import gdown
 import tensorflow as tf
-import numpy as np
 from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition

@@ -1,10 +1,8 @@
 # built-in dependencies
 import os
-from typing import List
 
 # 3rd party dependencies
 import gdown
-import numpy as np
 import tensorflow as tf
 
 # project dependencies
