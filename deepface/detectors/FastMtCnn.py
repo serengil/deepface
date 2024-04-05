@@ -2,7 +2,6 @@ from typing import Any, Union, List
 import cv2
 import numpy as np
 from deepface.models.Detector import Detector, FacialAreaRegion
-import torch
 
 # Link -> https://github.com/timesler/facenet-pytorch
 # Examples https://www.kaggle.com/timesler/guide-to-mtcnn-in-facenet-pytorch
@@ -63,6 +62,7 @@ class FastMtCnnClient(Detector):
         # this is not a must dependency. do not import it in the global level.
         try:
             from facenet_pytorch import MTCNN as fast_mtcnn
+            import torch
         except ModuleNotFoundError as e:
             raise ImportError(
                 "FastMtcnn is an optional detector, ensure the library is installed."
