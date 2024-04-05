@@ -1,7 +1,5 @@
-from typing import List
 import os
 import gdown
-import numpy as np
 from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
@@ -56,18 +54,6 @@ class FaceNet128dClient(FacialRecognition):
         self.input_shape = (160, 160)
         self.output_shape = 128
 
-    def find_embeddings(self, img: np.ndarray) -> List[float]:
-        """
-        find embeddings with FaceNet-128d model
-        Args:
-            img (np.ndarray): pre-loaded image in BGR
-        Returns
-            embeddings (list): multi-dimensional vector
-        """
-        # model.predict causes memory issue when it is called in a for loop
-        # embedding = model.predict(img, verbose=0)[0].tolist()
-        return self.model(img, training=False).numpy()[0].tolist()
-
 
 class FaceNet512dClient(FacialRecognition):
     """
@@ -80,26 +66,19 @@ class FaceNet512dClient(FacialRecognition):
         self.input_shape = (160, 160)
         self.output_shape = 512
 
-    def find_embeddings(self, img: np.ndarray) -> List[float]:
-        """
-        find embeddings with FaceNet-512d model
-        Args:
-            img (np.ndarray): pre-loaded image in BGR
-        Returns
-            embeddings (list): multi-dimensional vector
-        """
-        # model.predict causes memory issue when it is called in a for loop
-        # embedding = model.predict(img, verbose=0)[0].tolist()
-        return self.model(img, training=False).numpy()[0].tolist()
-
 
 def scaling(x, scale):
     return x * scale
 
 
-def InceptionResNetV2(dimension: int = 128) -> Model:
+def InceptionResNetV1(dimension: int = 128) -> Model:
     """
-    InceptionResNetV2 model
+    InceptionResNetV1 model heavily inspired from
+    github.com/davidsandberg/facenet/blob/master/src/models/inception_resnet_v1.py
+    As mentioned in Sandberg's repo's readme, pre-trained models are using Inception ResNet v1
+    Besides training process is documented at
+    sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/
+
     Args:
         dimension (int): number of dimensions in the embedding layer
     Returns:
@@ -1685,7 +1664,7 @@ def load_facenet128d_model(
     Returns:
         model (Model)
     """
-    model = InceptionResNetV2()
+    model = InceptionResNetV1()
 
     # -----------------------------------
 
@@ -1715,7 +1694,7 @@ def load_facenet512d_model(
         model (Model)
     """
 
-    model = InceptionResNetV2(dimension=512)
+    model = InceptionResNetV1(dimension=512)
 
     # -------------------------
 

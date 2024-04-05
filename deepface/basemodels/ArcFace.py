@@ -1,7 +1,5 @@
-from typing import List
 import os
 import gdown
-import numpy as np
 from deepface.commons import package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
@@ -55,18 +53,6 @@ class ArcFaceClient(FacialRecognition):
         self.model_name = "ArcFace"
         self.input_shape = (112, 112)
         self.output_shape = 512
-
-    def find_embeddings(self, img: np.ndarray) -> List[float]:
-        """
-        find embeddings with ArcFace model
-        Args:
-            img (np.ndarray): pre-loaded image in BGR
-        Returns
-            embeddings (list): multi-dimensional vector
-        """
-        # model.predict causes memory issue when it is called in a for loop
-        # embedding = model.predict(img, verbose=0)[0].tolist()
-        return self.model(img, training=False).numpy()[0].tolist()
 
 
 def load_model(
