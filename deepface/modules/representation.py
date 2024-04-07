@@ -3,7 +3,6 @@ from typing import Any, Dict, List, Union
 
 # 3rd party dependencies
 import numpy as np
-import cv2
 
 # project dependencies
 from deepface.modules import modeling, detection, preprocessing
@@ -67,7 +66,6 @@ def represent(
     if detector_backend != "skip":
         img_objs = detection.extract_faces(
             img_path=img_path,
-            target_size=(target_size[1], target_size[0]),
             detector_backend=detector_backend,
             grayscale=False,
             enforce_detection=enforce_detection,
@@ -77,16 +75,10 @@ def represent(
     else:  # skip
         # Try load. If load error, will raise exception internal
         img, _ = preprocessing.load_image(img_path)
-        # --------------------------------
-        if len(img.shape) == 4:
-            img = img[0]  # e.g. (1, 224, 224, 3) to (224, 224, 3)
-        if len(img.shape) == 3:
-            img = cv2.resize(img, target_size)
-            img = np.expand_dims(img, axis=0)
-            # when called from verify, this is already normalized. But needed when user given.
-            if img.max() > 1:
-                img = (img.astype(np.float32) / 255.0).astype(np.float32)
-        # --------------------------------
+
+        if len(img.shape) != 3:
+            raise ValueError(f"Input img must be 3 dimensional but it is {img.shape}")
+
         # make dummy region and confidence to keep compatibility with `extract_faces`
         img_objs = [
             {
@@ -99,8 +91,20 @@ def represent(
 
     for img_obj in img_objs:
         img = img_obj["face"]
+
+        # rgb to bgr
+        img = img[:, :, ::-1]
+
         region = img_obj["facial_area"]
         confidence = img_obj["confidence"]
+
+        # resize to expected shape of ml model
+        img = preprocessing.resize_image(
+            img=img,
+            # thanks to DeepId (!)
+            target_size=(target_size[1], target_size[0]),
+        )
+
         # custom normalization
         img = preprocessing.normalize_input(img=img, normalization=normalization)
 

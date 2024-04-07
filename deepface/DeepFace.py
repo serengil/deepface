@@ -2,7 +2,7 @@
 import os
 import warnings
 import logging
-from typing import Any, Dict, List, Tuple, Union, Optional
+from typing import Any, Dict, List, Union, Optional
 
 # this has to be set before importing tensorflow
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
@@ -439,7 +439,6 @@ def stream(
 
 def extract_faces(
     img_path: Union[str, np.ndarray],
-    target_size: Optional[Tuple[int, int]] = (224, 224),
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -452,9 +451,6 @@ def extract_faces(
     Args:
         img_path (str or np.ndarray): Path to the first image. Accepts exact image path
             as a string, numpy array (BGR), or base64 encoded images.
-
-        target_size (tuple): final shape of facial image. black pixels will be
-            added to resize the image (default is (224, 224)).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv).
@@ -485,13 +481,11 @@ def extract_faces(
 
     return detection.extract_faces(
         img_path=img_path,
-        target_size=target_size,
         detector_backend=detector_backend,
         enforce_detection=enforce_detection,
         align=align,
         expand_percentage=expand_percentage,
         grayscale=grayscale,
-        human_readable=True,
     )
 
 

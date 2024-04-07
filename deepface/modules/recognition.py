@@ -13,8 +13,7 @@ from PIL import Image
 # project dependencies
 from deepface.commons.logger import Logger
 from deepface.commons import package_utils
-from deepface.modules import representation, detection, modeling, verification
-from deepface.models.FacialRecognition import FacialRecognition
+from deepface.modules import representation, detection, verification
 
 logger = Logger(module="deepface/modules/recognition.py")
 
@@ -90,14 +89,8 @@ def find(
 
     tic = time.time()
 
-    # -------------------------------
     if os.path.isdir(db_path) is not True:
         raise ValueError("Passed db_path does not exist!")
-
-    model: FacialRecognition = modeling.build_model(model_name)
-    target_size = model.input_shape
-
-    # ---------------------------------------
 
     file_name = f"ds_{model_name}_{detector_backend}_v2.pkl"
     file_name = file_name.replace("-", "").lower()
@@ -180,7 +173,6 @@ def find(
         representations += __find_bulk_embeddings(
             employees=new_images,
             model_name=model_name,
-            target_size=target_size,
             detector_backend=detector_backend,
             enforce_detection=enforce_detection,
             align=align,
@@ -212,7 +204,6 @@ def find(
     # img path might have more than once face
     source_objs = detection.extract_faces(
         img_path=img_path,
-        target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
         enforce_detection=enforce_detection,
@@ -314,7 +305,6 @@ def __list_images(path: str) -> List[str]:
 def __find_bulk_embeddings(
     employees: List[str],
     model_name: str = "VGG-Face",
-    target_size: tuple = (224, 224),
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -362,7 +352,6 @@ def __find_bulk_embeddings(
         try:
             img_objs = detection.extract_faces(
                 img_path=employee,
-                target_size=target_size,
                 detector_backend=detector_backend,
                 grayscale=False,
                 enforce_detection=enforce_detection,

@@ -11,6 +11,16 @@ import cv2
 import requests
 from PIL import Image
 
+# project dependencies
+from deepface.commons import package_utils
+
+
+tf_major_version = package_utils.get_tf_major_version()
+if tf_major_version == 1:
+    from keras.preprocessing import image
+elif tf_major_version == 2:
+    from tensorflow.keras.preprocessing import image
+
 
 def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
     """
@@ -66,8 +76,8 @@ def load_image_from_web(url: str) -> np.ndarray:
     response = requests.get(url, stream=True, timeout=60)
     response.raise_for_status()
     image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
-    image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-    return image
+    img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    return img
 
 
 def load_base64(uri: str) -> np.ndarray:
@@ -155,5 +165,52 @@ def normalize_input(img: np.ndarray, normalization: str = "base") -> np.ndarray:
         img /= 128
     else:
         raise ValueError(f"unimplemented normalization type - {normalization}")
+
+    return img
+
+
+def resize_image(img: np.ndarray, target_size: Tuple[int, int]) -> np.ndarray:
+    """
+    Resize an image to expected size of a ml model with adding black pixels.
+    Args:
+        img (np.ndarray): pre-loaded image as numpy array
+        target_size (tuple): input shape of ml model
+    Returns:
+        img (np.ndarray): resized input image
+    """
+    factor_0 = target_size[0] / img.shape[0]
+    factor_1 = target_size[1] / img.shape[1]
+    factor = min(factor_0, factor_1)
+
+    dsize = (
+        int(img.shape[1] * factor),
+        int(img.shape[0] * factor),
+    )
+    img = cv2.resize(img, dsize)
+
+    diff_0 = target_size[0] - img.shape[0]
+    diff_1 = target_size[1] - img.shape[1]
+
+    # Put the base image in the middle of the padded image
+    img = np.pad(
+        img,
+        (
+            (diff_0 // 2, diff_0 - diff_0 // 2),
+            (diff_1 // 2, diff_1 - diff_1 // 2),
+            (0, 0),
+        ),
+        "constant",
+    )
+
+    # double check: if target image is not still the same size with target.
+    if img.shape[0:2] != target_size:
+        img = cv2.resize(img, target_size)
+
+    # make it 4-dimensional how ML models expect
+    img = image.img_to_array(img)
+    img = np.expand_dims(img, axis=0)
+
+    if img.max() > 1:
+        img = (img.astype(np.float32) / 255.0).astype(np.float32)
 
     return img

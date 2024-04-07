@@ -62,7 +62,7 @@ def analysis(
     """
     # initialize models
     build_demography_models(enable_face_analysis=enable_face_analysis)
-    target_size = build_facial_recognition_model(model_name=model_name)
+    build_facial_recognition_model(model_name=model_name)
     # call a dummy find function for db_path once to create embeddings before starting webcam
     _ = search_identity(
         detected_face=np.zeros([224, 224, 3]),
@@ -89,9 +89,7 @@ def analysis(
 
         faces_coordinates = []
         if freeze is False:
-            faces_coordinates = grab_facial_areas(
-                img=img, detector_backend=detector_backend, target_size=target_size
-            )
+            faces_coordinates = grab_facial_areas(img=img, detector_backend=detector_backend)
 
             # we will pass img to analyze modules (identity, demography) and add some illustrations
             # that is why, we will not be able to extract detected face from img clearly
@@ -156,7 +154,7 @@ def analysis(
     cv2.destroyAllWindows()
 
 
-def build_facial_recognition_model(model_name: str) -> tuple:
+def build_facial_recognition_model(model_name: str) -> None:
     """
     Build facial recognition model
     Args:
@@ -165,9 +163,8 @@ def build_facial_recognition_model(model_name: str) -> tuple:
     Returns
         input_shape (tuple): input shape of given facial recognitio n model.
     """
-    model: FacialRecognition = DeepFace.build_model(model_name=model_name)
+    _ = DeepFace.build_model(model_name=model_name)
     logger.info(f"{model_name} is built")
-    return model.input_shape
 
 
 def search_identity(
@@ -231,7 +228,6 @@ def search_identity(
     # load found identity image - extracted if possible
     target_objs = DeepFace.extract_faces(
         img_path=target_path,
-        target_size=(IDENTIFIED_IMG_SIZE, IDENTIFIED_IMG_SIZE),
         detector_backend=detector_backend,
         enforce_detection=False,
         align=True,
@@ -243,6 +239,7 @@ def search_identity(
         # extract 1st item directly
         target_obj = target_objs[0]
         target_img = target_obj["face"]
+        target_img = cv2.resize(target_img, (IDENTIFIED_IMG_SIZE, IDENTIFIED_IMG_SIZE))
         target_img *= 255
         target_img = target_img[:, :, ::-1]
     else:
@@ -346,7 +343,7 @@ def countdown_to_release(
 
 
 def grab_facial_areas(
-    img: np.ndarray, detector_backend: str, target_size: Tuple[int, int], threshold: int = 130
+    img: np.ndarray, detector_backend: str, threshold: int = 130
 ) -> List[Tuple[int, int, int, int]]:
     """
     Find facial area coordinates in the given image
@@ -354,7 +351,6 @@ def grab_facial_areas(
         img (np.ndarray): image itself
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv).
-        target_size (tuple): input shape of the facial recognition model.
         threshold (int): threshold for facial area, discard smaller ones
     Returns
         result (list): list of tuple with x, y, w and h coordinates
@@ -363,7 +359,6 @@ def grab_facial_areas(
         face_objs = DeepFace.extract_faces(
             img_path=img,
             detector_backend=detector_backend,
-            target_size=target_size,
             # you may consider to extract with larger expanding value
             expand_percentage=0,
         )

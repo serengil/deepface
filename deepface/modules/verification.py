@@ -223,12 +223,8 @@ def __extract_faces_and_embeddings(
     embeddings = []
     facial_areas = []
 
-    model: FacialRecognition = modeling.build_model(model_name)
-    target_size = model.input_shape
-
     img_objs = detection.extract_faces(
         img_path=img_path,
-        target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
         enforce_detection=enforce_detection,
