@@ -3,12 +3,12 @@ import os
 import pickle
 from typing import List, Union, Optional, Dict, Any
 import time
-import imghdr
 
 # 3rd party dependencies
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from PIL import Image
 
 # project dependencies
 from deepface.commons.logger import Logger
@@ -298,7 +298,16 @@ def __list_images(path: str) -> List[str]:
     for r, _, f in os.walk(path):
         for file in f:
             exact_path = os.path.join(r, file)
-            file_type = imghdr.what(exact_path)
+
+            _, ext = os.path.splitext(exact_path)
+            ext_lower = ext.lower()
+
+            if ext_lower not in {".jpg", ".jpeg", ".png"}:
+                continue
+
+            img = Image.open(exact_path)  # lazy
+
+            file_type = img.format.lower()
             if file_type in ["jpeg", "png"]:
                 images.append(exact_path)
     return images
