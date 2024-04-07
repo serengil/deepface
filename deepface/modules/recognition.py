@@ -321,8 +321,6 @@ def __find_bulk_embeddings(
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
-        target_size (tuple): expected input shape of facial recognition model
-
         detector_backend (str): face detector model name
 
         enforce_detection (bool): set this to False if you

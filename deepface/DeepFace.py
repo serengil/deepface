@@ -10,6 +10,7 @@ os.environ["TF_USE_LEGACY_KERAS"] = "1"
 # pylint: disable=wrong-import-position
 
 # 3rd party dependencies
+import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -532,7 +533,6 @@ def detectFace(
     logger.warn("Function detectFace is deprecated. Use extract_faces instead.")
     face_objs = extract_faces(
         img_path=img_path,
-        target_size=target_size,
         detector_backend=detector_backend,
         enforce_detection=enforce_detection,
         align=align,
@@ -541,4 +541,5 @@ def detectFace(
     extracted_face = None
     if len(face_objs) > 0:
         extracted_face = face_objs[0]["face"]
+        extracted_face = cv2.resize(extracted_face, target_size)
     return extracted_face

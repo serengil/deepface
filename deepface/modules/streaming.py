@@ -10,7 +10,6 @@ import cv2
 
 # project dependencies
 from deepface import DeepFace
-from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
 
 logger = Logger(module="commons.realtime")
