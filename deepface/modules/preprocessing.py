@@ -88,13 +88,12 @@ def load_base64(uri: str) -> np.ndarray:
     encoded_data = encoded_data_parts[1]
     decoded_bytes = base64.b64decode(encoded_data)
 
-    img = Image.open(io.BytesIO(decoded_bytes))
-    file_type = img.format.lower()
-
     # similar to find functionality, we are just considering these extensions
     # content type is safer option than file extension
-    if file_type not in ["jpeg", "png"]:
-        raise ValueError(f"input image can be jpg or png, but it is {file_type}")
+    with Image.open(io.BytesIO(decoded_bytes)) as img:
+        file_type = img.format.lower()
+        if file_type not in ["jpeg", "png"]:
+            raise ValueError(f"input image can be jpg or png, but it is {file_type}")
 
     nparr = np.fromstring(decoded_bytes, np.uint8)
     img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)

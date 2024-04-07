@@ -305,11 +305,9 @@ def __list_images(path: str) -> List[str]:
             if ext_lower not in {".jpg", ".jpeg", ".png"}:
                 continue
 
-            img = Image.open(exact_path)  # lazy
-
-            file_type = img.format.lower()
-            if file_type in ["jpeg", "png"]:
-                images.append(exact_path)
+            with Image.open(exact_path) as img:  # lazy
+                if img.format.lower() in ["jpeg", "png"]:
+                    images.append(exact_path)
     return images
 
 
