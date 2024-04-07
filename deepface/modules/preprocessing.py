@@ -3,12 +3,13 @@ import os
 from typing import Union, Tuple
 import base64
 from pathlib import Path
-import imghdr
+import io
 
 # 3rd party
 import numpy as np
 import cv2
 import requests
+from PIL import Image
 
 
 def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
@@ -86,7 +87,9 @@ def load_base64(uri: str) -> np.ndarray:
 
     encoded_data = encoded_data_parts[1]
     decoded_bytes = base64.b64decode(encoded_data)
-    file_type = imghdr.what(None, h=decoded_bytes)
+
+    img = Image.open(io.BytesIO(decoded_bytes))
+    file_type = img.format.lower()
 
     # similar to find functionality, we are just considering these extensions
     # content type is safer option than file extension
