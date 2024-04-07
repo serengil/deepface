@@ -14,10 +14,6 @@ PATH = "/.deepface/weights/yolov8n-face.pt"
 # Google Drive URL from repo (https://github.com/derronqi/yolov8-face) ~6MB
 WEIGHT_URL = "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb"
 
-# Confidence thresholds for landmarks detection
-# used in alignment_procedure function
-LANDMARKS_CONFIDENCE_THRESHOLD = 0.5
-
 
 class YoloClient(Detector):
     def __init__(self):
