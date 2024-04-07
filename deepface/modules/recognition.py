@@ -3,6 +3,7 @@ import os
 import pickle
 from typing import List, Union, Optional, Dict, Any
 import time
+import imghdr
 
 # 3rd party dependencies
 import numpy as np
@@ -296,8 +297,9 @@ def __list_images(path: str) -> List[str]:
     images = []
     for r, _, f in os.walk(path):
         for file in f:
-            if file.lower().endswith((".jpg", ".jpeg", ".png")):
-                exact_path = os.path.join(r, file)
+            exact_path = os.path.join(r, file)
+            file_type = imghdr.what(exact_path)
+            if file_type in ["jpeg", "png"]:
                 images.append(exact_path)
     return images
 

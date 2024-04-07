@@ -1,7 +1,9 @@
+# built-in dependencies
 import os
 from typing import Union, Tuple
 import base64
 from pathlib import Path
+import imghdr
 
 # 3rd party
 import numpy as np
@@ -82,16 +84,16 @@ def load_base64(uri: str) -> np.ndarray:
     if len(encoded_data_parts) < 2:
         raise ValueError("format error in base64 encoded string")
 
-    # similar to find functionality, we are just considering these extensions
-    if not (
-        uri.startswith("data:image/jpeg")
-        or uri.startswith("data:image/jpg")
-        or uri.startswith("data:image/png")
-    ):
-        raise ValueError(f"input image can be jpg, jpeg or png, but it is {encoded_data_parts}")
-
     encoded_data = encoded_data_parts[1]
-    nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
+    decoded_bytes = base64.b64decode(encoded_data)
+    file_type = imghdr.what(None, h=decoded_bytes)
+
+    # similar to find functionality, we are just considering these extensions
+    # content type is safer option than file extension
+    if file_type not in ["jpeg", "png"]:
+        raise ValueError(f"input image can be jpg or png, but it is {file_type}")
+
+    nparr = np.fromstring(decoded_bytes, np.uint8)
     img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
     return img_bgr
