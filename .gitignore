@@ -13,3 +13,7 @@ tests/*.csv
 *.pyc
 **/.coverage
 **/.coverage.*
+benchmarks/results
+benchmarks/outputs
+benchmarks/dataset
+benchmarks/lfwe
