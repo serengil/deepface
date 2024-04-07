@@ -18,6 +18,7 @@ model_names = [
     "Dlib",
     "ArcFace",
     "SFace",
+    "GhostFaceNet",
 ]
 
 detector_backends = [

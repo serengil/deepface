@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Tuple, Union, Optional
+from typing import Any, Dict, List, Tuple, Union
 
 # 3rd part dependencies
 import numpy as np
@@ -10,7 +10,6 @@ from PIL import Image
 from deepface.modules import preprocessing
 from deepface.models.Detector import DetectedFace, FacialAreaRegion
 from deepface.detectors import DetectorWrapper
-from deepface.commons import package_utils
 from deepface.commons.logger import Logger
 
 logger = Logger(module="deepface/modules/detection.py")
@@ -18,22 +17,13 @@ logger = Logger(module="deepface/modules/detection.py")
 # pylint: disable=no-else-raise
 
 
-tf_major_version = package_utils.get_tf_major_version()
-if tf_major_version == 1:
-    from keras.preprocessing import image
-elif tf_major_version == 2:
-    from tensorflow.keras.preprocessing import image
-
-
 def extract_faces(
     img_path: Union[str, np.ndarray],
-    target_size: Optional[Tuple[int, int]] = (224, 224),
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
     expand_percentage: int = 0,
     grayscale: bool = False,
-    human_readable=False,
 ) -> List[Dict[str, Any]]:
     """
     Extract faces from a given image
@@ -41,9 +31,6 @@ def extract_faces(
     Args:
         img_path (str or np.ndarray): Path to the first image. Accepts exact image path
             as a string, numpy array (BGR), or base64 encoded images.
-
-        target_size (tuple): final shape of facial image. black pixels will be
-            added to resize the image.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv)
@@ -58,13 +45,10 @@ def extract_faces(
         grayscale (boolean): Flag to convert the image to grayscale before
             processing (default is False).
 
-        human_readable (bool): Flag to make the image human readable. 3D RGB for human readable
-            or 4D BGR for ML models (default is False).
-
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary contains:
 
-        - "face" (np.ndarray): The detected face as a NumPy array.
+        - "face" (np.ndarray): The detected face as a NumPy array in RGB format.
 
         - "facial_area" (Dict[str, Any]): The detected face's regions as a dictionary containing:
             - keys 'x', 'y', 'w', 'h' with int values
@@ -122,57 +106,11 @@ def extract_faces(
         if grayscale is True:
             current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
 
-        # resize and padding
-        if target_size is not None:
-            factor_0 = target_size[0] / current_img.shape[0]
-            factor_1 = target_size[1] / current_img.shape[1]
-            factor = min(factor_0, factor_1)
-
-            dsize = (
-                int(current_img.shape[1] * factor),
-                int(current_img.shape[0] * factor),
-            )
-            current_img = cv2.resize(current_img, dsize)
-
-            diff_0 = target_size[0] - current_img.shape[0]
-            diff_1 = target_size[1] - current_img.shape[1]
-            if grayscale is False:
-                # Put the base image in the middle of the padded image
-                current_img = np.pad(
-                    current_img,
-                    (
-                        (diff_0 // 2, diff_0 - diff_0 // 2),
-                        (diff_1 // 2, diff_1 - diff_1 // 2),
-                        (0, 0),
-                    ),
-                    "constant",
-                )
-            else:
-                current_img = np.pad(
-                    current_img,
-                    (
-                        (diff_0 // 2, diff_0 - diff_0 // 2),
-                        (diff_1 // 2, diff_1 - diff_1 // 2),
-                    ),
-                    "constant",
-                )
-
-            # double check: if target image is not still the same size with target.
-            if current_img.shape[0:2] != target_size:
-                current_img = cv2.resize(current_img, target_size)
-
-        # normalizing the image pixels
-        # what this line doing? must?
-        img_pixels = image.img_to_array(current_img)
-        img_pixels = np.expand_dims(img_pixels, axis=0)
-        img_pixels /= 255  # normalize input in [0, 1]
-        # discard expanded dimension
-        if human_readable is True and len(img_pixels.shape) == 4:
-            img_pixels = img_pixels[0]
+        current_img = current_img / 255  # normalize input in [0, 1]
 
         resp_objs.append(
             {
-                "face": img_pixels[:, :, ::-1] if human_readable is True else img_pixels,
+                "face": current_img[:, :, ::-1],
                 "facial_area": {
                     "x": int(current_region.x),
                     "y": int(current_region.y),
