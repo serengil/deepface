@@ -39,3 +39,16 @@ class Logger:
 
     def dump_log(self, message):
         print(f"{str(datetime.now())[2:-7]} - {message}")
+
+
+def get_singletonish_logger():
+    # singleton design pattern
+    global model_obj
+
+    if not "model_obj" in globals():
+        model_obj = {}
+
+    if "logger" not in model_obj.keys():
+        model_obj["logger"] = Logger(module="Singleton")
+
+    return model_obj["logger"]

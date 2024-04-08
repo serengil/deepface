@@ -8,9 +8,9 @@ import numpy as np
 # project dependencies
 from deepface.modules import representation, detection, modeling
 from deepface.models.FacialRecognition import FacialRecognition
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger(module="deepface/modules/verification.py")
+logger = log.get_singletonish_logger()
 
 
 def verify(
@@ -45,7 +45,7 @@ def verify(
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv)
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' or 'skip' (default is opencv)
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
             'euclidean', 'euclidean_l2' (default is cosine).

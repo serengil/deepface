@@ -1,12 +1,17 @@
+# built-in dependencies
 import os
+
+# 3rd party dependencies
 import gdown
 import numpy as np
+
+# project dependencies
 from deepface.basemodels import VGGFace
 from deepface.commons import package_utils, folder_utils
-from deepface.commons.logger import Logger
 from deepface.models.Demography import Demography
+from deepface.commons import logger as log
 
-logger = Logger(module="extendedmodels.Race")
+logger = log.get_singletonish_logger()
 
 # --------------------------
 # pylint: disable=line-too-long

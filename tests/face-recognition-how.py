@@ -1,13 +1,15 @@
+# 3rd party dependencies
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
+# project dependencies
 from deepface import DeepFace
 from deepface.modules import verification
 from deepface.models.FacialRecognition import FacialRecognition
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger()
+logger = log.get_singletonish_logger()
 
 # ----------------------------------------------
 # build face recognition model

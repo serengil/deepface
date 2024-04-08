@@ -1,11 +1,14 @@
+# 3rd party dependencies
 import numpy as np
 import base64
 import pytest
+
+# project dependencies
 from deepface import DeepFace
 from deepface.modules import preprocessing
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger("tests/test_extract_faces.py")
+logger = log.get_singletonish_logger()
 
 detectors = ["opencv", "mtcnn"]
 

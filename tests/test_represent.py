@@ -1,9 +1,11 @@
+# built-in dependencies
 import cv2
+
+# project dependencies
 from deepface import DeepFace
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger("tests/test_represent.py")
-
+logger = log.get_singletonish_logger()
 
 def test_standard_represent():
     img_path = "dataset/img1.jpg"

@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger(module="deepface/commons/folder_utils.py")
+logger = log.get_singletonish_logger()
 
 
 def initialize_folder() -> None:
