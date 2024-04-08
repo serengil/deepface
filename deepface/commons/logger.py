@@ -17,9 +17,6 @@ class Logger:
             )
             self.log_level = logging.INFO
 
-        # TODO: delete print before commit
-        print("Logger object created")
-
     def info(self, message):
         if self.log_level <= logging.INFO:
             self.dump_log(f"{message}")
