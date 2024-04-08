@@ -1,8 +1,11 @@
+# 3rd party dependencies
 import matplotlib.pyplot as plt
-from deepface import DeepFace
-from deepface.commons.logger import Logger
 
-logger = Logger()
+# project dependencies
+from deepface import DeepFace
+from deepface.commons import logger as log
+
+logger = log.get_singletonish_logger()
 
 # some models (e.g. Dlib) and detectors (e.g. retinaface) do not have test cases
 # because they require to install huge packages

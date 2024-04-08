@@ -11,11 +11,11 @@ from tqdm import tqdm
 from PIL import Image
 
 # project dependencies
-from deepface.commons.logger import Logger
 from deepface.commons import package_utils
 from deepface.modules import representation, detection, verification
+from deepface.commons import logger as log
 
-logger = Logger(module="deepface/modules/recognition.py")
+logger = log.get_singletonish_logger()
 
 
 def find(
@@ -52,7 +52,7 @@ def find(
             Default is True. Set to False to avoid the exception for low-resolution images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' or 'skip'.
 
         align (boolean): Perform alignment based on the eye positions.
 

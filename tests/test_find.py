@@ -1,12 +1,18 @@
+# built-in dependencies
 import os
+
+# 3rd party dependencies
 import cv2
 import pandas as pd
+
+# project dependencies
 from deepface import DeepFace
 from deepface.modules import verification
 from deepface.modules import recognition
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger("tests/test_find.py")
+logger = log.get_singletonish_logger()
+
 
 threshold = verification.find_threshold(model_name="VGG-Face", distance_metric="cosine")
 

@@ -1,8 +1,12 @@
+# 3rd party dependencies
 import cv2
-from deepface import DeepFace
-from deepface.commons.logger import Logger
 
-logger = Logger("tests/test_analyze.py")
+# project dependencies
+from deepface import DeepFace
+from deepface.commons import logger as log
+
+logger = log.get_singletonish_logger()
+
 
 detectors = ["opencv", "mtcnn"]
 

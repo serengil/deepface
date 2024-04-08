@@ -1,13 +1,18 @@
+# built-in dependencies
 import os
 from typing import Any, List
+
+# 3rd party dependencies
 import cv2
 import numpy as np
 import gdown
+
+# project dependencies
 from deepface.commons import folder_utils
 from deepface.models.Detector import Detector, FacialAreaRegion
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger(module="detectors.YunetWrapper")
+logger = log.get_singletonish_logger()
 
 
 class YuNetClient(Detector):

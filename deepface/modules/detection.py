@@ -10,9 +10,9 @@ from PIL import Image
 from deepface.modules import preprocessing
 from deepface.models.Detector import DetectedFace, FacialAreaRegion
 from deepface.detectors import DetectorWrapper
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger(module="deepface/modules/detection.py")
+logger = log.get_singletonish_logger()
 
 # pylint: disable=no-else-raise
 
@@ -33,7 +33,7 @@ def extract_faces(
             as a string, numpy array (BGR), or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv)
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' or 'skip' (default is opencv)
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Default is True. Set to False to avoid the exception for low-resolution images.

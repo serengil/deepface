@@ -13,9 +13,9 @@ from deepface.detectors import (
     Yolo,
     YuNet,
 )
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger(module="deepface/detectors/DetectorWrapper.py")
+logger = log.get_singletonish_logger()
 
 
 def build_model(detector_backend: str) -> Any:
