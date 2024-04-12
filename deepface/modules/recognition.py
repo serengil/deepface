@@ -92,8 +92,22 @@ def find(
     if os.path.isdir(db_path) is not True:
         raise ValueError("Passed db_path does not exist!")
 
-    file_name = f"ds_{model_name}_{detector_backend}_v2.pkl"
+    file_parts = [
+        "ds",
+        "model",
+        model_name,
+        "detector",
+        detector_backend,
+        "aligned" if align else "unaligned",
+        "normalization",
+        normalization,
+        "expand",
+        str(expand_percentage),
+    ]
+
+    file_name = "_".join(file_parts) + ".pkl"
     file_name = file_name.replace("-", "").lower()
+    
     datastore_path = os.path.join(db_path, file_name)
     representations = []
 
@@ -176,6 +190,7 @@ def find(
             detector_backend=detector_backend,
             enforce_detection=enforce_detection,
             align=align,
+            expand_percentage=expand_percentage,
             normalization=normalization,
             silent=silent,
         )  # add new images
