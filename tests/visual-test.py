@@ -37,7 +37,6 @@ detector_backends = [
     "centerface",
 ]
 
-"""
 # verification
 for model_name in model_names:
     obj = DeepFace.verify(
@@ -60,7 +59,6 @@ dfs = DeepFace.find(
 )
 for df in dfs:
     logger.info(df)
-"""
 
 expand_areas = [0]
 img_paths = ["dataset/img11.jpg", "dataset/img11_reflection.jpg"]
