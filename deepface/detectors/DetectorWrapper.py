@@ -12,6 +12,7 @@ from deepface.detectors import (
     Ssd,
     Yolo,
     YuNet,
+    CenterFace,
 )
 from deepface.commons import logger as log
 
@@ -38,6 +39,7 @@ def build_model(detector_backend: str) -> Any:
         "yolov8": Yolo.YoloClient,
         "yunet": YuNet.YuNetClient,
         "fastmtcnn": FastMtCnn.FastMtCnnClient,
+        "centerface": CenterFace.CenterFaceClient,
     }
 
     if not "face_detector_obj" in globals():
@@ -93,7 +95,7 @@ def detect_faces(
         expand_percentage = 0
 
     # find facial areas of given image
-    facial_areas = face_detector.detect_faces(img=img)
+    facial_areas = face_detector.detect_faces(img)
 
     results = []
     for facial_area in facial_areas:
