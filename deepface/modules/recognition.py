@@ -107,7 +107,7 @@ def find(
 
     file_name = "_".join(file_parts) + ".pkl"
     file_name = file_name.replace("-", "").lower()
-    
+
     datastore_path = os.path.join(db_path, file_name)
     representations = []
 
