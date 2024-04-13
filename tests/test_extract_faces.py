@@ -6,6 +6,7 @@ import pytest
 # project dependencies
 from deepface import DeepFace
 from deepface.modules import preprocessing
+from deepface.commons import image_utils
 from deepface.commons import logger as log
 
 logger = log.get_singletonish_logger()
@@ -60,12 +61,12 @@ def test_file_types_while_loading_base64():
     img1_base64 = image_to_base64(image_path=img1_path)
 
     with pytest.raises(ValueError, match="input image can be jpg or png, but it is"):
-        _ = preprocessing.load_base64(uri=img1_base64)
+        _ = image_utils.load_image_from_base64(uri=img1_base64)
 
     img2_path = "dataset/img1.jpg"
     img2_base64 = image_to_base64(image_path=img2_path)
 
-    img2 = preprocessing.load_base64(uri=img2_base64)
+    img2 = image_utils.load_image_from_base64(uri=img2_base64)
     # 3 dimensional image should be loaded
     assert len(img2.shape) == 3
 
