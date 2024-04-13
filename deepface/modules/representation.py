@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Union
 import numpy as np
 
 # project dependencies
+from deepface.commons import image_utils
 from deepface.modules import modeling, detection, preprocessing
 from deepface.models.FacialRecognition import FacialRecognition
 
@@ -74,7 +75,7 @@ def represent(
         )
     else:  # skip
         # Try load. If load error, will raise exception internal
-        img, _ = preprocessing.load_image(img_path)
+        img, _ = image_utils.load_image(img_path)
 
         if len(img.shape) != 3:
             raise ValueError(f"Input img must be 3 dimensional but it is {img.shape}")
