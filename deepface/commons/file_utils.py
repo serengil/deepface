@@ -1,9 +1,14 @@
 # built-in dependencies
 import os
+import io
 from typing import List
 import hashlib
+import base64
 
 # 3rd party dependencies
+import requests
+import numpy as np
+import cv2
 from PIL import Image
 
 
@@ -53,3 +58,48 @@ def find_hash_of_file(file_path: str) -> str:
     hasher = hashlib.sha1()
     hasher.update(properties.encode("utf-8"))
     return hasher.hexdigest()
+
+
+def load_base64(uri: str) -> np.ndarray:
+    """
+    Load image from base64 string.
+    Args:
+        uri: a base64 string.
+    Returns:
+        numpy array: the loaded image.
+    """
+
+    encoded_data_parts = uri.split(",")
+
+    if len(encoded_data_parts) < 2:
+        raise ValueError("format error in base64 encoded string")
+
+    encoded_data = encoded_data_parts[1]
+    decoded_bytes = base64.b64decode(encoded_data)
+
+    # similar to find functionality, we are just considering these extensions
+    # content type is safer option than file extension
+    with Image.open(io.BytesIO(decoded_bytes)) as img:
+        file_type = img.format.lower()
+        if file_type not in ["jpeg", "png"]:
+            raise ValueError(f"input image can be jpg or png, but it is {file_type}")
+
+    nparr = np.fromstring(decoded_bytes, np.uint8)
+    img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+    return img_bgr
+
+
+def load_image_from_web(url: str) -> np.ndarray:
+    """
+    Loading an image from web
+    Args:
+        url: link for the image
+    Returns:
+        img (np.ndarray): equivalent to pre-loaded image from opencv (BGR format)
+    """
+    response = requests.get(url, stream=True, timeout=60)
+    response.raise_for_status()
+    image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
+    img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    return img

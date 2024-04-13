@@ -9,6 +9,7 @@ import pandas as pd
 from deepface import DeepFace
 from deepface.modules import verification
 from deepface.modules import recognition
+from deepface.commons import file_utils
 from deepface.commons import logger as log
 
 logger = log.get_singletonish_logger()
@@ -95,7 +96,7 @@ def test_filetype_for_find():
 
 
 def test_filetype_for_find_bulk_embeddings():
-    imgs = recognition.__list_images("dataset")
+    imgs = file_utils.list_images("dataset")
 
     assert len(imgs) > 0
 

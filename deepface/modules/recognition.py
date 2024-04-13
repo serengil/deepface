@@ -10,7 +10,7 @@ import pandas as pd
 from tqdm import tqdm
 
 # project dependencies
-from deepface.commons import package_utils, file_utils
+from deepface.commons import file_utils
 from deepface.modules import representation, detection, verification
 from deepface.commons import logger as log
 

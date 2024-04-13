@@ -1,6 +1,3 @@
-# built-in dependencies
-import os
-
 # 3rd party dependencies
 import tensorflow as tf
 
