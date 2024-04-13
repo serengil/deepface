@@ -1,5 +1,8 @@
+# 3rd party dependencies
 import cv2
 import matplotlib.pyplot as plt
+
+# project dependencies
 from deepface.modules import streaming
 from deepface import DeepFace
 

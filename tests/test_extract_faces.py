@@ -1,11 +1,12 @@
+# built-in dependencies
+import base64
+
 # 3rd party dependencies
 import numpy as np
-import base64
 import pytest
 
 # project dependencies
 from deepface import DeepFace
-from deepface.modules import preprocessing
 from deepface.commons import image_utils
 from deepface.commons import logger as log
 
