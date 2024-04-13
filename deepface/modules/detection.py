@@ -7,9 +7,9 @@ import cv2
 from PIL import Image
 
 # project dependencies
-from deepface.modules import preprocessing
 from deepface.models.Detector import DetectedFace, FacialAreaRegion
 from deepface.detectors import DetectorWrapper
+from deepface.commons import image_utils
 from deepface.commons import logger as log
 
 logger = log.get_singletonish_logger()
@@ -63,7 +63,7 @@ def extract_faces(
     resp_objs = []
 
     # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
-    img, img_name = preprocessing.load_image(img_path)
+    img, img_name = image_utils.load_image(img_path)
 
     if img is None:
         raise ValueError(f"Exception while loading {img_name}")

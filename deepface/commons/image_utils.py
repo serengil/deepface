@@ -1,9 +1,10 @@
 # built-in dependencies
 import os
 import io
-from typing import List
+from typing import List, Union, Tuple
 import hashlib
 import base64
+from pathlib import Path
 
 # 3rd party dependencies
 import requests
@@ -37,7 +38,7 @@ def list_images(path: str) -> List[str]:
     return images
 
 
-def find_hash_of_file(file_path: str) -> str:
+def find_image_hash(file_path: str) -> str:
     """
     Find the hash of given image file with its properties
         finding the hash of image content is costly operation
@@ -60,7 +61,50 @@ def find_hash_of_file(file_path: str) -> str:
     return hasher.hexdigest()
 
 
-def load_base64(uri: str) -> np.ndarray:
+def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
+    """
+    Load image from path, url, base64 or numpy array.
+    Args:
+        img: a path, url, base64 or numpy array.
+    Returns:
+        image (numpy array): the loaded image in BGR format
+        image name (str): image name itself
+    """
+
+    # The image is already a numpy array
+    if isinstance(img, np.ndarray):
+        return img, "numpy array"
+
+    if isinstance(img, Path):
+        img = str(img)
+
+    if not isinstance(img, str):
+        raise ValueError(f"img must be numpy array or str but it is {type(img)}")
+
+    # The image is a base64 string
+    if img.startswith("data:image/"):
+        return load_image_from_base64(img), "base64 encoded string"
+
+    # The image is a url
+    if img.lower().startswith("http://") or img.lower().startswith("https://"):
+        return load_image_from_web(url=img), img
+
+    # The image is a path
+    if os.path.isfile(img) is not True:
+        raise ValueError(f"Confirm that {img} exists")
+
+    # image must be a file on the system then
+
+    # image name must have english characters
+    if img.isascii() is False:
+        raise ValueError(f"Input image must not have non-english characters - {img}")
+
+    img_obj_bgr = cv2.imread(img)
+    # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
+    return img_obj_bgr, img
+
+
+def load_image_from_base64(uri: str) -> np.ndarray:
     """
     Load image from base64 string.
     Args:

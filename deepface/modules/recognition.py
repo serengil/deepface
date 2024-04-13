@@ -10,7 +10,7 @@ import pandas as pd
 from tqdm import tqdm
 
 # project dependencies
-from deepface.commons import file_utils
+from deepface.commons import image_utils
 from deepface.modules import representation, detection, verification
 from deepface.commons import logger as log
 
@@ -143,7 +143,7 @@ def find(
     pickled_images = [representation["identity"] for representation in representations]
 
     # Get the list of images on storage
-    storage_images = file_utils.list_images(path=db_path)
+    storage_images = image_utils.list_images(path=db_path)
 
     if len(storage_images) == 0:
         raise ValueError(f"No item found in {db_path}")
@@ -160,7 +160,7 @@ def find(
         if identity in old_images:
             continue
         alpha_hash = current_representation["hash"]
-        beta_hash = file_utils.find_hash_of_file(identity)
+        beta_hash = image_utils.find_image_hash(identity)
         if alpha_hash != beta_hash:
             logger.debug(f"Even though {identity} represented before, it's replaced later.")
             replaced_images.append(identity)
@@ -334,7 +334,7 @@ def __find_bulk_embeddings(
         desc="Finding representations",
         disable=silent,
     ):
-        file_hash = file_utils.find_hash_of_file(employee)
+        file_hash = image_utils.find_image_hash(employee)
 
         try:
             img_objs = detection.extract_faces(
