@@ -82,10 +82,10 @@ class CenterFaceClient(Detector):
             # mouth_left = (int(landmark[8]), int(landmark [9]))
 
             facial_area = FacialAreaRegion(
-                x=x,
-                y=y,
-                w=w,
-                h=h,
+                x=int(x),
+                y=int(y),
+                w=int(w),
+                h=int(h),
                 left_eye=left_eye,
                 right_eye=right_eye,
                 confidence=min(max(0, float(confidence)), 1.0),
