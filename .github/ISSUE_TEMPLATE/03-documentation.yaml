@@ -4,19 +4,6 @@ title: '[DOC]: '
 labels:
   - documentation
 body:
-  - type: checkboxes
-    id: preliminary-checks
-    attributes:
-      label: Before You File a Documentation Request Please Confirm You Have Done The Following...
-      options:
-        - label: I have looked for existing [open or closed documentation requests](https://github.com/typescript-eslint/typescript-eslint/issues?q=is%3Aissue+label%3Adocumentation) that match my proposal.
-          required: true
-        - label: I have [read the FAQ](https://typescript-eslint.io/linting/troubleshooting) and my problem is not listed.
-          required: true
-  - type: markdown
-    attributes:
-      value: |
-        If your request is for help, not documentation, please ask on [StackOverflow](https://stackoverflow.com/questions/tagged/typescript-eslint)
   - type: textarea
     attributes:
       label: Suggested Changes
