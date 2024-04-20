@@ -1,6 +1,6 @@
 name: '🐛 Report a bug'
 description: 'Template for reporting bugs in the DeepFace project.'
-title: [BUG]: 
+title: '[BUG]: '
 labels:
   - bug
 body:
