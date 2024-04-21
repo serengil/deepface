@@ -1,6 +1,6 @@
 name: '✨ Request a New Feature'
-description: 'Propose a new feature'
-title: '[FEATURE]: '
+description: 'Use this template to propose a new feature'
+title: '[FEATURE]: <a short description of my proposal>'
 labels:
   - 'enhancement'
 body:

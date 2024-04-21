@@ -1,6 +1,6 @@
 name: '📝 Documentation'
-description: 'Adding or improving in docs'
-title: '[DOC]: '
+description: 'Use this template to add or improve docs'
+title: '[DOC]: <a short description of my proposal>'
 labels:
   - documentation
 body:
