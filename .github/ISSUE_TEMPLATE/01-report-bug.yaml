@@ -9,8 +9,8 @@ body:
     attributes:
       label: DeepFace's version
       description: |
-        Please provide your deepface version with calling `DeepFace.__version__` in your python program
-      placeholder: v0.0.X
+        Please provide your deepface version with calling the command `python -c "import deepface; print(deepface.__version__)"` in your terminal
+      placeholder: e.g. v0.0.90
     validations:
       required: true
   - type: input
@@ -19,7 +19,7 @@ body:
       label: Python version
       description: |
         Please provide your python programming language's version with calling `python --version` in your terminal
-      placeholder: 3.8.5
+      placeholder: e.g. 3.8.5
     validations:
       required: true
   - type: input
@@ -36,13 +36,13 @@ body:
     attributes:
       label: Dependencies
       description: |
-        Please provide python dependencies with calling `pip freeze`, in particular tensorflow's and keras' versions
+        Please provide python dependencies with calling `pip freeze` in your terminal, in particular tensorflow's and keras' versions
     validations:
       required: true
   - type: textarea
     id: repro-code
     attributes:
-      label: Repro Code
+      label: Reproducible example
       description: A ***minimal*** code sample which reproduces the issue
       render: Python
     validations:
@@ -50,7 +50,7 @@ body:
   - type: textarea
     id: exception-message
     attributes:
-      label: Exception Message
+      label: Relevant Log Output
       description: Please share the exception message from your terminal if your program is failing
     validations:
       required: false

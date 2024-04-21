@@ -10,3 +10,9 @@ body:
       description: What would you like to see happen in the docs?
     validations:
       required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Info
+      description: |
+        Any additional info you'd like to provide.
