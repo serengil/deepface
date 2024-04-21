@@ -4,6 +4,16 @@ title: '[BUG]: <short description of the issue>'
 labels:
   - bug
 body:
+  - type: checkboxes
+    id: preliminary-checks
+    attributes:
+      label: Before You Report a Bug, Please Confirm You Have Done The Following...
+      description: If any of these required steps are not taken, we may not be able to review your issue. Help us to help you!
+      options:
+        - label: I have updated to the latest version of the packages.
+          required: true
+        - label: I have searched for both [existing issues](https://github.com/serengil/deepface/issues) and [closed issues](https://github.com/serengil/deepface/issues?q=is%3Aissue+is%3Aclosed) and found none that matched my issue.
+          required: true
   - type: input
     id: deepface-version
     attributes:
