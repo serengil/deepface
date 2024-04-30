@@ -2,4 +2,4 @@ blank_issues_enabled: false
 contact_links:
   - name: Ask a question on StackOverflow
     about: If you just want to ask a question, consider asking it on StackOverflow!
-    url: https://stackoverflow.com/questions/tagged/deepface
+    url: https://stackoverflow.com/search?tab=newest&q=deepface
