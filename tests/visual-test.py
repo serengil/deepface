@@ -1,8 +1,11 @@
+# 3rd party dependencies
 import matplotlib.pyplot as plt
-from deepface import DeepFace
-from deepface.commons.logger import Logger
 
-logger = Logger()
+# project dependencies
+from deepface import DeepFace
+from deepface.commons import logger as log
+
+logger = log.get_singletonish_logger()
 
 # some models (e.g. Dlib) and detectors (e.g. retinaface) do not have test cases
 # because they require to install huge packages
@@ -18,6 +21,7 @@ model_names = [
     "Dlib",
     "ArcFace",
     "SFace",
+    "GhostFaceNet",
 ]
 
 detector_backends = [
@@ -30,8 +34,8 @@ detector_backends = [
     "retinaface",
     "yunet",
     "yolov8",
+    "centerface",
 ]
-
 
 # verification
 for model_name in model_names:
@@ -56,7 +60,6 @@ dfs = DeepFace.find(
 for df in dfs:
     logger.info(df)
 
-
 expand_areas = [0]
 img_paths = ["dataset/img11.jpg", "dataset/img11_reflection.jpg"]
 for expand_area in expand_areas:
@@ -71,7 +74,7 @@ for expand_area in expand_areas:
             )
             for face_obj in face_objs:
                 face = face_obj["face"]
-                logger.info(detector_backend)
+                logger.info(f"testing {img_path} with {detector_backend}")
                 logger.info(face_obj["facial_area"])
                 logger.info(face_obj["confidence"])
 
@@ -95,7 +98,10 @@ for expand_area in expand_areas:
                     le_x = face_obj["facial_area"]["left_eye"][0]
                     assert re_x < le_x, "right eye must be the right eye of the person"
 
-                assert isinstance(face_obj["confidence"], float)
+                type_conf = type(face_obj["confidence"])
+                assert isinstance(
+                    face_obj["confidence"], float
+                ), f"confidence type must be float but it is {type_conf}"
                 assert face_obj["confidence"] <= 1
 
                 plt.imshow(face)

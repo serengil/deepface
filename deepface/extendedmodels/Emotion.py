@@ -1,12 +1,17 @@
+# built-in dependencies
 import os
+
+# 3rd party dependencies
 import gdown
 import numpy as np
 import cv2
-from deepface.commons import package_utils, folder_utils
-from deepface.commons.logger import Logger
-from deepface.models.Demography import Demography
 
-logger = Logger(module="extendedmodels.Emotion")
+# project dependencies
+from deepface.commons import package_utils, folder_utils
+from deepface.models.Demography import Demography
+from deepface.commons import logger as log
+
+logger = log.get_singletonish_logger()
 
 # -------------------------------------------
 # pylint: disable=line-too-long

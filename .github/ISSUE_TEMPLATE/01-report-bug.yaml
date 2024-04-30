@@ -1,0 +1,86 @@
+name: '🐛 Report a bug'
+description: 'Use this template to report DeepFace related issues'
+title: '[BUG]: <short description of the issue>'
+labels:
+  - bug
+body:
+  - type: checkboxes
+    id: preliminary-checks
+    attributes:
+      label: Before You Report a Bug, Please Confirm You Have Done The Following...
+      description: If any of these required steps are not taken, we may not be able to review your issue. Help us to help you!
+      options:
+        - label: I have updated to the latest version of the packages.
+          required: true
+        - label: I have searched for both [existing issues](https://github.com/serengil/deepface/issues) and [closed issues](https://github.com/serengil/deepface/issues?q=is%3Aissue+is%3Aclosed) and found none that matched my issue.
+          required: true
+  - type: input
+    id: deepface-version
+    attributes:
+      label: DeepFace's version
+      description: |
+        Please provide your deepface version with calling the command `python -c "import deepface; print(deepface.__version__)"` in your terminal
+      placeholder: e.g. v0.0.90
+    validations:
+      required: true
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: |
+        Please provide your python programming language's version with calling `python --version` in your terminal
+      placeholder: e.g. 3.8.5
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: |
+        Please provide your operation system's details
+      placeholder: e.g. Windows 10 or Ubuntu 20.04
+    validations:
+      required: false
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: |
+        Please provide python dependencies with calling `pip freeze` in your terminal, in particular tensorflow's and keras' versions
+    validations:
+      required: true
+  - type: textarea
+    id: repro-code
+    attributes:
+      label: Reproducible example
+      description: A ***minimal*** code sample which reproduces the issue
+      render: Python
+    validations:
+      required: true
+  - type: textarea
+    id: exception-message
+    attributes:
+      label: Relevant Log Output
+      description: Please share the exception message from your terminal if your program is failing
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Result
+      description: What did you expect to happen? 
+    validations:
+      required: false
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+      description: What actually happened?
+    validations:
+      required: false
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Info
+      description: |
+        Any additional info you'd like to provide.

@@ -1,9 +1,12 @@
+# 3rd party dependencies
 import pytest
 import numpy as np
-from deepface import DeepFace
-from deepface.commons.logger import Logger
 
-logger = Logger("tests/test_enforce_detection.py")
+# project dependencies
+from deepface import DeepFace
+from deepface.commons import logger as log
+
+logger = log.get_singletonish_logger()
 
 
 def test_enabled_enforce_detection_for_non_facial_input():

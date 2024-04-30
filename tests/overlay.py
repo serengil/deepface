@@ -1,5 +1,8 @@
+# 3rd party dependencies
 import cv2
 import matplotlib.pyplot as plt
+
+# project dependencies
 from deepface.modules import streaming
 from deepface import DeepFace
 
@@ -7,8 +10,10 @@ img_path = "dataset/img1.jpg"
 img = cv2.imread(img_path)
 
 overlay_img_path = "dataset/img6.jpg"
-face_objs = DeepFace.extract_faces(overlay_img_path, target_size=(112, 112))
+face_objs = DeepFace.extract_faces(overlay_img_path)
 overlay_img = face_objs[0]["face"][:, :, ::-1] * 255
+
+overlay_img = cv2.resize(overlay_img, (112, 112))
 
 raw_img = img.copy()
 

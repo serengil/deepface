@@ -1,6 +1,6 @@
 # built-in dependencies
 import time
-from typing import Any, Dict, Union, List, Tuple
+from typing import Any, Dict, Optional, Union, List, Tuple
 
 # 3rd party dependencies
 import numpy as np
@@ -8,9 +8,9 @@ import numpy as np
 # project dependencies
 from deepface.modules import representation, detection, modeling
 from deepface.models.FacialRecognition import FacialRecognition
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger(module="deepface/modules/verification.py")
+logger = log.get_singletonish_logger()
 
 
 def verify(
@@ -24,6 +24,7 @@ def verify(
     expand_percentage: int = 0,
     normalization: str = "base",
     silent: bool = False,
+    threshold: Optional[float] = None,
 ) -> Dict[str, Any]:
     """
     Verify if an image pair represents the same person or different persons.
@@ -45,7 +46,8 @@ def verify(
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv)
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'centerface' or 'skip'
+            (default is opencv)
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
             'euclidean', 'euclidean_l2' (default is cosine).
@@ -62,6 +64,11 @@ def verify(
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
+        
+        threshold (float): Specify a threshold to determine whether a pair represents the same
+            person or different individuals. This threshold is used for comparing distances.
+            If left unset, default pre-tuned threshold values will be applied based on the specified
+            model name and distance metric (default is None).
 
     Returns:
         result (dict): A dictionary containing verification results.
@@ -185,7 +192,7 @@ def verify(
             )
 
     # find the face pair with minimum distance
-    threshold = find_threshold(model_name, distance_metric)
+    threshold = threshold or find_threshold(model_name, distance_metric)
     distance = float(min(distances))  # best distance
     facial_areas = facial_areas[np.argmin(distances)]
 
@@ -223,12 +230,8 @@ def __extract_faces_and_embeddings(
     embeddings = []
     facial_areas = []
 
-    model: FacialRecognition = modeling.build_model(model_name)
-    target_size = model.input_shape
-
     img_objs = detection.extract_faces(
         img_path=img_path,
-        target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
         enforce_detection=enforce_detection,

@@ -1,15 +1,18 @@
+# built-in dependencies
 import os
 from typing import Any, List
 
+# 3rd party dependencies
 import numpy as np
 import cv2 as cv
 import gdown
 
+# project dependencies
 from deepface.commons import folder_utils
-from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
+from deepface.commons import logger as log
 
-logger = Logger(module="basemodels.SFace")
+logger = log.get_singletonish_logger()
 
 # pylint: disable=line-too-long, too-few-public-methods
 

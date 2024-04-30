@@ -6,7 +6,7 @@ import numpy as np
 from tqdm import tqdm
 
 # project dependencies
-from deepface.modules import modeling, detection
+from deepface.modules import modeling, detection, preprocessing
 from deepface.extendedmodels import Gender, Race, Emotion
 
 
@@ -34,7 +34,8 @@ def analyze(
             Set to False to avoid the exception for low-resolution images (default is True).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8' (default is opencv).
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'centerface' or 'skip'
+            (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
             'euclidean', 'euclidean_l2' (default is cosine).
@@ -118,7 +119,6 @@ def analyze(
 
     img_objs = detection.extract_faces(
         img_path=img_path,
-        target_size=(224, 224),
         detector_backend=detector_backend,
         grayscale=False,
         enforce_detection=enforce_detection,
@@ -130,60 +130,68 @@ def analyze(
         img_content = img_obj["face"]
         img_region = img_obj["facial_area"]
         img_confidence = img_obj["confidence"]
-        if img_content.shape[0] > 0 and img_content.shape[1] > 0:
-            obj = {}
-            # facial attribute analysis
-            pbar = tqdm(
-                range(0, len(actions)),
-                desc="Finding actions",
-                disable=silent if len(actions) > 1 else True,
-            )
-            for index in pbar:
-                action = actions[index]
-                pbar.set_description(f"Action: {action}")
+        if img_content.shape[0] == 0 or img_content.shape[1] == 0:
+            continue
 
-                if action == "emotion":
-                    emotion_predictions = modeling.build_model("Emotion").predict(img_content)
-                    sum_of_predictions = emotion_predictions.sum()
+        # rgb to bgr
+        img_content = img_content[:, :, ::-1]
 
-                    obj["emotion"] = {}
-                    for i, emotion_label in enumerate(Emotion.labels):
-                        emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
-                        obj["emotion"][emotion_label] = emotion_prediction
+        # resize input image
+        img_content = preprocessing.resize_image(img=img_content, target_size=(224, 224))
 
-                    obj["dominant_emotion"] = Emotion.labels[np.argmax(emotion_predictions)]
+        obj = {}
+        # facial attribute analysis
+        pbar = tqdm(
+            range(0, len(actions)),
+            desc="Finding actions",
+            disable=silent if len(actions) > 1 else True,
+        )
+        for index in pbar:
+            action = actions[index]
+            pbar.set_description(f"Action: {action}")
 
-                elif action == "age":
-                    apparent_age = modeling.build_model("Age").predict(img_content)
-                    # int cast is for exception - object of type 'float32' is not JSON serializable
-                    obj["age"] = int(apparent_age)
+            if action == "emotion":
+                emotion_predictions = modeling.build_model("Emotion").predict(img_content)
+                sum_of_predictions = emotion_predictions.sum()
 
-                elif action == "gender":
-                    gender_predictions = modeling.build_model("Gender").predict(img_content)
-                    obj["gender"] = {}
-                    for i, gender_label in enumerate(Gender.labels):
-                        gender_prediction = 100 * gender_predictions[i]
-                        obj["gender"][gender_label] = gender_prediction
+                obj["emotion"] = {}
+                for i, emotion_label in enumerate(Emotion.labels):
+                    emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
+                    obj["emotion"][emotion_label] = emotion_prediction
 
-                    obj["dominant_gender"] = Gender.labels[np.argmax(gender_predictions)]
+                obj["dominant_emotion"] = Emotion.labels[np.argmax(emotion_predictions)]
 
-                elif action == "race":
-                    race_predictions = modeling.build_model("Race").predict(img_content)
-                    sum_of_predictions = race_predictions.sum()
+            elif action == "age":
+                apparent_age = modeling.build_model("Age").predict(img_content)
+                # int cast is for exception - object of type 'float32' is not JSON serializable
+                obj["age"] = int(apparent_age)
 
-                    obj["race"] = {}
-                    for i, race_label in enumerate(Race.labels):
-                        race_prediction = 100 * race_predictions[i] / sum_of_predictions
-                        obj["race"][race_label] = race_prediction
+            elif action == "gender":
+                gender_predictions = modeling.build_model("Gender").predict(img_content)
+                obj["gender"] = {}
+                for i, gender_label in enumerate(Gender.labels):
+                    gender_prediction = 100 * gender_predictions[i]
+                    obj["gender"][gender_label] = gender_prediction
 
-                    obj["dominant_race"] = Race.labels[np.argmax(race_predictions)]
+                obj["dominant_gender"] = Gender.labels[np.argmax(gender_predictions)]
 
-                # -----------------------------
-                # mention facial areas
-                obj["region"] = img_region
-                # include image confidence
-                obj["face_confidence"] = img_confidence
+            elif action == "race":
+                race_predictions = modeling.build_model("Race").predict(img_content)
+                sum_of_predictions = race_predictions.sum()
 
-            resp_objects.append(obj)
+                obj["race"] = {}
+                for i, race_label in enumerate(Race.labels):
+                    race_prediction = 100 * race_predictions[i] / sum_of_predictions
+                    obj["race"][race_label] = race_prediction
+
+                obj["dominant_race"] = Race.labels[np.argmax(race_predictions)]
+
+            # -----------------------------
+            # mention facial areas
+            obj["region"] = img_region
+            # include image confidence
+            obj["face_confidence"] = img_confidence
+
+        resp_objects.append(obj)
 
     return resp_objects

@@ -1,9 +1,16 @@
+# built-in dependencies
+import base64
+
+# 3rd party dependencies
 import numpy as np
 import pytest
-from deepface import DeepFace
-from deepface.commons.logger import Logger
 
-logger = Logger("tests/test_extract_faces.py")
+# project dependencies
+from deepface import DeepFace
+from deepface.commons import image_utils
+from deepface.commons import logger as log
+
+logger = log.get_singletonish_logger()
 
 detectors = ["opencv", "mtcnn"]
 
@@ -48,3 +55,24 @@ def test_backends_for_not_enforced_detection_with_non_facial_inputs():
         )
         assert objs[0]["face"].shape == (224, 224, 3)
     logger.info("✅ extract_faces for not enforced detection and non-facial image test is done")
+
+
+def test_file_types_while_loading_base64():
+    img1_path = "dataset/img47.jpg"
+    img1_base64 = image_to_base64(image_path=img1_path)
+
+    with pytest.raises(ValueError, match="input image can be jpg or png, but it is"):
+        _ = image_utils.load_image_from_base64(uri=img1_base64)
+
+    img2_path = "dataset/img1.jpg"
+    img2_base64 = image_to_base64(image_path=img2_path)
+
+    img2 = image_utils.load_image_from_base64(uri=img2_base64)
+    # 3 dimensional image should be loaded
+    assert len(img2.shape) == 3
+
+
+def image_to_base64(image_path):
+    with open(image_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
+    return "data:image/jpeg," + encoded_string

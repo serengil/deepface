@@ -3,10 +3,10 @@ import gdown
 import numpy as np
 from deepface.basemodels import VGGFace
 from deepface.commons import package_utils, folder_utils
-from deepface.commons.logger import Logger
 from deepface.models.Demography import Demography
+from deepface.commons import logger as log
 
-logger = Logger(module="extendedmodels.Age")
+logger = log.get_singletonish_logger()
 
 # ----------------------------------------
 # dependency configurations

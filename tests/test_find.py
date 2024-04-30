@@ -1,17 +1,24 @@
+# built-in dependencies
 import os
+
+# 3rd party dependencies
 import cv2
 import pandas as pd
+
+# project dependencies
 from deepface import DeepFace
 from deepface.modules import verification
-from deepface.commons.logger import Logger
+from deepface.commons import image_utils
+from deepface.commons import logger as log
 
-logger = Logger("tests/test_find.py")
+logger = log.get_singletonish_logger()
+
 
 threshold = verification.find_threshold(model_name="VGG-Face", distance_metric="cosine")
 
 
 def test_find_with_exact_path():
-    img_path = os.path.join("dataset","img1.jpg")
+    img_path = os.path.join("dataset", "img1.jpg")
     dfs = DeepFace.find(img_path=img_path, db_path="dataset", silent=True)
     assert len(dfs) > 0
     for df in dfs:
@@ -31,7 +38,7 @@ def test_find_with_exact_path():
 
 
 def test_find_with_array_input():
-    img_path = os.path.join("dataset","img1.jpg")
+    img_path = os.path.join("dataset", "img1.jpg")
     img1 = cv2.imread(img_path)
     dfs = DeepFace.find(img1, db_path="dataset", silent=True)
     assert len(dfs) > 0
@@ -53,7 +60,7 @@ def test_find_with_array_input():
 
 
 def test_find_with_extracted_faces():
-    img_path = os.path.join("dataset","img1.jpg")
+    img_path = os.path.join("dataset", "img1.jpg")
     face_objs = DeepFace.extract_faces(img_path)
     img = face_objs[0]["face"]
     dfs = DeepFace.find(img, db_path="dataset", detector_backend="skip", silent=True)
@@ -72,3 +79,25 @@ def test_find_with_extracted_faces():
         logger.debug(df.head())
         assert df.shape[0] > 0
     logger.info("✅ test find for extracted face input done")
+
+
+def test_filetype_for_find():
+    """
+    only images as jpg and png can be loaded into database
+    """
+    img_path = os.path.join("dataset", "img1.jpg")
+    dfs = DeepFace.find(img_path=img_path, db_path="dataset", silent=True)
+
+    df = dfs[0]
+
+    # img47 is webp even though its extension is jpg
+    assert df[df["identity"] == "dataset/img47.jpg"].shape[0] == 0
+
+
+def test_filetype_for_find_bulk_embeddings():
+    imgs = image_utils.list_images("dataset")
+
+    assert len(imgs) > 0
+
+    # img47 is webp even though its extension is jpg
+    assert "dataset/img47.jpg" not in imgs

@@ -1,11 +1,15 @@
+# 3rd party dependencies
 import matplotlib.pyplot as plt
 import numpy as np
+import cv2
+
+# project dependencies
 from deepface import DeepFace
 from deepface.modules import verification
 from deepface.models.FacialRecognition import FacialRecognition
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger()
+logger = log.get_singletonish_logger()
 
 # ----------------------------------------------
 # build face recognition model
@@ -21,11 +25,13 @@ logger.info(f"target_size: {target_size}")
 # ----------------------------------------------
 # load images and find embeddings
 
-img1 = DeepFace.extract_faces(img_path="dataset/img1.jpg", target_size=target_size)[0]["face"]
+img1 = DeepFace.extract_faces(img_path="dataset/img1.jpg")[0]["face"]
+img1 = cv2.resize(img1, target_size)
 img1 = np.expand_dims(img1, axis=0)  # to (1, 224, 224, 3)
 img1_representation = model.forward(img1)
 
-img2 = DeepFace.extract_faces(img_path="dataset/img3.jpg", target_size=target_size)[0]["face"]
+img2 = DeepFace.extract_faces(img_path="dataset/img3.jpg")[0]["face"]
+img2 = cv2.resize(img2, target_size)
 img2 = np.expand_dims(img2, axis=0)
 img2_representation = model.forward(img2)
 

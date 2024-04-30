@@ -1,10 +1,12 @@
+# 3rd party dependencies
 import pytest
 import cv2
+
+# project dependencies
 from deepface import DeepFace
-from deepface.commons.logger import Logger
+from deepface.commons import logger as log
 
-logger = Logger("tests/test_facial_recognition_models.py")
-
+logger = log.get_singletonish_logger()
 
 models = ["VGG-Face", "Facenet", "Facenet512", "ArcFace", "GhostFaceNet"]
 metrics = ["cosine", "euclidean", "euclidean_l2"]

@@ -10,12 +10,11 @@ import pandas as pd
 from tqdm import tqdm
 
 # project dependencies
-from deepface.commons.logger import Logger
-from deepface.commons import package_utils
-from deepface.modules import representation, detection, modeling, verification
-from deepface.models.FacialRecognition import FacialRecognition
+from deepface.commons import image_utils
+from deepface.modules import representation, detection, verification
+from deepface.commons import logger as log
 
-logger = Logger(module="deepface/modules/recognition.py")
+logger = log.get_singletonish_logger()
 
 
 def find(
@@ -52,7 +51,7 @@ def find(
             Default is True. Set to False to avoid the exception for low-resolution images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8'.
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'centerface' or 'skip'.
 
         align (boolean): Perform alignment based on the eye positions.
 
@@ -89,17 +88,25 @@ def find(
 
     tic = time.time()
 
-    # -------------------------------
     if os.path.isdir(db_path) is not True:
         raise ValueError("Passed db_path does not exist!")
 
-    model: FacialRecognition = modeling.build_model(model_name)
-    target_size = model.input_shape
+    file_parts = [
+        "ds",
+        "model",
+        model_name,
+        "detector",
+        detector_backend,
+        "aligned" if align else "unaligned",
+        "normalization",
+        normalization,
+        "expand",
+        str(expand_percentage),
+    ]
 
-    # ---------------------------------------
-
-    file_name = f"ds_{model_name}_{detector_backend}_v2.pkl"
+    file_name = "_".join(file_parts) + ".pkl"
     file_name = file_name.replace("-", "").lower()
+
     datastore_path = os.path.join(db_path, file_name)
     representations = []
 
@@ -136,7 +143,7 @@ def find(
     pickled_images = [representation["identity"] for representation in representations]
 
     # Get the list of images on storage
-    storage_images = __list_images(path=db_path)
+    storage_images = image_utils.list_images(path=db_path)
 
     if len(storage_images) == 0:
         raise ValueError(f"No item found in {db_path}")
@@ -153,7 +160,7 @@ def find(
         if identity in old_images:
             continue
         alpha_hash = current_representation["hash"]
-        beta_hash = package_utils.find_hash_of_file(identity)
+        beta_hash = image_utils.find_image_hash(identity)
         if alpha_hash != beta_hash:
             logger.debug(f"Even though {identity} represented before, it's replaced later.")
             replaced_images.append(identity)
@@ -179,10 +186,10 @@ def find(
         representations += __find_bulk_embeddings(
             employees=new_images,
             model_name=model_name,
-            target_size=target_size,
             detector_backend=detector_backend,
             enforce_detection=enforce_detection,
             align=align,
+            expand_percentage=expand_percentage,
             normalization=normalization,
             silent=silent,
         )  # add new images
@@ -211,7 +218,6 @@ def find(
     # img path might have more than once face
     source_objs = detection.extract_faces(
         img_path=img_path,
-        target_size=target_size,
         detector_backend=detector_backend,
         grayscale=False,
         enforce_detection=enforce_detection,
@@ -285,27 +291,9 @@ def find(
     return resp_obj
 
 
-def __list_images(path: str) -> List[str]:
-    """
-    List images in a given path
-    Args:
-        path (str): path's location
-    Returns:
-        images (list): list of exact image paths
-    """
-    images = []
-    for r, _, f in os.walk(path):
-        for file in f:
-            if file.lower().endswith((".jpg", ".jpeg", ".png")):
-                exact_path = os.path.join(r, file)
-                images.append(exact_path)
-    return images
-
-
 def __find_bulk_embeddings(
     employees: List[str],
     model_name: str = "VGG-Face",
-    target_size: tuple = (224, 224),
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -321,8 +309,6 @@ def __find_bulk_embeddings(
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
-
-        target_size (tuple): expected input shape of facial recognition model
 
         detector_backend (str): face detector model name
 
@@ -348,12 +334,11 @@ def __find_bulk_embeddings(
         desc="Finding representations",
         disable=silent,
     ):
-        file_hash = package_utils.find_hash_of_file(employee)
+        file_hash = image_utils.find_image_hash(employee)
 
         try:
             img_objs = detection.extract_faces(
                 img_path=employee,
-                target_size=target_size,
                 detector_backend=detector_backend,
                 grayscale=False,
                 enforce_detection=enforce_detection,
