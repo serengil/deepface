@@ -1,6 +1,6 @@
 # built-in dependencies
 import time
-from typing import Any, Dict, Union, List, Tuple
+from typing import Any, Dict, Optional, Union, List, Tuple
 
 # 3rd party dependencies
 import numpy as np
@@ -24,6 +24,7 @@ def verify(
     expand_percentage: int = 0,
     normalization: str = "base",
     silent: bool = False,
+    threshold: Optional[float] = None,
 ) -> Dict[str, Any]:
     """
     Verify if an image pair represents the same person or different persons.
@@ -63,6 +64,11 @@ def verify(
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
+        
+        threshold (float): Specify a threshold to determine whether a pair represents the same
+            person or different individuals. This threshold is used for comparing distances.
+            If left unset, default pre-tuned threshold values will be applied based on the specified
+            model name and distance metric (default is None).
 
     Returns:
         result (dict): A dictionary containing verification results.
@@ -186,7 +192,7 @@ def verify(
             )
 
     # find the face pair with minimum distance
-    threshold = find_threshold(model_name, distance_metric)
+    threshold = threshold or find_threshold(model_name, distance_metric)
     distance = float(min(distances))  # best distance
     facial_areas = facial_areas[np.argmin(distances)]
 

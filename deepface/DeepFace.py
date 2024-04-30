@@ -72,6 +72,7 @@ def verify(
     expand_percentage: int = 0,
     normalization: str = "base",
     silent: bool = False,
+    threshold: Optional[float] = None,
 ) -> Dict[str, Any]:
     """
     Verify if an image pair represents the same person or different persons.
@@ -106,6 +107,11 @@ def verify(
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
+
+        threshold (float): Specify a threshold to determine whether a pair represents the same
+            person or different individuals. This threshold is used for comparing distances.
+            If left unset, default pre-tuned threshold values will be applied based on the specified
+            model name and distance metric (default is None).
 
     Returns:
         result (dict): A dictionary containing verification results with following keys.
@@ -143,6 +149,7 @@ def verify(
         expand_percentage=expand_percentage,
         normalization=normalization,
         silent=silent,
+        threshold=threshold,
     )
 
 
