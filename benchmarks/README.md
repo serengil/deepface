@@ -8,10 +8,7 @@ You can reproduce the results by executing the `Perform-Experiments.ipynb` and `
 
 ROC curves provide a valuable means of evaluating the performance of different models on a broader scale. The following illusration shows ROC curves for different facial recognition models alongside their optimal configurations yielding the highest accuracy scores.
 
-<!--
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/benchmarks.jpg" width="95%" height="95%"></p>
--->
-<p align="center"><img src="../icon/benchmarks.jpg" width="95%" height="95%"></p>
 
 In summary, FaceNet-512d surpasses human-level accuracy, while FaceNet-128d reaches it, with Dlib, VGG-Face, and ArcFace closely trailing but slightly below, and GhostFaceNet and SFace making notable contributions despite not leading, while OpenFace, DeepFace, and DeepId exhibit lower performance.
 
@@ -114,3 +111,22 @@ Please note that humans achieve a 97.5% accuracy score on the same dataset. Conf
 | ssd |**97.9** |97.0 |96.7 |96.6 |89.4 |91.5 |93.0 |69.9 |68.7 |63.8 |
 | opencv |96.2 |92.9 |95.8 |93.2 |91.5 |93.3 |91.7 |71.1 |68.1 |61.1 |
 | skip |91.4 |67.6 |90.6 |54.8 |69.3 |78.4 |83.4 |57.4 |62.6 |61.1 |
+
+# Citation
+
+Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATION.md) for more details. Here is its BibTex entry:
+
+```BibTeX
+@article{serengil2024lightface,
+  title         = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
+  author        = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+  journal       = {Bilisim Teknolojileri Dergisi},
+  volume        = {17},
+  number        = {2},
+  pages         = {95-107},
+  year          = {2024},
+  doi           = {10.17671/gazibtd.1399077},
+  url           = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
+  publisher     = {Gazi University}
+}
+```

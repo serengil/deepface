@@ -10,13 +10,13 @@ If you use deepface in your research for facial recogntion purposes, please cite
 @article{serengil2024lightface,
   title         = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
   author        = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-  journal       = {Bilişim Teknolojileri Dergisi},
+  journal       = {Bilisim Teknolojileri Dergisi},
   volume        = {17},
   number        = {2},
-  pages         = {X–X},
+  pages         = {95-107},
   year          = {2024},
-  doi           = {10.17671/gazibtd.XXX},
-  url           = {XXX},
+  doi           = {10.17671/gazibtd.1399077},
+  url           = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
   publisher     = {Gazi University}
 }
 ```
