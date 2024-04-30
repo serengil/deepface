@@ -84,7 +84,7 @@ def represent(
         img_objs = [
             {
                 "face": img,
-                "facial_area": {"x": 0, "y": 0, "w": img.shape[1], "h": img.shape[2]},
+                "facial_area": {"x": 0, "y": 0, "w": img.shape[0], "h": img.shape[1]},
                 "confidence": 0,
             }
         ]
