@@ -343,7 +343,7 @@ If you use deepface in your research for facial recogntion purposes, please cite
 ```BibTeX
 @article{serengil2024lightface,
   title         = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
-  author        = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+  author        = {Serengil, Sefik and Ozpinar, Alper},
   journal       = {Bilisim Teknolojileri Dergisi},
   volume        = {17},
   number        = {2},
