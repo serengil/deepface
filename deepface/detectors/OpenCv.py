@@ -168,6 +168,9 @@ class OpenCvClient(Detector):
         Returns:
             installation_path (str)
         """
+        if os.getenv("OPENCV_PATH", "") != "":
+            return os.getenv("OPENCV_PATH")
+
         opencv_home = cv2.__file__
         folders = opencv_home.split(os.path.sep)[0:-1]
 

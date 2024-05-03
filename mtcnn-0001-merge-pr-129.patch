@@ -1,0 +1,22 @@
+diff --git a/setup.py b/setup.py
+index fd019b4..389a258 100644
+--- a/setup.py
++++ b/setup.py
+@@ -24,7 +24,7 @@
+ # SOFTWARE.
+ 
+ import sys
+-from setuptools import setup, setuptools
++from setuptools import setup, find_packages
+ 
+ 
+ __author__ = "Iván de Paz Centeno"
+@@ -48,7 +48,7 @@ setup(name='mtcnn',
+       author='Iván de Paz Centeno',
+       author_email='ipazc@unileon.es',
+       license='MIT',
+-      packages=setuptools.find_packages(exclude=["tests.*", "tests"]),
++      packages=find_packages(exclude=["tests.*", "tests"]),
+       install_requires=[
+           "keras>=2.0.0",
+           "opencv-python>=4.1.0"
