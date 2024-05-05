@@ -100,7 +100,10 @@ This function returns an array as embedding. The size of the embedding array wou
 ```python
 embedding = embedding_objs[0]["embedding"]
 assert isinstance(embedding, list)
-assert model_name == "VGG-Face" and len(embedding) == 4096
+assert (
+  model_name == "VGG-Face"
+  and len(embedding) == 4096
+)
 ```
 
 Here, embedding is also [plotted](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) with 4096 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right. Similar to 2D barcodes, vertical dimension stores no information in the illustration.
@@ -140,8 +143,9 @@ dfs = DeepFace.find(
 )
 
 #embeddings
-embedding_objs = DeepFace.represent(img_path = "img.jpg", 
-      model_name = models[2]
+embedding_objs = DeepFace.represent(
+  img_path = "img.jpg",
+  model_name = models[2]
 )
 ```
 
