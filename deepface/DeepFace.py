@@ -116,7 +116,7 @@ def verify(
         - 'distance' (float): The distance measure between the face vectors.
             A lower distance indicates higher similarity.
 
-        - 'max_threshold_to_verify' (float): The maximum threshold used for verification.
+        - 'threshold' (float): The maximum threshold used for verification.
             If the distance is below this threshold, the images are considered a match.
 
         - 'model' (str): The chosen face recognition model.
