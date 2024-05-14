@@ -373,7 +373,7 @@ If you use deepface in your research for facial recogntion purposes, please cite
   pages         = {95-107},
   year          = {2024},
   doi           = {10.17671/gazibtd.1399077},
-  url           = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
+  url           = {[https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077](https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077)},
   publisher     = {Gazi University}
 }
 ```
@@ -386,7 +386,7 @@ If you use deepface in your research for facial recogntion purposes, please cite
   pages        = {23-27},
   year         = {2020},
   doi          = {10.1109/ASYU50717.2020.9259802},
-  url          = {https://ieeexplore.ieee.org/document/9259802},
+  url          = {[https://ieeexplore.ieee.org/document/9259802](https://ieeexplore.ieee.org/document/9259802)},
   organization = {IEEE}
 }
 ```
@@ -401,7 +401,7 @@ If you use deepface in your research for facial attribute analysis purposes such
   pages        = {1-4},
   year         = {2021},
   doi          = {10.1109/ICEET53442.2021.9659697},
-  url          = {https://ieeexplore.ieee.org/document/9659697},
+  url          = {[https://ieeexplore.ieee.org/document/9659697](https://ieeexplore.ieee.org/document/9659697)},
   organization = {IEEE}
 }
 ```
