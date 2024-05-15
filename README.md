@@ -341,6 +341,10 @@ $ deepface analyze -img_path tests/dataset/img1.jpg
 
 You can also run these commands if you are running deepface with docker. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh#L17).
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=serengil/deepface&type=Date)](https://star-history.com/#serengil/deepface&Date)
+
 ## Contribution
 
 Pull requests are more than welcome! If you are planning to contribute a large patch, please create an issue first to get any upfront questions or design decisions out of the way first.
