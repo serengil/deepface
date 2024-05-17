@@ -29,6 +29,7 @@ def find(
     threshold: Optional[float] = None,
     normalization: str = "base",
     silent: bool = False,
+    refresh_data_base: bool = True,
 ) -> List[pd.DataFrame]:
     """
     Identify individuals in a database
@@ -66,6 +67,11 @@ def find(
             Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process.
+
+        refresh_data_base (boolean): Sincronizes the images representation (pkl) file with the 
+        directory/db files, if set to false, it will ignore any file changes inside the db_path 
+        directory (default is True).
+
 
     Returns:
         results (List[pd.DataFrame]): A list of pandas dataframes. Each dataframe corresponds
@@ -145,25 +151,36 @@ def find(
     # Get the list of images on storage
     storage_images = image_utils.list_images(path=db_path)
 
-    if len(storage_images) == 0:
-        raise ValueError(f"No item found in {db_path}")
+    must_save_pickle = False
+    new_images = []
+    old_images = []
+    replaced_images = []
+
+    if not refresh_data_base:
+        logger.info(f"There could be changes in {db_path} not tracked. Set refresh_data_base to true to assure that any changes will be tracked.")
+
 
     # Enforce data consistency amongst on disk images and pickle file
-    must_save_pickle = False
-    new_images = list(set(storage_images) - set(pickled_images))  # images added to storage
-    old_images = list(set(pickled_images) - set(storage_images))  # images removed from storage
+    if refresh_data_base:
+        if len(storage_images) == 0:
+            raise ValueError(f"No item found in {db_path}")
 
-    # detect replaced images
-    replaced_images = []
-    for current_representation in representations:
-        identity = current_representation["identity"]
-        if identity in old_images:
-            continue
-        alpha_hash = current_representation["hash"]
-        beta_hash = image_utils.find_image_hash(identity)
-        if alpha_hash != beta_hash:
-            logger.debug(f"Even though {identity} represented before, it's replaced later.")
-            replaced_images.append(identity)
+        new_images = list(set(storage_images) - set(pickled_images))  # images added to storage
+
+        old_images = list(set(pickled_images) - set(storage_images))  # images removed from storage
+
+        # detect replaced images
+        replaced_images = []
+        for current_representation in representations:
+            identity = current_representation["identity"]
+            if identity in old_images:
+                continue
+            alpha_hash = current_representation["hash"]
+            beta_hash = image_utils.find_image_hash(identity)
+            if alpha_hash != beta_hash:
+                logger.debug(f"Even though {identity} represented before, it's replaced later.")
+                replaced_images.append(identity)
+
 
     if not silent and (len(new_images) > 0 or len(old_images) > 0 or len(replaced_images) > 0):
         logger.info(
