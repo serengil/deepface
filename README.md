@@ -365,16 +365,16 @@ If you use deepface in your research for facial recogntion purposes, please cite
 
 ```BibTeX
 @article{serengil2024lightface,
-  title         = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
-  author        = {Serengil, Sefik and Ozpinar, Alper},
-  journal       = {Bilisim Teknolojileri Dergisi},
-  volume        = {17},
-  number        = {2},
-  pages         = {95-107},
-  year          = {2024},
-  doi           = {10.17671/gazibtd.1399077},
-  url           = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
-  publisher     = {Gazi University}
+  title     = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
+  author    = {Serengil, Sefik and Ozpinar, Alper},
+  journal   = {Bilisim Teknolojileri Dergisi},
+  volume    = {17},
+  number    = {2},
+  pages     = {95-107},
+  year      = {2024},
+  doi       = {10.17671/gazibtd.1399077},
+  url       = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
+  publisher = {Gazi University}
 }
 ```
 
