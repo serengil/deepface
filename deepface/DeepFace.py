@@ -260,6 +260,7 @@ def find(
     threshold: Optional[float] = None,
     normalization: str = "base",
     silent: bool = False,
+    refresh_database: bool = True,
 ) -> List[pd.DataFrame]:
     """
     Identify individuals in a database
@@ -299,6 +300,10 @@ def find(
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
 
+        refresh_database (boolean): Synchronizes the images representation (pkl) file with the 
+        directory/db files, if set to false, it will ignore any file changes inside the db_path
+        (default is True).
+
     Returns:
         results (List[pd.DataFrame]): A list of pandas dataframes. Each dataframe corresponds
             to the identity information for an individual detected in the source image.
@@ -329,6 +334,7 @@ def find(
         threshold=threshold,
         normalization=normalization,
         silent=silent,
+        refresh_database=refresh_database,
     )
 
 
