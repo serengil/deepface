@@ -29,7 +29,7 @@ def find(
     threshold: Optional[float] = None,
     normalization: str = "base",
     silent: bool = False,
-    refresh_data_base: bool = True,
+    refresh_database: bool = True,
 ) -> List[pd.DataFrame]:
     """
     Identify individuals in a database
@@ -68,7 +68,7 @@ def find(
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process.
 
-        refresh_data_base (boolean): Sincronizes the images representation (pkl) file with the 
+        refresh_database (boolean): Synchronizes the images representation (pkl) file with the 
         directory/db files, if set to false, it will ignore any file changes inside the db_path 
         directory (default is True).
 
@@ -156,12 +156,12 @@ def find(
     old_images = []
     replaced_images = []
 
-    if not refresh_data_base:
-        logger.info(f"There could be changes in {db_path} not tracked. Set refresh_data_base to true to assure that any changes will be tracked.")
+    if not refresh_database:
+        logger.info(f"There could be changes in {db_path} not tracked. Set refresh_database to true to assure that any changes will be tracked.")
 
 
     # Enforce data consistency amongst on disk images and pickle file
-    if refresh_data_base:
+    if refresh_database:
         if len(storage_images) == 0:
             raise ValueError(f"No item found in {db_path}")
 
@@ -170,7 +170,6 @@ def find(
         old_images = list(set(pickled_images) - set(storage_images))  # images removed from storage
 
         # detect replaced images
-        replaced_images = []
         for current_representation in representations:
             identity = current_representation["identity"]
             if identity in old_images:
