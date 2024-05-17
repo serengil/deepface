@@ -68,8 +68,8 @@ def find(
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process.
 
-        refresh_database (boolean): Synchronizes the images representation (pkl) file with the 
-        directory/db files, if set to false, it will ignore any file changes inside the db_path 
+        refresh_database (boolean): Synchronizes the images representation (pkl) file with the
+        directory/db files, if set to false, it will ignore any file changes inside the db_path
         directory (default is True).
 
 
@@ -157,8 +157,10 @@ def find(
     replaced_images = []
 
     if not refresh_database:
-        logger.info(f"There could be changes in {db_path} not tracked. Set refresh_database to true to assure that any changes will be tracked.")
-
+        logger.info(
+            f"Could be some changes in {db_path} not tracked."
+            "Set refresh_database to true to assure that any changes will be tracked."
+        )
 
     # Enforce data consistency amongst on disk images and pickle file
     if refresh_database:
@@ -179,7 +181,6 @@ def find(
             if alpha_hash != beta_hash:
                 logger.debug(f"Even though {identity} represented before, it's replaced later.")
                 replaced_images.append(identity)
-
 
     if not silent and (len(new_images) > 0 or len(old_images) > 0 or len(replaced_images) > 0):
         logger.info(
