@@ -151,6 +151,11 @@ def find(
     # Get the list of images on storage
     storage_images = image_utils.list_images(path=db_path)
 
+    if len(storage_images) == 0 and refresh_database is True:
+        raise ValueError(f"No item found in {db_path}")
+    if len(representations) == 0 and refresh_database is False:
+        raise ValueError(f"Nothing is found in {datastore_path}")
+
     must_save_pickle = False
     new_images = []
     old_images = []
@@ -164,11 +169,7 @@ def find(
 
     # Enforce data consistency amongst on disk images and pickle file
     if refresh_database:
-        if len(storage_images) == 0:
-            raise ValueError(f"No item found in {db_path}")
-
         new_images = list(set(storage_images) - set(pickled_images))  # images added to storage
-
         old_images = list(set(pickled_images) - set(storage_images))  # images removed from storage
 
         # detect replaced images
