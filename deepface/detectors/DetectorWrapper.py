@@ -99,13 +99,15 @@ def detect_faces(
 
     # If faces are close to the upper boundary, alignment move them outside
     # Add a black border around an image to avoid this.
+    height_border = int(0.5 * height)
+    width_border = int(0.5 * width)
     if align is True:
         img = cv2.copyMakeBorder(
             img,
-            int(0.5 * height),
-            int(0.5 * height),
-            int(0.5 * width),
-            int(0.5 * width),
+            height_border,
+            height_border,
+            width_border,
+            width_border,
             cv2.BORDER_CONSTANT,
             value=[0, 0, 0],  # Color of the border (black)
         )
@@ -149,6 +151,13 @@ def detect_faces(
             detected_face = aligned_img[
                 int(rotated_y1) : int(rotated_y2), int(rotated_x1) : int(rotated_x2)
             ]
+
+            # restore x, y, le and re before border added
+            x = x - width_border
+            y = y - height_border
+            # w and h will not change
+            left_eye = (left_eye[0] - width_border, left_eye[1] - height_border)
+            right_eye = (right_eye[0] - width_border, right_eye[1] - height_border)
 
         result = DetectedFace(
             img=detected_face,
