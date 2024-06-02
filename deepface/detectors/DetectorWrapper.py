@@ -156,8 +156,10 @@ def detect_faces(
             x = x - width_border
             y = y - height_border
             # w and h will not change
-            left_eye = (left_eye[0] - width_border, left_eye[1] - height_border)
-            right_eye = (right_eye[0] - width_border, right_eye[1] - height_border)
+            if left_eye is not None:
+                left_eye = (left_eye[0] - width_border, left_eye[1] - height_border)
+            if right_eye is not None:
+                right_eye = (right_eye[0] - width_border, right_eye[1] - height_border)
 
         result = DetectedFace(
             img=detected_face,
