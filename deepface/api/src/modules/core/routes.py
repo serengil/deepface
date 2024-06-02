@@ -1,4 +1,5 @@
 from flask import Blueprint, request
+from deepface import DeepFace
 from deepface.api.src.modules.core import service
 from deepface.commons import logger as log
 
@@ -9,7 +10,7 @@ blueprint = Blueprint("routes", __name__)
 
 @blueprint.route("/")
 def home():
-    return "<h1>Welcome to DeepFace API!</h1>"
+    return f"<h1>Welcome to DeepFace API v{DeepFace.__version__}!</h1>"
 
 
 @blueprint.route("/represent", methods=["POST"])
