@@ -316,7 +316,7 @@ cd scripts
 
 Face recognition, facial attribute analysis and vector representation functions are covered in the API. You are expected to call these functions as http post methods. Default service endpoints will be `http://localhost:5000/verify` for face recognition, `http://localhost:5000/analyze` for facial attribute analysis, and `http://localhost:5000/represent` for vector representation. You can pass input images as exact image paths on your environment, base64 encoded strings or images on web. [Here](https://github.com/serengil/deepface/tree/master/deepface/api/postman), you can find a postman project to find out how these methods should be called.
 
-**Dockerized Service**
+**Dockerized Service** - [`Demo`](https://youtu.be/9Tk9lRQareA)
 
 You can deploy the deepface api on a kubernetes cluster with docker. The following [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh) will serve deepface on `localhost:5000`. You need to re-configure the [Dockerfile](https://github.com/serengil/deepface/blob/master/Dockerfile) if you want to change the port. Then, even if you do not have a development environment, you will be able to consume deepface services such as verify and analyze. You can also access the inside of the docker image to run deepface related commands. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh).
 
