@@ -1,5 +1,6 @@
 from typing import Any, List, Tuple
 import numpy as np
+import cv2
 from deepface.modules import detection
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.detectors import (
@@ -84,6 +85,8 @@ def detect_faces(
 
         - confidence (float): The confidence score associated with the detected face.
     """
+    height, width, _ = img.shape
+
     face_detector: Detector = build_model(detector_backend)
 
     # validate expand percentage score
@@ -93,6 +96,19 @@ def detect_faces(
             "Overwritten it to 0."
         )
         expand_percentage = 0
+
+    # If faces are close to the upper boundary, alignment move them outside
+    # Add a black border around an image to avoid this.
+    if align is True:
+        img = cv2.copyMakeBorder(
+            img,
+            int(0.5 * height),
+            int(0.5 * height),
+            int(0.5 * width),
+            int(0.5 * width),
+            cv2.BORDER_CONSTANT,
+            value=[0, 0, 0],  # Color of the border (black)
+        )
 
     # find facial areas of given image
     facial_areas = face_detector.detect_faces(img)
@@ -126,6 +142,7 @@ def detect_faces(
             aligned_img, angle = detection.align_face(
                 img=img, left_eye=left_eye, right_eye=right_eye
             )
+
             rotated_x1, rotated_y1, rotated_x2, rotated_y2 = rotate_facial_area(
                 facial_area=(x, y, x + w, y + h), angle=angle, size=(img.shape[0], img.shape[1])
             )
