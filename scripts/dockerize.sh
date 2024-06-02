@@ -17,7 +17,8 @@ docker build -t deepface .
 # docker cp ~/.deepface/weights/. <CONTAINER_ID>:/root/.deepface/weights/
 
 # run image
-docker run --net="host" deepface
+# docker run --net="host" deepface
+docker run -p 5005:5000 deepface
 
 # to access the inside of docker image when it is in running status
 # docker exec -it <CONTAINER_ID> /bin/sh
