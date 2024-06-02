@@ -15,7 +15,7 @@
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/serengil?logo=GitHub&color=lightgray)](https://github.com/sponsors/serengil)
 
 [![DOI](http://img.shields.io/:DOI-10.17671/gazibtd.1399077-blue.svg?style=flat)](https://doi.org/10.17671/gazibtd.1399077)
-[![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802)
+<!-- [![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802) -->
 [![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697)
 
 </div>
@@ -361,7 +361,7 @@ You can also support this work on [Patreon](https://www.patreon.com/serengil?rep
 
 Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATION.md) for more details. Here are its BibTex entries:
 
-If you use deepface in your research for facial recogntion purposes, please cite these publications:
+If you use deepface in your research for facial recogntion purposes, please cite this publication:
 
 ```BibTeX
 @article{serengil2024lightface,
@@ -378,6 +378,7 @@ If you use deepface in your research for facial recogntion purposes, please cite
 }
 ```
 
+<!--
 ```BibTeX
 @inproceedings{serengil2020lightface,
   title        = {LightFace: A Hybrid Deep Face Recognition Framework},
@@ -390,6 +391,7 @@ If you use deepface in your research for facial recogntion purposes, please cite
   organization = {IEEE}
 }
 ```
+-->
 
 If you use deepface in your research for facial attribute analysis purposes such as age, gender, emotion or ethnicity prediction, please cite this publication.
 
