@@ -300,7 +300,7 @@ def find(
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
 
-        refresh_database (boolean): Synchronizes the images representation (pkl) file with the 
+        refresh_database (boolean): Synchronizes the images representation (pkl) file with the
         directory/db files, if set to false, it will ignore any file changes inside the db_path
         (default is True).
 
