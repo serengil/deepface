@@ -319,14 +319,14 @@ Face recognition, facial attribute analysis and vector representation functions 
 
 **Dockerized Service** - [`Demo`](https://youtu.be/9Tk9lRQareA)
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/serengil/deepface?logo=docker)](https://hub.docker.com/r/serengil/deepface)
+
 You can deploy the deepface api on a kubernetes cluster with docker. The following [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh) will serve deepface on `localhost:5005`. You may need to re-configure the [Dockerfile](https://github.com/serengil/deepface/blob/master/Dockerfile) if you want to apply some customization. Then, even if you do not have a development environment, you will be able to consume deepface services such as verify and analyze. You can also access the inside of the docker image to run deepface related commands. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh).
 
 ```shell
 cd scripts
 ./dockerize.sh
 ```
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-dockerized-v2.jpg" width="50%" height="50%"></p>
 
 **Command Line Interface** - [`Demo`](https://youtu.be/PKKTAr3ts2s)
 
