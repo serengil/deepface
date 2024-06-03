@@ -64,7 +64,7 @@ def verify(
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
-        
+
         threshold (float): Specify a threshold to determine whether a pair represents the same
             person or different individuals. This threshold is used for comparing distances.
             If left unset, default pre-tuned threshold values will be applied based on the specified
