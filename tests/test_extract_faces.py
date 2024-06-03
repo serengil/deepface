@@ -2,6 +2,7 @@
 import base64
 
 # 3rd party dependencies
+import cv2
 import numpy as np
 import pytest
 
@@ -16,8 +17,12 @@ detectors = ["opencv", "mtcnn"]
 
 
 def test_different_detectors():
+    img_path = "dataset/img11.jpg"
+    img = cv2.imread(img_path)
+    height, width, _ = img.shape
+
     for detector in detectors:
-        img_objs = DeepFace.extract_faces(img_path="dataset/img11.jpg", detector_backend=detector)
+        img_objs = DeepFace.extract_faces(img_path=img_path, detector_backend=detector)
         for img_obj in img_objs:
             assert "face" in img_obj.keys()
             assert "facial_area" in img_obj.keys()
@@ -33,6 +38,23 @@ def test_different_detectors():
             left_eye = img_obj["facial_area"]["left_eye"]
             assert left_eye[0] > right_eye[0]
             assert "confidence" in img_obj.keys()
+
+            # we added black pixeled borders to image because if faces are close to border,
+            # then alignment moves them to outside of the image. adding this borders may
+            # cause to miscalculate the facial area. check it is restored correctly.
+            x = img_obj["facial_area"]["x"]
+            y = img_obj["facial_area"]["y"]
+            w = img_obj["facial_area"]["w"]
+            h = img_obj["facial_area"]["h"]
+
+            assert x < width
+            assert x + w < width
+            assert y < height
+            assert y + h < height
+            assert left_eye[0] < height
+            assert right_eye[0] < height
+            assert left_eye[1] < width
+            assert right_eye[1] < width
 
             img = img_obj["face"]
             assert img.shape[0] > 0 and img.shape[1] > 0
