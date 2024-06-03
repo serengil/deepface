@@ -325,7 +325,7 @@ The following command set will serve deepface on `localhost:5005` via docker. Th
 
 ```shell
 # docker build -t serengil/deepface . # build docker image
-docker pull serengil/deepface # use pre-built docker image
+docker pull serengil/deepface # use pre-built docker image from docker hub
 docker run -p 5005:5000 serengil/deepface
 ```
 
