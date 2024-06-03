@@ -324,7 +324,8 @@ Face recognition, facial attribute analysis and vector representation functions 
 The following command set will serve deepface on `localhost:5005` via docker. Then, you will be able to consume deepface services such as verify, analyze and represent. Also, if you want to build the image by your own instead of pre-built image from docker hub, [Dockerfile](https://github.com/serengil/deepface/blob/master/Dockerfile) is available in the root folder of the project.
 
 ```shell
-docker pull serengil/deepface
+# docker build -t serengil/deepface . # build docker image
+docker pull serengil/deepface # use pre-built docker image
 docker run -p 5005:5000 serengil/deepface
 ```
 
