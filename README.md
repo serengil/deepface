@@ -365,7 +365,7 @@ You can also support this work on [Patreon](https://www.patreon.com/serengil?rep
 
 Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATION.md) for more details. Here are its BibTex entries:
 
-If you use deepface in your research for facial recogntion purposes, please cite this publication:
+If you use deepface in your research for facial recogntion or face detection purposes, please cite this publication:
 
 ```BibTeX
 @article{serengil2024lightface,
