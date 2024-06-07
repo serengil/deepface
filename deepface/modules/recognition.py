@@ -30,6 +30,7 @@ def find(
     normalization: str = "base",
     silent: bool = False,
     refresh_database: bool = True,
+    anti_spoofing: bool = False,
 ) -> List[pd.DataFrame]:
     """
     Identify individuals in a database
@@ -69,8 +70,10 @@ def find(
         silent (boolean): Suppress or allow some log messages for a quieter analysis process.
 
         refresh_database (boolean): Synchronizes the images representation (pkl) file with the
-        directory/db files, if set to false, it will ignore any file changes inside the db_path
-        directory (default is True).
+            directory/db files, if set to false, it will ignore any file changes inside the db_path
+            directory (default is True).
+
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
 
     Returns:
@@ -241,11 +244,14 @@ def find(
         enforce_detection=enforce_detection,
         align=align,
         expand_percentage=expand_percentage,
+        anti_spoofing=anti_spoofing,
     )
 
     resp_obj = []
 
     for source_obj in source_objs:
+        if anti_spoofing is True and source_obj.get("is_real", True) is False:
+            raise ValueError("Spoof detected in the given image.")
         source_img = source_obj["face"]
         source_region = source_obj["facial_area"]
         target_embedding_obj = representation.represent(

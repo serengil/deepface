@@ -73,6 +73,7 @@ def verify(
     normalization: str = "base",
     silent: bool = False,
     threshold: Optional[float] = None,
+    anti_spoofing: bool = False,
 ) -> Dict[str, Any]:
     """
     Verify if an image pair represents the same person or different persons.
@@ -113,6 +114,8 @@ def verify(
             If left unset, default pre-tuned threshold values will be applied based on the specified
             model name and distance metric (default is None).
 
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+
     Returns:
         result (dict): A dictionary containing verification results with following keys.
 
@@ -150,6 +153,7 @@ def verify(
         normalization=normalization,
         silent=silent,
         threshold=threshold,
+        anti_spoofing=anti_spoofing,
     )
 
 
@@ -161,6 +165,7 @@ def analyze(
     align: bool = True,
     expand_percentage: int = 0,
     silent: bool = False,
+    anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
@@ -188,6 +193,8 @@ def analyze(
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
+
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
@@ -245,6 +252,7 @@ def analyze(
         align=align,
         expand_percentage=expand_percentage,
         silent=silent,
+        anti_spoofing=anti_spoofing,
     )
 
 
@@ -261,6 +269,7 @@ def find(
     normalization: str = "base",
     silent: bool = False,
     refresh_database: bool = True,
+    anti_spoofing: bool = False,
 ) -> List[pd.DataFrame]:
     """
     Identify individuals in a database
@@ -301,8 +310,10 @@ def find(
             (default is False).
 
         refresh_database (boolean): Synchronizes the images representation (pkl) file with the
-        directory/db files, if set to false, it will ignore any file changes inside the db_path
-        (default is True).
+            directory/db files, if set to false, it will ignore any file changes inside the db_path
+            (default is True).
+
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
         results (List[pd.DataFrame]): A list of pandas dataframes. Each dataframe corresponds
@@ -335,6 +346,7 @@ def find(
         normalization=normalization,
         silent=silent,
         refresh_database=refresh_database,
+        anti_spoofing=anti_spoofing,
     )
 
 
@@ -346,6 +358,7 @@ def represent(
     align: bool = True,
     expand_percentage: int = 0,
     normalization: str = "base",
+    anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -375,6 +388,8 @@ def represent(
             Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
             (default is base).
 
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, each containing the
             following fields:
@@ -399,6 +414,7 @@ def represent(
         align=align,
         expand_percentage=expand_percentage,
         normalization=normalization,
+        anti_spoofing=anti_spoofing,
     )
 
 
@@ -411,6 +427,7 @@ def stream(
     source: Any = 0,
     time_threshold: int = 5,
     frame_threshold: int = 5,
+    anti_spoofing: bool = False,
 ) -> None:
     """
     Run real time face recognition and facial attribute analysis
@@ -437,6 +454,8 @@ def stream(
         time_threshold (int): The time threshold (in seconds) for face recognition (default is 5).
 
         frame_threshold (int): The frame threshold for face recognition (default is 5).
+
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
     Returns:
         None
     """
@@ -453,6 +472,7 @@ def stream(
         source=source,
         time_threshold=time_threshold,
         frame_threshold=frame_threshold,
+        anti_spoofing=anti_spoofing,
     )
 
 
@@ -463,6 +483,7 @@ def extract_faces(
     align: bool = True,
     expand_percentage: int = 0,
     grayscale: bool = False,
+    anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Extract faces from a given image
@@ -485,6 +506,8 @@ def extract_faces(
         grayscale (boolean): Flag to convert the image to grayscale before
             processing (default is False).
 
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary contains:
 
@@ -497,6 +520,12 @@ def extract_faces(
                 instead of observer.
 
         - "confidence" (float): The confidence score associated with the detected face.
+
+        - "is_real" (boolean): antispoofing analyze result. this key is just available in the
+            result only if anti_spoofing is set to True in input arguments.
+
+        - "antispoof_score" (float): score of antispoofing analyze result. this key is
+            just available in the result only if anti_spoofing is set to True in input arguments.
     """
 
     return detection.extract_faces(
@@ -506,6 +535,7 @@ def extract_faces(
         align=align,
         expand_percentage=expand_percentage,
         grayscale=grayscale,
+        anti_spoofing=anti_spoofing,
     )
 
 

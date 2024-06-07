@@ -25,6 +25,7 @@ def verify(
     normalization: str = "base",
     silent: bool = False,
     threshold: Optional[float] = None,
+    anti_spoofing: bool = False,
 ) -> Dict[str, Any]:
     """
     Verify if an image pair represents the same person or different persons.
@@ -69,6 +70,8 @@ def verify(
             person or different individuals. This threshold is used for comparing distances.
             If left unset, default pre-tuned threshold values will be applied based on the specified
             model name and distance metric (default is None).
+
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
         result (dict): A dictionary containing verification results.
@@ -132,6 +135,7 @@ def verify(
                 align=align,
                 expand_percentage=expand_percentage,
                 normalization=normalization,
+                anti_spoofing=anti_spoofing,
             )
         except ValueError as err:
             raise ValueError("Exception while processing img1_path") from err
@@ -168,6 +172,7 @@ def verify(
                 align=align,
                 expand_percentage=expand_percentage,
                 normalization=normalization,
+                anti_spoofing=anti_spoofing,
             )
         except ValueError as err:
             raise ValueError("Exception while processing img2_path") from err
@@ -220,6 +225,7 @@ def __extract_faces_and_embeddings(
     align: bool = True,
     expand_percentage: int = 0,
     normalization: str = "base",
+    anti_spoofing: bool = False,
 ) -> Tuple[List[List[float]], List[dict]]:
     """
     Extract facial areas and find corresponding embeddings for given image
@@ -237,10 +243,13 @@ def __extract_faces_and_embeddings(
         enforce_detection=enforce_detection,
         align=align,
         expand_percentage=expand_percentage,
+        anti_spoofing=anti_spoofing,
     )
 
     # find embeddings for each face
     for img_obj in img_objs:
+        if anti_spoofing is True and img_obj.get("is_real", True) is False:
+            raise ValueError("Spoof detected in given image.")
         img_embedding_obj = representation.represent(
             img_path=img_obj["face"],
             model_name=model_name,

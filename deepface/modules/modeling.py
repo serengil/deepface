@@ -11,9 +11,10 @@ from deepface.basemodels import (
     SFace,
     Dlib,
     Facenet,
-    GhostFaceNet
+    GhostFaceNet,
 )
 from deepface.extendedmodels import Age, Gender, Race, Emotion
+from deepface.spoofmodels import FasNet
 
 
 def build_model(model_name: str) -> Any:
@@ -46,6 +47,7 @@ def build_model(model_name: str) -> Any:
         "Age": Age.ApparentAgeClient,
         "Gender": Gender.GenderClient,
         "Race": Race.RaceClient,
+        "Fasnet": FasNet.Fasnet,
     }
 
     if not "model_obj" in globals():

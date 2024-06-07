@@ -7,6 +7,7 @@ import cv2
 from PIL import Image
 
 # project dependencies
+from deepface.modules import modeling
 from deepface.models.Detector import DetectedFace, FacialAreaRegion
 from deepface.detectors import DetectorWrapper
 from deepface.commons import image_utils
@@ -24,6 +25,7 @@ def extract_faces(
     align: bool = True,
     expand_percentage: int = 0,
     grayscale: bool = False,
+    anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Extract faces from a given image
@@ -46,6 +48,8 @@ def extract_faces(
         grayscale (boolean): Flag to convert the image to grayscale before
             processing (default is False).
 
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary contains:
 
@@ -58,6 +62,12 @@ def extract_faces(
                 to the person itself instead of observer.
 
         - "confidence" (float): The confidence score associated with the detected face.
+
+        - "is_real" (boolean): antispoofing analyze result. this key is just available in the
+            result only if anti_spoofing is set to True in input arguments.
+
+        - "antispoof_score" (float): score of antispoofing analyze result. this key is
+            just available in the result only if anti_spoofing is set to True in input arguments.
     """
 
     resp_objs = []
@@ -109,20 +119,31 @@ def extract_faces(
 
         current_img = current_img / 255  # normalize input in [0, 1]
 
-        resp_objs.append(
-            {
-                "face": current_img[:, :, ::-1],
-                "facial_area": {
-                    "x": int(current_region.x),
-                    "y": int(current_region.y),
-                    "w": int(current_region.w),
-                    "h": int(current_region.h),
-                    "left_eye": current_region.left_eye,
-                    "right_eye": current_region.right_eye,
-                },
-                "confidence": round(current_region.confidence, 2),
-            }
-        )
+        x = int(current_region.x)
+        y = int(current_region.y)
+        w = int(current_region.w)
+        h = int(current_region.h)
+
+        resp_obj = {
+            "face": current_img[:, :, ::-1],
+            "facial_area": {
+                "x": x,
+                "y": y,
+                "w": w,
+                "h": h,
+                "left_eye": current_region.left_eye,
+                "right_eye": current_region.right_eye,
+            },
+            "confidence": round(current_region.confidence, 2),
+        }
+
+        if anti_spoofing is True:
+            antispoof_model = modeling.build_model(model_name="Fasnet")
+            is_real, antispoof_score = antispoof_model.analyze(img=img, facial_area=(x, y, w, h))
+            resp_obj["is_real"] = is_real
+            resp_obj["antispoof_score"] = antispoof_score
+
+        resp_objs.append(resp_obj)
 
     if len(resp_objs) == 0 and enforce_detection == True:
         raise ValueError(
