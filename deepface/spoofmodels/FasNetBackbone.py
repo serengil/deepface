@@ -17,7 +17,7 @@ from torch.nn import (
     Module,
 )
 
-# pylint: disable=super-with-arguments, too-many-instance-attributes, unused-argument, redefined-builtin
+# pylint: disable=super-with-arguments, too-many-instance-attributes, unused-argument, redefined-builtin, too-few-public-methods
 
 keep_dict = {
     "1.8M": [
