@@ -24,17 +24,13 @@ def represent():
     if img_path is None:
         return {"message": "you must pass img_path input"}
 
-    model_name = input_args.get("model_name", "VGG-Face")
-    detector_backend = input_args.get("detector_backend", "opencv")
-    enforce_detection = input_args.get("enforce_detection", True)
-    align = input_args.get("align", True)
-
     obj = service.represent(
         img_path=img_path,
-        model_name=model_name,
-        detector_backend=detector_backend,
-        enforce_detection=enforce_detection,
-        align=align,
+        model_name=input_args.get("model_name", "VGG-Face"),
+        detector_backend=input_args.get("detector_backend", "opencv"),
+        enforce_detection=input_args.get("enforce_detection", True),
+        align=input_args.get("align", True),
+        anti_spoofing=input_args.get("anti_spoofing", False),
     )
 
     logger.debug(obj)
@@ -58,20 +54,15 @@ def verify():
     if img2_path is None:
         return {"message": "you must pass img2_path input"}
 
-    model_name = input_args.get("model_name", "VGG-Face")
-    detector_backend = input_args.get("detector_backend", "opencv")
-    enforce_detection = input_args.get("enforce_detection", True)
-    distance_metric = input_args.get("distance_metric", "cosine")
-    align = input_args.get("align", True)
-
     verification = service.verify(
         img1_path=img1_path,
         img2_path=img2_path,
-        model_name=model_name,
-        detector_backend=detector_backend,
-        distance_metric=distance_metric,
-        align=align,
-        enforce_detection=enforce_detection,
+        model_name=input_args.get("model_name", "VGG-Face"),
+        detector_backend=input_args.get("detector_backend", "opencv"),
+        distance_metric=input_args.get("distance_metric", "cosine"),
+        align=input_args.get("align", True),
+        enforce_detection=input_args.get("enforce_detection", True),
+        anti_spoofing=input_args.get("anti_spoofing", False),
     )
 
     logger.debug(verification)
@@ -90,17 +81,13 @@ def analyze():
     if img_path is None:
         return {"message": "you must pass img_path input"}
 
-    detector_backend = input_args.get("detector_backend", "opencv")
-    enforce_detection = input_args.get("enforce_detection", True)
-    align = input_args.get("align", True)
-    actions = input_args.get("actions", ["age", "gender", "emotion", "race"])
-
     demographies = service.analyze(
         img_path=img_path,
-        actions=actions,
-        detector_backend=detector_backend,
-        enforce_detection=enforce_detection,
-        align=align,
+        actions=input_args.get("actions", ["age", "gender", "emotion", "race"]),
+        detector_backend=input_args.get("detector_backend", "opencv"),
+        enforce_detection=input_args.get("enforce_detection", True),
+        align=input_args.get("align", True),
+        anti_spoofing=input_args.get("anti_spoofing", False),
     )
 
     logger.debug(demographies)

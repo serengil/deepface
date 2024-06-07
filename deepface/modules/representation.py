@@ -18,6 +18,7 @@ def represent(
     align: bool = True,
     expand_percentage: int = 0,
     normalization: str = "base",
+    anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -42,6 +43,8 @@ def represent(
 
         normalization (string): Normalize the input image before feeding it to the model.
             Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
+
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, each containing the
@@ -72,6 +75,7 @@ def represent(
             enforce_detection=enforce_detection,
             align=align,
             expand_percentage=expand_percentage,
+            anti_spoofing=anti_spoofing,
         )
     else:  # skip
         # Try load. If load error, will raise exception internal
@@ -91,6 +95,8 @@ def represent(
     # ---------------------------------
 
     for img_obj in img_objs:
+        if anti_spoofing is True and img_obj.get("is_real", True) is False:
+            raise ValueError("Spoof detected in the given image.")
         img = img_obj["face"]
 
         # rgb to bgr

@@ -18,6 +18,7 @@ def analyze(
     align: bool = True,
     expand_percentage: int = 0,
     silent: bool = False,
+    anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
@@ -46,6 +47,8 @@ def analyze(
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
+
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
@@ -124,9 +127,13 @@ def analyze(
         enforce_detection=enforce_detection,
         align=align,
         expand_percentage=expand_percentage,
+        anti_spoofing=anti_spoofing,
     )
 
     for img_obj in img_objs:
+        if anti_spoofing is True and img_obj.get("is_real", True) is False:
+            raise ValueError("Spoof detected in the given image.")
+
         img_content = img_obj["face"]
         img_region = img_obj["facial_area"]
         img_confidence = img_obj["confidence"]
