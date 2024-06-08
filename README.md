@@ -304,7 +304,7 @@ user
 │   │   ├── Bob.jpg
 ```
 
-**Face Anti Spoofing** - `Demo`
+**Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
 DeepFace also includes an anti-spoofing analysis module to understand given image is real or fake. To activate this feature, set the `anti_spoofing` argument to True in any DeepFace tasks.
 
