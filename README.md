@@ -316,7 +316,7 @@ face_objs = DeepFace.extract_faces(
   img_path="dataset/img1.jpg",
   anti_spoofing = True
 )
-assert face_objs[0]["is_real"] is True
+assert all(face_obj["is_real"] is True for face_obj in face_objs)
 
 # anti spoofing test in real time analysis
 DeepFace.stream(
