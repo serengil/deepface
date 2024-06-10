@@ -376,7 +376,7 @@ You can also support this work on [Patreon](https://www.patreon.com/serengil?rep
 </a>
 
 <a href="https://buymeacoffee.com/serengil">
-<img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/bmc-button.png" width="30%" height="30%">
+<img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/bmc-button.png" width="25%" height="25%">
 </a>
 
 ## Citation
