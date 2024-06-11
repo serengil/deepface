@@ -1,3 +1,7 @@
+# built-in dependencies
+import traceback
+
+# project dependencies
 from deepface import DeepFace
 
 # pylint: disable=broad-except
@@ -24,7 +28,8 @@ def represent(
         result["results"] = embedding_objs
         return result
     except Exception as err:
-        return {"error": f"Exception while representing: {str(err)}"}, 400
+        tb_str = traceback.format_exc()
+        return {"error": f"Exception while representing: {str(err)} - {tb_str}"}, 400
 
 
 def verify(
@@ -50,7 +55,8 @@ def verify(
         )
         return obj
     except Exception as err:
-        return {"error": f"Exception while verifying: {str(err)}"}, 400
+        tb_str = traceback.format_exc()
+        return {"error": f"Exception while verifying: {str(err)} - {tb_str}"}, 400
 
 
 def analyze(
@@ -75,4 +81,5 @@ def analyze(
         result["results"] = demographies
         return result
     except Exception as err:
-        return {"error": f"Exception while analyzing: {str(err)}"}, 400
+        tb_str = traceback.format_exc()
+        return {"error": f"Exception while analyzing: {str(err)} - {tb_str}"}, 400

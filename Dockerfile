@@ -30,6 +30,8 @@ COPY ./README.md /app/
 # if you plan to use a GPU, you should install the 'tensorflow-gpu' package
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org tensorflow-gpu
 
+# if you plan to use face anti-spoofing, then activate this line
+# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org torch==2.1.2
 # -----------------------------------
 # install deepface from pypi release (might be out-of-date)
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
