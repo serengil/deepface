@@ -370,7 +370,7 @@ Before creating a PR, you should run the unit tests and linting locally by runni
 
 There are many ways to support a project - starring⭐️ the GitHub repo is just one 🙏
 
-You can also support this work on [Patreon](https://www.patreon.com/serengil?repo=deepface), [GitHub Sponsors](https://github.com/sponsors/serengil) or [Buy Me a Coffee](https://buymeacoffee.com/serengil).
+If you do like this work, then you can support it on [Patreon](https://www.patreon.com/serengil?repo=deepface), [GitHub Sponsors](https://github.com/sponsors/serengil) or [Buy Me a Coffee](https://buymeacoffee.com/serengil).
 
 <a href="https://www.patreon.com/serengil?repo=deepface">
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/patreon.png" width="30%" height="30%">
