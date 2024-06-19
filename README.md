@@ -360,7 +360,7 @@ $ deepface analyze -img_path tests/dataset/img1.jpg
 
 You can also run these commands if you are running deepface with docker. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh#L17).
 
-**React UI** - [`Demo`](https://youtu.be/IXoah6rhxac)
+**React UI** - [`Facial Recognition Demo`](https://youtu.be/IXoah6rhxac), [`Facial Attribute Analysis Demo`](https://youtu.be/_waBA-cH2D4)
 
 If you intend to perform face verification tasks directly from your browser, [deepface-react-ui](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS.
 
