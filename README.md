@@ -169,7 +169,7 @@ Conducting experiments with those models within DeepFace may reveal disparities 
 
 Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent faces as vectors. We expect that a face pair of same person should be [more similar](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/) than a face pair of different persons.
 
-Similarity could be calculated by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance and L2 form. The default configuration uses cosine similarity.
+Similarity could be calculated by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance or L2 normalized Euclidean. The default configuration uses cosine similarity. According to [experiments](https://github.com/serengil/deepface/tree/master/benchmarks), no distance metric is overperforming than other.
 
 ```python
 metrics = ["cosine", "euclidean", "euclidean_l2"]
@@ -189,8 +189,6 @@ dfs = DeepFace.find(
 )
 ```
 
-Euclidean L2 form [seems](https://youtu.be/i_MOwvhbLdI) to be more stable than cosine and regular Euclidean distance based on experiments.
-
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
 Deepface also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Result is going to be the size of faces appearing in the source image.
@@ -207,13 +205,13 @@ objs = DeepFace.analyze(
 Age model got ± 4.65 MAE; gender model got 97.44% accuracy, 96.29% precision and 95.05% recall as mentioned in its [tutorial](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/).
 
 
-**Face Detectors** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
+**Face Detection and Alignment** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
 
 Face detection and alignment are important early stages of a modern face recognition pipeline. [Experiments](https://github.com/serengil/deepface/tree/master/benchmarks) show that detection increases the face recognition accuracy up to 42%, while alignment increases it up to 6%. [`OpenCV`](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [`Ssd`](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/),  [`MtCnn`](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/), `Faster MtCnn`, [`RetinaFace`](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/), [`MediaPipe`](https://sefiks.com/2022/01/14/deep-face-detection-with-mediapipe/), `Yolo`, `YuNet` and `CenterFace` detectors are wrapped in deepface.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/detector-portfolio-v6.jpg" width="95%" height="95%"></p>
 
-All deepface functions accept an optional detector backend input argument. You can switch among those detectors with this argument. OpenCV is the default detector.
+All deepface functions accept optional detector backend and align input arguments. You can switch among those detectors and alignment modes with these arguments. OpenCV is the default detector and alignment is enabled by default.
 
 ```python
 backends = [
@@ -229,11 +227,14 @@ backends = [
   'centerface',
 ]
 
+alignment_modes = [True, False]
+
 #face verification
 obj = DeepFace.verify(
   img1_path = "img1.jpg", 
   img2_path = "img2.jpg", 
   detector_backend = backends[0],
+  align = alignment_modes[0],
 )
 
 #face recognition
@@ -241,24 +242,28 @@ dfs = DeepFace.find(
   img_path = "img.jpg", 
   db_path = "my_db", 
   detector_backend = backends[1],
+  align = alignment_modes[0],
 )
 
 #embeddings
 embedding_objs = DeepFace.represent(
   img_path = "img.jpg", 
   detector_backend = backends[2],
+  align = alignment_modes[0],
 )
 
 #facial analysis
 demographies = DeepFace.analyze(
   img_path = "img4.jpg", 
   detector_backend = backends[3],
+  align = alignment_modes[0],
 )
 
 #face detection and alignment
 face_objs = DeepFace.extract_faces(
   img_path = "img.jpg", 
   detector_backend = backends[4],
+  align = alignment_modes[0],
 )
 ```
 
