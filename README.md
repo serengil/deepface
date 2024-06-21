@@ -211,7 +211,7 @@ Face detection and alignment are important early stages of a modern face recogni
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/detector-portfolio-v6.jpg" width="95%" height="95%"></p>
 
-All deepface functions accept optional detector backend and align input arguments. You can switch among those detectors and alignment modes with these arguments. OpenCV is the default detector and alignment is enabled by default.
+All deepface functions accept optional detector backend and align input arguments. You can switch among those detectors and alignment modes with these arguments. OpenCV is the default detector and alignment is on by default.
 
 ```python
 backends = [
