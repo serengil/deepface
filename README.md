@@ -303,6 +303,12 @@ user
 │   │   ├── Bob.jpg
 ```
 
+**React UI** - [`Demo part-i`](https://youtu.be/IXoah6rhxac), [`Demo part-ii`](https://youtu.be/_waBA-cH2D4)
+
+If you intend to perform face verification tasks directly from your browser, [deepface-react-ui](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-and-react.jpg" width="90%" height="90%"></p>
+
 **Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
 DeepFace also includes an anti-spoofing analysis module to understand given image is real or fake. To activate this feature, set the `anti_spoofing` argument to True in any DeepFace tasks.
@@ -364,12 +370,6 @@ $ deepface analyze -img_path tests/dataset/img1.jpg
 ```
 
 You can also run these commands if you are running deepface with docker. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh#L17).
-
-**React UI** - [`Demo part-i`](https://youtu.be/IXoah6rhxac), [`Demo part-ii`](https://youtu.be/_waBA-cH2D4)
-
-If you intend to perform face verification tasks directly from your browser, [deepface-react-ui](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS.
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-and-react.jpg" width="90%" height="90%"></p>
 
 ## Contribution
 
