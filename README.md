@@ -401,7 +401,7 @@ If you use deepface in your research for facial recogntion or face detection pur
 @article{serengil2024lightface,
   title     = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
   author    = {Serengil, Sefik and Ozpinar, Alper},
-  journal   = {International Journal of Informatics Technologies},
+  journal   = {Journal of Information Technologies},
   volume    = {17},
   number    = {2},
   pages     = {95-107},
