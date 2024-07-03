@@ -177,5 +177,5 @@ def align_face(
         return img, 0
 
     angle = float(np.degrees(np.arctan2(left_eye[1] - right_eye[1], left_eye[0] - right_eye[0])))
-    img = np.array(Image.fromarray(img).rotate(angle))
+    img = np.array(Image.fromarray(img).rotate(angle, resample=Image.BICUBIC))
     return img, angle
