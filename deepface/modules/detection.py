@@ -45,8 +45,8 @@ def extract_faces(
 
         expand_percentage (int): expand detected facial area with a percentage
 
-        grayscale (boolean): Flag to convert the image to grayscale before
-            processing (default is False).
+        grayscale (boolean): Flag to convert the output face image to grayscale
+            (default is False).
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
