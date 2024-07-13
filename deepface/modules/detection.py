@@ -125,7 +125,7 @@ def extract_faces(
         h = int(current_region.h)
 
         resp_obj = {
-            "face": current_img[:, :, ::-1],
+            "face": current_img if grayscale else current_img[:, :, ::-1],
             "facial_area": {
                 "x": x,
                 "y": y,
