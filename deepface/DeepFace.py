@@ -596,8 +596,6 @@ def detectFace(
         detector_backend=detector_backend,
         enforce_detection=enforce_detection,
         align=align,
-        color_face='rgb',
-        normalize_face=True,
     )
     extracted_face = None
     if len(face_objs) > 0:
