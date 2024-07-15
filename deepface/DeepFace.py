@@ -482,6 +482,7 @@ def extract_faces(
     enforce_detection: bool = True,
     align: bool = True,
     expand_percentage: int = 0,
+    grayscale: bool = False,
     color_face: str = 'rgb',
     normalize_face: bool = True,
     anti_spoofing: bool = False,
@@ -503,6 +504,9 @@ def extract_faces(
         align (bool): Flag to enable face alignment (default is True).
 
         expand_percentage (int): expand detected facial area with a percentage (default is 0).
+
+        grayscale (boolean): (Deprecated) Flag to convert the output face image to grayscale
+            (default is False).
 
         color_face (string): Color to return face image output. Options: 'rgb', 'bgr' or 'gray'
             (default is 'rgb').
@@ -538,6 +542,7 @@ def extract_faces(
         enforce_detection=enforce_detection,
         align=align,
         expand_percentage=expand_percentage,
+        grayscale=grayscale,
         color_face=color_face,
         normalize_face=normalize_face,
         anti_spoofing=anti_spoofing,
