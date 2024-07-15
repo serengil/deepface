@@ -71,6 +71,7 @@ def represent(
         img_objs = detection.extract_faces(
             img_path=img_path,
             detector_backend=detector_backend,
+            grayscale=False,
             enforce_detection=enforce_detection,
             align=align,
             expand_percentage=expand_percentage,
