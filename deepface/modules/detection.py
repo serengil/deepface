@@ -25,6 +25,7 @@ def extract_faces(
     align: bool = True,
     expand_percentage: int = 0,
     grayscale: bool = False,
+    normalize_face: bool = True,
     anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
@@ -43,10 +44,13 @@ def extract_faces(
 
         align (bool): Flag to enable face alignment (default is True).
 
-        expand_percentage (int): expand detected facial area with a percentage
+        expand_percentage (int): expand detected facial area with a percentage.
 
         grayscale (boolean): Flag to convert the output face image to grayscale
             (default is False).
+
+        normalize_face (boolean): Flag to enable normalization (divide by 255) of the output
+            face image output face image normalization (default is True).
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
@@ -117,7 +121,8 @@ def extract_faces(
         if grayscale is True:
             current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
 
-        current_img = current_img / 255  # normalize input in [0, 1]
+        if normalize_face:
+            current_img = current_img / 255  # normalize input in [0, 1]
 
         x = int(current_region.x)
         y = int(current_region.y)

@@ -483,6 +483,7 @@ def extract_faces(
     align: bool = True,
     expand_percentage: int = 0,
     grayscale: bool = False,
+    normalize_face: bool = True,
     anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
@@ -505,6 +506,9 @@ def extract_faces(
 
         grayscale (boolean): Flag to convert the output face image to grayscale
             (default is False).
+
+        normalize_face (boolean): Flag to enable normalization (divide by 255) of the output
+            face image output face image normalization (default is True).
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
@@ -535,6 +539,7 @@ def extract_faces(
         align=align,
         expand_percentage=expand_percentage,
         grayscale=grayscale,
+        normalize_face=normalize_face,
         anti_spoofing=anti_spoofing,
     )
 
