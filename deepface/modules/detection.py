@@ -25,6 +25,8 @@ def extract_faces(
     align: bool = True,
     expand_percentage: int = 0,
     grayscale: bool = False,
+    color_face: str = 'rgb',
+    normalize_face: bool = True,
     anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
@@ -43,10 +45,16 @@ def extract_faces(
 
         align (bool): Flag to enable face alignment (default is True).
 
-        expand_percentage (int): expand detected facial area with a percentage
+        expand_percentage (int): expand detected facial area with a percentage.
 
-        grayscale (boolean): Flag to convert the output face image to grayscale
+        grayscale (boolean): (Deprecated) Flag to convert the output face image to grayscale
             (default is False).
+
+        color_face (string): Color to return face image output. Options: 'rgb', 'bgr' or 'gray'
+            (default is 'rgb').
+
+        normalize_face (boolean): Flag to enable normalization (divide by 255) of the output
+            face image output face image normalization (default is True).
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
@@ -115,9 +123,22 @@ def extract_faces(
             continue
 
         if grayscale is True:
+            logger.warn("Parameter grayscale is deprecated. Use color_face instead.")
             current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
+        else:
+            if color_face == 'rgb':
+                current_img = current_img[:, :, ::-1]
+            elif color_face == 'bgr':
+                pass  # image is in BGR
+            elif color_face == 'gray':
+                current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
+            else:
+                raise ValueError(
+                    f"The color_face can be rgb, bgr or gray, but it is {color_face}."
+                )
 
-        current_img = current_img / 255  # normalize input in [0, 1]
+        if normalize_face:
+            current_img = current_img / 255  # normalize input in [0, 1]
 
         x = int(current_region.x)
         y = int(current_region.y)
@@ -125,7 +146,7 @@ def extract_faces(
         h = int(current_region.h)
 
         resp_obj = {
-            "face": current_img if grayscale else current_img[:, :, ::-1],
+            "face": current_img,
             "facial_area": {
                 "x": x,
                 "y": y,

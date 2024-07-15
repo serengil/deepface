@@ -123,8 +123,8 @@ def analyze(
     img_objs = detection.extract_faces(
         img_path=img_path,
         detector_backend=detector_backend,
-        grayscale=False,
         enforce_detection=enforce_detection,
+        grayscale=False,
         align=align,
         expand_percentage=expand_percentage,
         anti_spoofing=anti_spoofing,
