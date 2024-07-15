@@ -24,7 +24,7 @@ def extract_faces(
     enforce_detection: bool = True,
     align: bool = True,
     expand_percentage: int = 0,
-    grayscale: bool = False,
+    color_face: str = 'rgb',
     normalize_face: bool = True,
     anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
@@ -46,8 +46,8 @@ def extract_faces(
 
         expand_percentage (int): expand detected facial area with a percentage.
 
-        grayscale (boolean): Flag to convert the output face image to grayscale
-            (default is False).
+        color_face (string): Color to return face image output. Options: 'rgb', 'bgr' or 'gray'
+            (default is 'rgb').
 
         normalize_face (boolean): Flag to enable normalization (divide by 255) of the output
             face image output face image normalization (default is True).
@@ -118,8 +118,16 @@ def extract_faces(
         if current_img.shape[0] == 0 or current_img.shape[1] == 0:
             continue
 
-        if grayscale is True:
+        if color_face == 'rgb':
+            current_img = current_img[:, :, ::-1]
+        elif color_face == 'bgr':
+            pass  # image is in BGR
+        elif color_face == 'gray':
             current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
+        else:
+            raise ValueError(
+                f"The color_face can be rgb, bgr or gray, but it is {color_face}."
+            )
 
         if normalize_face:
             current_img = current_img / 255  # normalize input in [0, 1]
@@ -130,7 +138,7 @@ def extract_faces(
         h = int(current_region.h)
 
         resp_obj = {
-            "face": current_img if grayscale else current_img[:, :, ::-1],
+            "face": current_img,
             "facial_area": {
                 "x": x,
                 "y": y,

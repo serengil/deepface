@@ -482,7 +482,7 @@ def extract_faces(
     enforce_detection: bool = True,
     align: bool = True,
     expand_percentage: int = 0,
-    grayscale: bool = False,
+    color_face: str = 'rgb',
     normalize_face: bool = True,
     anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
@@ -504,8 +504,8 @@ def extract_faces(
 
         expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
-        grayscale (boolean): Flag to convert the output face image to grayscale
-            (default is False).
+        color_face (string): Color to return face image output. Options: 'rgb', 'bgr' or 'gray'
+            (default is 'rgb').
 
         normalize_face (boolean): Flag to enable normalization (divide by 255) of the output
             face image output face image normalization (default is True).
@@ -538,7 +538,7 @@ def extract_faces(
         enforce_detection=enforce_detection,
         align=align,
         expand_percentage=expand_percentage,
-        grayscale=grayscale,
+        color_face=color_face,
         normalize_face=normalize_face,
         anti_spoofing=anti_spoofing,
     )
@@ -591,7 +591,8 @@ def detectFace(
         detector_backend=detector_backend,
         enforce_detection=enforce_detection,
         align=align,
-        grayscale=False,
+        color_face='rgb',
+        normalize_face=True,
     )
     extracted_face = None
     if len(face_objs) > 0:
