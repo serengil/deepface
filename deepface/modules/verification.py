@@ -239,8 +239,6 @@ def __extract_faces_and_embeddings(
     img_objs = detection.extract_faces(
         img_path=img_path,
         detector_backend=detector_backend,
-        color_face='rgb',
-        normalize_face=True,
         enforce_detection=enforce_detection,
         align=align,
         expand_percentage=expand_percentage,
