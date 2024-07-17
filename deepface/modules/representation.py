@@ -97,7 +97,17 @@ def represent(
         ]
     # ---------------------------------
 
-    for idx, img_obj in enumerate(img_objs):
+    if max_faces is not None and max_faces < len(img_objs):
+        # sort as largest facial areas come first
+        img_objs = sorted(
+            img_objs,
+            key=lambda img_obj: img_obj["facial_area"]["w"] * img_obj["facial_area"]["h"],
+            reverse=True,
+        )
+        # discard rest of the items
+        img_objs = img_objs[0:max_faces]
+
+    for img_obj in img_objs:
         if anti_spoofing is True and img_obj.get("is_real", True) is False:
             raise ValueError("Spoof detected in the given image.")
         img = img_obj["face"]
@@ -127,8 +137,5 @@ def represent(
                 "face_confidence": confidence,
             }
         )
-
-        if max_faces is not None and max_faces > 0 and max_faces > idx + 1:
-            break
 
     return resp_objs
