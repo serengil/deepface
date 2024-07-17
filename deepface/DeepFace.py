@@ -359,6 +359,7 @@ def represent(
     expand_percentage: int = 0,
     normalization: str = "base",
     anti_spoofing: bool = False,
+    max_faces: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -390,6 +391,8 @@ def represent(
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
+        max_faces (int): Set a limit on the number of faces to be processed (default is None).
+
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, each containing the
             following fields:
@@ -415,6 +418,7 @@ def represent(
         expand_percentage=expand_percentage,
         normalization=normalization,
         anti_spoofing=anti_spoofing,
+        max_faces=max_faces,
     )
 
 
@@ -483,7 +487,7 @@ def extract_faces(
     align: bool = True,
     expand_percentage: int = 0,
     grayscale: bool = False,
-    color_face: str = 'rgb',
+    color_face: str = "rgb",
     normalize_face: bool = True,
     anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:

@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
 
 # 3rd party dependencies
 import numpy as np
@@ -19,6 +19,7 @@ def represent(
     expand_percentage: int = 0,
     normalization: str = "base",
     anti_spoofing: bool = False,
+    max_faces: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -45,6 +46,8 @@ def represent(
             Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+
+        max_faces (int): Set a limit on the number of faces to be processed (default is None).
 
     Returns:
         results (List[Dict[str, Any]]): A list of dictionaries, each containing the
@@ -94,6 +97,16 @@ def represent(
         ]
     # ---------------------------------
 
+    if max_faces is not None and max_faces < len(img_objs):
+        # sort as largest facial areas come first
+        img_objs = sorted(
+            img_objs,
+            key=lambda img_obj: img_obj["facial_area"]["w"] * img_obj["facial_area"]["h"],
+            reverse=True,
+        )
+        # discard rest of the items
+        img_objs = img_objs[0:max_faces]
+
     for img_obj in img_objs:
         if anti_spoofing is True and img_obj.get("is_real", True) is False:
             raise ValueError("Spoof detected in the given image.")
@@ -117,10 +130,12 @@ def represent(
 
         embedding = model.forward(img)
 
-        resp_obj = {}
-        resp_obj["embedding"] = embedding
-        resp_obj["facial_area"] = region
-        resp_obj["face_confidence"] = confidence
-        resp_objs.append(resp_obj)
+        resp_objs.append(
+            {
+                "embedding": embedding,
+                "facial_area": region,
+                "face_confidence": confidence,
+            }
+        )
 
     return resp_objs

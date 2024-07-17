@@ -31,6 +31,7 @@ def represent():
         enforce_detection=input_args.get("enforce_detection", True),
         align=input_args.get("align", True),
         anti_spoofing=input_args.get("anti_spoofing", False),
+        max_faces=input_args.get("max_faces"),
     )
 
     logger.debug(obj)
