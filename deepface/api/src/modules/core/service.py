@@ -1,5 +1,6 @@
 # built-in dependencies
 import traceback
+from typing import Optional
 
 # project dependencies
 from deepface import DeepFace
@@ -14,6 +15,7 @@ def represent(
     enforce_detection: bool,
     align: bool,
     anti_spoofing: bool,
+    max_faces: Optional[int] = None,
 ):
     try:
         result = {}
@@ -24,6 +26,7 @@ def represent(
             enforce_detection=enforce_detection,
             align=align,
             anti_spoofing=anti_spoofing,
+            max_faces=max_faces,
         )
         result["results"] = embedding_objs
         return result
