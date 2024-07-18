@@ -27,8 +27,8 @@ class DlibClient(Detector):
             import dlib
         except ModuleNotFoundError as e:
             raise ImportError(
-                "Dlib is an optional detector, ensure the library is installed."
-                "Please install using 'pip install dlib' "
+                "Dlib is an optional detector, ensure the library is installed. "
+                "Please install using 'pip install dlib'"
             ) from e
 
         # check required file exists in the home/.deepface/weights folder

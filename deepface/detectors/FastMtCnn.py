@@ -65,8 +65,8 @@ class FastMtCnnClient(Detector):
             import torch
         except ModuleNotFoundError as e:
             raise ImportError(
-                "FastMtcnn is an optional detector, ensure the library is installed."
-                "Please install using 'pip install facenet-pytorch' "
+                "FastMtcnn is an optional detector, ensure the library is installed. "
+                "Please install using 'pip install facenet-pytorch'"
             ) from e
 
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')

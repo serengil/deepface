@@ -31,8 +31,8 @@ class YoloClient(Detector):
             from ultralytics import YOLO
         except ModuleNotFoundError as e:
             raise ImportError(
-                "Yolo is an optional detector, ensure the library is installed. \
-                Please install using 'pip install ultralytics' "
+                "Yolo is an optional detector, ensure the library is installed. "
+                "Please install using 'pip install ultralytics'"
             ) from e
 
         weight_path = f"{folder_utils.get_deepface_home()}{PATH}"
