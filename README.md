@@ -49,7 +49,7 @@ Then you will be able to import the library and use its functionalities.
 from deepface import DeepFace
 ```
 
-**Facial Recognition** - [`Demo`](https://youtu.be/WnUVYQP4h44)
+**A Modern Facial Recognition Pipeline** - [`Demo`](https://youtu.be/WnUVYQP4h44)
 
 A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 5 common stages: [detect](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [normalize](https://sefiks.com/2020/11/20/facial-landmarks-for-face-recognition-with-dlib/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). While Deepface handles all these common stages in the background, you don’t need to acquire in-depth knowledge about all the processes behind it. You can just call its verification, find or analysis function with a single line of code.
 
@@ -370,6 +370,12 @@ $ deepface analyze -img_path tests/dataset/img1.jpg
 ```
 
 You can also run these commands if you are running deepface with docker. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh#L17).
+
+**Large Scale Facial Recognition** - [`Playlist`](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm)
+
+If your task requires facial recognition on large datasets, you should combine DeepFace with a vector index or vector database. This setup will perform [approximate nearest neighbor](https://youtu.be/c10w0Ptn_CU) searches instead of exact ones, allowing you to identify a face in a database containing billions of entries within milliseconds. Common vector index solutions include [Annoy](https://youtu.be/Jpxm914o2xk), [Faiss](https://youtu.be/6AmEvDTKT-k), [Voyager](https://youtu.be/2ZYTV9HlFdU), [NMSLIB](https://youtu.be/EVBhO8rbKbg), [ElasticSearch](https://youtu.be/i4GvuOmzKzo). For vector databases, popular options are [Postgres with its pgvector extension](https://youtu.be/Xfv4hCWvkp0) and [RediSearch](https://youtu.be/yrXlS0d6t4w).
+
+Conversely, if your task involves facial recognition on small to moderate-sized databases, you can adopt use relational databases such as [Postgres](https://youtu.be/f41sLxn1c0k) or [SQLite](https://youtu.be/_1ShBeWToPg), or NoSQL databases like [Mongo](https://youtu.be/dmprgum9Xu8), [Redis](https://youtu.be/X7DSpUMVTsw) or [Cassandra](https://youtu.be/J_yXpc3Y8Ec) to perform exact nearest neighbor search.
 
 ## Contribution
 
