@@ -20,8 +20,8 @@ class MediaPipeClient(Detector):
             import mediapipe as mp
         except ModuleNotFoundError as e:
             raise ImportError(
-                "MediaPipe is an optional detector, ensure the library is installed."
-                "Please install using 'pip install mediapipe' "
+                "MediaPipe is an optional detector, ensure the library is installed. "
+                "Please install using 'pip install mediapipe'"
             ) from e
 
         mp_face_detection = mp.solutions.face_detection
