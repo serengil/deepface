@@ -7,6 +7,7 @@ from deepface.commons import logger as log
 
 logger = log.get_singletonish_logger()
 
+
 def test_standard_represent():
     img_path = "dataset/img1.jpg"
     embedding_objs = DeepFace.represent(img_path)
@@ -48,3 +49,14 @@ def test_represent_for_skipped_detector_backend_with_preloaded_image():
     assert "h" in img_obj["facial_area"].keys()
     assert "face_confidence" in img_obj.keys()
     logger.info("✅ test represent function for skipped detector and preloaded image done")
+
+
+def test_max_faces():
+    # confirm that input image has more than one face
+    results = DeepFace.represent(img_path="dataset/couple.jpg")
+    assert len(results) > 1
+
+    # test it with max faces arg
+    max_faces = 1
+    results = DeepFace.represent(img_path="dataset/couple.jpg", max_faces=max_faces)
+    assert len(results) == max_faces
