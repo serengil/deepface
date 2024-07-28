@@ -401,8 +401,6 @@ If you do like this work, then you can support it on [Patreon](https://www.patre
 
 Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATION.md) for more details. Here are its BibTex entries:
 
-If you use deepface in your research for facial recogntion or face detection purposes, please cite these publications:
-
 ```BibTeX
 @article{serengil2024lightface,
   title     = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
@@ -419,6 +417,8 @@ If you use deepface in your research for facial recogntion or face detection pur
 ```
 
 <!--
+If you use deepface in your research for facial recogntion or face detection purposes, please cite these publications:
+
 ```BibTeX
 @inproceedings{serengil2020lightface,
   title        = {LightFace: A Hybrid Deep Face Recognition Framework},
