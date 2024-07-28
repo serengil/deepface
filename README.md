@@ -418,6 +418,7 @@ If you use deepface in your research for facial recogntion or face detection pur
 }
 ```
 
+<!--
 ```BibTeX
 @inproceedings{serengil2020lightface,
   title        = {LightFace: A Hybrid Deep Face Recognition Framework},
@@ -445,6 +446,7 @@ On the other hand, if you use deepface in your research for facial attribute ana
   organization = {IEEE}
 }
 ```
+-->
 
 Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
 
