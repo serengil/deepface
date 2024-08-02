@@ -9,9 +9,9 @@ import cv2
 # project dependencies
 from deepface.commons import package_utils, folder_utils
 from deepface.models.Demography import Demography
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 # -------------------------------------------
 # pylint: disable=line-too-long

@@ -4,9 +4,9 @@ import cv2
 
 # project dependencies
 from deepface import DeepFace
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 models = ["VGG-Face", "Facenet", "Facenet512", "ArcFace", "GhostFaceNet"]
 metrics = ["cosine", "euclidean", "euclidean_l2"]

@@ -3,9 +3,9 @@ import zipfile
 import gdown
 from deepface.commons import package_utils, folder_utils
 from deepface.models.FacialRecognition import FacialRecognition
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 # --------------------------------
 # dependency configuration

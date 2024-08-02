@@ -5,9 +5,9 @@ import os
 import gdown
 
 # project dependencies
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 
 def download_external_file(file_name: str, exact_file_path: str, url: str) -> None:

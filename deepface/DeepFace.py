@@ -16,7 +16,7 @@ import tensorflow as tf
 
 # package dependencies
 from deepface.commons import package_utils, folder_utils
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 from deepface.modules import (
     modeling,
     representation,
@@ -29,7 +29,7 @@ from deepface.modules import (
 )
 from deepface import __version__
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 # -----------------------------------
 # configurations for dependencies

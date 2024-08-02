@@ -12,9 +12,9 @@ from tqdm import tqdm
 # project dependencies
 from deepface.commons import image_utils
 from deepface.modules import representation, detection, verification
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 
 def find(

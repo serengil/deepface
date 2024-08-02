@@ -15,9 +15,9 @@ from deepface.detectors import (
     YuNet,
     CenterFace,
 )
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 
 def build_model(detector_backend: str) -> Any:

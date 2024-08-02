@@ -7,9 +7,9 @@ import cv2
 from deepface import DeepFace
 from deepface.modules import verification
 from deepface.models.FacialRecognition import FacialRecognition
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 # ----------------------------------------------
 # build face recognition model

@@ -10,9 +10,9 @@ import cv2
 
 # project dependencies
 from deepface import DeepFace
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 # dependency configuration
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"

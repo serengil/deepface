@@ -7,9 +7,9 @@ import numpy as np
 from deepface.detectors import OpenCv
 from deepface.commons import folder_utils
 from deepface.models.Detector import Detector, FacialAreaRegion
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 # pylint: disable=line-too-long, c-extension-no-member
 

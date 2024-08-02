@@ -8,9 +8,9 @@ import numpy as np
 # project dependencies
 from deepface.modules import representation, detection, modeling
 from deepface.models.FacialRecognition import FacialRecognition
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 
 def verify(
