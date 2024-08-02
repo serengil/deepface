@@ -8,9 +8,9 @@ import tensorflow as tf
 # project dependencies
 from deepface.commons import package_utils, folder_utils
 from deepface.models.FacialRecognition import FacialRecognition
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 tf_major = package_utils.get_tf_major_version()
 if tf_major == 1:

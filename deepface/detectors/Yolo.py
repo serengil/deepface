@@ -4,9 +4,9 @@ import numpy as np
 import gdown
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons import folder_utils
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 # Model's weights paths
 PATH = "/.deepface/weights/yolov8n-face.pt"

@@ -5,9 +5,9 @@ from flask_cors import CORS
 # project dependencies
 from deepface import DeepFace
 from deepface.api.src.modules.core.routes import blueprint
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 
 def create_app():

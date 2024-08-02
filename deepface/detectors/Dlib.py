@@ -5,9 +5,9 @@ import gdown
 import numpy as np
 from deepface.commons import folder_utils
 from deepface.models.Detector import Detector, FacialAreaRegion
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 
 class DlibClient(Detector):

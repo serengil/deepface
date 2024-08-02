@@ -4,9 +4,9 @@ import unittest
 
 # project dependencies
 from deepface.api.src.app import create_app
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 
 class TestVerifyEndpoint(unittest.TestCase):

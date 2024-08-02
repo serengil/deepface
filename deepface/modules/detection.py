@@ -11,9 +11,9 @@ from deepface.modules import modeling
 from deepface.models.Detector import DetectedFace, FacialAreaRegion
 from deepface.detectors import DetectorWrapper
 from deepface.commons import image_utils
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 # pylint: disable=no-else-raise
 

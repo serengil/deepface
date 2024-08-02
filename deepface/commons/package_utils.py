@@ -2,9 +2,9 @@
 import tensorflow as tf
 
 # package dependencies
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 
 def get_tf_major_version() -> int:

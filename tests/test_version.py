@@ -3,9 +3,9 @@ import json
 
 # project dependencies
 from deepface import DeepFace
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 
 def test_version():

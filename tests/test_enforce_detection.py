@@ -4,9 +4,9 @@ import numpy as np
 
 # project dependencies
 from deepface import DeepFace
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 
 def test_enabled_enforce_detection_for_non_facial_input():

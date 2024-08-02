@@ -1,9 +1,9 @@
 from flask import Blueprint, request
 from deepface import DeepFace
 from deepface.api.src.modules.core import service
-from deepface.commons import logger as log
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 blueprint = Blueprint("routes", __name__)
 

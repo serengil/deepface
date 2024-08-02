@@ -9,9 +9,10 @@ import cv2
 import numpy as np
 
 # project dependencies
-from deepface.commons import folder_utils, file_utils, logger as log
+from deepface.commons import folder_utils, file_utils
+from deepface.commons.logger import Logger
 
-logger = log.get_singletonish_logger()
+logger = Logger()
 
 # pylint: disable=line-too-long, too-few-public-methods
 class Fasnet:
