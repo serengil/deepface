@@ -6,7 +6,6 @@ Pipfile
 Pipfile.lock
 .mypy_cache/
 .idea/
-.vscode/
 deepface.egg-info/
 tests/dataset/*.pkl
 tests/*.ipynb
