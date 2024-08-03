@@ -31,6 +31,7 @@ def find(
     silent: bool = False,
     refresh_database: bool = True,
     anti_spoofing: bool = False,
+    recursive: bool = True,
 ) -> List[pd.DataFrame]:
     """
     Identify individuals in a database
@@ -42,6 +43,8 @@ def find(
 
         db_path (string): Path to the folder containing image files. All detected faces
             in the database will be considered in the decision-making process.
+
+        recursive (bool): Walk db_path recursively (default True)
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
@@ -152,7 +155,7 @@ def find(
     pickled_images = [representation["identity"] for representation in representations]
 
     # Get the list of images on storage
-    storage_images = image_utils.list_images(path=db_path)
+    storage_images = image_utils.list_images(path=db_path, recursive=recursive)
 
     if len(storage_images) == 0 and refresh_database is True:
         raise ValueError(f"No item found in {db_path}")
@@ -373,6 +376,13 @@ def __find_bulk_embeddings(
         except ValueError as err:
             logger.error(f"Exception while extracting faces from {employee}: {str(err)}")
             img_objs = []
+
+        except KeyboardInterrupt:
+            needInterrupt = os.getenv("DEEPFACE_KEYBOARD_INTERRUPT", '0').lower() in ('true', '1', 't')
+            if not needInterrupt:
+                raise
+            else:
+                break
 
         if len(img_objs) == 0:
             representations.append(

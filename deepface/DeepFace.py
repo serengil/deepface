@@ -270,6 +270,7 @@ def find(
     silent: bool = False,
     refresh_database: bool = True,
     anti_spoofing: bool = False,
+    recursive: bool = True,
 ) -> List[pd.DataFrame]:
     """
     Identify individuals in a database
@@ -280,6 +281,8 @@ def find(
 
         db_path (string): Path to the folder containing image files. All detected faces
             in the database will be considered in the decision-making process.
+
+        recursive (bool): Walk db_path recursively (default True)
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
@@ -347,6 +350,7 @@ def find(
         silent=silent,
         refresh_database=refresh_database,
         anti_spoofing=anti_spoofing,
+        recursive=recursive,
     )
 
 

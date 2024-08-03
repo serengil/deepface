@@ -13,28 +13,45 @@ import cv2
 from PIL import Image
 
 
-def list_images(path: str) -> List[str]:
+def is_image(file_path: str) -> bool:
+    """
+    Check if a file is an image
+    Args:
+        file_path (str): path to the file
+    Returns:
+        bool: True if the file is an image, False otherwise
+    """
+    _, ext = os.path.splitext(file_path)
+    ext_lower = ext.lower()
+
+    if ext_lower not in {".jpg", ".jpeg", ".png", ".webp"}:
+        return False
+
+    with Image.open(file_path) as img:  # lazy
+        return img.format.lower() in ["jpeg", "png"]
+
+
+def list_images(path: str, recursive: bool = True) -> List[str]:
     """
     List images in a given path
     Args:
         path (str): path's location
+        recursive (bool): default True
     Returns:
         images (list): list of exact image paths
     """
     images = []
-    for r, _, f in os.walk(path):
-        for file in f:
-            exact_path = os.path.join(r, file)
-
-            _, ext = os.path.splitext(exact_path)
-            ext_lower = ext.lower()
-
-            if ext_lower not in {".jpg", ".jpeg", ".png"}:
-                continue
-
-            with Image.open(exact_path) as img:  # lazy
-                if img.format.lower() in ["jpeg", "png"]:
+    if recursive:
+        for r, _, f in os.walk(path):
+            for file in f:
+                exact_path = os.path.join(r, file)
+                if is_image(exact_path):
                     images.append(exact_path)
+    else:
+        for file in os.listdir(path):
+            exact_path = os.path.join(path, file)
+            if is_image(exact_path):
+                images.append(exact_path)
     return images
 
 
@@ -94,10 +111,6 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
         raise ValueError(f"Confirm that {img} exists")
 
     # image must be a file on the system then
-
-    # image name must have english characters
-    if img.isascii() is False:
-        raise ValueError(f"Input image must not have non-english characters - {img}")
 
     img_obj_bgr = cv2.imread(img)
     # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
