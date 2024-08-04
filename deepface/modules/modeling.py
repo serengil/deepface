@@ -97,6 +97,6 @@ def build_model(task: str, model_name: str) -> Any:
         if model:
             model_obj[task][model_name] = model()
         else:
-            raise ValueError(f"Invalid model_name passed - {model_name}")
+            raise ValueError(f"Invalid model_name passed - {task}/{model_name}")
 
     return model_obj[task][model_name]
