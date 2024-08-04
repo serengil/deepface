@@ -45,11 +45,6 @@ def build_model(task: str, model_name: str) -> Any:
             built model class
     """
 
-    tasks = ["facial_recognition", "spoofing", "facial_attribute", "face_detector"]
-
-    if task not in tasks:
-        raise ValueError(f"unimplemented task - {task}")
-
     # singleton design pattern
     global model_obj
 
@@ -89,8 +84,11 @@ def build_model(task: str, model_name: str) -> Any:
         },
     }
 
+    if task not in models.keys():
+        raise ValueError(f"unimplemented task - {task}")
+
     if not "model_obj" in globals():
-        model_obj = {current_task: {} for current_task in tasks}
+        model_obj = {current_task: {} for current_task in models.keys()}
 
     if not model_name in model_obj[task].keys():
         model = models[task].get(model_name)
