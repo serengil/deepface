@@ -25,7 +25,7 @@ def extract_faces(
     align: bool = True,
     expand_percentage: int = 0,
     grayscale: bool = False,
-    color_face: str = 'rgb',
+    color_face: str = "rgb",
     normalize_face: bool = True,
     anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
@@ -126,16 +126,14 @@ def extract_faces(
             logger.warn("Parameter grayscale is deprecated. Use color_face instead.")
             current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
         else:
-            if color_face == 'rgb':
+            if color_face == "rgb":
                 current_img = current_img[:, :, ::-1]
-            elif color_face == 'bgr':
+            elif color_face == "bgr":
                 pass  # image is in BGR
-            elif color_face == 'gray':
+            elif color_face == "gray":
                 current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
             else:
-                raise ValueError(
-                    f"The color_face can be rgb, bgr or gray, but it is {color_face}."
-                )
+                raise ValueError(f"The color_face can be rgb, bgr or gray, but it is {color_face}.")
 
         if normalize_face:
             current_img = current_img / 255  # normalize input in [0, 1]
@@ -159,7 +157,7 @@ def extract_faces(
         }
 
         if anti_spoofing is True:
-            antispoof_model = modeling.build_model(model_name="Fasnet")
+            antispoof_model = modeling.build_model(task="spoofing", model_name="Fasnet")
             is_real, antispoof_score = antispoof_model.analyze(img=img, facial_area=(x, y, w, h))
             resp_obj["is_real"] = is_real
             resp_obj["antispoof_score"] = antispoof_score

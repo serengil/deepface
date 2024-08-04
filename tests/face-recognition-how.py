@@ -16,7 +16,7 @@ logger = Logger()
 
 model_name = "VGG-Face"
 
-model: FacialRecognition = DeepFace.build_model(model_name=model_name)
+model: FacialRecognition = DeepFace.build_model(task="facial_recognition", model_name=model_name)
 
 target_size = model.input_shape
 
