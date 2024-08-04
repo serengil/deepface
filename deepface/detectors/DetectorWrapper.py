@@ -1,62 +1,11 @@
-from typing import Any, List, Tuple
+from typing import List, Tuple
 import numpy as np
 import cv2
-from deepface.modules import detection
+from deepface.modules import detection, modeling
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
-from deepface.detectors import (
-    FastMtCnn,
-    MediaPipe,
-    MtCnn,
-    OpenCv,
-    Dlib,
-    RetinaFace,
-    Ssd,
-    Yolo,
-    YuNet,
-    CenterFace,
-)
 from deepface.commons.logger import Logger
 
 logger = Logger()
-
-
-def build_model(detector_backend: str) -> Any:
-    """
-    Build a face detector model
-    Args:
-        detector_backend (str): backend detector name
-    Returns:
-        built detector (Any)
-    """
-    global face_detector_obj  # singleton design pattern
-
-    backends = {
-        "opencv": OpenCv.OpenCvClient,
-        "mtcnn": MtCnn.MtCnnClient,
-        "ssd": Ssd.SsdClient,
-        "dlib": Dlib.DlibClient,
-        "retinaface": RetinaFace.RetinaFaceClient,
-        "mediapipe": MediaPipe.MediaPipeClient,
-        "yolov8": Yolo.YoloClient,
-        "yunet": YuNet.YuNetClient,
-        "fastmtcnn": FastMtCnn.FastMtCnnClient,
-        "centerface": CenterFace.CenterFaceClient,
-    }
-
-    if not "face_detector_obj" in globals():
-        face_detector_obj = {}
-
-    built_models = list(face_detector_obj.keys())
-    if detector_backend not in built_models:
-        face_detector = backends.get(detector_backend)
-
-        if face_detector:
-            face_detector = face_detector()
-            face_detector_obj[detector_backend] = face_detector
-        else:
-            raise ValueError("invalid detector_backend passed - " + detector_backend)
-
-    return face_detector_obj[detector_backend]
 
 
 def detect_faces(
@@ -87,7 +36,9 @@ def detect_faces(
     """
     height, width, _ = img.shape
 
-    face_detector: Detector = build_model(detector_backend)
+    face_detector: Detector = modeling.build_model(
+        task="face_detector", model_name=detector_backend
+    )
 
     # validate expand percentage score
     if expand_percentage < 0:
