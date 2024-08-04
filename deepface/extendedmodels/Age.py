@@ -33,7 +33,9 @@ class ApparentAgeClient(Demography):
         self.model_name = "Age"
 
     def predict(self, img: np.ndarray) -> np.float64:
-        age_predictions = self.model.predict(img, verbose=0)[0, :]
+        # model.predict causes memory issue when it is called in a for loop
+        # age_predictions = self.model.predict(img, verbose=0)[0, :]
+        age_predictions = self.model(img, training=False).numpy()[0, :]
         return find_apparent_age(age_predictions)
 
 

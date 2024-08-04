@@ -41,7 +41,9 @@ class GenderClient(Demography):
         self.model_name = "Gender"
 
     def predict(self, img: np.ndarray) -> np.ndarray:
-        return self.model.predict(img, verbose=0)[0, :]
+        # model.predict causes memory issue when it is called in a for loop
+        # return self.model.predict(img, verbose=0)[0, :]
+        return self.model(img, training=False).numpy()[0, :]
 
 
 def load_model(

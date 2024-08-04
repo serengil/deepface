@@ -52,7 +52,10 @@ class EmotionClient(Demography):
         img_gray = cv2.resize(img_gray, (48, 48))
         img_gray = np.expand_dims(img_gray, axis=0)
 
-        emotion_predictions = self.model.predict(img_gray, verbose=0)[0, :]
+        # model.predict causes memory issue when it is called in a for loop
+        # emotion_predictions = self.model.predict(img_gray, verbose=0)[0, :]
+        emotion_predictions = self.model(img_gray, training=False).numpy()[0, :]
+
         return emotion_predictions
 
 
