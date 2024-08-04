@@ -171,7 +171,7 @@ def build_facial_recognition_model(model_name: str) -> None:
     Returns
         input_shape (tuple): input shape of given facial recognitio n model.
     """
-    _ = DeepFace.build_model(model_name=model_name)
+    _ = DeepFace.build_model(task="facial_recognition", model_name=model_name)
     logger.info(f"{model_name} is built")
 
 
@@ -267,11 +267,11 @@ def build_demography_models(enable_face_analysis: bool) -> None:
     """
     if enable_face_analysis is False:
         return
-    DeepFace.build_model(model_name="Age")
+    DeepFace.build_model(task="facial_attribute", model_name="Age")
     logger.info("Age model is just built")
-    DeepFace.build_model(model_name="Gender")
+    DeepFace.build_model(task="facial_attribute", model_name="Gender")
     logger.info("Gender model is just built")
-    DeepFace.build_model(model_name="Emotion")
+    DeepFace.build_model(task="facial_attribute", model_name="Emotion")
     logger.info("Emotion model is just built")
 
 

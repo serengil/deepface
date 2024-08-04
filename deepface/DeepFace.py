@@ -48,17 +48,23 @@ if tf_version == 2:
 folder_utils.initialize_folder()
 
 
-def build_model(model_name: str) -> Any:
+def build_model(model_name: str, task: str = "facial_recognition") -> Any:
     """
-    This function builds a deepface model
+    This function builds a pre-trained model
     Args:
-        model_name (string): face recognition or facial attribute model
-            VGG-Face, Facenet, OpenFace, DeepFace, DeepID for face recognition
-            Age, Gender, Emotion, Race for facial attributes
+        model_name (str): model identifier
+            - VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
+                ArcFace, SFace, GhostFaceNet for face recognition
+            - Age, Gender, Emotion, Race for facial attributes
+            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, yunet,
+                fastmtcnn or centerface for face detectors
+            - Fasnet for spoofing
+        task (str): facial_recognition, facial_attribute, face_detector, spoofing
+            default is facial_recognition
     Returns:
         built_model
     """
-    return modeling.build_model(model_name=model_name)
+    return modeling.build_model(task=task, model_name=model_name)
 
 
 def verify(

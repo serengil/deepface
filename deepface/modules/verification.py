@@ -100,7 +100,9 @@ def verify(
 
     tic = time.time()
 
-    model: FacialRecognition = modeling.build_model(model_name)
+    model: FacialRecognition = modeling.build_model(
+        task="facial_recognition", model_name=model_name
+    )
     dims = model.output_shape
 
     # extract faces from img1
