@@ -200,8 +200,9 @@ def verify(
 
     # find the face pair with minimum distance
     threshold = threshold or find_threshold(model_name, distance_metric)
-    distance = float(min(distances))  # best distance
-    facial_areas = facial_areas[np.argmin(distances)]
+    min_index = np.argmin(distances)
+    distance = float(distances[min_index])  # best distance
+    facial_areas = facial_areas[min_index]
 
     toc = time.time()
 
@@ -285,10 +286,10 @@ def find_cosine_distance(
     if isinstance(test_representation, list):
         test_representation = np.array(test_representation)
 
-    a = np.matmul(np.transpose(source_representation), test_representation)
-    b = np.sum(np.multiply(source_representation, source_representation))
-    c = np.sum(np.multiply(test_representation, test_representation))
-    return 1 - (a / (np.sqrt(b) * np.sqrt(c)))
+    a = np.dot(source_representation, test_representation)
+    b = np.linalg.norm(source_representation)
+    c = np.linalg.norm(test_representation)
+    return 1 - a / (b * c)
 
 
 def find_euclidean_distance(
@@ -308,10 +309,7 @@ def find_euclidean_distance(
     if isinstance(test_representation, list):
         test_representation = np.array(test_representation)
 
-    euclidean_distance = source_representation - test_representation
-    euclidean_distance = np.sum(np.multiply(euclidean_distance, euclidean_distance))
-    euclidean_distance = np.sqrt(euclidean_distance)
-    return euclidean_distance
+    return np.linalg.norm(source_representation - test_representation)
 
 
 def l2_normalize(x: Union[np.ndarray, list]) -> np.ndarray:
@@ -324,7 +322,8 @@ def l2_normalize(x: Union[np.ndarray, list]) -> np.ndarray:
     """
     if isinstance(x, list):
         x = np.array(x)
-    return x / np.sqrt(np.sum(np.multiply(x, x)))
+    norm = np.linalg.norm(x)
+    return x if norm == 0 else x / norm
 
 
 def find_distance(
