@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 # project dependencies
 from deepface.modules import modeling, detection, preprocessing
-from deepface.extendedmodels import Gender, Race, Emotion
+from deepface.models.demography import Gender, Race, Emotion
 
 
 def analyze(

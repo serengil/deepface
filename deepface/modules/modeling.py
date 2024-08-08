@@ -2,7 +2,7 @@
 from typing import Any
 
 # project dependencies
-from deepface.basemodels import (
+from deepface.models.facial_recognition import (
     VGGFace,
     OpenFace,
     FbDeepFace,
@@ -13,7 +13,7 @@ from deepface.basemodels import (
     Facenet,
     GhostFaceNet,
 )
-from deepface.detectors import (
+from deepface.models.face_detection import (
     FastMtCnn,
     MediaPipe,
     MtCnn,
@@ -25,8 +25,8 @@ from deepface.detectors import (
     YuNet,
     CenterFace,
 )
-from deepface.extendedmodels import Age, Gender, Race, Emotion
-from deepface.spoofmodels import FasNet
+from deepface.models.demography import Age, Gender, Race, Emotion
+from deepface.models.spoofing import FasNet
 
 
 def build_model(task: str, model_name: str) -> Any:

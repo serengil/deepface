@@ -6,7 +6,7 @@ import gdown
 import numpy as np
 
 # project dependencies
-from deepface.basemodels import VGGFace
+from deepface.models.facial_recognition import VGGFace
 from deepface.commons import package_utils, folder_utils
 from deepface.models.Demography import Demography
 from deepface.commons.logger import Logger
