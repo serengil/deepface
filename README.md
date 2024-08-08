@@ -399,6 +399,8 @@ If you do like this work, then you can support it on [Patreon](https://www.patre
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/bmc-button.png" width="25%" height="25%">
 </a>
 
+Also, your company's logo will be shown on README on GitHub if you become sponsor in gold, silver or bronze tiers.
+
 ## Citation
 
 Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATION.md) for more details. Here are its BibTex entries:
