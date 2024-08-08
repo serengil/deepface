@@ -4,7 +4,7 @@ import gdown
 import cv2
 import pandas as pd
 import numpy as np
-from deepface.detectors import OpenCv
+from deepface.models.face_detection import OpenCv
 from deepface.commons import folder_utils
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger

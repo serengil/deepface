@@ -47,7 +47,7 @@ class Fasnet:
         )
 
         # guarantees Fasnet imported and torch installed
-        from deepface.spoofmodels import FasNetBackbone
+        from deepface.models.spoofing import FasNetBackbone
 
         # Fasnet will use 2 distinct models to predict, then it will find the sum of predictions
         # to make a final prediction
