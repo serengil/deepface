@@ -75,9 +75,9 @@ def load_model():
     model = GhostFaceNetV1()
 
     home = folder_utils.get_deepface_home()
-    output = home + "/.deepface/weights/ghostfacenet_v1.h5"
+    output = os.path.join(home, ".deepface/weights/ghostfacenet_v1.h5")
 
-    if os.path.isfile(output) is not True:
+    if not os.path.isfile(output):
         logger.info(f"Pre-trained weights is downloaded from {PRETRAINED_WEIGHTS} to {output}")
         gdown.download(PRETRAINED_WEIGHTS, output, quiet=False)
         logger.info(f"Pre-trained weights is just downloaded to {output}")

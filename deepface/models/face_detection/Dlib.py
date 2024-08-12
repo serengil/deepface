@@ -20,8 +20,6 @@ class DlibClient(Detector):
         Returns:
             model (Any)
         """
-        home = folder_utils.get_deepface_home()
-
         # this is not a must dependency. do not import it in the global level.
         try:
             import dlib
@@ -32,24 +30,25 @@ class DlibClient(Detector):
             ) from e
 
         # check required file exists in the home/.deepface/weights folder
-        if os.path.isfile(home + "/.deepface/weights/shape_predictor_5_face_landmarks.dat") != True:
+        home = folder_utils.get_deepface_home()
+        filename = "shape_predictor_5_face_landmarks.dat"
+        filepath = os.path.join(home, ".deepface/weights/", filename)
 
-            file_name = "shape_predictor_5_face_landmarks.dat.bz2"
-            logger.info(f"{file_name} is going to be downloaded")
+        if not os.path.isfile(filepath):
+            logger.info(f"{filename + '.bz2'} is going to be downloaded")
 
-            url = f"http://dlib.net/files/{file_name}"
-            output = f"{home}/.deepface/weights/{file_name}"
+            url = f"http://dlib.net/files/{filename + '.bz2'}"
+            output = filepath + ".bz2"
 
             gdown.download(url, output, quiet=False)
 
             zipfile = bz2.BZ2File(output)
             data = zipfile.read()
-            newfilepath = output[:-4]  # discard .bz2 extension
-            with open(newfilepath, "wb") as f:
+            with open(filepath, "wb") as f:
                 f.write(data)
 
         face_detector = dlib.get_frontal_face_detector()
-        sp = dlib.shape_predictor(home + "/.deepface/weights/shape_predictor_5_face_landmarks.dat")
+        sp = dlib.shape_predictor(filepath)
 
         detector = {}
         detector["face_detector"] = face_detector

@@ -97,8 +97,8 @@ def find(
 
     tic = time.time()
 
-    if os.path.isdir(db_path) is not True:
-        raise ValueError("Passed db_path does not exist!")
+    if not os.path.isdir(db_path):
+        raise ValueError(f"Passed path {db_path} does not exist!")
 
     file_parts = [
         "ds",

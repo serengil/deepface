@@ -28,35 +28,21 @@ class SsdClient(Detector):
         home = folder_utils.get_deepface_home()
 
         # model structure
-        if os.path.isfile(home + "/.deepface/weights/deploy.prototxt") != True:
-
-            logger.info("deploy.prototxt will be downloaded...")
-
+        output_model = os.path.join(home, ".deepface/weights/deploy.prototxt")
+        if not os.path.isfile(output_model):
+            logger.info(f"{os.path.basename(output_model)} will be downloaded...")
             url = "https://github.com/opencv/opencv/raw/3.4.0/samples/dnn/face_detector/deploy.prototxt"
-
-            output = home + "/.deepface/weights/deploy.prototxt"
-
-            gdown.download(url, output, quiet=False)
+            gdown.download(url, output_model, quiet=False)
 
         # pre-trained weights
-        if (
-            os.path.isfile(home + "/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel")
-            != True
-        ):
-
-            logger.info("res10_300x300_ssd_iter_140000.caffemodel will be downloaded...")
-
+        output_weights = os.path.join(home, ".deepface/weights/res10_300x300_ssd_iter_140000.caffemodel")
+        if not os.path.isfile(output_weights):
+            logger.info(f"{os.path.basename(output_weights)} will be downloaded...")
             url = "https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel"
-
-            output = home + "/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel"
-
-            gdown.download(url, output, quiet=False)
+            gdown.download(url, output_weights, quiet=False)
 
         try:
-            face_detector = cv2.dnn.readNetFromCaffe(
-                home + "/.deepface/weights/deploy.prototxt",
-                home + "/.deepface/weights/res10_300x300_ssd_iter_140000.caffemodel",
-            )
+            face_detector = cv2.dnn.readNetFromCaffe(output_model, output_weights)
         except Exception as err:
             raise ValueError(
                 "Exception while calling opencv.dnn module."

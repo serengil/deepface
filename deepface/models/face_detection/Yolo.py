@@ -9,7 +9,7 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # Model's weights paths
-PATH = "/.deepface/weights/yolov8n-face.pt"
+PATH = ".deepface/weights/yolov8n-face.pt"
 
 # Google Drive URL from repo (https://github.com/derronqi/yolov8-face) ~6MB
 WEIGHT_URL = "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb"
@@ -35,7 +35,8 @@ class YoloClient(Detector):
                 "Please install using 'pip install ultralytics'"
             ) from e
 
-        weight_path = f"{folder_utils.get_deepface_home()}{PATH}"
+        home = folder_utils.get_deepface_home()
+        weight_path = os.path.join(home, PATH)
 
         # Download the model's weights if they don't exist
         if not os.path.isfile(weight_path):
