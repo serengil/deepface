@@ -84,13 +84,11 @@ def load_model(
     home = folder_utils.get_deepface_home()
 
     file_name = "arcface_weights.h5"
-    output = home + "/.deepface/weights/" + file_name
+    output = os.path.join(home, ".deepface/weights", file_name)
 
-    if os.path.isfile(output) != True:
-
+    if not os.path.isfile(output):
         logger.info(f"{file_name} will be downloaded to {output}")
         gdown.download(url, output, quiet=False)
-
     # ---------------------------------------
 
     model.load_weights(output)

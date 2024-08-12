@@ -83,7 +83,7 @@ def test_file_types_while_loading_base64():
     img1_path = "dataset/img47.jpg"
     img1_base64 = image_to_base64(image_path=img1_path)
 
-    with pytest.raises(ValueError, match="input image can be jpg or png, but it is"):
+    with pytest.raises(ValueError, match="Input image can be jpg or png, but it is"):
         _ = image_utils.load_image_from_base64(uri=img1_base64)
 
     img2_path = "dataset/img1.jpg"

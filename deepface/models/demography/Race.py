@@ -71,13 +71,12 @@ def load_model(
     # load weights
 
     home = folder_utils.get_deepface_home()
+    output = os.path.join(home, ".deepface/weights/race_model_single_batch.h5")
 
-    if os.path.isfile(home + "/.deepface/weights/race_model_single_batch.h5") != True:
-        logger.info("race_model_single_batch.h5 will be downloaded...")
-
-        output = home + "/.deepface/weights/race_model_single_batch.h5"
+    if not os.path.isfile(output):
+        logger.info(f"{os.path.basename(output)} will be downloaded...")
         gdown.download(url, output, quiet=False)
 
-    race_model.load_weights(home + "/.deepface/weights/race_model_single_batch.h5")
+    race_model.load_weights(output)
 
     return race_model

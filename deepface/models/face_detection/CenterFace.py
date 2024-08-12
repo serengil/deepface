@@ -29,7 +29,9 @@ class CenterFaceClient(Detector):
         """
         Download pre-trained weights of CenterFace model if necessary and load built model
         """
-        weights_path = f"{folder_utils.get_deepface_home()}/.deepface/weights/centerface.onnx"
+        home = folder_utils.get_deepface_home()
+        weights_path = os.path.join(home, ".deepface/weights/centerface.onnx")
+
         if not os.path.isfile(weights_path):
             logger.info(f"Downloading CenterFace weights from {WEIGHTS_URL} to {weights_path}...")
             try:

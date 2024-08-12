@@ -138,8 +138,8 @@ class OpenCvClient(Detector):
         """
         opencv_path = self.__get_opencv_path()
         if model_name == "haarcascade":
-            face_detector_path = opencv_path + "haarcascade_frontalface_default.xml"
-            if os.path.isfile(face_detector_path) != True:
+            face_detector_path = os.path.join(opencv_path, "haarcascade_frontalface_default.xml")
+            if not os.path.isfile(face_detector_path):
                 raise ValueError(
                     "Confirm that opencv is installed on your environment! Expected path ",
                     face_detector_path,
@@ -148,8 +148,8 @@ class OpenCvClient(Detector):
             detector = cv2.CascadeClassifier(face_detector_path)
 
         elif model_name == "haarcascade_eye":
-            eye_detector_path = opencv_path + "haarcascade_eye.xml"
-            if os.path.isfile(eye_detector_path) != True:
+            eye_detector_path = os.path.join(opencv_path, "haarcascade_eye.xml")
+            if not os.path.isfile(eye_detector_path):
                 raise ValueError(
                     "Confirm that opencv is installed on your environment! Expected path ",
                     eye_detector_path,
@@ -168,11 +168,4 @@ class OpenCvClient(Detector):
         Returns:
             installation_path (str)
         """
-        opencv_home = cv2.__file__
-        folders = opencv_home.split(os.path.sep)[0:-1]
-
-        path = folders[0]
-        for folder in folders[1:]:
-            path = path + "/" + folder
-
-        return path + "/data/"
+        return os.path.join(os.path.dirname(cv2.__file__), "data")

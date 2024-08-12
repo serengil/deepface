@@ -87,13 +87,12 @@ def load_model(
     # ---------------------------------
 
     home = folder_utils.get_deepface_home()
+    output = os.path.join(home, ".deepface/weights/deepid_keras_weights.h5")
 
-    if os.path.isfile(home + "/.deepface/weights/deepid_keras_weights.h5") != True:
-        logger.info("deepid_keras_weights.h5 will be downloaded...")
-
-        output = home + "/.deepface/weights/deepid_keras_weights.h5"
+    if not os.path.isfile(output):
+        logger.info(f"{os.path.basename(output)} will be downloaded...")
         gdown.download(url, output, quiet=False)
 
-    model.load_weights(home + "/.deepface/weights/deepid_keras_weights.h5")
+    model.load_weights(output)
 
     return model

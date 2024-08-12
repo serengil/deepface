@@ -67,21 +67,19 @@ class DlibResNet:
             ) from e
 
         home = folder_utils.get_deepface_home()
-        weight_file = home + "/.deepface/weights/dlib_face_recognition_resnet_model_v1.dat"
+        filename = "dlib_face_recognition_resnet_model_v1.dat"
+        weight_file = os.path.join(home, ".deepface/weights", filename)
 
         # download pre-trained model if it does not exist
-        if os.path.isfile(weight_file) != True:
-            logger.info("dlib_face_recognition_resnet_model_v1.dat is going to be downloaded")
-
-            file_name = "dlib_face_recognition_resnet_model_v1.dat.bz2"
-            url = f"http://dlib.net/files/{file_name}"
-            output = f"{home}/.deepface/weights/{file_name}"
+        if not os.path.isfile(weight_file):
+            logger.info(f"{filename} is going to be downloaded")
+            url = f"http://dlib.net/files/{filename + '.bz2'}"
+            output = weight_file + ".bz2"
             gdown.download(url, output, quiet=False)
 
             zipfile = bz2.BZ2File(output)
             data = zipfile.read()
-            newfilepath = output[:-4]  # discard .bz2 extension
-            with open(newfilepath, "wb") as f:
+            with open(weight_file, "wb") as f:
                 f.write(data)
 
         self.model = dlib.face_recognition_model_v1(weight_file)

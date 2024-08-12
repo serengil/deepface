@@ -85,19 +85,19 @@ def load_model(
     # ---------------------------------
 
     home = folder_utils.get_deepface_home()
+    filename = "VGGFace2_DeepFace_weights_val-0.9034.h5"
+    output = os.path.join(home, ".deepface/weights", filename)
 
-    if os.path.isfile(home + "/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5") != True:
-        logger.info("VGGFace2_DeepFace_weights_val-0.9034.h5 will be downloaded...")
-
-        output = home + "/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5.zip"
-
-        gdown.download(url, output, quiet=False)
+    if not os.path.isfile(output):
+        logger.info(f"{filename} will be downloaded...")
+        output_zipped = output + ".zip"
+        gdown.download(url, output_zipped, quiet=False)
 
         # unzip VGGFace2_DeepFace_weights_val-0.9034.h5.zip
-        with zipfile.ZipFile(output, "r") as zip_ref:
-            zip_ref.extractall(home + "/.deepface/weights/")
+        with zipfile.ZipFile(output_zipped, "r") as zip_ref:
+            zip_ref.extractall(os.path.join(home, ".deepface/weights"))
 
-    base_model.load_weights(home + "/.deepface/weights/VGGFace2_DeepFace_weights_val-0.9034.h5")
+    base_model.load_weights(output)
 
     # drop F8 and D0. F7 is the representation layer.
     deepface_model = Model(inputs=base_model.layers[0].input, outputs=base_model.layers[-3].output)

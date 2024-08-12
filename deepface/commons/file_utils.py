@@ -20,7 +20,7 @@ def download_external_file(file_name: str, exact_file_path: str, url: str) -> No
     Returns:
         None
     """
-    if os.path.exists(exact_file_path) is False:
+    if not os.path.exists(exact_file_path):
         logger.info(f"Downloading MiniFASNetV2 weights to {exact_file_path}")
         try:
             gdown.download(url, exact_file_path, quiet=False)

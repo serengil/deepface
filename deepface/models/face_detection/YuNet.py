@@ -43,15 +43,13 @@ class YuNetClient(Detector):
         url = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
         file_name = "face_detection_yunet_2023mar.onnx"
         home = folder_utils.get_deepface_home()
-        if os.path.isfile(home + f"/.deepface/weights/{file_name}") is False:
+        output = os.path.join(home, ".deepface/weights", file_name)
+        if not os.path.isfile(output):
             logger.info(f"{file_name} will be downloaded...")
-            output = home + f"/.deepface/weights/{file_name}"
             gdown.download(url, output, quiet=False)
 
         try:
-            face_detector = cv2.FaceDetectorYN_create(
-                home + f"/.deepface/weights/{file_name}", "", (0, 0)
-            )
+            face_detector = cv2.FaceDetectorYN_create(output, "", (0, 0))
         except Exception as err:
             raise ValueError(
                 "Exception while calling opencv.FaceDetectorYN_create module."
