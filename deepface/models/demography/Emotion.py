@@ -100,7 +100,7 @@ def load_model(
     output = os.path.join(home, ".deepface/weights/facial_expression_model_weights.h5")
 
     if not os.path.isfile(output):
-        logger.info("Facial_expression_model_weights.h5 will be downloaded...")
+        logger.info(f"{os.path.basename(output)} will be downloaded...")
         gdown.download(url, output, quiet=False)
 
     model.load_weights(output)

@@ -70,7 +70,7 @@ def load_model(
     output = os.path.join(home, ".deepface/weights/age_model_weights.h5")
 
     if not os.path.isfile(output):
-        logger.info("age_model_weights.h5 will be downloaded...")
+        logger.info(f"{os.path.basename(output)} will be downloaded...")
         gdown.download(url, output, quiet=False)
 
     age_model.load_weights(output)

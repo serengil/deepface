@@ -73,7 +73,7 @@ class DlibResNet:
         # download pre-trained model if it does not exist
         if not os.path.isfile(weight_file):
             logger.info(f"{filename} is going to be downloaded")
-            url = f"http://dlib.net/files/{filename + 'bz2'}"
+            url = f"http://dlib.net/files/{filename + '.bz2'}"
             output = weight_file + ".bz2"
             gdown.download(url, output, quiet=False)
 

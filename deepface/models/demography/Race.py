@@ -74,7 +74,7 @@ def load_model(
     output = os.path.join(home, ".deepface/weights/race_model_single_batch.h5")
 
     if not os.path.isfile(output):
-        logger.info("race_model_single_batch.h5 will be downloaded...")
+        logger.info(f"{os.path.basename(output)} will be downloaded...")
         gdown.download(url, output, quiet=False)
 
     race_model.load_weights(output)
