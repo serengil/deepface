@@ -1,7 +1,7 @@
 # built-in dependencies
 import os
 import pickle
-from typing import List, Union, Optional, Dict, Any
+from typing import List, Union, Optional, Dict, Any, Set
 import time
 
 # 3rd party dependencies
@@ -141,7 +141,7 @@ def find(
 
     # check each item of representations list has required keys
     for i, current_representation in enumerate(representations):
-        missing_keys = list(set(df_cols) - set(current_representation.keys()))
+        missing_keys = set(df_cols) - set(current_representation.keys())
         if len(missing_keys) > 0:
             raise ValueError(
                 f"{i}-th item does not have some required keys - {missing_keys}."
@@ -160,8 +160,6 @@ def find(
         raise ValueError(f"Nothing is found in {datastore_path}")
 
     must_save_pickle = False
-    new_images = []
-    old_images = []
     replaced_images = []
 
     if not refresh_database:
@@ -172,8 +170,8 @@ def find(
 
     # Enforce data consistency amongst on disk images and pickle file
     if refresh_database:
-        new_images = list(set(storage_images) - set(pickled_images))  # images added to storage
-        old_images = list(set(pickled_images) - set(storage_images))  # images removed from storage
+        new_images = set(storage_images) - set(pickled_images)  # images added to storage
+        old_images = set(pickled_images) - set(storage_images)  # images removed from storage
 
         # detect replaced images
         for current_representation in representations:
@@ -194,8 +192,8 @@ def find(
         )
 
     # append replaced images into both old and new images. these will be dropped and re-added.
-    new_images = new_images + replaced_images
-    old_images = old_images + replaced_images
+    new_images.update(replaced_images)
+    old_images.update(replaced_images)
 
     # remove old images first
     if len(old_images) > 0:
@@ -316,7 +314,7 @@ def find(
 
 
 def __find_bulk_embeddings(
-    employees: List[str],
+    employees: Set[str],
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
