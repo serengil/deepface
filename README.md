@@ -405,6 +405,8 @@ Also, your company's logo will be shown on README on GitHub if you become a spon
 
 Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATION.md) for more details. Here are its BibTex entries:
 
+If you use deepface in your research for facial recogntion or face detection purposes, please cite these publications:
+
 ```BibTeX
 @article{serengil2024lightface,
   title     = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
@@ -419,9 +421,6 @@ Please cite deepface in your publications if it helps your research - see [`CITA
   publisher = {Gazi University}
 }
 ```
-
-<!--
-If you use deepface in your research for facial recogntion or face detection purposes, please cite these publications:
 
 ```BibTeX
 @inproceedings{serengil2020lightface,
@@ -450,7 +449,6 @@ On the other hand, if you use deepface in your research for facial attribute ana
   organization = {IEEE}
 }
 ```
--->
 
 Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
 
