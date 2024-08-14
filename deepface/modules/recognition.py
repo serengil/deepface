@@ -160,7 +160,7 @@ def find(
         raise ValueError(f"Nothing is found in {datastore_path}")
 
     must_save_pickle = False
-    replaced_images = []
+    new_images, old_images, replaced_images = set(), set(), set()
 
     if not refresh_database:
         logger.info(
@@ -182,7 +182,7 @@ def find(
             beta_hash = image_utils.find_image_hash(identity)
             if alpha_hash != beta_hash:
                 logger.debug(f"Even though {identity} represented before, it's replaced later.")
-                replaced_images.append(identity)
+                replaced_images.add(identity)
 
     if not silent and (len(new_images) > 0 or len(old_images) > 0 or len(replaced_images) > 0):
         logger.info(
