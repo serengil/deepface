@@ -101,3 +101,53 @@ def test_filetype_for_find_bulk_embeddings():
 
     # img47 is webp even though its extension is jpg
     assert "dataset/img47.jpg" not in imgs
+
+
+def test_find_without_refresh_database():
+    import shutil, hashlib
+
+    img_path = os.path.join("dataset", "img1.jpg")
+
+    # 1. Calculate hash of the .pkl file;
+    # 2. Move random image to the temporary created directory;
+    # 3. As a result, there will be a difference between the .pkl file and the disk files;
+    # 4. If refresh_database=False, then .pkl file should not be updated.
+    #    Recalculate hash and compare it with the hash from pt. 1;
+    # 5. After successful check, the image will be moved back to the original destination;
+
+    pkl_path = "dataset/ds_model_vggface_detector_opencv_aligned_normalization_base_expand_0.pkl"
+    with open(pkl_path, "rb") as f:
+        hash_before = hashlib.sha256(f.read())
+
+    image_name = "img28.jpg"
+    tmp_dir = "dataset/temp_image"
+    os.mkdir(tmp_dir)
+    shutil.move(os.path.join("dataset", image_name), os.path.join(tmp_dir, image_name))
+
+    dfs = DeepFace.find(img_path=img_path, db_path="dataset", silent=True, refresh_database=False)
+
+    with open(pkl_path, "rb") as f:
+        hash_after = hashlib.sha256(f.read())
+
+    shutil.move(os.path.join(tmp_dir, image_name), os.path.join("dataset", image_name))
+    os.rmdir(tmp_dir)
+
+    assert hash_before.hexdigest() == hash_after.hexdigest()
+
+    logger.info("✅ .pkl hashes before and after the recognition process are the same")
+
+    assert len(dfs) > 0
+    for df in dfs:
+        assert isinstance(df, pd.DataFrame)
+
+        # one is img1.jpg itself
+        identity_df = df[df["identity"] == img_path]
+        assert identity_df.shape[0] > 0
+
+        # validate reproducability
+        assert identity_df["distance"].values[0] < threshold
+
+        df = df[df["identity"] != img_path]
+        logger.debug(df.head())
+        assert df.shape[0] > 0
+    logger.info("✅ test find without refresh database done")
