@@ -85,7 +85,9 @@ def extract_faces(
     if img is None:
         raise ValueError(f"Exception while loading {img_name}")
 
-    base_region = FacialAreaRegion(x=0, y=0, w=img.shape[1], h=img.shape[0], confidence=0)
+    height, width, _ = img.shape
+
+    base_region = FacialAreaRegion(x=0, y=0, w=width, h=height, confidence=0)
 
     if detector_backend == "skip":
         face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
@@ -137,10 +139,11 @@ def extract_faces(
         if normalize_face:
             current_img = current_img / 255  # normalize input in [0, 1]
 
-        x = int(current_region.x)
-        y = int(current_region.y)
-        w = int(current_region.w)
-        h = int(current_region.h)
+        # cast to int for flask, and do final checks for borders
+        x = max(0, int(current_region.x))
+        y = max(0, int(current_region.y))
+        w = min(width - x - 1, int(current_region.w))
+        h = min(height - y - 1, int(current_region.h))
 
         resp_obj = {
             "face": current_img,

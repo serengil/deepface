@@ -98,3 +98,28 @@ def image_to_base64(image_path):
     with open(image_path, "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
     return "data:image/jpeg," + encoded_string
+
+
+def test_facial_coordinates_are_in_borders():
+    img_path = "dataset/selfie-many-people.jpg"
+    img = cv2.imread(img_path)
+    height, width, _ = img.shape
+
+    results = DeepFace.extract_faces(img_path=img_path)
+
+    assert len(results) > 0
+
+    for result in results:
+        facial_area = result["facial_area"]
+
+        x = facial_area["x"]
+        y = facial_area["y"]
+        w = facial_area["w"]
+        h = facial_area["h"]
+
+        assert x >= 0
+        assert y >= 0
+        assert x + w < width
+        assert y + h < height
+
+    logger.info("✅ facial area coordinates are all in image borders")
