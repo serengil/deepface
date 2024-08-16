@@ -105,79 +105,47 @@ def verify(
     )
     dims = model.output_shape
 
-    # extract faces from img1
-    if isinstance(img1_path, list):
-        # given image is already pre-calculated embedding
-        if not all(isinstance(dim, float) for dim in img1_path):
-            raise ValueError(
-                "When passing img1_path as a list, ensure that all its items are of type float."
-            )
+    def extract_faces_from_img(img_path, index=1):
+        # extract faces from img
+        if isinstance(img_path, list):
+            # given image is already pre-calculated embedding
+            if not all(isinstance(dim, float) for dim in img_path):
+                raise ValueError(
+                    f"When passing img{index}_path as a list, ensure that all its items are of type float."
+                )
 
-        if silent is False:
-            logger.warn(
-                "You passed 1st image as pre-calculated embeddings."
-                f"Please ensure that embeddings have been calculated for the {model_name} model."
-            )
+            if silent is False:
+                logger.warn(
+                    "You passed 1st image as pre-calculated embeddings."
+                    f"Please ensure that embeddings have been calculated for the {model_name} model."
+                )
 
-        if len(img1_path) != dims:
-            raise ValueError(
-                f"embeddings of {model_name} should have {dims} dimensions,"
-                f" but it has {len(img1_path)} dimensions input"
-            )
+            if len(img_path) != dims:
+                raise ValueError(
+                    f"embeddings of {model_name} should have {dims} dimensions,"
+                    f" but it has {len(img_path)} dimensions input"
+                )
 
-        img1_embeddings = [img1_path]
-        img1_facial_areas = [None]
-    else:
-        try:
-            img1_embeddings, img1_facial_areas = __extract_faces_and_embeddings(
-                img_path=img1_path,
-                model_name=model_name,
-                detector_backend=detector_backend,
-                enforce_detection=enforce_detection,
-                align=align,
-                expand_percentage=expand_percentage,
-                normalization=normalization,
-                anti_spoofing=anti_spoofing,
-            )
-        except ValueError as err:
-            raise ValueError("Exception while processing img1_path") from err
+            img_embeddings = [img_path]
+            img_facial_areas = [None]
+        else:
+            try:
+                img_embeddings, img_facial_areas = __extract_faces_and_embeddings(
+                    img_path=img_path,
+                    model_name=model_name,
+                    detector_backend=detector_backend,
+                    enforce_detection=enforce_detection,
+                    align=align,
+                    expand_percentage=expand_percentage,
+                    normalization=normalization,
+                    anti_spoofing=anti_spoofing,
+                )
+            except ValueError as err:
+                raise ValueError(f"Exception while processing img{index}_path") from err
+        return img_embeddings, img_facial_areas
 
-    # extract faces from img2
-    if isinstance(img2_path, list):
-        # given image is already pre-calculated embedding
-        if not all(isinstance(dim, float) for dim in img2_path):
-            raise ValueError(
-                "When passing img2_path as a list, ensure that all its items are of type float."
-            )
-
-        if silent is False:
-            logger.warn(
-                "You passed 2nd image as pre-calculated embeddings."
-                f"Please ensure that embeddings have been calculated for the {model_name} model."
-            )
-
-        if len(img2_path) != dims:
-            raise ValueError(
-                f"embeddings of {model_name} should have {dims} dimensions,"
-                f" but it has {len(img2_path)} dimensions input"
-            )
-
-        img2_embeddings = [img2_path]
-        img2_facial_areas = [None]
-    else:
-        try:
-            img2_embeddings, img2_facial_areas = __extract_faces_and_embeddings(
-                img_path=img2_path,
-                model_name=model_name,
-                detector_backend=detector_backend,
-                enforce_detection=enforce_detection,
-                align=align,
-                expand_percentage=expand_percentage,
-                normalization=normalization,
-                anti_spoofing=anti_spoofing,
-            )
-        except ValueError as err:
-            raise ValueError("Exception while processing img2_path") from err
+    img1_embeddings, img1_facial_areas = extract_faces_from_img(img1_path, 1)
+    img2_embeddings, img2_facial_areas = extract_faces_from_img(img2_path, 2)
 
     no_facial_area = {
         "x": None,
@@ -188,21 +156,18 @@ def verify(
         "right_eye": None,
     }
 
-    distances = []
-    facial_areas = []
+    min_distance, min_idx, min_idy = float("inf"), None, None
     for idx, img1_embedding in enumerate(img1_embeddings):
         for idy, img2_embedding in enumerate(img2_embeddings):
             distance = find_distance(img1_embedding, img2_embedding, distance_metric)
-            distances.append(distance)
-            facial_areas.append(
-                (img1_facial_areas[idx] or no_facial_area, img2_facial_areas[idy] or no_facial_area)
-            )
+            if distance < min_distance:
+                min_distance, min_idx, min_idy = distance, idx, idy
 
     # find the face pair with minimum distance
     threshold = threshold or find_threshold(model_name, distance_metric)
-    min_index = np.argmin(distances)
-    distance = float(distances[min_index])  # best distance
-    facial_areas = facial_areas[min_index]
+    distance = float(min_distance)
+    facial_areas = (no_facial_area, no_facial_area) if None in (min_idx, min_idy) else \
+        (img1_facial_areas[min_idx], img2_facial_areas[min_idy])
 
     toc = time.time()
 
