@@ -105,80 +105,6 @@ def verify(
     )
     dims = model.output_shape
 
-    # extract faces from img1
-    if isinstance(img1_path, list):
-        # given image is already pre-calculated embedding
-        if not all(isinstance(dim, float) for dim in img1_path):
-            raise ValueError(
-                "When passing img1_path as a list, ensure that all its items are of type float."
-            )
-
-        if silent is False:
-            logger.warn(
-                "You passed 1st image as pre-calculated embeddings."
-                f"Please ensure that embeddings have been calculated for the {model_name} model."
-            )
-
-        if len(img1_path) != dims:
-            raise ValueError(
-                f"embeddings of {model_name} should have {dims} dimensions,"
-                f" but it has {len(img1_path)} dimensions input"
-            )
-
-        img1_embeddings = [img1_path]
-        img1_facial_areas = [None]
-    else:
-        try:
-            img1_embeddings, img1_facial_areas = __extract_faces_and_embeddings(
-                img_path=img1_path,
-                model_name=model_name,
-                detector_backend=detector_backend,
-                enforce_detection=enforce_detection,
-                align=align,
-                expand_percentage=expand_percentage,
-                normalization=normalization,
-                anti_spoofing=anti_spoofing,
-            )
-        except ValueError as err:
-            raise ValueError("Exception while processing img1_path") from err
-
-    # extract faces from img2
-    if isinstance(img2_path, list):
-        # given image is already pre-calculated embedding
-        if not all(isinstance(dim, float) for dim in img2_path):
-            raise ValueError(
-                "When passing img2_path as a list, ensure that all its items are of type float."
-            )
-
-        if silent is False:
-            logger.warn(
-                "You passed 2nd image as pre-calculated embeddings."
-                f"Please ensure that embeddings have been calculated for the {model_name} model."
-            )
-
-        if len(img2_path) != dims:
-            raise ValueError(
-                f"embeddings of {model_name} should have {dims} dimensions,"
-                f" but it has {len(img2_path)} dimensions input"
-            )
-
-        img2_embeddings = [img2_path]
-        img2_facial_areas = [None]
-    else:
-        try:
-            img2_embeddings, img2_facial_areas = __extract_faces_and_embeddings(
-                img_path=img2_path,
-                model_name=model_name,
-                detector_backend=detector_backend,
-                enforce_detection=enforce_detection,
-                align=align,
-                expand_percentage=expand_percentage,
-                normalization=normalization,
-                anti_spoofing=anti_spoofing,
-            )
-        except ValueError as err:
-            raise ValueError("Exception while processing img2_path") from err
-
     no_facial_area = {
         "x": None,
         "y": None,
@@ -188,21 +114,88 @@ def verify(
         "right_eye": None,
     }
 
-    distances = []
-    facial_areas = []
+    def extract_embeddings_and_facial_areas(
+            img_path: Union[str, np.ndarray, List[float]],
+            index: int
+        ) -> Tuple[List[List[float]], List[dict]]:
+        """
+        Extracts facial embeddings and corresponding facial areas from an
+        image or returns pre-calculated embeddings.
+
+        Depending on the type of img_path, the function either extracts
+        facial embeddings from the provided image 
+        (via a path or NumPy array) or verifies that the input is a list of
+        pre-calculated embeddings and validates them.
+
+        Args:
+            img_path (Union[str, np.ndarray, List[float]]): 
+                - A string representing the file path to an image, 
+                - A NumPy array containing the image data, 
+                - Or a list of pre-calculated embedding values (of type `float`).
+            index (int): An index value used in error messages and logging
+            to identify the number of the image.
+
+        Returns:
+            Tuple[List[List[float]], List[dict]]:
+                - A list containing lists of facial embeddings for each detected face.
+                - A list of dictionaries where each dictionary contains facial area information.
+        """
+        if isinstance(img_path, list):
+            # given image is already pre-calculated embedding
+            if not all(isinstance(dim, float) for dim in img_path):
+                raise ValueError(
+                    f"When passing img{index}_path as a list,"
+                    " ensure that all its items are of type float."
+                )
+
+            if silent is False:
+                logger.warn(
+                    "You passed 1st image as pre-calculated embeddings."
+                    "Please ensure that embeddings have been calculated"
+                    f" for the {model_name} model."
+                )
+
+            if len(img_path) != dims:
+                raise ValueError(
+                    f"embeddings of {model_name} should have {dims} dimensions,"
+                    f" but it has {len(img_path)} dimensions input"
+                )
+
+            img_embeddings = [img_path]
+            img_facial_areas = [no_facial_area]
+        else:
+            try:
+                img_embeddings, img_facial_areas = __extract_faces_and_embeddings(
+                    img_path=img_path,
+                    model_name=model_name,
+                    detector_backend=detector_backend,
+                    enforce_detection=enforce_detection,
+                    align=align,
+                    expand_percentage=expand_percentage,
+                    normalization=normalization,
+                    anti_spoofing=anti_spoofing,
+                )
+            except ValueError as err:
+                raise ValueError(f"Exception while processing img{index}_path") from err
+        return img_embeddings, img_facial_areas
+
+    img1_embeddings, img1_facial_areas = extract_embeddings_and_facial_areas(img1_path, 1)
+    img2_embeddings, img2_facial_areas = extract_embeddings_and_facial_areas(img2_path, 2)
+
+    min_distance, min_idx, min_idy = float("inf"), None, None
     for idx, img1_embedding in enumerate(img1_embeddings):
         for idy, img2_embedding in enumerate(img2_embeddings):
             distance = find_distance(img1_embedding, img2_embedding, distance_metric)
-            distances.append(distance)
-            facial_areas.append(
-                (img1_facial_areas[idx] or no_facial_area, img2_facial_areas[idy] or no_facial_area)
-            )
+            if distance < min_distance:
+                min_distance, min_idx, min_idy = distance, idx, idy
 
     # find the face pair with minimum distance
     threshold = threshold or find_threshold(model_name, distance_metric)
-    min_index = np.argmin(distances)
-    distance = float(distances[min_index])  # best distance
-    facial_areas = facial_areas[min_index]
+    distance = float(min_distance)
+    facial_areas = (
+        no_facial_area if min_idx is None else img1_facial_areas[min_idx],
+        no_facial_area if min_idy is None else img2_facial_areas[min_idy],
+    )
 
     toc = time.time()
 
