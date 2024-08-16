@@ -121,6 +121,25 @@ def test_verify_for_precalculated_embeddings():
     assert result["verified"] is True
     assert result["distance"] < result["threshold"]
     assert result["model"] == model_name
+    assert result["facial_areas"]["img1"] is not None
+    assert result["facial_areas"]["img2"] is not None
+
+    assert isinstance(result["facial_areas"]["img1"], dict)
+    assert isinstance(result["facial_areas"]["img2"], dict)
+
+    assert "x" in result["facial_areas"]["img1"].keys()
+    assert "y" in result["facial_areas"]["img1"].keys()
+    assert "w" in result["facial_areas"]["img1"].keys()
+    assert "h" in result["facial_areas"]["img1"].keys()
+    assert "left_eye" in result["facial_areas"]["img1"].keys()
+    assert "right_eye" in result["facial_areas"]["img1"].keys()
+
+    assert "x" in result["facial_areas"]["img2"].keys()
+    assert "y" in result["facial_areas"]["img2"].keys()
+    assert "w" in result["facial_areas"]["img2"].keys()
+    assert "h" in result["facial_areas"]["img2"].keys()
+    assert "left_eye" in result["facial_areas"]["img2"].keys()
+    assert "right_eye" in result["facial_areas"]["img2"].keys()
 
     logger.info("✅ test verify for pre-calculated embeddings done")
 
