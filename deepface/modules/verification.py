@@ -115,22 +115,21 @@ def verify(
     }
 
     def extract_embeddings_and_facial_areas(
-            img_path: Union[str, np.ndarray, List[float]],
-            index: int
-        ) -> Tuple[List[List[float]], List[dict]]:
+        img_path: Union[str, np.ndarray, List[float]], index: int
+    ) -> Tuple[List[List[float]], List[dict]]:
         """
         Extracts facial embeddings and corresponding facial areas from an
         image or returns pre-calculated embeddings.
 
         Depending on the type of img_path, the function either extracts
-        facial embeddings from the provided image 
+        facial embeddings from the provided image
         (via a path or NumPy array) or verifies that the input is a list of
         pre-calculated embeddings and validates them.
 
         Args:
-            img_path (Union[str, np.ndarray, List[float]]): 
-                - A string representing the file path to an image, 
-                - A NumPy array containing the image data, 
+            img_path (Union[str, np.ndarray, List[float]]):
+                - A string representing the file path to an image,
+                - A NumPy array containing the image data,
                 - Or a list of pre-calculated embedding values (of type `float`).
             index (int): An index value used in error messages and logging
             to identify the number of the image.
@@ -150,7 +149,7 @@ def verify(
 
             if silent is False:
                 logger.warn(
-                    "You passed 1st image as pre-calculated embeddings."
+                    f"You passed {index}-th image as pre-calculated embeddings."
                     "Please ensure that embeddings have been calculated"
                     f" for the {model_name} model."
                 )
@@ -158,7 +157,7 @@ def verify(
             if len(img_path) != dims:
                 raise ValueError(
                     f"embeddings of {model_name} should have {dims} dimensions,"
-                    f" but it has {len(img_path)} dimensions input"
+                    f" but {index}-th image has {len(img_path)} dimensions input"
                 )
 
             img_embeddings = [img_path]
