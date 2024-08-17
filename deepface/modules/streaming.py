@@ -249,12 +249,13 @@ def search_identity(
         # extract 1st item directly
         target_obj = target_objs[0]
         target_img = target_obj["face"]
-        target_img = cv2.resize(target_img, (IDENTIFIED_IMG_SIZE, IDENTIFIED_IMG_SIZE))
         target_img *= 255
         target_img = target_img[:, :, ::-1]
     else:
         target_img = cv2.imread(target_path)
-        target_img = cv2.resize(target_img, (IDENTIFIED_IMG_SIZE, IDENTIFIED_IMG_SIZE))
+
+    # resize anyway
+    target_img = cv2.resize(target_img, (IDENTIFIED_IMG_SIZE, IDENTIFIED_IMG_SIZE))
 
     return target_path.split("/")[-1], target_img
 
