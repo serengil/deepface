@@ -2,6 +2,7 @@
 import os
 import time
 from typing import List, Tuple, Optional
+import traceback
 
 # 3rd party dependencies
 import numpy as np
@@ -253,6 +254,7 @@ def search_identity(
         target_img = target_img[:, :, ::-1]
     else:
         target_img = cv2.imread(target_path)
+        target_img = cv2.resize(target_img, (IDENTIFIED_IMG_SIZE, IDENTIFIED_IMG_SIZE))
 
     return target_path.split("/")[-1], target_img
 
@@ -769,7 +771,7 @@ def overlay_identified_face(
         else:
             logger.info("cannot put facial recognition info on the image")
     except Exception as err:  # pylint: disable=broad-except
-        logger.error(str(err))
+        logger.error(f"{str(err)} - {traceback.format_exc()}")
     return img
 
 
