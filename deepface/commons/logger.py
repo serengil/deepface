@@ -8,7 +8,7 @@ class Logger:
     A Logger class for logging messages with a specific log level.
 
     The class follows the singleton design pattern, ensuring that only one
-    instance of the Logger is created. The parameters of the first instance 
+    instance of the Logger is created. The parameters of the first instance
     are preserved across all instances.
     """
 
@@ -21,7 +21,7 @@ class Logger:
 
     def __init__(self):
         if not hasattr(self, "_singleton_initialized"):
-            self._singleton_initialized = True # to prevent multiple initializations
+            self._singleton_initialized = True  # to prevent multiple initializations
             log_level = os.environ.get("DEEPFACE_LOG_LEVEL", str(logging.INFO))
             try:
                 self.log_level = int(log_level)
