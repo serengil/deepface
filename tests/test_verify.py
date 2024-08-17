@@ -153,7 +153,7 @@ def test_verify_with_precalculated_embeddings_for_incorrect_model():
 
     with pytest.raises(
         ValueError,
-        match="embeddings of Facenet should have 128 dimensions, but it has 4096 dimensions input",
+        match="embeddings of Facenet should have 128 dimensions, but 1-th image has 4096 dimensions input",
     ):
         _ = DeepFace.verify(
             img1_path=img1_embedding, img2_path=img2_embedding, model_name="Facenet", silent=True
@@ -172,3 +172,17 @@ def test_verify_for_broken_embeddings():
     ):
         _ = DeepFace.verify(img1_path=img1_embeddings, img2_path=img2_embeddings)
     logger.info("✅ test verify for broken embeddings content is done")
+
+
+def test_verify_for_nested_embeddings():
+    """
+    batch embeddings not supported
+    """
+    img1_embeddings = [[1, 2, 3], [4, 5, 6]]
+    img2_path = "dataset/img1.jpg"
+
+    with pytest.raises(
+        ValueError,
+        match="When passing img1_path as a list, ensure that all its items are of type float",
+    ):
+        _ = DeepFace.verify(img1_path=img1_embeddings, img2_path=img2_path)
