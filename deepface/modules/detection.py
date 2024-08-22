@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union, Optional
 
 # 3rd part dependencies
 import numpy as np
@@ -10,7 +10,9 @@ from PIL import Image
 from deepface.modules import modeling
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.commons import image_utils
+
 from deepface.commons.logger import Logger
+import time
 
 logger = Logger()
 
@@ -27,6 +29,7 @@ def extract_faces(
     color_face: str = "rgb",
     normalize_face: bool = True,
     anti_spoofing: bool = False,
+    max_faces: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     """
     Extract faces from a given image
@@ -97,6 +100,7 @@ def extract_faces(
             img=img,
             align=align,
             expand_percentage=expand_percentage,
+            max_faces=max_faces,
         )
 
     # in case of no face found
@@ -176,7 +180,7 @@ def extract_faces(
 
 
 def detect_faces(
-    detector_backend: str, img: np.ndarray, align: bool = True, expand_percentage: int = 0
+    detector_backend: str, img: np.ndarray, align: bool = True, expand_percentage: int = 0, max_faces: Optional[int] = None
 ) -> List[DetectedFace]:
     """
     Detect face(s) from a given image
@@ -202,7 +206,7 @@ def detect_faces(
         - confidence (float): The confidence score associated with the detected face.
     """
     height, width, _ = img.shape
-
+    
     face_detector: Detector = modeling.build_model(
         task="face_detector", model_name=detector_backend
     )
@@ -233,6 +237,17 @@ def detect_faces(
     # find facial areas of given image
     facial_areas = face_detector.detect_faces(img)
 
+    if max_faces is not None and max_faces < len(facial_areas):
+        # sort as largest facial areas come first
+        facial_areas = sorted(
+            facial_areas,
+            key=lambda facial_area: facial_area.w * facial_area.h,
+            reverse=True,
+        )
+        # discard rest of the items
+        facial_areas = facial_areas[0:max_faces]
+
+    start_time = time.time()
     results = []
     for facial_area in facial_areas:
         x = facial_area.x
@@ -285,6 +300,7 @@ def detect_faces(
             confidence=confidence,
         )
         results.append(result)
+
     return results
 
 
