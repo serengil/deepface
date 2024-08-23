@@ -12,7 +12,6 @@ from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.commons import image_utils
 
 from deepface.commons.logger import Logger
-import time
 
 logger = Logger()
 
@@ -247,62 +246,62 @@ def detect_faces(
         # discard rest of the items
         facial_areas = facial_areas[0:max_faces]
 
-    start_time = time.time()
     results = []
+
     for facial_area in facial_areas:
-        x = facial_area.x
-        y = facial_area.y
-        w = facial_area.w
-        h = facial_area.h
-        left_eye = facial_area.left_eye
-        right_eye = facial_area.right_eye
-        confidence = facial_area.confidence
-
-        if expand_percentage > 0:
-            # Expand the facial region height and width by the provided percentage
-            # ensuring that the expanded region stays within img.shape limits
-            expanded_w = w + int(w * expand_percentage / 100)
-            expanded_h = h + int(h * expand_percentage / 100)
-
-            x = max(0, x - int((expanded_w - w) / 2))
-            y = max(0, y - int((expanded_h - h) / 2))
-            w = min(img.shape[1] - x, expanded_w)
-            h = min(img.shape[0] - y, expanded_h)
-
-        # extract detected face unaligned
-        detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
-
-        # align original image, then find projection of detected face area after alignment
-        if align is True:  # and left_eye is not None and right_eye is not None:
-            aligned_img, angle = align_img_wrt_eyes(img=img, left_eye=left_eye, right_eye=right_eye)
-
-            rotated_x1, rotated_y1, rotated_x2, rotated_y2 = project_facial_area(
-                facial_area=(x, y, x + w, y + h), angle=angle, size=(img.shape[0], img.shape[1])
-            )
-            detected_face = aligned_img[
-                int(rotated_y1) : int(rotated_y2), int(rotated_x1) : int(rotated_x2)
-            ]
-
-            # restore x, y, le and re before border added
-            x = x - width_border
-            y = y - height_border
-            # w and h will not change
-            if left_eye is not None:
-                left_eye = (left_eye[0] - width_border, left_eye[1] - height_border)
-            if right_eye is not None:
-                right_eye = (right_eye[0] - width_border, right_eye[1] - height_border)
-
-        result = DetectedFace(
-            img=detected_face,
-            facial_area=FacialAreaRegion(
-                x=x, y=y, h=h, w=w, confidence=confidence, left_eye=left_eye, right_eye=right_eye
-            ),
-            confidence=confidence,
-        )
-        results.append(result)
+        results.append(expand_and_align_face(facial_area=facial_area, img=img, align=align, expand_percentage=expand_percentage, width_border=width_border, height_border=height_border))
 
     return results
 
+def expand_and_align_face(facial_area: FacialAreaRegion, img: np.ndarray, align: bool, expand_percentage: int, width_border: int, height_border: int) -> DetectedFace:
+    x = facial_area.x
+    y = facial_area.y
+    w = facial_area.w
+    h = facial_area.h
+    left_eye = facial_area.left_eye
+    right_eye = facial_area.right_eye
+    confidence = facial_area.confidence
+
+    if expand_percentage > 0:
+        # Expand the facial region height and width by the provided percentage
+        # ensuring that the expanded region stays within img.shape limits
+        expanded_w = w + int(w * expand_percentage / 100)
+        expanded_h = h + int(h * expand_percentage / 100)
+
+        x = max(0, x - int((expanded_w - w) / 2))
+        y = max(0, y - int((expanded_h - h) / 2))
+        w = min(img.shape[1] - x, expanded_w)
+        h = min(img.shape[0] - y, expanded_h)
+
+    # extract detected face unaligned
+    detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+    # align original image, then find projection of detected face area after alignment
+    if align is True:  # and left_eye is not None and right_eye is not None:
+        aligned_img, angle = align_img_wrt_eyes(img=img, left_eye=left_eye, right_eye=right_eye)
+
+        rotated_x1, rotated_y1, rotated_x2, rotated_y2 = project_facial_area(
+            facial_area=(x, y, x + w, y + h), angle=angle, size=(img.shape[0], img.shape[1])
+        )
+        detected_face = aligned_img[
+            int(rotated_y1) : int(rotated_y2), int(rotated_x1) : int(rotated_x2)
+        ]
+
+        # restore x, y, le and re before border added
+        x = x - width_border
+        y = y - height_border
+        # w and h will not change
+        if left_eye is not None:
+            left_eye = (left_eye[0] - width_border, left_eye[1] - height_border)
+        if right_eye is not None:
+            right_eye = (right_eye[0] - width_border, right_eye[1] - height_border)
+            
+    return DetectedFace(
+        img=detected_face,
+        facial_area=FacialAreaRegion(
+            x=x, y=y, h=h, w=w, confidence=confidence, left_eye=left_eye, right_eye=right_eye
+        ),
+        confidence=confidence,
+    )
 
 def align_img_wrt_eyes(
     img: np.ndarray,
@@ -327,7 +326,12 @@ def align_img_wrt_eyes(
         return img, 0
 
     angle = float(np.degrees(np.arctan2(left_eye[1] - right_eye[1], left_eye[0] - right_eye[0])))
-    img = np.array(Image.fromarray(img).rotate(angle, resample=Image.BICUBIC))
+
+    (h, w) = img.shape[:2]
+    center = (w // 2, h // 2)
+    M = cv2.getRotationMatrix2D(center, -angle, 1.0)
+    img = cv2.warpAffine(img, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT, borderValue=(0,0,0))
+
     return img, angle
 
 
