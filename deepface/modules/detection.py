@@ -2,9 +2,9 @@
 from typing import Any, Dict, List, Tuple, Union, Optional
 
 # 3rd part dependencies
+from heapq import nlargest
 import numpy as np
 import cv2
-from PIL import Image
 
 # project dependencies
 from deepface.modules import modeling
@@ -179,7 +179,9 @@ def extract_faces(
 
 
 def detect_faces(
-    detector_backend: str, img: np.ndarray, align: bool = True, expand_percentage: int = 0, max_faces: Optional[int] = None
+    detector_backend: str, img: np.ndarray,
+    align: bool = True, expand_percentage: int = 0,
+    max_faces: Optional[int] = None
 ) -> List[DetectedFace]:
     """
     Detect face(s) from a given image
@@ -205,7 +207,6 @@ def detect_faces(
         - confidence (float): The confidence score associated with the detected face.
     """
     height, width, _ = img.shape
-    
     face_detector: Detector = modeling.build_model(
         task="face_detector", model_name=detector_backend
     )
@@ -237,23 +238,28 @@ def detect_faces(
     facial_areas = face_detector.detect_faces(img)
 
     if max_faces is not None and max_faces < len(facial_areas):
-        # sort as largest facial areas come first
-        facial_areas = sorted(
+        facial_areas = nlargest(
+            max_faces,
             facial_areas,
-            key=lambda facial_area: facial_area.w * facial_area.h,
-            reverse=True,
+            key=lambda facial_area: facial_area.w * facial_area.h
         )
-        # discard rest of the items
-        facial_areas = facial_areas[0:max_faces]
 
-    results = []
+    return [
+        expand_and_align_face(
+            facial_area=facial_area,
+            img=img,
+            align=align,
+            expand_percentage=expand_percentage,
+            width_border=width_border,
+            height_border=height_border
+        )
+        for facial_area in facial_areas
+    ]
 
-    for facial_area in facial_areas:
-        results.append(expand_and_align_face(facial_area=facial_area, img=img, align=align, expand_percentage=expand_percentage, width_border=width_border, height_border=height_border))
-
-    return results
-
-def expand_and_align_face(facial_area: FacialAreaRegion, img: np.ndarray, align: bool, expand_percentage: int, width_border: int, height_border: int) -> DetectedFace:
+def expand_and_align_face(
+    facial_area: FacialAreaRegion, img: np.ndarray,
+    align: bool, expand_percentage: int, width_border: int,
+    height_border: int) -> DetectedFace:
     x = facial_area.x
     y = facial_area.y
     w = facial_area.w
@@ -294,7 +300,7 @@ def expand_and_align_face(facial_area: FacialAreaRegion, img: np.ndarray, align:
             left_eye = (left_eye[0] - width_border, left_eye[1] - height_border)
         if right_eye is not None:
             right_eye = (right_eye[0] - width_border, right_eye[1] - height_border)
-            
+
     return DetectedFace(
         img=detected_face,
         facial_area=FacialAreaRegion(
@@ -330,7 +336,11 @@ def align_img_wrt_eyes(
     (h, w) = img.shape[:2]
     center = (w // 2, h // 2)
     M = cv2.getRotationMatrix2D(center, angle, 1.0)
-    img = cv2.warpAffine(img, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT, borderValue=(0,0,0))
+    img = cv2.warpAffine(
+        img, M, (w, h),
+        flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT,
+        borderValue=(0,0,0)
+    )
 
     return img, angle
 
