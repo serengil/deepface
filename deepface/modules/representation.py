@@ -81,6 +81,7 @@ def represent(
             align=align,
             expand_percentage=expand_percentage,
             anti_spoofing=anti_spoofing,
+            max_faces=max_faces,
         )
     else:  # skip
         # Try load. If load error, will raise exception internal

@@ -17,3 +17,4 @@ benchmarks/results
 benchmarks/outputs
 benchmarks/dataset
 benchmarks/lfwe
+venv
