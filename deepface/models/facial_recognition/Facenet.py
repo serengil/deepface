@@ -84,7 +84,7 @@ class FaceNet512dONNXClient(FacialRecognition):
         input_name = self.model.get_inputs()[0].name
         output_name = self.model.get_outputs()[0].name
         result = self.model.run([output_name], {input_name: img})
-        return result[0]
+        return result[0][0]
 
 
 def scaling(x, scale):
@@ -1734,7 +1734,7 @@ def load_facenet512d_model(
 
 
 def load_facenet512d_onnx_model(
-    url="https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.h5",
+    url="https://github.com/ShivamSinghal1/deepface/releases/download/v1/facenet512_fp32.onnx",
 ) -> Model:
     """
     Download Facenet512d ONNX model weights and load
@@ -1743,14 +1743,14 @@ def load_facenet512d_onnx_model(
     """
     try:
         import onnxruntime as ort
-        import torch
     except ModuleNotFoundError as e:
         raise ImportError(
             "FaceNet512dONNX is an optional model, ensure the library is installed. "
             "Please install using 'pip install onnxruntime' or 'pip install onnxruntime-gpu' to use gpu"
         ) from e
 
-    if torch.cuda.is_available():
+    if ort.get_device() == "GPU":
+        logger.info(f"using onnx GPU for inference")
         providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
     else:
         providers = ['CPUExecutionProvider']
