@@ -8,7 +8,7 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-models = ["VGG-Face", "Facenet", "Facenet512", "ArcFace", "GhostFaceNet", "Facenet512ONNX"]
+models = ["VGG-Face", "Facenet", "Facenet512", "ArcFace", "GhostFaceNet"]
 metrics = ["cosine", "euclidean", "euclidean_l2"]
 detectors = ["opencv", "mtcnn"]
 
