@@ -54,6 +54,7 @@ def build_model(task: str, model_name: str) -> Any:
             "OpenFace": OpenFace.OpenFaceClient,
             "Facenet": Facenet.FaceNet128dClient,
             "Facenet512": Facenet.FaceNet512dClient,
+            "Facenet512ONNX": Facenet.FaceNet512dONNXClient,
             "DeepFace": FbDeepFace.DeepFaceClient,
             "DeepID": DeepID.DeepIdClient,
             "Dlib": Dlib.DlibClient,
