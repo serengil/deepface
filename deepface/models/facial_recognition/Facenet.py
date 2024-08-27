@@ -1,7 +1,7 @@
 import os
 import gdown
 import numpy as np
-from typing import List
+from typing import List, Any
 from deepface.commons import package_utils, folder_utils
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
@@ -1737,7 +1737,7 @@ def load_facenet512d_model(
 
 def load_facenet512d_onnx_model(
     url="https://github.com/ShivamSinghal1/deepface/releases/download/v1/facenet512_fp32.onnx",
-) -> Model:
+) -> Any:
     """
     Download Facenet512d ONNX model weights and load
     Returns:
