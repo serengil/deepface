@@ -84,9 +84,7 @@ class FaceNet512dONNXClient(FacialRecognition):
         input_name = self.model.get_inputs()[0].name
         output_name = self.model.get_outputs()[0].name
         result = self.model.run([output_name], {input_name: img})
-        if isinstance(result[0][0], np.ndarray):
-            return result[0][0].tolist()
-        return list(result[0][0])
+        return result[0][0].tolist()
 
 
 def scaling(x, scale):
@@ -1741,7 +1739,7 @@ def load_facenet512d_onnx_model(
     """
     Download Facenet512d ONNX model weights and load
     Returns:
-        model (Model)
+        model (Any)
     """
     try:
         import onnxruntime as ort

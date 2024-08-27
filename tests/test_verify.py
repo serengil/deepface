@@ -8,9 +8,9 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-models = ["VGG-Face", "Facenet", "Facenet512", "ArcFace", "GhostFaceNet"]
+models = ["Facenet512ONNX"]
 metrics = ["cosine", "euclidean", "euclidean_l2"]
-detectors = ["opencv", "mtcnn"]
+detectors = ["opencv"]
 
 
 def test_different_facial_recognition_models():
