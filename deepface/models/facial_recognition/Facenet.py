@@ -84,7 +84,9 @@ class FaceNet512dONNXClient(FacialRecognition):
         input_name = self.model.get_inputs()[0].name
         output_name = self.model.get_outputs()[0].name
         result = self.model.run([output_name], {input_name: img})
-        return result[0][0]
+        if isinstance(result[0][0], np.ndarray):
+            return result[0][0].tolist()
+        return list(result[0][0])
 
 
 def scaling(x, scale):
