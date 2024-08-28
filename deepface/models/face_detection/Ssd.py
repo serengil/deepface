@@ -1,5 +1,6 @@
 from typing import List
 import os
+from enum import IntEnum
 import gdown
 import cv2
 import numpy as np
@@ -86,16 +87,26 @@ class SsdClient(Detector):
         face_detector.setInput(imageBlob)
         detections = face_detector.forward()
 
+        class ssd_labels(IntEnum):
+            img_id = 0
+            is_face = 1
+            confidence = 2
+            left = 3
+            top = 4
+            right = 5
+            bottom = 6
+
         faces = detections[0][0]
-        faces = faces[(faces[:, 1] == 1) & (faces[:, 2] >= 0.90)]
-        faces[:, 3:7] = np.int32(faces[:, 3:7] * 300)
-        faces[:, 3:7] = np.int32(faces[:, 3:7] * [aspect_ratio_x, aspect_ratio_y, aspect_ratio_x, aspect_ratio_y])
-        faces[:, 5:7] -= faces[:, 3:5]
+        faces = faces[(faces[:, ssd_labels.is_face] == 1) & (faces[:, ssd_labels.confidence] >= 0.90)]
+        margins = [ssd_labels.left, ssd_labels.top, ssd_labels.right, ssd_labels.bottom]
+        faces[:, margins] = np.int32(faces[:, margins] * 300)
+        faces[:, margins] = np.int32(faces[:, margins] * [aspect_ratio_x, aspect_ratio_y, aspect_ratio_x, aspect_ratio_y])
+        faces[:, [ssd_labels.right, ssd_labels.bottom]] -= faces[:, [ssd_labels.left, ssd_labels.top]]
 
         resp = []
         for face in faces:
             confidence = face[2]
-            x, y, w, h = map(int, face[3:7])
+            x, y, w, h = map(int, face[margins])
             detected_face = img[y : y + h, x : x + w]
 
             left_eye, right_eye = opencv_module.find_eyes(detected_face)
