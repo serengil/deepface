@@ -83,7 +83,7 @@ class FaceNet512dONNXClient(FacialRecognition):
     def forward(self, img: np.ndarray) -> List[float]:
         input_name = self.model.get_inputs()[0].name
         output_name = self.model.get_outputs()[0].name
-        result = self.model.run([output_name], {input_name: img})
+        result = self.model.run([output_name], {input_name: img.astype(np.float16)})
         return result[0][0].tolist()
 
 
@@ -1734,7 +1734,7 @@ def load_facenet512d_model(
 
 
 def load_facenet512d_onnx_model(
-    url="https://github.com/ShivamSinghal1/deepface/releases/download/v1/facenet512_fp32.onnx",
+    url="https://github.com/ShivamSinghal1/deepface/releases/download/v1/facenet512_fp16.onnx",
 ) -> Any:
     """
     Download Facenet512d ONNX model weights and load
@@ -1753,7 +1753,17 @@ def load_facenet512d_onnx_model(
 
     if torch.cuda.is_available():
         logger.info("using onnx GPU for inference")
-        providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+        providers = [
+            ('CUDAExecutionProvider', {
+                'arena_extend_strategy': 'kNextPowerOfTwo',
+                'cudnn_conv_algo_search': 'EXHAUSTIVE',
+                'do_copy_in_default_stream': True,
+                'cudnn_conv_use_max_workspace': '1',
+                'cudnn_conv1d_pad_to_nc1d': '1',
+                'enable_cuda_graph': '1'
+            }),
+            'CPUExecutionProvider',
+        ]
     else:
         providers = ['CPUExecutionProvider']
 
