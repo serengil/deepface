@@ -13,7 +13,7 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-detectors = ["opencv", "mtcnn"]
+detectors = ["opencv", "mtcnn", "ssd"]
 
 
 def test_different_detectors():

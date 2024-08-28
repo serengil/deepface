@@ -1,8 +1,8 @@
 from typing import List
 import os
+from enum import IntEnum
 import gdown
 import cv2
-import pandas as pd
 import numpy as np
 from deepface.models.face_detection import OpenCv
 from deepface.commons import folder_utils
@@ -50,11 +50,10 @@ class SsdClient(Detector):
                 + "You can install it as pip install opencv-contrib-python."
             ) from err
 
-        detector = {}
-        detector["face_detector"] = face_detector
-        detector["opencv_module"] = OpenCv.OpenCvClient()
-
-        return detector
+        return {
+            "face_detector": face_detector,
+            "opencv_module": OpenCv.OpenCvClient()
+        }
 
     def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
@@ -66,13 +65,12 @@ class SsdClient(Detector):
         Returns:
             results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
         """
+
+        # Because cv2.dnn.blobFromImage expects CV_8U (8-bit unsigned integer) values
+        if img.dtype != np.uint8:
+            img = img.astype(np.uint8)
+
         opencv_module: OpenCv.OpenCvClient = self.model["opencv_module"]
-
-        resp = []
-
-        detected_face = None
-
-        ssd_labels = ["img_id", "is_face", "confidence", "left", "top", "right", "bottom"]
 
         target_size = (300, 300)
 
@@ -89,51 +87,45 @@ class SsdClient(Detector):
         face_detector.setInput(imageBlob)
         detections = face_detector.forward()
 
-        detections_df = pd.DataFrame(detections[0][0], columns=ssd_labels)
+        class ssd_labels(IntEnum):
+            img_id = 0
+            is_face = 1
+            confidence = 2
+            left = 3
+            top = 4
+            right = 5
+            bottom = 6
 
-        detections_df = detections_df[detections_df["is_face"] == 1]  # 0: background, 1: face
-        detections_df = detections_df[detections_df["confidence"] >= 0.90]
+        faces = detections[0][0]
+        faces = faces[(faces[:, ssd_labels.is_face] == 1) & (faces[:, ssd_labels.confidence] >= 0.90)]
+        margins = [ssd_labels.left, ssd_labels.top, ssd_labels.right, ssd_labels.bottom]
+        faces[:, margins] = np.int32(faces[:, margins] * 300)
+        faces[:, margins] = np.int32(faces[:, margins] * [aspect_ratio_x, aspect_ratio_y, aspect_ratio_x, aspect_ratio_y])
+        faces[:, [ssd_labels.right, ssd_labels.bottom]] -= faces[:, [ssd_labels.left, ssd_labels.top]]
 
-        detections_df["left"] = (detections_df["left"] * 300).astype(int)
-        detections_df["bottom"] = (detections_df["bottom"] * 300).astype(int)
-        detections_df["right"] = (detections_df["right"] * 300).astype(int)
-        detections_df["top"] = (detections_df["top"] * 300).astype(int)
+        resp = []
+        for face in faces:
+            confidence = face[2]
+            x, y, w, h = map(int, face[margins])
+            detected_face = img[y : y + h, x : x + w]
 
-        if detections_df.shape[0] > 0:
+            left_eye, right_eye = opencv_module.find_eyes(detected_face)
 
-            for _, instance in detections_df.iterrows():
+            # eyes found in the detected face instead image itself
+            # detected face's coordinates should be added
+            if left_eye is not None:
+                left_eye = x + int(left_eye[0]), y + int(left_eye[1])
+            if right_eye is not None:
+                right_eye = x + int(right_eye[0]), y + int(right_eye[1])
 
-                left = instance["left"]
-                right = instance["right"]
-                bottom = instance["bottom"]
-                top = instance["top"]
-                confidence = instance["confidence"]
-
-                x = int(left * aspect_ratio_x)
-                y = int(top * aspect_ratio_y)
-                w = int(right * aspect_ratio_x) - int(left * aspect_ratio_x)
-                h = int(bottom * aspect_ratio_y) - int(top * aspect_ratio_y)
-
-                detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
-
-                left_eye, right_eye = opencv_module.find_eyes(detected_face)
-
-                # eyes found in the detected face instead image itself
-                # detected face's coordinates should be added
-                if left_eye is not None:
-                    left_eye = (int(x + left_eye[0]), int(y + left_eye[1]))
-                if right_eye is not None:
-                    right_eye = (int(x + right_eye[0]), int(y + right_eye[1]))
-
-                facial_area = FacialAreaRegion(
-                    x=x,
-                    y=y,
-                    w=w,
-                    h=h,
-                    left_eye=left_eye,
-                    right_eye=right_eye,
-                    confidence=confidence,
-                )
-                resp.append(facial_area)
-
+            facial_area = FacialAreaRegion(
+                x=x,
+                y=y,
+                w=w,
+                h=h,
+                left_eye=left_eye,
+                right_eye=right_eye,
+                confidence=confidence,
+            )
+            resp.append(facial_area)
         return resp
