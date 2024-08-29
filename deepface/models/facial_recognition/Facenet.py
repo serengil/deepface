@@ -83,7 +83,7 @@ class FaceNet512dONNXClient(FacialRecognition):
     def forward(self, img: np.ndarray) -> List[float]:
         input_name = self.model.get_inputs()[0].name
         output_name = self.model.get_outputs()[0].name
-        result = self.model.run([output_name], {input_name: img.astype(np.float16)})
+        result = self.model.run([output_name], {input_name: img})
         return result[0][0].tolist()
 
 
