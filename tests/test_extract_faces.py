@@ -36,8 +36,26 @@ def test_different_detectors():
             assert "right_eye" in img_obj["facial_area"].keys()
             right_eye = img_obj["facial_area"]["right_eye"]
             left_eye = img_obj["facial_area"]["left_eye"]
+
+            # left eye and right eye must be tuple
+            assert isinstance(left_eye, tuple)
+            assert isinstance(right_eye, tuple)
+
+            # right eye should be the right eye of the person
             assert left_eye[0] > right_eye[0]
+
+            # left eye and right eye must be int not to have problem in api
+            assert isinstance(left_eye[0], int)
+            assert isinstance(left_eye[1], int)
+            assert isinstance(right_eye[0], int)
+            assert isinstance(right_eye[1], int)
+
+            # confidence must be float, not numpy not to have problem in api
             assert "confidence" in img_obj.keys()
+            type_conf = type(img_obj["confidence"])
+            assert isinstance(
+                img_obj["confidence"], float
+            ), f"confidence type must be float but it is {type_conf}"
 
             # we added black pixeled borders to image because if faces are close to border,
             # then alignment moves them to outside of the image. adding this borders may
