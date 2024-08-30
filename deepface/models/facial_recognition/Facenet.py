@@ -1754,14 +1754,7 @@ def load_facenet512d_onnx_model(
     if torch.cuda.is_available():
         logger.info("using onnx GPU for inference")
         providers = [
-            ('CUDAExecutionProvider', {
-                'arena_extend_strategy': 'kNextPowerOfTwo',
-                'cudnn_conv_algo_search': 'EXHAUSTIVE',
-                'do_copy_in_default_stream': True,
-                'cudnn_conv_use_max_workspace': '1',
-                'cudnn_conv1d_pad_to_nc1d': '1',
-                'enable_cuda_graph': '1'
-            }),
+            'CUDAExecutionProvider',
             'CPUExecutionProvider',
         ]
     else:
