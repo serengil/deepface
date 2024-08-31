@@ -199,8 +199,8 @@ def test_verify_for_broken_weights():
 
     # we are not performing anything with model deepid
 
-    weights_file = os.path.join(home, ".deepface/weights/deepid_keras_weights.h5.h5")
-    backup_file = os.path.join(home, ".deepface/weights/deepid_keras_weights.h5_backup.h5")
+    weights_file = os.path.join(home, ".deepface/weights/deepid_keras_weights.h5")
+    backup_file = os.path.join(home, ".deepface/weights/deepid_keras_weights_backup.h5")
 
     restore = False
     # backup original weight file
