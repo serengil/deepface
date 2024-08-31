@@ -1,6 +1,5 @@
-import os
-import gdown
-from deepface.commons import package_utils, folder_utils
+# project dependencies
+from deepface.commons import package_utils, weight_utils
 from deepface.models.FacialRecognition import FacialRecognition
 
 from deepface.commons.logger import Logger
@@ -79,19 +78,12 @@ def load_model(
     model = Model(inputs, embedding, name=base_model.name)
 
     # ---------------------------------------
-    # check the availability of pre-trained weights
+    weight_file = weight_utils.download_weights_if_necessary(
+        file_name="arcface_weights.h5", source_url=url
+    )
 
-    home = folder_utils.get_deepface_home()
-
-    file_name = "arcface_weights.h5"
-    output = os.path.join(home, ".deepface/weights", file_name)
-
-    if not os.path.isfile(output):
-        logger.info(f"{file_name} will be downloaded to {output}")
-        gdown.download(url, output, quiet=False)
+    model.load_weights(weight_file)
     # ---------------------------------------
-
-    model.load_weights(output)
 
     return model
 

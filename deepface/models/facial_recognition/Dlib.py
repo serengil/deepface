@@ -1,9 +1,11 @@
+# built-in dependencies
 from typing import List
-import os
-import bz2
-import gdown
+
+# 3rd party dependencies
 import numpy as np
-from deepface.commons import folder_utils
+
+# project dependencies
+from deepface.commons import weight_utils
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
 
@@ -57,7 +59,7 @@ class DlibClient(FacialRecognition):
 class DlibResNet:
     def __init__(self):
 
-        ## this is not a must dependency. do not import it in the global level.
+        # This is not a must dependency. Don't import it in the global level.
         try:
             import dlib
         except ModuleNotFoundError as e:
@@ -66,21 +68,11 @@ class DlibResNet:
                 "Please install using 'pip install dlib' "
             ) from e
 
-        home = folder_utils.get_deepface_home()
-        filename = "dlib_face_recognition_resnet_model_v1.dat"
-        weight_file = os.path.join(home, ".deepface/weights", filename)
-
-        # download pre-trained model if it does not exist
-        if not os.path.isfile(weight_file):
-            logger.info(f"{filename} is going to be downloaded")
-            url = f"http://dlib.net/files/{filename + '.bz2'}"
-            output = weight_file + ".bz2"
-            gdown.download(url, output, quiet=False)
-
-            zipfile = bz2.BZ2File(output)
-            data = zipfile.read()
-            with open(weight_file, "wb") as f:
-                f.write(data)
+        weight_file = weight_utils.download_weights_if_necessary(
+            file_name="dlib_face_recognition_resnet_model_v1.dat",
+            source_url="http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2",
+            compress_type="bz2",
+        )
 
         self.model = dlib.face_recognition_model_v1(weight_file)
 

@@ -1,9 +1,12 @@
-import os
+# built-in dependencies
 from typing import Any, List
+
+# 3rd party dependencies
 import numpy as np
-import gdown
+
+# project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
-from deepface.commons import folder_utils
+from deepface.commons import weight_utils
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -26,7 +29,7 @@ class YoloClient(Detector):
             model (Any)
         """
 
-        # Import the Ultralytics YOLO model
+        # Import the optional Ultralytics YOLO model
         try:
             from ultralytics import YOLO
         except ModuleNotFoundError as e:
@@ -35,23 +38,12 @@ class YoloClient(Detector):
                 "Please install using 'pip install ultralytics'"
             ) from e
 
-        home = folder_utils.get_deepface_home()
-        weight_path = os.path.join(home, PATH)
-
-        # Download the model's weights if they don't exist
-        if not os.path.isfile(weight_path):
-            logger.info(f"Downloading Yolo weights from {WEIGHT_URL} to {weight_path}...")
-            try:
-                gdown.download(WEIGHT_URL, weight_path, quiet=False)
-            except Exception as err:
-                raise ValueError(
-                    f"Exception while downloading Yolo weights from {WEIGHT_URL}."
-                    f"You may consider to download it to {weight_path} manually."
-                ) from err
-            logger.info(f"Yolo model is just downloaded to {os.path.basename(weight_path)}")
+        weight_file = weight_utils.download_weights_if_necessary(
+            file_name="yolov8n-face.pt", source_url=WEIGHT_URL
+        )
 
         # Return face_detector
-        return YOLO(weight_path)
+        return YOLO(weight_file)
 
     def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """

@@ -1,13 +1,9 @@
-# built-in dependencies
-import os
-
 # 3rd party dependencies
-import gdown
 import numpy as np
 import cv2
 
 # project dependencies
-from deepface.commons import package_utils, folder_utils
+from deepface.commons import package_utils, weight_utils
 from deepface.models.Demography import Demography
 from deepface.commons.logger import Logger
 
@@ -96,13 +92,10 @@ def load_model(
 
     # ----------------------------
 
-    home = folder_utils.get_deepface_home()
-    output = os.path.join(home, ".deepface/weights/facial_expression_model_weights.h5")
+    weight_file = weight_utils.download_weights_if_necessary(
+        file_name="facial_expression_model_weights.h5", source_url=url
+    )
 
-    if not os.path.isfile(output):
-        logger.info(f"{os.path.basename(output)} will be downloaded...")
-        gdown.download(url, output, quiet=False)
-
-    model.load_weights(output)
+    model.load_weights(weight_file)
 
     return model

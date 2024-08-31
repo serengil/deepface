@@ -1,8 +1,11 @@
+# built-in dependencies
 from typing import List
-import os
-import gdown
+
+# 3rd party dependencies
 import numpy as np
-from deepface.commons import package_utils, folder_utils
+
+# project dependencies
+from deepface.commons import package_utils, weight_utils
 from deepface.modules import verification
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
@@ -133,14 +136,11 @@ def load_model(
 
     model = base_model()
 
-    home = folder_utils.get_deepface_home()
-    output = os.path.join(home, ".deepface/weights/vgg_face_weights.h5")
+    weight_file = weight_utils.download_weights_if_necessary(
+        file_name="vgg_face_weights.h5", source_url=url
+    )
 
-    if not os.path.isfile(output):
-        logger.info(f"{os.path.basename(output)} will be downloaded...")
-        gdown.download(url, output, quiet=False)
-
-    model.load_weights(output)
+    model.load_weights(weight_file)
 
     # 2622d dimensional model
     # vgg_face_descriptor = Model(inputs=model.layers[0].input, outputs=model.layers[-2].output)

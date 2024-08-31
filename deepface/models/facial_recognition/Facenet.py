@@ -1,6 +1,5 @@
-import os
-import gdown
-from deepface.commons import package_utils, folder_utils
+# project dependencies
+from deepface.commons import package_utils, weight_utils
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
 
@@ -1666,20 +1665,10 @@ def load_facenet128d_model(
     """
     model = InceptionResNetV1()
 
-    # -----------------------------------
-
-    home = folder_utils.get_deepface_home()
-    output = os.path.join(home, ".deepface/weights/facenet_weights.h5")
-
-    if not os.path.isfile(output):
-        logger.info(f"{os.path.basename(output)} will be downloaded...")
-        gdown.download(url, output, quiet=False)
-
-    # -----------------------------------
-
-    model.load_weights(output)
-
-    # -----------------------------------
+    weight_file = weight_utils.download_weights_if_necessary(
+        file_name="facenet_weights.h5", source_url=url
+    )
+    model.load_weights(weight_file)
 
     return model
 
@@ -1695,19 +1684,9 @@ def load_facenet512d_model(
 
     model = InceptionResNetV1(dimension=512)
 
-    # -------------------------
-
-    home = folder_utils.get_deepface_home()
-    output = os.path.join(home, ".deepface/weights/facenet512_weights.h5")
-
-    if not os.path.isfile(output):
-        logger.info(f"{os.path.basename(output)} will be downloaded...")
-        gdown.download(url, output, quiet=False)
-
-    # -------------------------
-
-    model.load_weights(output)
-
-    # -------------------------
+    weight_file = weight_utils.download_weights_if_necessary(
+        file_name="facenet512_weights.h5", source_url=url
+    )
+    model.load_weights(weight_file)
 
     return model

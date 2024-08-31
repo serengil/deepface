@@ -1,11 +1,14 @@
+# built-in dependencies
 from typing import List
-import os
 from enum import IntEnum
-import gdown
+
+# 3rd party dependencies
 import cv2
 import numpy as np
+
+# project dependencies
 from deepface.models.face_detection import OpenCv
-from deepface.commons import folder_utils
+from deepface.commons import weight_utils
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger
 
@@ -25,21 +28,17 @@ class SsdClient(Detector):
             model (dict)
         """
 
-        home = folder_utils.get_deepface_home()
-
         # model structure
-        output_model = os.path.join(home, ".deepface/weights/deploy.prototxt")
-        if not os.path.isfile(output_model):
-            logger.info(f"{os.path.basename(output_model)} will be downloaded...")
-            url = "https://github.com/opencv/opencv/raw/3.4.0/samples/dnn/face_detector/deploy.prototxt"
-            gdown.download(url, output_model, quiet=False)
+        output_model = weight_utils.download_weights_if_necessary(
+            file_name="deploy.prototxt",
+            source_url="https://github.com/opencv/opencv/raw/3.4.0/samples/dnn/face_detector/deploy.prototxt",
+        )
 
         # pre-trained weights
-        output_weights = os.path.join(home, ".deepface/weights/res10_300x300_ssd_iter_140000.caffemodel")
-        if not os.path.isfile(output_weights):
-            logger.info(f"{os.path.basename(output_weights)} will be downloaded...")
-            url = "https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel"
-            gdown.download(url, output_weights, quiet=False)
+        output_weights = weight_utils.download_weights_if_necessary(
+            file_name="res10_300x300_ssd_iter_140000.caffemodel",
+            source_url="https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel",
+        )
 
         try:
             face_detector = cv2.dnn.readNetFromCaffe(output_model, output_weights)
@@ -50,10 +49,7 @@ class SsdClient(Detector):
                 + "You can install it as pip install opencv-contrib-python."
             ) from err
 
-        return {
-            "face_detector": face_detector,
-            "opencv_module": OpenCv.OpenCvClient()
-        }
+        return {"face_detector": face_detector, "opencv_module": OpenCv.OpenCvClient()}
 
     def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
@@ -97,11 +93,17 @@ class SsdClient(Detector):
             bottom = 6
 
         faces = detections[0][0]
-        faces = faces[(faces[:, ssd_labels.is_face] == 1) & (faces[:, ssd_labels.confidence] >= 0.90)]
+        faces = faces[
+            (faces[:, ssd_labels.is_face] == 1) & (faces[:, ssd_labels.confidence] >= 0.90)
+        ]
         margins = [ssd_labels.left, ssd_labels.top, ssd_labels.right, ssd_labels.bottom]
         faces[:, margins] = np.int32(faces[:, margins] * 300)
-        faces[:, margins] = np.int32(faces[:, margins] * [aspect_ratio_x, aspect_ratio_y, aspect_ratio_x, aspect_ratio_y])
-        faces[:, [ssd_labels.right, ssd_labels.bottom]] -= faces[:, [ssd_labels.left, ssd_labels.top]]
+        faces[:, margins] = np.int32(
+            faces[:, margins] * [aspect_ratio_x, aspect_ratio_y, aspect_ratio_x, aspect_ratio_y]
+        )
+        faces[:, [ssd_labels.right, ssd_labels.bottom]] -= faces[
+            :, [ssd_labels.left, ssd_labels.top]
+        ]
 
         resp = []
         for face in faces:

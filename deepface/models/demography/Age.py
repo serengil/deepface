@@ -1,8 +1,9 @@
-import os
-import gdown
+# 3rd party dependencies
 import numpy as np
+
+# project dependencies
 from deepface.models.facial_recognition import VGGFace
-from deepface.commons import package_utils, folder_utils
+from deepface.commons import package_utils, weight_utils
 from deepface.models.Demography import Demography
 from deepface.commons.logger import Logger
 
@@ -65,20 +66,12 @@ def load_model(
     # --------------------------
 
     # load weights
-
-    home = folder_utils.get_deepface_home()
-    output = os.path.join(home, ".deepface/weights/age_model_weights.h5")
-
-    if not os.path.isfile(output):
-        logger.info(f"{os.path.basename(output)} will be downloaded...")
-        gdown.download(url, output, quiet=False)
-
-    age_model.load_weights(output)
+    weight_file = weight_utils.download_weights_if_necessary(
+        file_name="age_model_weights.h5", source_url=url
+    )
+    age_model.load_weights(weight_file)
 
     return age_model
-
-    # --------------------------
-
 
 def find_apparent_age(age_predictions: np.ndarray) -> np.float64:
     """

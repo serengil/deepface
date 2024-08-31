@@ -1,6 +1,11 @@
+# built-in dependencies
 from typing import List
+
+# 3rd party dependencies
 import numpy as np
 from mtcnn import MTCNN
+
+# project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
 
 # pylint: disable=too-few-public-methods

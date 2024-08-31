@@ -1,6 +1,3 @@
-# Minivision's Silent-Face-Anti-Spoofing Repo licensed under Apache License 2.0
-# Ref: github.com/minivision-ai/Silent-Face-Anti-Spoofing/blob/master/src/model_lib/MiniFASNet.py
-
 # built-in dependencies
 from typing import Union
 
@@ -9,15 +6,18 @@ import cv2
 import numpy as np
 
 # project dependencies
-from deepface.commons import folder_utils, file_utils
+from deepface.commons import weight_utils
 from deepface.commons.logger import Logger
 
 logger = Logger()
 
-# pylint: disable=line-too-long, too-few-public-methods
+# pylint: disable=line-too-long, too-few-public-methods, nested-min-max
 class Fasnet:
     """
     Mini Face Anti Spoofing Net Library from repo: github.com/minivision-ai/Silent-Face-Anti-Spoofing
+
+    Minivision's Silent-Face-Anti-Spoofing Repo licensed under Apache License 2.0
+    Ref: github.com/minivision-ai/Silent-Face-Anti-Spoofing/blob/master/src/model_lib/MiniFASNet.py
     """
 
     def __init__(self):
@@ -29,21 +29,18 @@ class Fasnet:
                 "You must install torch with `pip install pytorch` command to use face anti spoofing module"
             ) from err
 
-        home = folder_utils.get_deepface_home()
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.device = device
 
         # download pre-trained models if not installed yet
-        file_utils.download_external_file(
+        first_model_weight_file = weight_utils.download_weights_if_necessary(
             file_name="2.7_80x80_MiniFASNetV2.pth",
-            exact_file_path=f"{home}/.deepface/weights/2.7_80x80_MiniFASNetV2.pth",
-            url="https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/2.7_80x80_MiniFASNetV2.pth",
+            source_url="https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/2.7_80x80_MiniFASNetV2.pth",
         )
 
-        file_utils.download_external_file(
+        second_model_weight_file = weight_utils.download_weights_if_necessary(
             file_name="4_0_0_80x80_MiniFASNetV1SE.pth",
-            exact_file_path=f"{home}/.deepface/weights/4_0_0_80x80_MiniFASNetV1SE.pth",
-            url="https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/4_0_0_80x80_MiniFASNetV1SE.pth",
+            source_url="https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/4_0_0_80x80_MiniFASNetV1SE.pth",
         )
 
         # guarantees Fasnet imported and torch installed
@@ -56,9 +53,7 @@ class Fasnet:
         second_model = FasNetBackbone.MiniFASNetV1SE(conv6_kernel=(5, 5)).to(device)
 
         # load model weight for first model
-        state_dict = torch.load(
-            f"{home}/.deepface/weights/2.7_80x80_MiniFASNetV2.pth", map_location=device
-        )
+        state_dict = torch.load(first_model_weight_file, map_location=device)
         keys = iter(state_dict)
         first_layer_name = keys.__next__()
 
@@ -74,9 +69,7 @@ class Fasnet:
             first_model.load_state_dict(state_dict)
 
         # load model weight for second model
-        state_dict = torch.load(
-            f"{home}/.deepface/weights/4_0_0_80x80_MiniFASNetV1SE.pth", map_location=device
-        )
+        state_dict = torch.load(second_model_weight_file, map_location=device)
         keys = iter(state_dict)
         first_layer_name = keys.__next__()
 
@@ -191,7 +184,6 @@ def _get_new_box(src_w, src_h, bbox, scale):
     y = bbox[1]
     box_w = bbox[2]
     box_h = bbox[3]
-    # pylint: disable=nested-min-max
     scale = min((src_h - 1) / box_h, min((src_w - 1) / box_w, scale))
     new_width = box_w * scale
     new_height = box_h * scale
