@@ -1,9 +1,13 @@
+# built-in dependencies
+import os
+
 # 3rd party dependencies
 import pytest
 import cv2
 
 # project dependencies
 from deepface import DeepFace
+from deepface.commons import folder_utils
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -186,3 +190,34 @@ def test_verify_for_nested_embeddings():
         match="When passing img1_path as a list, ensure that all its items are of type float",
     ):
         _ = DeepFace.verify(img1_path=img1_embeddings, img2_path=img2_path)
+
+    logger.info("✅ test verify for nested embeddings is done")
+
+
+def test_verify_for_broken_weights():
+    home = folder_utils.get_deepface_home()
+
+    weights_file = os.path.join(home, ".deepface/weights/vgg_face_weights.h5")
+    backup_file = os.path.join(home, ".deepface/weights/vgg_face_weights_backup.h5")
+
+    assert os.path.exists(weights_file) is True
+
+    # backup original weight file
+    os.rename(weights_file, backup_file)
+
+    # Create a dummy vgg_face_weights.h5 file
+    with open(weights_file, "w", encoding="UTF-8") as f:
+        f.write("dummy content")
+
+    with pytest.raises(ValueError, match="Exception while loading pre-trained weights from"):
+        _ = DeepFace.verify(
+            img1_path="dataset/img1.jpg",
+            img2_path="dataset/img2.jpg",
+            model_name="VGG-Face",
+        )
+
+    # restore weight file
+    os.remove(weights_file)
+    os.rename(backup_file, weights_file)
+
+    logger.info("✅ test verify for broken weight file is done")
