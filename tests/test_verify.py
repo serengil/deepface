@@ -7,7 +7,7 @@ import cv2
 
 # project dependencies
 from deepface import DeepFace
-from deepface.commons import folder_utils
+from deepface.commons import folder_utils, package_utils
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -74,6 +74,9 @@ def test_different_facial_recognition_models():
     ), f"⛔ facial recognition models test failed with {coverage_score} score"
 
     logger.info(f"✅ facial recognition models test passed with {coverage_score}")
+
+    # test_different_facial_recognition_models takes long time. run broken weight test after it.
+    verify_for_broken_weights()
 
 
 def test_different_face_detectors():
@@ -194,13 +197,23 @@ def test_verify_for_nested_embeddings():
     logger.info("✅ test verify for nested embeddings is done")
 
 
-def test_verify_for_broken_weights():
+def verify_for_broken_weights():
     home = folder_utils.get_deepface_home()
 
     weights_file = os.path.join(home, ".deepface/weights/vgg_face_weights.h5")
     backup_file = os.path.join(home, ".deepface/weights/vgg_face_weights_backup.h5")
 
-    assert os.path.exists(weights_file) is True
+    # confirm that weight file is available
+    if os.path.exists(weights_file) is False:
+        _ = DeepFace.verify(
+            img1_path="dataset/img1.jpg",
+            img2_path="dataset/img2.jpg",
+            model_name="VGG-Face",
+        )
+
+    # confirm that weith file is not broken
+    weights_file_hash = package_utils.find_file_hash(weights_file)
+    assert "759266b9614d0fd5d65b97bf716818b746cc77ab5944c7bffc937c6ba9455d8c" == weights_file_hash
 
     # backup original weight file
     os.rename(weights_file, backup_file)
