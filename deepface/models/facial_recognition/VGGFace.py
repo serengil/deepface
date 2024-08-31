@@ -140,7 +140,9 @@ def load_model(
         file_name="vgg_face_weights.h5", source_url=url
     )
 
-    model.load_weights(weight_file)
+    model = weight_utils.load_model_weights(
+        model=model, weight_file=weight_file
+    )
 
     # 2622d dimensional model
     # vgg_face_descriptor = Model(inputs=model.layers[0].input, outputs=model.layers[-2].output)

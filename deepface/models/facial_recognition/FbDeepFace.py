@@ -86,7 +86,7 @@ def load_model(
         file_name="VGGFace2_DeepFace_weights_val-0.9034.h5", source_url=url, compress_type="zip"
     )
 
-    base_model.load_weights(weight_file)
+    base_model = weight_utils.load_model_weights(model=base_model, weight_file=weight_file)
 
     # drop F8 and D0. F7 is the representation layer.
     deepface_model = Model(inputs=base_model.layers[0].input, outputs=base_model.layers[-3].output)
