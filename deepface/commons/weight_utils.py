@@ -54,12 +54,12 @@ def download_weights_if_necessary(
     if compress_type == "zip":
         with zipfile.ZipFile(f"{target_file}.zip", "r") as zip_ref:
             zip_ref.extractall(os.path.join(home, ".deepface/weights"))
-            logger.info("{target_file}.zip unzipped")
+            logger.info(f"{target_file}.zip unzipped")
     elif compress_type == "bz2":
         bz2file = bz2.BZ2File(f"{target_file}.bz2")
         data = bz2file.read()
         with open(target_file, "wb") as f:
             f.write(data)
-        logger.info("{target_file}.bz2 unzipped")
+        logger.info(f"{target_file}.bz2 unzipped")
 
     return target_file
