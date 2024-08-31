@@ -72,6 +72,8 @@ def load_model(
         file_name="gender_model_weights.h5", source_url=url
     )
 
-    gender_model.load_weights(weight_file)
+    gender_model = weight_utils.load_model_weights(
+        model=gender_model, weight_file=weight_file
+    )
 
     return gender_model

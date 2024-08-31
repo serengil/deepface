@@ -69,6 +69,8 @@ def load_model(
         file_name="race_model_single_batch.h5", source_url=url
     )
 
-    race_model.load_weights(weight_file)
+    race_model = weight_utils.load_model_weights(
+        model=race_model, weight_file=weight_file
+    )
 
     return race_model

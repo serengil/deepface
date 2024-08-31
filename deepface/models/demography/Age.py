@@ -69,7 +69,10 @@ def load_model(
     weight_file = weight_utils.download_weights_if_necessary(
         file_name="age_model_weights.h5", source_url=url
     )
-    age_model.load_weights(weight_file)
+
+    age_model = weight_utils.load_model_weights(
+        model=age_model, weight_file=weight_file
+    )
 
     return age_model
 
