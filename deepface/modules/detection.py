@@ -158,7 +158,7 @@ def extract_faces(
                 "left_eye": current_region.left_eye,
                 "right_eye": current_region.right_eye,
             },
-            "confidence": round(current_region.confidence, 2),
+            "confidence": round(float(current_region.confidence or 0), 2),
         }
 
         if anti_spoofing is True:
@@ -179,9 +179,11 @@ def extract_faces(
 
 
 def detect_faces(
-    detector_backend: str, img: np.ndarray,
-    align: bool = True, expand_percentage: int = 0,
-    max_faces: Optional[int] = None
+    detector_backend: str,
+    img: np.ndarray,
+    align: bool = True,
+    expand_percentage: int = 0,
+    max_faces: Optional[int] = None,
 ) -> List[DetectedFace]:
     """
     Detect face(s) from a given image
@@ -239,9 +241,7 @@ def detect_faces(
 
     if max_faces is not None and max_faces < len(facial_areas):
         facial_areas = nlargest(
-            max_faces,
-            facial_areas,
-            key=lambda facial_area: facial_area.w * facial_area.h
+            max_faces, facial_areas, key=lambda facial_area: facial_area.w * facial_area.h
         )
 
     return [
@@ -251,15 +251,20 @@ def detect_faces(
             align=align,
             expand_percentage=expand_percentage,
             width_border=width_border,
-            height_border=height_border
+            height_border=height_border,
         )
         for facial_area in facial_areas
     ]
 
+
 def expand_and_align_face(
-    facial_area: FacialAreaRegion, img: np.ndarray,
-    align: bool, expand_percentage: int, width_border: int,
-    height_border: int) -> DetectedFace:
+    facial_area: FacialAreaRegion,
+    img: np.ndarray,
+    align: bool,
+    expand_percentage: int,
+    width_border: int,
+    height_border: int,
+) -> DetectedFace:
     x = facial_area.x
     y = facial_area.y
     w = facial_area.w
@@ -309,6 +314,7 @@ def expand_and_align_face(
         confidence=confidence,
     )
 
+
 def align_img_wrt_eyes(
     img: np.ndarray,
     left_eye: Union[list, tuple],
@@ -337,9 +343,7 @@ def align_img_wrt_eyes(
     center = (w // 2, h // 2)
     M = cv2.getRotationMatrix2D(center, angle, 1.0)
     img = cv2.warpAffine(
-        img, M, (w, h),
-        flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT,
-        borderValue=(0,0,0)
+        img, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT, borderValue=(0, 0, 0)
     )
 
     return img, angle
