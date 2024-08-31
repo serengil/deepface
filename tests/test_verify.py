@@ -186,3 +186,5 @@ def test_verify_for_nested_embeddings():
         match="When passing img1_path as a list, ensure that all its items are of type float",
     ):
         _ = DeepFace.verify(img1_path=img1_embeddings, img2_path=img2_path)
+
+    logger.info("✅ test verify for nested embeddings is done")
