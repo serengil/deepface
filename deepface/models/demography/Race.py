@@ -1,13 +1,9 @@
-# built-in dependencies
-import os
-
 # 3rd party dependencies
-import gdown
 import numpy as np
 
 # project dependencies
 from deepface.models.facial_recognition import VGGFace
-from deepface.commons import package_utils, folder_utils
+from deepface.commons import package_utils, weight_utils
 from deepface.models.Demography import Demography
 from deepface.commons.logger import Logger
 
@@ -69,14 +65,10 @@ def load_model(
     # --------------------------
 
     # load weights
+    weight_file = weight_utils.download_weights_if_necessary(
+        file_name="race_model_single_batch.h5", source_url=url
+    )
 
-    home = folder_utils.get_deepface_home()
-    output = os.path.join(home, ".deepface/weights/race_model_single_batch.h5")
-
-    if not os.path.isfile(output):
-        logger.info(f"{os.path.basename(output)} will be downloaded...")
-        gdown.download(url, output, quiet=False)
-
-    race_model.load_weights(output)
+    race_model.load_weights(weight_file)
 
     return race_model

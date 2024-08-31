@@ -1,7 +1,12 @@
+# built-in dependencies
 import os
 from typing import Any, List
+
+# 3rd party dependencies
 import cv2
 import numpy as np
+
+#project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
 
 

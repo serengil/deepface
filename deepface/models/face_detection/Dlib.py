@@ -1,9 +1,11 @@
+# built-in dependencies
 from typing import List
-import os
-import bz2
-import gdown
+
+# 3rd party dependencies
 import numpy as np
-from deepface.commons import folder_utils
+
+# project dependencies
+from deepface.commons import weight_utils
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger
 
@@ -30,25 +32,14 @@ class DlibClient(Detector):
             ) from e
 
         # check required file exists in the home/.deepface/weights folder
-        home = folder_utils.get_deepface_home()
-        filename = "shape_predictor_5_face_landmarks.dat"
-        filepath = os.path.join(home, ".deepface/weights/", filename)
-
-        if not os.path.isfile(filepath):
-            logger.info(f"{filename + '.bz2'} is going to be downloaded")
-
-            url = f"http://dlib.net/files/{filename + '.bz2'}"
-            output = filepath + ".bz2"
-
-            gdown.download(url, output, quiet=False)
-
-            zipfile = bz2.BZ2File(output)
-            data = zipfile.read()
-            with open(filepath, "wb") as f:
-                f.write(data)
+        weight_file = weight_utils.download_weights_if_necessary(
+            file_name="shape_predictor_5_face_landmarks.dat",
+            source_url="http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2",
+            compress_type="bz2",
+        )
 
         face_detector = dlib.get_frontal_face_detector()
-        sp = dlib.shape_predictor(filepath)
+        sp = dlib.shape_predictor(weight_file)
 
         detector = {}
         detector["face_detector"] = face_detector

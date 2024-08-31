@@ -5,10 +5,9 @@ from typing import List
 # 3rd party dependencies
 import numpy as np
 import cv2
-import gdown
 
 # project dependencies
-from deepface.commons import folder_utils
+from deepface.commons import weight_utils
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger
 
@@ -29,19 +28,9 @@ class CenterFaceClient(Detector):
         """
         Download pre-trained weights of CenterFace model if necessary and load built model
         """
-        home = folder_utils.get_deepface_home()
-        weights_path = os.path.join(home, ".deepface/weights/centerface.onnx")
-
-        if not os.path.isfile(weights_path):
-            logger.info(f"Downloading CenterFace weights from {WEIGHTS_URL} to {weights_path}...")
-            try:
-                gdown.download(WEIGHTS_URL, weights_path, quiet=False)
-            except Exception as err:
-                raise ValueError(
-                    f"Exception while downloading CenterFace weights from {WEIGHTS_URL}."
-                    f"You may consider to download it to {weights_path} manually."
-                ) from err
-            logger.info(f"CenterFace model is just downloaded to {os.path.basename(weights_path)}")
+        weights_path = weight_utils.download_weights_if_necessary(
+            file_name="centerface.onnx", source_url=WEIGHTS_URL
+        )
 
         return CenterFace(weight_path=weights_path)
 

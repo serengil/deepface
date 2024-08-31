@@ -1,14 +1,12 @@
 # built-in dependencies
-import os
 from typing import Any, List
 
 # 3rd party dependencies
 import numpy as np
 import cv2 as cv
-import gdown
 
 # project dependencies
-from deepface.commons import folder_utils
+from deepface.commons import weight_utils
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
 
@@ -55,14 +53,11 @@ def load_model(
     Construct SFace model, download its weights and load
     """
 
-    home = folder_utils.get_deepface_home()
-    output = os.path.join(home, ".deepface/weights/face_recognition_sface_2021dec.onnx")
+    weight_file = weight_utils.download_weights_if_necessary(
+        file_name="face_recognition_sface_2021dec.onnx", source_url=url
+    )
 
-    if not os.path.isfile(output):
-        logger.info(f"{os.path.basename(output)} weights will be downloaded...")
-        gdown.download(url, output, quiet=False)
-
-    model = SFaceWrapper(model_path=output)
+    model = SFaceWrapper(model_path=weight_file)
 
     return model
 

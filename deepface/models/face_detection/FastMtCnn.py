@@ -1,13 +1,19 @@
+# built-in dependencies
 from typing import Any, Union, List
+
+# 3rd party dependencies
 import cv2
 import numpy as np
-from deepface.models.Detector import Detector, FacialAreaRegion
 
-# Link -> https://github.com/timesler/facenet-pytorch
-# Examples https://www.kaggle.com/timesler/guide-to-mtcnn-in-facenet-pytorch
+# project dependencies
+from deepface.models.Detector import Detector, FacialAreaRegion
 
 
 class FastMtCnnClient(Detector):
+    """
+    Fast MtCnn Detector from github.com/timesler/facenet-pytorch
+    """
+
     def __init__(self):
         self.model = self.build_model()
 
@@ -69,7 +75,7 @@ class FastMtCnnClient(Detector):
                 "Please install using 'pip install facenet-pytorch'"
             ) from e
 
-        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         face_detector = fast_mtcnn(device=device)
 
         return face_detector
