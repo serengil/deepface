@@ -75,9 +75,6 @@ def test_different_facial_recognition_models():
 
     logger.info(f"✅ facial recognition models test passed with {coverage_score}")
 
-    # test_different_facial_recognition_models takes long time. run broken weight test after it.
-    verify_for_broken_weights()
-
 
 def test_different_face_detectors():
     for detector in detectors:
@@ -197,26 +194,19 @@ def test_verify_for_nested_embeddings():
     logger.info("✅ test verify for nested embeddings is done")
 
 
-def verify_for_broken_weights():
+def test_verify_for_broken_weights():
     home = folder_utils.get_deepface_home()
 
-    weights_file = os.path.join(home, ".deepface/weights/vgg_face_weights.h5")
-    backup_file = os.path.join(home, ".deepface/weights/vgg_face_weights_backup.h5")
+    # we are not performing anything with model deepid
 
-    # confirm that weight file is available
-    if os.path.exists(weights_file) is False:
-        _ = DeepFace.verify(
-            img1_path="dataset/img1.jpg",
-            img2_path="dataset/img2.jpg",
-            model_name="VGG-Face",
-        )
+    weights_file = os.path.join(home, ".deepface/weights/deepid_keras_weights.h5.h5")
+    backup_file = os.path.join(home, ".deepface/weights/deepid_keras_weights.h5_backup.h5")
 
-    # confirm that weith file is not broken
-    weights_file_hash = package_utils.find_file_hash(weights_file)
-    assert "759266b9614d0fd5d65b97bf716818b746cc77ab5944c7bffc937c6ba9455d8c" == weights_file_hash
-
+    restore = False
     # backup original weight file
-    os.rename(weights_file, backup_file)
+    if os.path.exists(weights_file) is True:
+        os.rename(weights_file, backup_file)
+        restore = True
 
     # Create a dummy vgg_face_weights.h5 file
     with open(weights_file, "w", encoding="UTF-8") as f:
@@ -226,11 +216,11 @@ def verify_for_broken_weights():
         _ = DeepFace.verify(
             img1_path="dataset/img1.jpg",
             img2_path="dataset/img2.jpg",
-            model_name="VGG-Face",
+            model_name="DeepId",
         )
 
-    # restore weight file
-    os.remove(weights_file)
-    os.rename(backup_file, weights_file)
+    if restore:
+        os.remove(weights_file)
+        os.rename(backup_file, weights_file)
 
     logger.info("✅ test verify for broken weight file is done")
