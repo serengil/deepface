@@ -107,7 +107,7 @@ class SsdClient(Detector):
 
         resp = []
         for face in faces:
-            confidence = float(face[2])
+            confidence = float(face[ssd_labels.confidence])
             x, y, w, h = map(int, face[margins])
             detected_face = img[y : y + h, x : x + w]
 
