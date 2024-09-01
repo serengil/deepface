@@ -49,12 +49,10 @@ def download_weights_if_necessary(
             gdown.download(source_url, f"{target_file}.{compress_type}", quiet=False)
 
     except Exception as err:
-        exception_msg = (
-            f"⛓️‍💥 Exception while downloading {file_name} from {source_url}. "
-            f"You may consider to download it manually to {target_file}."
-        )
-        logger.error(exception_msg)
-        raise ValueError(exception_msg) from err
+        raise ValueError(
+            f"⛓️‍💥 An exception occurred while downloading {file_name} from {source_url}. "
+            f"Consider downloading it manually to {target_file}."
+        ) from err
 
     # uncompress downloaded file
     if compress_type == "zip":
@@ -85,8 +83,10 @@ def load_model_weights(model: Sequential, weight_file: str) -> Sequential:
         model.load_weights(weight_file)
     except Exception as err:
         raise ValueError(
-            f"Exception while loading pre-trained weights from {weight_file}."
-            "Possible reason is broken file during downloading weights."
-            "You may consider to delete it manually."
+            f"An exception occurred while loading the pre-trained weights from {weight_file}."
+            "This might have happened due to an interruption during the download."
+            "You may want to delete it and allow DeepFace to download it again during the next run."
+            "If the issue persists, consider downloading the file directly from the source "
+            "and copying it to the target folder."
         ) from err
     return model

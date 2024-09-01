@@ -40,7 +40,10 @@ def test_loading_broken_weights():
     model.add(Dense(units=10, activation="softmax"))  # Output layer with 10 classes
 
     # vgg's weights cannot be loaded to this model
-    with pytest.raises(ValueError, match="Exception while loading pre-trained weights from"):
+    with pytest.raises(
+        ValueError,
+        match="An exception occurred while loading the pre-trained weights from"
+    ):
         model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
 
     logger.info("✅ test loading broken weight file is done")
