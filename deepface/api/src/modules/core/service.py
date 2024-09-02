@@ -31,6 +31,27 @@ def represent(
         tb_str = traceback.format_exc()
         return {"error": f"Exception while representing: {str(err)} - {tb_str}"}, 400
 
+def extract_faces(
+    img_path: str,
+    detector_backend: str,
+    enforce_detection: bool,
+    align: bool,
+    anti_spoofing: bool,
+):
+    try:
+        result = {}
+        faces_objs = DeepFace.extract_faces(
+            img_path=img_path,
+            detector_backend=detector_backend,
+            enforce_detection=enforce_detection,
+            align=align,
+            anti_spoofing=anti_spoofing,
+        )
+        result["results"] = faces_objs
+        return result
+    except Exception as err:
+        tb_str = traceback.format_exc()
+        return {"error": f"Exception while extracting faces: {str(err)} - {tb_str}"}, 400
 
 def verify(
     img1_path: str,

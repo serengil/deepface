@@ -12,6 +12,29 @@ blueprint = Blueprint("routes", __name__)
 def home():
     return f"<h1>Welcome to DeepFace API v{DeepFace.__version__}!</h1>"
 
+@blueprint.route("/represent", methods=["POST"])
+def extract():
+    input_args = request.get_json()
+
+    if input_args is None:
+        return {"message": "empty input set passed"}
+
+    img_path = input_args.get("img") or input_args.get("img_path")
+    if img_path is None:
+        return {"message": "you must pass img_path input"}
+
+    obj = service.extract_faces(
+        img_path=img_path,
+        detector_backend=input_args.get("detector_backend", "opencv"),
+        enforce_detection=input_args.get("enforce_detection", True),
+        align=input_args.get("align", True),
+        anti_spoofing=input_args.get("anti_spoofing", False),
+    )
+
+    logger.debug(obj)
+
+    return obj
+
 
 @blueprint.route("/represent", methods=["POST"])
 def represent():
