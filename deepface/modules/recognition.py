@@ -100,6 +100,10 @@ def find(
     if not os.path.isdir(db_path):
         raise ValueError(f"Passed path {db_path} does not exist!")
 
+    img, _ = image_utils.load_image(img_path)
+    if img is None:
+        raise ValueError(f"Passed image path {img_path} does not exist!")
+
     file_parts = [
         "ds",
         "model",
