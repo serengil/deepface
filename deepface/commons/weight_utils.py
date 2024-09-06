@@ -19,6 +19,8 @@ else:
 
 logger = Logger()
 
+ALLOWED_COMPRESS_TYPES = ["zip", "bz2"]
+
 
 def download_weights_if_necessary(
     file_name: str, source_url: str, compress_type: Optional[str] = None
@@ -40,12 +42,15 @@ def download_weights_if_necessary(
         logger.debug(f"{file_name} is already available at {target_file}")
         return target_file
 
+    if compress_type is not None and compress_type not in ALLOWED_COMPRESS_TYPES:
+        raise ValueError(f"unimplemented compress type - {compress_type}")
+
     try:
         logger.info(f"🔗 {file_name} will be downloaded from {source_url} to {target_file}...")
 
         if compress_type is None:
             gdown.download(source_url, target_file, quiet=False)
-        elif compress_type is not None:
+        elif compress_type is not None and compress_type in ALLOWED_COMPRESS_TYPES:
             gdown.download(source_url, f"{target_file}.{compress_type}", quiet=False)
 
     except Exception as err:
