@@ -71,14 +71,14 @@ class TestDownloadWeightFeature:
         mock_get_deepface_home,
     ):
         mock_isfile.return_value = True
-        mock_get_deepface_home.return_value = "/mock/home"
+        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
 
         file_name = "model_weights.h5"
         source_url = "http://example.com/model_weights.zip"
 
         result = weight_utils.download_weights_if_necessary(file_name, source_url)
 
-        assert result == os.path.join("/mock/home", ".deepface/weights", file_name)
+        assert os.path.normpath(result) == os.path.normpath(os.path.join("/mock/home", ".deepface/weights", file_name))
 
         mock_gdown.assert_not_called()
         mock_zipfile.assert_not_called()
@@ -96,7 +96,7 @@ class TestDownloadWeightFeature:
         mock_get_deepface_home,
     ):
         # Setting up the mock return values
-        mock_get_deepface_home.return_value = "/mock/home"
+        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
         mock_isfile.return_value = False  # Simulate file not being present
 
         file_name = "model_weights.h5"
@@ -125,7 +125,7 @@ class TestDownloadWeightFeature:
         mock_get_deepface_home,
     ):
         # Setting up the mock return values
-        mock_get_deepface_home.return_value = "/mock/home"
+        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
         mock_isfile.return_value = False  # Simulate file not being present
 
         file_name = "model_weights.h5"
@@ -134,13 +134,16 @@ class TestDownloadWeightFeature:
         # Call the function
         result = weight_utils.download_weights_if_necessary(file_name, source_url)
 
+        # Normalize the expected path
+        expected_path = os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
+
         # Assert that gdown.download was called with the correct parameters
         mock_gdown.assert_called_once_with(
-            source_url, "/mock/home/.deepface/weights/model_weights.h5", quiet=False
+            source_url, expected_path, quiet=False
         )
 
         # Assert that the return value is correct
-        assert result == "/mock/home/.deepface/weights/model_weights.h5"
+        assert result == expected_path
 
         # Assert that zipfile.ZipFile and bz2.BZ2File were not called
         mock_zipfile.assert_not_called()
@@ -159,7 +162,7 @@ class TestDownloadWeightFeature:
         mock_get_deepface_home,
     ):
         # Setting up the mock return values
-        mock_get_deepface_home.return_value = "/mock/home"
+        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
         mock_isfile.return_value = False  # Simulate file not being present
 
         file_name = "model_weights.h5"
@@ -171,7 +174,7 @@ class TestDownloadWeightFeature:
 
         # Assert that gdown.download was called with the correct parameters
         mock_gdown.assert_called_once_with(
-            source_url, "/mock/home/.deepface/weights/model_weights.h5.zip", quiet=False
+            source_url, os.path.normpath("/mock/home/.deepface/weights/model_weights.h5.zip"), quiet=False
         )
 
         # Simulate the unzipping behavior
@@ -179,13 +182,13 @@ class TestDownloadWeightFeature:
 
         # Call the function again to simulate unzipping
         with mock_zipfile.return_value as zip_ref:
-            zip_ref.extractall("/mock/home/.deepface/weights")
+            zip_ref.extractall(os.path.normpath("/mock/home/.deepface/weights"))
 
         # Assert that the zip file was unzipped correctly
-        zip_ref.extractall.assert_called_once_with("/mock/home/.deepface/weights")
+        zip_ref.extractall.assert_called_once_with(os.path.normpath("/mock/home/.deepface/weights"))
 
         # Assert that the return value is correct
-        assert result == "/mock/home/.deepface/weights/model_weights.h5"
+        assert result == os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
 
         logger.info("✅ test download weights for zip is done")
 
@@ -201,7 +204,7 @@ class TestDownloadWeightFeature:
     ):
 
         # Setting up the mock return values
-        mock_get_deepface_home.return_value = "/mock/home"
+        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
         mock_isfile.return_value = False  # Simulate file not being present
 
         file_name = "model_weights.h5"
@@ -219,16 +222,16 @@ class TestDownloadWeightFeature:
 
         # Assert that gdown.download was called with the correct parameters
         mock_gdown.assert_called_once_with(
-            source_url, "/mock/home/.deepface/weights/model_weights.h5.bz2", quiet=False
+            source_url, os.path.normpath("/mock/home/.deepface/weights/model_weights.h5.bz2"), quiet=False
         )
 
         # Ensure open() is called once for writing the decompressed data
-        mock_open.assert_called_once_with("/mock/home/.deepface/weights/model_weights.h5", "wb")
+        mock_open.assert_called_once_with(os.path.normpath("/mock/home/.deepface/weights/model_weights.h5"), "wb")
 
         # TODO: find a way to check write is called
 
         # Assert that the return value is correct
-        assert result == "/mock/home/.deepface/weights/model_weights.h5"
+        assert result == os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
 
         logger.info("✅ test download weights for bz2 is done")
 
