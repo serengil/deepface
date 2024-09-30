@@ -453,7 +453,7 @@ def find_batched(
     anti_spoofing: bool = False,
 ) -> List[List[Dict[str, Any]]]:
     """
-    Perform batched face recognition by comparing source face embeddingswith a set of
+    Perform batched face recognition by comparing source face embeddings with a set of
     target embeddings. It calculates pairwise distances between the source and target
     embeddings using the specified distance metric.
     The function uses batch processing for efficient computation of distances.
@@ -549,6 +549,7 @@ def find_batched(
             align=align,
             normalization=normalization,
         )
+        # it is safe to access 0 index because we already fed detected face to represent function
         target_representation = target_embedding_obj[0]["embedding"]
 
         target_embeddings.append(target_representation)
@@ -566,21 +567,6 @@ def find_batched(
         'source_h': np.array([region['h'] for region in source_regions]),
     }
 
-    def l2_normalize(
-        x: np.ndarray, axis: int = 1, epsilon: float = 1e-10
-    ) -> np.ndarray:
-        """
-        Normalize input vectors along a specified axis using L2 normalization
-        Args:
-            x (np.ndarray): input array
-            axis (int): axis along which to normalize
-            epsilon (float): small value to avoid division by zero
-        Returns:
-            np.ndarray: L2-normalized array of the same shape as input
-        """
-        norm = np.linalg.norm(x, axis=axis, keepdims=True)
-        return x / (norm + epsilon)
-
     def find_cosine_distance_batch(
         embeddings: np.ndarray, target_embeddings: np.ndarray
     ) -> np.ndarray:
@@ -592,8 +578,8 @@ def find_batched(
         Returns:
             np.ndarray: distance matrix of shape (M, N)
         """
-        embeddings_norm = l2_normalize(embeddings, axis=1)
-        target_embeddings_norm = l2_normalize(target_embeddings, axis=1)
+        embeddings_norm = verification.l2_normalize(embeddings, axis=1)
+        target_embeddings_norm = verification.l2_normalize(target_embeddings, axis=1)
         cosine_similarities = np.dot(target_embeddings_norm, embeddings_norm.T)
         cosine_distances = 1 - cosine_similarities
         return cosine_distances
@@ -630,12 +616,12 @@ def find_batched(
         elif distance_metric == "euclidean":
             distances = find_euclidean_distance_batch(embeddings, target_embeddings)
         elif distance_metric == "euclidean_l2":
-            embeddings_norm = l2_normalize(embeddings, axis=1)
-            target_embeddings_norm = l2_normalize(target_embeddings, axis=1)
+            embeddings_norm = verification.l2_normalize(embeddings, axis=1)
+            target_embeddings_norm = verification.l2_normalize(target_embeddings, axis=1)
             distances = find_euclidean_distance_batch(embeddings_norm, target_embeddings_norm)
         else:
             raise ValueError("Invalid distance_metric passed - ", distance_metric)
-        return distances
+        return np.round(distances, 6)
 
     distances = find_distance_batch(embeddings, target_embeddings, distance_metric) # (M, N)
     distances[:, ~valid_mask] = np.inf

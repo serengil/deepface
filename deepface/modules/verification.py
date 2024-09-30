@@ -304,18 +304,21 @@ def find_euclidean_distance(
     return np.linalg.norm(source_representation - test_representation)
 
 
-def l2_normalize(x: Union[np.ndarray, list]) -> np.ndarray:
+def l2_normalize(
+    x: Union[np.ndarray, list], axis: Union[int, None] = None, epsilon: float = 1e-10
+) -> np.ndarray:
     """
     Normalize input vector with l2
     Args:
         x (np.ndarray or list): given vector
+        axis (int): axis along which to normalize
     Returns:
-        y (np.ndarray): l2 normalized vector
+        np.ndarray: l2 normalized vector
     """
     if isinstance(x, list):
         x = np.array(x)
-    norm = np.linalg.norm(x)
-    return x if norm == 0 else x / norm
+    norm = np.linalg.norm(x, axis=axis, keepdims=True)
+    return x / (norm + epsilon)
 
 
 def find_distance(
@@ -341,7 +344,7 @@ def find_distance(
         )
     else:
         raise ValueError("Invalid distance_metric passed - ", distance_metric)
-    return distance
+    return np.round(distance, 6)
 
 
 def find_threshold(model_name: str, distance_metric: str) -> float:

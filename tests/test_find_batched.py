@@ -3,12 +3,10 @@ import os
 
 # 3rd party dependencies
 import cv2
-import pandas as pd
 
 # project dependencies
 from deepface import DeepFace
 from deepface.modules import verification
-from deepface.commons import image_utils
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -21,12 +19,18 @@ def test_find_with_exact_path():
     img_path = os.path.join("dataset", "img1.jpg")
     results = DeepFace.find(img_path=img_path, db_path="dataset", silent=True, batched=True)
     assert len(results) > 0
+    required_keys = set([
+        "identity", "distance", "threshold", "hash",
+        "target_x", "target_y", "target_w", "target_h",
+        "source_x", "source_y", "source_w", "source_h"
+    ])
     for result in results:
         assert isinstance(result, list)
 
         found_image_itself = False
         for face in result:
             assert isinstance(face, dict)
+            assert set(face.keys()) == required_keys
             if face["identity"] == img_path:
                 # validate reproducability
                 assert face["distance"] < threshold
