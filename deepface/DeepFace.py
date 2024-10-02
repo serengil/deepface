@@ -276,7 +276,8 @@ def find(
     silent: bool = False,
     refresh_database: bool = True,
     anti_spoofing: bool = False,
-) -> List[pd.DataFrame]:
+    batched: bool = False,
+) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
     """
     Identify individuals in a database
     Args:
@@ -322,22 +323,32 @@ def find(
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
-        results (List[pd.DataFrame]): A list of pandas dataframes. Each dataframe corresponds
-            to the identity information for an individual detected in the source image.
-            The DataFrame columns include:
+        results (List[pd.DataFrame] or List[List[Dict[str, Any]]]): 
+            A list of pandas dataframes (if `batched=False`) or
+            a list of dicts (if `batched=True`).
+            Each dataframe or dict corresponds to the identity information for
+            an individual detected in the source image.
 
-        - 'identity': Identity label of the detected individual.
+            Note: If you have a large database and/or a source photo with many faces,
+            use `batched=True`, as it is optimized for large batch processing. 
+            Please pay attention that when using `batched=True`, the function returns 
+            a list of dicts (not a list of DataFrames),
+            but with the same keys as the columns in the DataFrame.
+            
+            The DataFrame columns or dict keys include:
 
-        - 'target_x', 'target_y', 'target_w', 'target_h': Bounding box coordinates of the
-                target face in the database.
+            - 'identity': Identity label of the detected individual.
 
-        - 'source_x', 'source_y', 'source_w', 'source_h': Bounding box coordinates of the
-                detected face in the source image.
+            - 'target_x', 'target_y', 'target_w', 'target_h': Bounding box coordinates of the
+                    target face in the database.
 
-        - 'threshold': threshold to determine a pair whether same person or different persons
+            - 'source_x', 'source_y', 'source_w', 'source_h': Bounding box coordinates of the
+                    detected face in the source image.
 
-        - 'distance': Similarity score between the faces based on the
-                specified model and distance metric
+            - 'threshold': threshold to determine a pair whether same person or different persons
+
+            - 'distance': Similarity score between the faces based on the
+                    specified model and distance metric
     """
     return recognition.find(
         img_path=img_path,
@@ -353,6 +364,7 @@ def find(
         silent=silent,
         refresh_database=refresh_database,
         anti_spoofing=anti_spoofing,
+        batched=batched
     )
 
 

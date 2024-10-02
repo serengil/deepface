@@ -36,7 +36,7 @@ def download_weights_if_necessary(
     """
     home = folder_utils.get_deepface_home()
 
-    target_file = os.path.join(home, ".deepface/weights", file_name)
+    target_file = os.path.normpath(os.path.join(home, ".deepface/weights", file_name))
 
     if os.path.isfile(target_file):
         logger.debug(f"{file_name} is already available at {target_file}")
