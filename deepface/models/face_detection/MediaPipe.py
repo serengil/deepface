@@ -7,6 +7,8 @@ import numpy as np
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
 
+import os
+
 
 class MediaPipeClient(Detector):
     """
@@ -32,7 +34,10 @@ class MediaPipeClient(Detector):
             ) from e
 
         mp_face_detection = mp.solutions.face_detection
-        face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5, model_selection=1)
+        face_detection = mp_face_detection.FaceDetection(
+            min_detection_confidence=os.getenv("MEDIAPIPE_MIN_DETECTION_CONFIDENCE", 0.5),
+            model_selection=os.getenv("MEDIAPIPE_MODEL_SELECTION", 1)
+        )
         return face_detection
 
     def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
