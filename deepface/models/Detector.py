@@ -45,6 +45,7 @@ class FacialAreaRegion:
         confidence (float, optional): Confidence score associated with the face detection.
             Default is None.
     """
+
     x: int
     y: int
     w: int
@@ -52,6 +53,9 @@ class FacialAreaRegion:
     left_eye: Optional[Tuple[int, int]] = None
     right_eye: Optional[Tuple[int, int]] = None
     confidence: Optional[float] = None
+    nose: Optional[Tuple[int, int]] = None
+    mouth_right: Optional[Tuple[int, int]] = None
+    mouth_left: Optional[Tuple[int, int]] = None
 
 
 @dataclass
@@ -63,7 +67,8 @@ class DetectedFace:
         img (np.ndarray): detected face image as numpy array
         facial_area (FacialAreaRegion): detected face's metadata (e.g. bounding box)
         confidence (float): confidence score for face detection
-        """
+    """
+
     img: np.ndarray
     facial_area: FacialAreaRegion
     confidence: float
