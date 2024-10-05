@@ -6,7 +6,7 @@ import numpy as np
 # Notice that all facial detector models must be inherited from this class
 
 
-# pylint: disable=unnecessary-pass, too-few-public-methods
+# pylint: disable=unnecessary-pass, too-few-public-methods, too-many-instance-attributes
 class Detector(ABC):
     @abstractmethod
     def detect_faces(self, img: np.ndarray) -> List["FacialAreaRegion"]:
