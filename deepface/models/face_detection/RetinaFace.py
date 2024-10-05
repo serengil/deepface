@@ -42,10 +42,19 @@ class RetinaFaceClient(Detector):
             # retinaface sets left and right eyes with respect to the person
             left_eye = identity["landmarks"]["left_eye"]
             right_eye = identity["landmarks"]["right_eye"]
+            nose = identity["landmarks"].get("nose")
+            mouth_right = identity["landmarks"].get("mouth_right")
+            mouth_left = identity["landmarks"].get("mouth_left")
 
             # eyes are list of float, need to cast them tuple of int
             left_eye = tuple(int(i) for i in left_eye)
             right_eye = tuple(int(i) for i in right_eye)
+            if nose is not None:
+                nose = tuple(int(i) for i in nose)
+            if mouth_right is not None:
+                mouth_right = tuple(int(i) for i in mouth_right)
+            if mouth_left is not None:
+                mouth_left = tuple(int(i) for i in mouth_left)
 
             confidence = identity["score"]
 
@@ -57,6 +66,9 @@ class RetinaFaceClient(Detector):
                 left_eye=left_eye,
                 right_eye=right_eye,
                 confidence=confidence,
+                nose=nose,
+                mouth_left=mouth_left,
+                mouth_right=mouth_right,
             )
 
             resp.append(facial_area)
