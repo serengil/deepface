@@ -158,11 +158,11 @@ def extract_faces(
         }
 
         # optional nose, mouth_left and mouth_right fields are coming just for retinaface
-        if current_region.nose:
+        if current_region.nose is not None:
             facial_area["nose"] = current_region.nose
-        if current_region.mouth_left:
+        if current_region.mouth_left is not None:
             facial_area["mouth_left"] = current_region.mouth_left
-        if current_region.mouth_right:
+        if current_region.mouth_right is not None:
             facial_area["mouth_right"] = current_region.mouth_right
 
         resp_obj = {
