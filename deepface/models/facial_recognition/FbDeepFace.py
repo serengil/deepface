@@ -30,6 +30,7 @@ else:
         Dropout,
     )
 
+WEIGHTS_URL="https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip"
 
 # -------------------------------------
 # pylint: disable=line-too-long, too-few-public-methods
@@ -54,7 +55,7 @@ class DeepFaceClient(FacialRecognition):
 
 
 def load_model(
-    url="https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip",
+    url=WEIGHTS_URL,
 ) -> Model:
     """
     Construct DeepFace model, download its weights and load

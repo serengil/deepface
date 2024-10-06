@@ -7,11 +7,8 @@ from deepface.commons import package_utils, weight_utils
 from deepface.models.Demography import Demography
 from deepface.commons.logger import Logger
 
-logger = Logger()
-
-# --------------------------
 # pylint: disable=line-too-long
-# --------------------------
+
 # dependency configurations
 tf_version = package_utils.get_tf_major_version()
 
@@ -21,9 +18,14 @@ if tf_version == 1:
 else:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import Convolution2D, Flatten, Activation
-# --------------------------
+
+WEIGHTS_URL = (
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5"
+)
 # Labels for the ethnic phenotypes that can be detected by the model.
 labels = ["asian", "indian", "black", "white", "middle eastern", "latino hispanic"]
+
+logger = Logger()
 
 # pylint: disable=too-few-public-methods
 class RaceClient(Demography):
@@ -42,7 +44,7 @@ class RaceClient(Demography):
 
 
 def load_model(
-    url="https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5",
+    url=WEIGHTS_URL,
 ) -> Model:
     """
     Construct race model, download its weights and load
@@ -69,8 +71,6 @@ def load_model(
         file_name="race_model_single_batch.h5", source_url=url
     )
 
-    race_model = weight_utils.load_model_weights(
-        model=race_model, weight_file=weight_file
-    )
+    race_model = weight_utils.load_model_weights(model=race_model, weight_file=weight_file)
 
     return race_model

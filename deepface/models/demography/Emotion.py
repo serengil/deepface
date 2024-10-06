@@ -7,11 +7,6 @@ from deepface.commons import package_utils, weight_utils
 from deepface.models.Demography import Demography
 from deepface.commons.logger import Logger
 
-logger = Logger()
-
-# -------------------------------------------
-# pylint: disable=line-too-long
-# -------------------------------------------
 # dependency configuration
 tf_version = package_utils.get_tf_major_version()
 
@@ -28,12 +23,17 @@ else:
         Dense,
         Dropout,
     )
-# -------------------------------------------
 
 # Labels for the emotions that can be detected by the model.
 labels = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
 
-# pylint: disable=too-few-public-methods
+logger = Logger()
+
+# pylint: disable=line-too-long, disable=too-few-public-methods
+
+WEIGHTS_URL = "https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5"
+
+
 class EmotionClient(Demography):
     """
     Emotion model class
@@ -56,7 +56,7 @@ class EmotionClient(Demography):
 
 
 def load_model(
-    url="https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5",
+    url=WEIGHTS_URL,
 ) -> Sequential:
     """
     Consruct emotion model, download and load weights
@@ -96,8 +96,6 @@ def load_model(
         file_name="facial_expression_model_weights.h5", source_url=url
     )
 
-    model = weight_utils.load_model_weights(
-        model=model, weight_file=weight_file
-    )
+    model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
 
     return model

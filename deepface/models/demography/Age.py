@@ -23,6 +23,10 @@ else:
 
 # ----------------------------------------
 
+WEIGHTS_URL = (
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/age_model_weights.h5"
+)
+
 # pylint: disable=too-few-public-methods
 class ApparentAgeClient(Demography):
     """
@@ -41,7 +45,7 @@ class ApparentAgeClient(Demography):
 
 
 def load_model(
-    url="https://github.com/serengil/deepface_models/releases/download/v1.0/age_model_weights.h5",
+    url=WEIGHTS_URL,
 ) -> Model:
     """
     Construct age model, download its weights and load
@@ -70,11 +74,10 @@ def load_model(
         file_name="age_model_weights.h5", source_url=url
     )
 
-    age_model = weight_utils.load_model_weights(
-        model=age_model, weight_file=weight_file
-    )
+    age_model = weight_utils.load_model_weights(model=age_model, weight_file=weight_file)
 
     return age_model
+
 
 def find_apparent_age(age_predictions: np.ndarray) -> np.float64:
     """

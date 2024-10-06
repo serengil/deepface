@@ -13,6 +13,8 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
+WEIGHTS_URL = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
+
 
 class YuNetClient(Detector):
     def __init__(self):
@@ -41,7 +43,7 @@ class YuNetClient(Detector):
         # pylint: disable=C0301
         weight_file = weight_utils.download_weights_if_necessary(
             file_name="face_detection_yunet_2023mar.onnx",
-            source_url="https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx",
+            source_url=WEIGHTS_URL,
         )
 
         try:
