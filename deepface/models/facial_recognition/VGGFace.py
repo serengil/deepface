@@ -38,6 +38,10 @@ else:
 
 # ---------------------------------------
 
+WEIGHTS_URL = (
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.h5"
+)
+
 # pylint: disable=too-few-public-methods
 class VggFaceClient(FacialRecognition):
     """
@@ -126,7 +130,7 @@ def base_model() -> Sequential:
 
 
 def load_model(
-    url="https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.h5",
+    url=WEIGHTS_URL,
 ) -> Model:
     """
     Final VGG-Face model being used for finding embeddings

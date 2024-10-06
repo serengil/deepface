@@ -16,6 +16,9 @@ logger = Logger()
 
 # pylint: disable=line-too-long, c-extension-no-member
 
+MODEL_URL = "https://github.com/opencv/opencv/raw/3.4.0/samples/dnn/face_detector/deploy.prototxt"
+WEIGHTS_URL = "https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel"
+
 
 class SsdClient(Detector):
     def __init__(self):
@@ -31,13 +34,13 @@ class SsdClient(Detector):
         # model structure
         output_model = weight_utils.download_weights_if_necessary(
             file_name="deploy.prototxt",
-            source_url="https://github.com/opencv/opencv/raw/3.4.0/samples/dnn/face_detector/deploy.prototxt",
+            source_url=MODEL_URL,
         )
 
         # pre-trained weights
         output_weights = weight_utils.download_weights_if_necessary(
             file_name="res10_300x300_ssd_iter_140000.caffemodel",
-            source_url="https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel",
+            source_url=WEIGHTS_URL,
         )
 
         try:

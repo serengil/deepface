@@ -11,6 +11,7 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
+WEIGHTS_URL="http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2"
 
 class DlibClient(Detector):
     def __init__(self):
@@ -34,7 +35,7 @@ class DlibClient(Detector):
         # check required file exists in the home/.deepface/weights folder
         weight_file = weight_utils.download_weights_if_necessary(
             file_name="shape_predictor_5_face_landmarks.dat",
-            source_url="http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2",
+            source_url=WEIGHTS_URL,
             compress_type="bz2",
         )
 

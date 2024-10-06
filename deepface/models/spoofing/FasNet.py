@@ -12,6 +12,9 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # pylint: disable=line-too-long, too-few-public-methods, nested-min-max
+FIRST_WEIGHTS_URL="https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/2.7_80x80_MiniFASNetV2.pth"
+SECOND_WEIGHTS_URL="https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/4_0_0_80x80_MiniFASNetV1SE.pth"
+
 class Fasnet:
     """
     Mini Face Anti Spoofing Net Library from repo: github.com/minivision-ai/Silent-Face-Anti-Spoofing
@@ -35,12 +38,12 @@ class Fasnet:
         # download pre-trained models if not installed yet
         first_model_weight_file = weight_utils.download_weights_if_necessary(
             file_name="2.7_80x80_MiniFASNetV2.pth",
-            source_url="https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/2.7_80x80_MiniFASNetV2.pth",
+            source_url=FIRST_WEIGHTS_URL,
         )
 
         second_model_weight_file = weight_utils.download_weights_if_necessary(
             file_name="4_0_0_80x80_MiniFASNetV1SE.pth",
-            source_url="https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/4_0_0_80x80_MiniFASNetV1SE.pth",
+            source_url=SECOND_WEIGHTS_URL,
         )
 
         # guarantees Fasnet imported and torch installed

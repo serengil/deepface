@@ -11,6 +11,7 @@ import gdown
 from deepface.commons import folder_utils, package_utils
 from deepface.commons.logger import Logger
 
+
 tf_version = package_utils.get_tf_major_version()
 if tf_version == 1:
     from keras.models import Sequential
@@ -19,39 +20,7 @@ else:
 
 logger = Logger()
 
-# pylint: disable=line-too-long
-WEIGHTS = {
-    "facial_recognition": {
-        "VGG-Face": "https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.h5",
-        "Facenet": "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.h5",
-        "Facenet512": "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.h5",
-        "OpenFace": "https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5",
-        "FbDeepFace": "https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip",
-        "ArcFace": "https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.h5",
-        "DeepID": "https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_keras_weights.h5",
-        "SFace": "https://github.com/opencv/opencv_zoo/raw/main/models/face_recognition_sface/face_recognition_sface_2021dec.onnx",
-        "GhostFaceNet": "https://github.com/HamadYA/GhostFaceNets/releases/download/v1.2/GhostFaceNet_W1.3_S1_ArcFace.h5",
-        "Dlib": "http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2",
-    },
-    "demography": {
-        "Age": "https://github.com/serengil/deepface_models/releases/download/v1.0/age_model_weights.h5",
-        "Gender": "https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.h5",
-        "Emotion": "https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5",
-        "Race": "https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5",
-    },
-    "detection": {
-        "ssd_model": "https://github.com/opencv/opencv/raw/3.4.0/samples/dnn/face_detector/deploy.prototxt",
-        "ssd_weights": "https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel",
-        "yolo": "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb",
-        "yunet": "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx",
-        "dlib": "http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2",
-        "centerface": "https://github.com/Star-Clouds/CenterFace/raw/master/models/onnx/centerface.onnx",
-    },
-    "spoofing": {
-        "MiniFASNetV2": "https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/2.7_80x80_MiniFASNetV2.pth",
-        "MiniFASNetV1SE": "https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/4_0_0_80x80_MiniFASNetV1SE.pth",
-    },
-}
+# pylint: disable=line-too-long, use-maxsplit-arg
 
 ALLOWED_COMPRESS_TYPES = ["zip", "bz2"]
 
@@ -131,18 +100,96 @@ def load_model_weights(model: Sequential, weight_file: str) -> Sequential:
     return model
 
 
-def retrieve_model_source(model_name: str, task: str) -> str:
+def download_all_models_in_one_shot() -> None:
     """
-    Find the source url of a given model name
-    Args:
-        model_name (str): given model name
-    Returns:
-        weight_url (str): source url of the given model
+    Download all model weights in one shot
     """
-    if task not in ["facial_recognition", "detection", "demography", "spoofing"]:
-        raise ValueError(f"unimplemented task - {task}")
 
-    source_url = WEIGHTS.get(task, {}).get(model_name)
-    if source_url is None:
-        raise ValueError(f"Source url cannot be found for given model {task}-{model_name}")
-    return source_url
+    # weight urls as variables
+    from deepface.models.facial_recognition.VGGFace import WEIGHTS_URL as VGGFACE_WEIGHTS
+    from deepface.models.facial_recognition.Facenet import FACENET128_WEIGHTS, FACENET512_WEIGHTS
+    from deepface.models.facial_recognition.OpenFace import WEIGHTS_URL as OPENFACE_WEIGHTS
+    from deepface.models.facial_recognition.FbDeepFace import WEIGHTS_URL as FBDEEPFACE_WEIGHTS
+    from deepface.models.facial_recognition.ArcFace import WEIGHTS_URL as ARCFACE_WEIGHTS
+    from deepface.models.facial_recognition.DeepID import WEIGHTS_URL as DEEPID_WEIGHTS
+    from deepface.models.facial_recognition.SFace import WEIGHTS_URL as SFACE_WEIGHTS
+    from deepface.models.facial_recognition.GhostFaceNet import WEIGHTS_URL as GHOSTFACENET_WEIGHTS
+    from deepface.models.facial_recognition.Dlib import WEIGHT_URL as DLIB_FR_WEIGHTS
+    from deepface.models.demography.Age import WEIGHTS_URL as AGE_WEIGHTS
+    from deepface.models.demography.Gender import WEIGHTS_URL as GENDER_WEIGHTS
+    from deepface.models.demography.Race import WEIGHTS_URL as RACE_WEIGHTS
+    from deepface.models.demography.Emotion import WEIGHTS_URL as EMOTION_WEIGHTS
+    from deepface.models.spoofing.FasNet import (
+        FIRST_WEIGHTS_URL as FASNET_1ST_WEIGHTS,
+        SECOND_WEIGHTS_URL as FASNET_2ND_WEIGHTS,
+    )
+    from deepface.models.face_detection.Ssd import (
+        MODEL_URL as SSD_MODEL,
+        WEIGHTS_URL as SSD_WEIGHTS,
+    )
+    from deepface.models.face_detection.Yolo import (
+        WEIGHT_URL as YOLOV8_WEIGHTS,
+        WEIGHT_NAME as YOLOV8_WEIGHT_NAME,
+    )
+    from deepface.models.face_detection.YuNet import WEIGHTS_URL as YUNET_WEIGHTS
+    from deepface.models.face_detection.Dlib import WEIGHTS_URL as DLIB_FD_WEIGHTS
+    from deepface.models.face_detection.CenterFace import WEIGHTS_URL as CENTERFACE_WEIGHTS
+
+    WEIGHTS = [
+        # facial recognition
+        VGGFACE_WEIGHTS,
+        FACENET128_WEIGHTS,
+        FACENET512_WEIGHTS,
+        OPENFACE_WEIGHTS,
+        FBDEEPFACE_WEIGHTS,
+        ARCFACE_WEIGHTS,
+        DEEPID_WEIGHTS,
+        SFACE_WEIGHTS,
+        {
+            "filename": "ghostfacenet_v1.h5",
+            "url": GHOSTFACENET_WEIGHTS,
+        },
+        DLIB_FR_WEIGHTS,
+        # demography
+        AGE_WEIGHTS,
+        GENDER_WEIGHTS,
+        RACE_WEIGHTS,
+        EMOTION_WEIGHTS,
+        # spoofing
+        FASNET_1ST_WEIGHTS,
+        FASNET_2ND_WEIGHTS,
+        # face detection
+        SSD_MODEL,
+        SSD_WEIGHTS,
+        {
+            "filename": YOLOV8_WEIGHT_NAME,
+            "url": YOLOV8_WEIGHTS,
+        },
+        YUNET_WEIGHTS,
+        DLIB_FD_WEIGHTS,
+        CENTERFACE_WEIGHTS,
+    ]
+
+    for i in WEIGHTS:
+        if isinstance(i, str):
+            url = i
+            filename = i.split("/")[-1]
+            compress_type = None
+            # if compressed file will be downloaded, get rid of its extension
+            if filename.endswith(tuple(ALLOWED_COMPRESS_TYPES)):
+                for ext in ALLOWED_COMPRESS_TYPES:
+                    compress_type = ext
+                    if filename.endswith(f".{ext}"):
+                        filename = filename[: -(len(ext) + 1)]
+                        break
+        elif isinstance(i, dict):
+            filename = i["filename"]
+            url = i["url"]
+        else:
+            raise ValueError("unimplemented scenario")
+        logger.info(
+            f"Downloading {url} to ~/.deepface/weights/{filename} with {compress_type} compression"
+        )
+        download_weights_if_necessary(
+            file_name=filename, source_url=url, compress_type=compress_type
+        )

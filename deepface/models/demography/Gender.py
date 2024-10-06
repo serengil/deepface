@@ -21,7 +21,8 @@ if tf_version == 1:
 else:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import Convolution2D, Flatten, Activation
-# -------------------------------------
+
+WEIGHTS_URL="https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.h5"
 
 # Labels for the genders that can be detected by the model.
 labels = ["Woman", "Man"]
@@ -43,7 +44,7 @@ class GenderClient(Demography):
 
 
 def load_model(
-    url="https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.h5",
+    url=WEIGHTS_URL,
 ) -> Model:
     """
     Construct gender model, download its weights and load

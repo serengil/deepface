@@ -24,6 +24,8 @@ else:
 
 # pylint: disable=unnecessary-lambda
 
+WEIGHTS_URL="https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5"
+
 # ---------------------------------------
 
 # pylint: disable=too-few-public-methods
@@ -40,7 +42,7 @@ class OpenFaceClient(FacialRecognition):
 
 
 def load_model(
-    url="https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5",
+    url=WEIGHTS_URL,
 ) -> Model:
     """
     Consturct OpenFace model, download its weights and load
