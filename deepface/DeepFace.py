@@ -323,18 +323,18 @@ def find(
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
-        results (List[pd.DataFrame] or List[List[Dict[str, Any]]]): 
+        results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
             A list of pandas dataframes (if `batched=False`) or
             a list of dicts (if `batched=True`).
             Each dataframe or dict corresponds to the identity information for
             an individual detected in the source image.
 
             Note: If you have a large database and/or a source photo with many faces,
-            use `batched=True`, as it is optimized for large batch processing. 
-            Please pay attention that when using `batched=True`, the function returns 
+            use `batched=True`, as it is optimized for large batch processing.
+            Please pay attention that when using `batched=True`, the function returns
             a list of dicts (not a list of DataFrames),
             but with the same keys as the columns in the DataFrame.
-            
+
             The DataFrame columns or dict keys include:
 
             - 'identity': Identity label of the detected individual.
@@ -364,7 +364,7 @@ def find(
         silent=silent,
         refresh_database=refresh_database,
         anti_spoofing=anti_spoofing,
-        batched=batched
+        batched=batched,
     )
 
 

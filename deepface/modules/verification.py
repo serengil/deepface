@@ -263,14 +263,16 @@ def __extract_faces_and_embeddings(
 
 def find_cosine_distance(
     source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]
-) -> np.float64:
+) -> Union[np.float64, np.ndarray]:
     """
     Find cosine distance between two given vectors
     Args:
         source_representation (np.ndarray or list): 1st vector
         test_representation (np.ndarray or list): 2nd vector
     Returns
-        distance (np.float64): calculated cosine distance
+        distance (np.float64 or np.ndarray): calculated cosine distance(s).
+            it is type of np.float64 for given single embeddings
+            or type of np.ndarray for given batch embeddings
     """
     if isinstance(source_representation, list):
         source_representation = np.array(source_representation)
@@ -278,22 +280,41 @@ def find_cosine_distance(
     if isinstance(test_representation, list):
         test_representation = np.array(test_representation)
 
-    a = np.dot(source_representation, test_representation)
-    b = np.linalg.norm(source_representation)
-    c = np.linalg.norm(test_representation)
-    return 1 - a / (b * c)
+    if len(source_representation.shape) == 1 and len(test_representation.shape) == 1:
+        # single embedding
+        a = np.dot(source_representation, test_representation)
+        b = np.linalg.norm(source_representation)
+        c = np.linalg.norm(test_representation)
+        distances = 1 - a / (b * c)
+    elif len(source_representation.shape) == 2 and len(test_representation.shape) == 2:
+        # list of embeddings (batch)
+        # source_representation's shape is (N, D)
+        # test_representation's shape is (M, D)
+        # distances' shape is (M, N)
+        source_embeddings_norm = l2_normalize(source_representation, axis=1)
+        test_embeddings_norm = l2_normalize(test_representation, axis=1)
+        cosine_similarities = np.dot(test_embeddings_norm, source_embeddings_norm.T)
+        distances = 1 - cosine_similarities
+    else:
+        raise ValueError(
+            "embeddings can either be 1 or 2 dimensional "
+            f"but it is {len(source_representation.shape)} & {len(test_representation.shape)}"
+        )
+    return distances
 
 
 def find_euclidean_distance(
     source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]
-) -> np.float64:
+) -> Union[np.float64, np.ndarray]:
     """
     Find euclidean distance between two given vectors
     Args:
         source_representation (np.ndarray or list): 1st vector
         test_representation (np.ndarray or list): 2nd vector
     Returns
-        distance (np.float64): calculated euclidean distance
+        distance (np.float64 or np.ndarray): calculated euclidean distance(s).
+            it is type of np.float64 for given single embeddings
+            or type of np.ndarray for given batch embeddings
     """
     if isinstance(source_representation, list):
         source_representation = np.array(source_representation)
@@ -301,7 +322,23 @@ def find_euclidean_distance(
     if isinstance(test_representation, list):
         test_representation = np.array(test_representation)
 
-    return np.linalg.norm(source_representation - test_representation)
+    if len(source_representation.shape) == 1 and len(test_representation.shape) == 1:
+        # single embedding
+        diff = source_representation - test_representation
+        distances = np.linalg.norm(diff)
+    elif len(source_representation.shape) == 2 and len(test_representation.shape) == 2:
+        # list of embeddings (batch)
+        # source_representation's shape is (N, D)
+        # test_representation's shape is (M, D)
+        # distances' shape is (M, N)
+        diff = source_representation[None, :, :] - test_representation[:, None, :]  # (M, N, D)
+        distances = np.linalg.norm(diff, axis=2)  # (M, N)
+    else:
+        raise ValueError(
+            "embeddings can either be 1 or 2 dimensional "
+            f"but it is {len(source_representation.shape)} & {len(test_representation.shape)}"
+        )
+    return distances
 
 
 def l2_normalize(
@@ -325,22 +362,41 @@ def find_distance(
     alpha_embedding: Union[np.ndarray, list],
     beta_embedding: Union[np.ndarray, list],
     distance_metric: str,
-) -> np.float64:
+) -> Union[np.float64, np.ndarray]:
     """
     Wrapper to find distance between vectors according to the given distance metric
     Args:
         source_representation (np.ndarray or list): 1st vector
         test_representation (np.ndarray or list): 2nd vector
     Returns
-        distance (np.float64): calculated cosine distance
+        distance (np.float64 or np.ndarray): calculated cosine distance(s).
+            it is type of np.float64 for given single embeddings
+            or type of np.ndarray for given batch embeddings
     """
+    if isinstance(alpha_embedding, list):
+        alpha_embedding = np.array(alpha_embedding)
+
+    if isinstance(beta_embedding, list):
+        beta_embedding = np.array(beta_embedding)
+
     if distance_metric == "cosine":
         distance = find_cosine_distance(alpha_embedding, beta_embedding)
     elif distance_metric == "euclidean":
         distance = find_euclidean_distance(alpha_embedding, beta_embedding)
     elif distance_metric == "euclidean_l2":
+        if len(alpha_embedding.shape) == 1 and len(beta_embedding.shape) == 1:
+            # single embedding
+            axis = None
+        elif len(alpha_embedding.shape) == 2 and len(beta_embedding.shape) == 2:
+            # list of embeddings (batch)
+            axis = 1
+        else:
+            raise ValueError(
+                "embeddings can either be 1 or 2 dimensional "
+                f"but it is {len(alpha_embedding.shape)} & {len(beta_embedding.shape)}"
+            )
         distance = find_euclidean_distance(
-            l2_normalize(alpha_embedding), l2_normalize(beta_embedding)
+            l2_normalize(alpha_embedding, axis=axis), l2_normalize(beta_embedding, axis=axis)
         )
     else:
         raise ValueError("Invalid distance_metric passed - ", distance_metric)

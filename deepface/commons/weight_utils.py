@@ -105,7 +105,7 @@ def download_all_models_in_one_shot() -> None:
     Download all model weights in one shot
     """
 
-    # weight urls as variables
+    # import model weights from module here to avoid circular import issue
     from deepface.models.facial_recognition.VGGFace import WEIGHTS_URL as VGGFACE_WEIGHTS
     from deepface.models.facial_recognition.Facenet import FACENET128_WEIGHTS, FACENET512_WEIGHTS
     from deepface.models.facial_recognition.OpenFace import WEIGHTS_URL as OPENFACE_WEIGHTS
