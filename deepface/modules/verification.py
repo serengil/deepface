@@ -265,40 +265,34 @@ def find_cosine_distance(
     source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]
 ) -> Union[np.float64, np.ndarray]:
     """
-    Find cosine distance between two given vectors
+    Find cosine distance between two given vectors or batches of vectors.
     Args:
-        source_representation (np.ndarray or list): 1st vector
-        test_representation (np.ndarray or list): 2nd vector
+        source_representation (np.ndarray or list): 1st vector or batch of vectors.
+        test_representation (np.ndarray or list): 2nd vector or batch of vectors.
     Returns
-        distance (np.float64 or np.ndarray): calculated cosine distance(s).
-            it is type of np.float64 for given single embeddings
-            or type of np.ndarray for given batch embeddings
+        np.float64 or np.ndarray: Calculated cosine distance(s).
+        It returns a np.float64 for single embeddings and np.ndarray for batch embeddings.
     """
-    if isinstance(source_representation, list):
-        source_representation = np.array(source_representation)
+    # Convert inputs to numpy arrays if necessary
+    source_representation = np.asarray(source_representation)
+    test_representation = np.asarray(test_representation)
 
-    if isinstance(test_representation, list):
-        test_representation = np.array(test_representation)
-
-    if len(source_representation.shape) == 1 and len(test_representation.shape) == 1:
+    if source_representation.ndim == 1 and test_representation.ndim == 1:
         # single embedding
-        a = np.dot(source_representation, test_representation)
-        b = np.linalg.norm(source_representation)
-        c = np.linalg.norm(test_representation)
-        distances = 1 - a / (b * c)
-    elif len(source_representation.shape) == 2 and len(test_representation.shape) == 2:
+        dot_product = np.dot(source_representation, test_representation)
+        source_norm = np.linalg.norm(source_representation)
+        test_norm = np.linalg.norm(test_representation)
+        distances = 1 - dot_product / (source_norm * test_norm)
+    elif source_representation.ndim == 2 and test_representation.ndim == 2:
         # list of embeddings (batch)
-        # source_representation's shape is (N, D)
-        # test_representation's shape is (M, D)
-        # distances' shape is (M, N)
-        source_embeddings_norm = l2_normalize(source_representation, axis=1)
-        test_embeddings_norm = l2_normalize(test_representation, axis=1)
-        cosine_similarities = np.dot(test_embeddings_norm, source_embeddings_norm.T)
+        source_normed = l2_normalize(source_representation, axis=1)  # (N, D)
+        test_normed = l2_normalize(test_representation, axis=1)  # (M, D)
+        cosine_similarities = np.dot(test_normed, source_normed.T)  # (M, N)
         distances = 1 - cosine_similarities
     else:
         raise ValueError(
-            "embeddings can either be 1 or 2 dimensional "
-            f"but it is {len(source_representation.shape)} & {len(test_representation.shape)}"
+            f"Embeddings must be 1D or 2D, but received "
+            f"source shape: {source_representation.shape}, test shape: {test_representation.shape}"
         )
     return distances
 
@@ -307,36 +301,33 @@ def find_euclidean_distance(
     source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]
 ) -> Union[np.float64, np.ndarray]:
     """
-    Find euclidean distance between two given vectors
+    Find Euclidean distance between two vectors or batches of vectors.
+
     Args:
-        source_representation (np.ndarray or list): 1st vector
-        test_representation (np.ndarray or list): 2nd vector
-    Returns
-        distance (np.float64 or np.ndarray): calculated euclidean distance(s).
-            it is type of np.float64 for given single embeddings
-            or type of np.ndarray for given batch embeddings
+        source_representation (np.ndarray or list): 1st vector or batch of vectors.
+        test_representation (np.ndarray or list): 2nd vector or batch of vectors.
+
+    Returns:
+        np.float64 or np.ndarray: Euclidean distance(s).
+            Returns a np.float64 for single embeddings and np.ndarray for batch embeddings.
     """
-    if isinstance(source_representation, list):
-        source_representation = np.array(source_representation)
+    # Convert inputs to numpy arrays if necessary
+    source_representation = np.asarray(source_representation)
+    test_representation = np.asarray(test_representation)
 
-    if isinstance(test_representation, list):
-        test_representation = np.array(test_representation)
-
-    if len(source_representation.shape) == 1 and len(test_representation.shape) == 1:
-        # single embedding
-        diff = source_representation - test_representation
-        distances = np.linalg.norm(diff)
-    elif len(source_representation.shape) == 2 and len(test_representation.shape) == 2:
-        # list of embeddings (batch)
-        # source_representation's shape is (N, D)
-        # test_representation's shape is (M, D)
-        # distances' shape is (M, N)
-        diff = source_representation[None, :, :] - test_representation[:, None, :]  # (M, N, D)
+    # Single embedding case (1D arrays)
+    if source_representation.ndim == 1 and test_representation.ndim == 1:
+        distances = np.linalg.norm(source_representation - test_representation)
+    # Batch embeddings case (2D arrays)
+    elif source_representation.ndim == 2 and test_representation.ndim == 2:
+        diff = (
+            source_representation[None, :, :] - test_representation[:, None, :]
+        )  # (N, D) - (M, D)  = (M, N, D)
         distances = np.linalg.norm(diff, axis=2)  # (M, N)
     else:
         raise ValueError(
-            "embeddings can either be 1 or 2 dimensional "
-            f"but it is {len(source_representation.shape)} & {len(test_representation.shape)}"
+            f"Embeddings must be 1D or 2D, but received "
+            f"source shape: {source_representation.shape}, test shape: {test_representation.shape}"
         )
     return distances
 
@@ -352,8 +343,8 @@ def l2_normalize(
     Returns:
         np.ndarray: l2 normalized vector
     """
-    if isinstance(x, list):
-        x = np.array(x)
+    # Convert inputs to numpy arrays if necessary
+    x = np.asarray(x)
     norm = np.linalg.norm(x, axis=axis, keepdims=True)
     return x / (norm + epsilon)
 
@@ -364,40 +355,37 @@ def find_distance(
     distance_metric: str,
 ) -> Union[np.float64, np.ndarray]:
     """
-    Wrapper to find distance between vectors according to the given distance metric
-    Args:
-        source_representation (np.ndarray or list): 1st vector
-        test_representation (np.ndarray or list): 2nd vector
-    Returns
-        distance (np.float64 or np.ndarray): calculated cosine distance(s).
-            it is type of np.float64 for given single embeddings
-            or type of np.ndarray for given batch embeddings
-    """
-    if isinstance(alpha_embedding, list):
-        alpha_embedding = np.array(alpha_embedding)
+    Wrapper to find the distance between vectors based on the specified distance metric.
 
-    if isinstance(beta_embedding, list):
-        beta_embedding = np.array(beta_embedding)
+    Args:
+        alpha_embedding (np.ndarray or list): 1st vector or batch of vectors.
+        beta_embedding (np.ndarray or list): 2nd vector or batch of vectors.
+        distance_metric (str): The type of distance to compute
+            ('cosine', 'euclidean', or 'euclidean_l2').
+
+    Returns:
+        np.float64 or np.ndarray: The calculated distance(s).
+    """
+    # Convert inputs to numpy arrays if necessary
+    alpha_embedding = np.asarray(alpha_embedding)
+    beta_embedding = np.asarray(beta_embedding)
+
+    # Ensure that both embeddings are either 1D or 2D
+    if alpha_embedding.ndim != beta_embedding.ndim or alpha_embedding.ndim not in (1, 2):
+        raise ValueError(
+            f"Both embeddings must be either 1D or 2D, but received "
+            f"alpha shape: {alpha_embedding.shape}, beta shape: {beta_embedding.shape}"
+        )
 
     if distance_metric == "cosine":
         distance = find_cosine_distance(alpha_embedding, beta_embedding)
     elif distance_metric == "euclidean":
         distance = find_euclidean_distance(alpha_embedding, beta_embedding)
     elif distance_metric == "euclidean_l2":
-        if len(alpha_embedding.shape) == 1 and len(beta_embedding.shape) == 1:
-            # single embedding
-            axis = None
-        elif len(alpha_embedding.shape) == 2 and len(beta_embedding.shape) == 2:
-            # list of embeddings (batch)
-            axis = 1
-        else:
-            raise ValueError(
-                "embeddings can either be 1 or 2 dimensional "
-                f"but it is {len(alpha_embedding.shape)} & {len(beta_embedding.shape)}"
-            )
-        distance = find_euclidean_distance(
-            l2_normalize(alpha_embedding, axis=axis), l2_normalize(beta_embedding, axis=axis)
-        )
+        axis = None if alpha_embedding.ndim == 1 else 1
+        normalized_alpha = l2_normalize(alpha_embedding, axis=axis)
+        normalized_beta = l2_normalize(beta_embedding, axis=axis)
+        distance = find_euclidean_distance(normalized_alpha, normalized_beta)
     else:
         raise ValueError("Invalid distance_metric passed - ", distance_metric)
     return np.round(distance, 6)
