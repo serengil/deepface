@@ -13,6 +13,7 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
+# pylint:disable=line-too-long
 WEIGHTS_URL = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
 
 

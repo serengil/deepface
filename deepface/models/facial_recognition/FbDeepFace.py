@@ -30,10 +30,9 @@ else:
         Dropout,
     )
 
+# pylint: disable=line-too-long, too-few-public-methods
 WEIGHTS_URL="https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip"
 
-# -------------------------------------
-# pylint: disable=line-too-long, too-few-public-methods
 class DeepFaceClient(FacialRecognition):
     """
     Fb's DeepFace model class

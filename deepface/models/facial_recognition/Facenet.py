@@ -39,8 +39,13 @@ else:
     from tensorflow.keras.layers import add
     from tensorflow.keras import backend as K
 
-FACENET128_WEIGHTS="https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.h5"
-FACENET512_WEIGHTS="https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.h5"
+# pylint:disable=line-too-long
+FACENET128_WEIGHTS = (
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.h5"
+)
+FACENET512_WEIGHTS = (
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.h5"
+)
 
 # --------------------------------
 
@@ -1671,9 +1676,7 @@ def load_facenet128d_model(
     weight_file = weight_utils.download_weights_if_necessary(
         file_name="facenet_weights.h5", source_url=url
     )
-    model = weight_utils.load_model_weights(
-        model=model, weight_file=weight_file
-    )
+    model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
 
     return model
 
@@ -1692,8 +1695,6 @@ def load_facenet512d_model(
     weight_file = weight_utils.download_weights_if_necessary(
         file_name="facenet512_weights.h5", source_url=url
     )
-    model = weight_utils.load_model_weights(
-        model=model, weight_file=weight_file
-    )
+    model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
 
     return model
