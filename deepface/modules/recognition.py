@@ -78,18 +78,18 @@ def find(
 
 
     Returns:
-        results (List[pd.DataFrame] or List[List[Dict[str, Any]]]): 
+        results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
             A list of pandas dataframes (if `batched=False`) or
             a list of dicts (if `batched=True`).
             Each dataframe or dict corresponds to the identity information for
             an individual detected in the source image.
 
             Note: If you have a large database and/or a source photo with many faces,
-            use `batched=True`, as it is optimized for large batch processing. 
-            Please pay attention that when using `batched=True`, the function returns 
+            use `batched=True`, as it is optimized for large batch processing.
+            Please pay attention that when using `batched=True`, the function returns
             a list of dicts (not a list of DataFrames),
             but with the same keys as the columns in the DataFrame.
-            
+
             The DataFrame columns or dict keys include:
 
             - 'identity': Identity label of the detected individual.
@@ -266,7 +266,7 @@ def find(
             align,
             threshold,
             normalization,
-            anti_spoofing
+            anti_spoofing,
         )
 
     df = pd.DataFrame(representations)
@@ -441,6 +441,7 @@ def __find_bulk_embeddings(
 
     return representations
 
+
 def find_batched(
     representations: List[Dict[str, Any]],
     source_objs: List[Dict[str, Any]],
@@ -459,11 +460,11 @@ def find_batched(
     The function uses batch processing for efficient computation of distances.
 
     Args:
-        representations (List[Dict[str, Any]]): 
-            A list of dictionaries containing precomputed target embeddings and associated metadata. 
+        representations (List[Dict[str, Any]]):
+            A list of dictionaries containing precomputed target embeddings and associated metadata.
             Each dictionary should have at least the key `embedding`.
-        
-        source_objs (List[Dict[str, Any]]): 
+
+        source_objs (List[Dict[str, Any]]):
             A list of dictionaries representing the source images to compare against
             the target embeddings. Each dictionary should contain:
                 - `face`: The image data or path to the source face image.
@@ -471,7 +472,7 @@ def find_batched(
                    indicating the facial region.
                 - Optionally, `is_real`: A boolean indicating if the face is real
                   (used for anti-spoofing).
-        
+
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
@@ -499,7 +500,7 @@ def find_batched(
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
-        List[List[Dict[str, Any]]]: 
+        List[List[Dict[str, Any]]]:
             A list where each element corresponds to a source face and
             contains a list of dictionaries with matching faces.
     """
@@ -508,27 +509,24 @@ def find_batched(
     metadata = set()
 
     for item in representations:
-        emb = item.get('embedding')
+        emb = item.get("embedding")
         if emb is not None:
             embeddings_list.append(emb)
             valid_mask.append(True)
         else:
-            embeddings_list.append(np.zeros_like(representations[0]['embedding']))
+            embeddings_list.append(np.zeros_like(representations[0]["embedding"]))
             valid_mask.append(False)
 
         metadata.update(item.keys())
 
     # remove embedding key from other keys
-    metadata.discard('embedding')
+    metadata.discard("embedding")
     metadata = list(metadata)
 
-    embeddings = np.array(embeddings_list) # (N, D)
-    valid_mask = np.array(valid_mask) # (N,)
+    embeddings = np.array(embeddings_list)  # (N, D)
+    valid_mask = np.array(valid_mask)  # (N,)
 
-    data = {
-        key: np.array([item.get(key, None) for item in representations])
-        for key in metadata
-    }
+    data = {key: np.array([item.get(key, None) for item in representations]) for key in metadata}
 
     target_embeddings = []
     source_regions = []
@@ -558,101 +556,46 @@ def find_batched(
         target_threshold = threshold or verification.find_threshold(model_name, distance_metric)
         target_thresholds.append(target_threshold)
 
-    target_embeddings = np.array(target_embeddings) # (M, D)
-    target_thresholds = np.array(target_thresholds) # (M,)
+    target_embeddings = np.array(target_embeddings)  # (M, D)
+    target_thresholds = np.array(target_thresholds)  # (M,)
     source_regions_arr = {
-        'source_x': np.array([region['x'] for region in source_regions]),
-        'source_y': np.array([region['y'] for region in source_regions]),
-        'source_w': np.array([region['w'] for region in source_regions]),
-        'source_h': np.array([region['h'] for region in source_regions]),
+        "source_x": np.array([region["x"] for region in source_regions]),
+        "source_y": np.array([region["y"] for region in source_regions]),
+        "source_w": np.array([region["w"] for region in source_regions]),
+        "source_h": np.array([region["h"] for region in source_regions]),
     }
 
-    def find_cosine_distance_batch(
-        embeddings: np.ndarray, target_embeddings: np.ndarray
-    ) -> np.ndarray:
-        """
-        Find the cosine distances between batches of embeddings
-        Args:
-            embeddings (np.ndarray): array of shape (N, D)
-            target_embeddings (np.ndarray): array of shape (M, D)
-        Returns:
-            np.ndarray: distance matrix of shape (M, N)
-        """
-        embeddings_norm = verification.l2_normalize(embeddings, axis=1)
-        target_embeddings_norm = verification.l2_normalize(target_embeddings, axis=1)
-        cosine_similarities = np.dot(target_embeddings_norm, embeddings_norm.T)
-        cosine_distances = 1 - cosine_similarities
-        return cosine_distances
-
-    def find_euclidean_distance_batch(
-        embeddings: np.ndarray, target_embeddings: np.ndarray
-    ) -> np.ndarray:
-        """
-        Find the Euclidean distances between batches of embeddings
-        Args:
-            embeddings (np.ndarray): array of shape (N, D)
-            target_embeddings (np.ndarray): array of shape (M, D)
-        Returns:
-            np.ndarray: distance matrix of shape (M, N)
-        """
-        diff = embeddings[None, :, :] - target_embeddings[:, None, :] # (M, N, D)
-        distances = np.linalg.norm(diff, axis=2) # (M, N)
-        return distances
-
-    def find_distance_batch(
-        embeddings: np.ndarray, target_embeddings: np.ndarray, distance_metric: str,
-    ) -> np.ndarray:
-        """
-        Find pairwise distances between batches of embeddings using the specified distance metric
-        Args:
-            embeddings (np.ndarray): array of shape (N, D)
-            target_embeddings (np.ndarray): array of shape (M, D)
-            distance_metric (str): distance metric ('cosine', 'euclidean', 'euclidean_l2')
-        Returns:
-            np.ndarray: distance matrix of shape (M, N)
-        """
-        if distance_metric == "cosine":
-            distances = find_cosine_distance_batch(embeddings, target_embeddings)
-        elif distance_metric == "euclidean":
-            distances = find_euclidean_distance_batch(embeddings, target_embeddings)
-        elif distance_metric == "euclidean_l2":
-            embeddings_norm = verification.l2_normalize(embeddings, axis=1)
-            target_embeddings_norm = verification.l2_normalize(target_embeddings, axis=1)
-            distances = find_euclidean_distance_batch(embeddings_norm, target_embeddings_norm)
-        else:
-            raise ValueError("Invalid distance_metric passed - ", distance_metric)
-        return np.round(distances, 6)
-
-    distances = find_distance_batch(embeddings, target_embeddings, distance_metric) # (M, N)
+    distances = verification.find_distance(embeddings, target_embeddings, distance_metric)  # (M, N)
     distances[:, ~valid_mask] = np.inf
 
     resp_obj = []
 
     for i in range(len(target_embeddings)):
-        target_distances = distances[i] # (N,)
+        target_distances = distances[i]  # (N,)
         target_threshold = target_thresholds[i]
 
         N = embeddings.shape[0]
         result_data = dict(data)
-        result_data.update({
-            'source_x': np.full(N, source_regions_arr['source_x'][i]),
-            'source_y': np.full(N, source_regions_arr['source_y'][i]),
-            'source_w': np.full(N, source_regions_arr['source_w'][i]),
-            'source_h': np.full(N, source_regions_arr['source_h'][i]),
-            'threshold': np.full(N, target_threshold),
-            'distance': target_distances,
-        })
+        result_data.update(
+            {
+                "source_x": np.full(N, source_regions_arr["source_x"][i]),
+                "source_y": np.full(N, source_regions_arr["source_y"][i]),
+                "source_w": np.full(N, source_regions_arr["source_w"][i]),
+                "source_h": np.full(N, source_regions_arr["source_h"][i]),
+                "threshold": np.full(N, target_threshold),
+                "distance": target_distances,
+            }
+        )
 
         mask = target_distances <= target_threshold
         filtered_data = {key: value[mask] for key, value in result_data.items()}
 
-        sorted_indices = np.argsort(filtered_data['distance'])
+        sorted_indices = np.argsort(filtered_data["distance"])
         sorted_data = {key: value[sorted_indices] for key, value in filtered_data.items()}
 
-        num_results = len(sorted_data['distance'])
+        num_results = len(sorted_data["distance"])
         result_dicts = [
-            {key: sorted_data[key][i] for key in sorted_data}
-            for i in range(num_results)
+            {key: sorted_data[key][i] for key in sorted_data} for i in range(num_results)
         ]
         resp_obj.append(result_dicts)
     return resp_obj
