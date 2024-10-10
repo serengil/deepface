@@ -35,7 +35,7 @@ class MediaPipeClient(Detector):
         mp_face_detection = mp.solutions.face_detection
 
         min_detection_confidence = float(os.environ.get("MEDIAPIPE_MIN_DETECTION_CONFIDENCE", 0.7))
-        model_selection = float(os.environ.get("MEDIAPIPE_MODEL_SELECTION", 0))
+        model_selection = int(os.environ.get("MEDIAPIPE_MODEL_SELECTION", 0))
 
         face_detection = mp_face_detection.FaceDetection(
             min_detection_confidence=min_detection_confidence,
