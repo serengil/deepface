@@ -1,4 +1,5 @@
 # built-in dependencies
+import os
 from typing import Any, List
 
 # 3rd party dependencies
@@ -32,7 +33,14 @@ class MediaPipeClient(Detector):
             ) from e
 
         mp_face_detection = mp.solutions.face_detection
-        face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.7)
+
+        min_detection_confidence = float(os.environ.get("MEDIAPIPE_MIN_DETECTION_CONFIDENCE", 0.7))
+        model_selection = int(os.environ.get("MEDIAPIPE_MODEL_SELECTION", 0))
+
+        face_detection = mp_face_detection.FaceDetection(
+            min_detection_confidence=min_detection_confidence,
+            model_selection=model_selection
+        )
         return face_detection
 
     def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
