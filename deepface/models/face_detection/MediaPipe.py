@@ -1,4 +1,5 @@
 # built-in dependencies
+import os
 from typing import Any, List
 
 # 3rd party dependencies
@@ -6,8 +7,6 @@ import numpy as np
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
-
-import os
 
 
 class MediaPipeClient(Detector):
@@ -34,9 +33,13 @@ class MediaPipeClient(Detector):
             ) from e
 
         mp_face_detection = mp.solutions.face_detection
+
+        min_detection_confidence = float(os.environ.get("MEDIAPIPE_MIN_DETECTION_CONFIDENCE", 0.7))
+        model_selection = float(os.environ.get("MEDIAPIPE_MODEL_SELECTION", 0))
+
         face_detection = mp_face_detection.FaceDetection(
-            min_detection_confidence=os.getenv("MEDIAPIPE_MIN_DETECTION_CONFIDENCE", 0.5),
-            model_selection=os.getenv("MEDIAPIPE_MODEL_SELECTION", 1)
+            min_detection_confidence=min_detection_confidence,
+            model_selection=model_selection
         )
         return face_detection
 
