@@ -48,7 +48,7 @@ else:
 
 
 # pylint: disable=line-too-long, too-few-public-methods, no-else-return, unsubscriptable-object, comparison-with-callable
-PRETRAINED_WEIGHTS = "https://github.com/HamadYA/GhostFaceNets/releases/download/v1.2/GhostFaceNet_W1.3_S1_ArcFace.h5"
+WEIGHTS_URL = "https://github.com/HamadYA/GhostFaceNets/releases/download/v1.2/GhostFaceNet_W1.3_S1_ArcFace.h5"
 
 
 class GhostFaceNetClient(FacialRecognition):
@@ -71,12 +71,10 @@ def load_model():
     model = GhostFaceNetV1()
 
     weight_file = weight_utils.download_weights_if_necessary(
-        file_name="ghostfacenet_v1.h5", source_url=PRETRAINED_WEIGHTS
+        file_name="ghostfacenet_v1.h5", source_url=WEIGHTS_URL
     )
 
-    model = weight_utils.load_model_weights(
-        model=model, weight_file=weight_file
-    )
+    model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
 
     return model
 

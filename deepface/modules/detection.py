@@ -148,16 +148,26 @@ def extract_faces(
         w = min(width - x - 1, int(current_region.w))
         h = min(height - y - 1, int(current_region.h))
 
+        facial_area = {
+            "x": x,
+            "y": y,
+            "w": w,
+            "h": h,
+            "left_eye": current_region.left_eye,
+            "right_eye": current_region.right_eye,
+        }
+
+        # optional nose, mouth_left and mouth_right fields are coming just for retinaface
+        if current_region.nose is not None:
+            facial_area["nose"] = current_region.nose
+        if current_region.mouth_left is not None:
+            facial_area["mouth_left"] = current_region.mouth_left
+        if current_region.mouth_right is not None:
+            facial_area["mouth_right"] = current_region.mouth_right
+
         resp_obj = {
             "face": current_img,
-            "facial_area": {
-                "x": x,
-                "y": y,
-                "w": w,
-                "h": h,
-                "left_eye": current_region.left_eye,
-                "right_eye": current_region.right_eye,
-            },
+            "facial_area": facial_area,
             "confidence": round(float(current_region.confidence or 0), 2),
         }
 
@@ -272,6 +282,9 @@ def expand_and_align_face(
     left_eye = facial_area.left_eye
     right_eye = facial_area.right_eye
     confidence = facial_area.confidence
+    nose = facial_area.nose
+    mouth_left = facial_area.mouth_left
+    mouth_right = facial_area.mouth_right
 
     if expand_percentage > 0:
         # Expand the facial region height and width by the provided percentage
@@ -305,11 +318,26 @@ def expand_and_align_face(
             left_eye = (left_eye[0] - width_border, left_eye[1] - height_border)
         if right_eye is not None:
             right_eye = (right_eye[0] - width_border, right_eye[1] - height_border)
+        if nose is not None:
+            nose = (nose[0] - width_border, nose[1] - height_border)
+        if mouth_left is not None:
+            mouth_left = (mouth_left[0] - width_border, mouth_left[1] - height_border)
+        if mouth_right is not None:
+            mouth_right = (mouth_right[0] - width_border, mouth_right[1] - height_border)
 
     return DetectedFace(
         img=detected_face,
         facial_area=FacialAreaRegion(
-            x=x, y=y, h=h, w=w, confidence=confidence, left_eye=left_eye, right_eye=right_eye
+            x=x,
+            y=y,
+            h=h,
+            w=w,
+            confidence=confidence,
+            left_eye=left_eye,
+            right_eye=right_eye,
+            nose=nose,
+            mouth_left=mouth_left,
+            mouth_right=mouth_right,
         ),
         confidence=confidence,
     )

@@ -11,6 +11,7 @@ import gdown
 from deepface.commons import folder_utils, package_utils
 from deepface.commons.logger import Logger
 
+
 tf_version = package_utils.get_tf_major_version()
 if tf_version == 1:
     from keras.models import Sequential
@@ -18,6 +19,8 @@ else:
     from tensorflow.keras.models import Sequential
 
 logger = Logger()
+
+# pylint: disable=line-too-long, use-maxsplit-arg
 
 ALLOWED_COMPRESS_TYPES = ["zip", "bz2"]
 
@@ -95,3 +98,98 @@ def load_model_weights(model: Sequential, weight_file: str) -> Sequential:
             "and copying it to the target folder."
         ) from err
     return model
+
+
+def download_all_models_in_one_shot() -> None:
+    """
+    Download all model weights in one shot
+    """
+
+    # import model weights from module here to avoid circular import issue
+    from deepface.models.facial_recognition.VGGFace import WEIGHTS_URL as VGGFACE_WEIGHTS
+    from deepface.models.facial_recognition.Facenet import FACENET128_WEIGHTS, FACENET512_WEIGHTS
+    from deepface.models.facial_recognition.OpenFace import WEIGHTS_URL as OPENFACE_WEIGHTS
+    from deepface.models.facial_recognition.FbDeepFace import WEIGHTS_URL as FBDEEPFACE_WEIGHTS
+    from deepface.models.facial_recognition.ArcFace import WEIGHTS_URL as ARCFACE_WEIGHTS
+    from deepface.models.facial_recognition.DeepID import WEIGHTS_URL as DEEPID_WEIGHTS
+    from deepface.models.facial_recognition.SFace import WEIGHTS_URL as SFACE_WEIGHTS
+    from deepface.models.facial_recognition.GhostFaceNet import WEIGHTS_URL as GHOSTFACENET_WEIGHTS
+    from deepface.models.facial_recognition.Dlib import WEIGHT_URL as DLIB_FR_WEIGHTS
+    from deepface.models.demography.Age import WEIGHTS_URL as AGE_WEIGHTS
+    from deepface.models.demography.Gender import WEIGHTS_URL as GENDER_WEIGHTS
+    from deepface.models.demography.Race import WEIGHTS_URL as RACE_WEIGHTS
+    from deepface.models.demography.Emotion import WEIGHTS_URL as EMOTION_WEIGHTS
+    from deepface.models.spoofing.FasNet import (
+        FIRST_WEIGHTS_URL as FASNET_1ST_WEIGHTS,
+        SECOND_WEIGHTS_URL as FASNET_2ND_WEIGHTS,
+    )
+    from deepface.models.face_detection.Ssd import (
+        MODEL_URL as SSD_MODEL,
+        WEIGHTS_URL as SSD_WEIGHTS,
+    )
+    from deepface.models.face_detection.Yolo import (
+        WEIGHT_URL as YOLOV8_WEIGHTS,
+        WEIGHT_NAME as YOLOV8_WEIGHT_NAME,
+    )
+    from deepface.models.face_detection.YuNet import WEIGHTS_URL as YUNET_WEIGHTS
+    from deepface.models.face_detection.Dlib import WEIGHTS_URL as DLIB_FD_WEIGHTS
+    from deepface.models.face_detection.CenterFace import WEIGHTS_URL as CENTERFACE_WEIGHTS
+
+    WEIGHTS = [
+        # facial recognition
+        VGGFACE_WEIGHTS,
+        FACENET128_WEIGHTS,
+        FACENET512_WEIGHTS,
+        OPENFACE_WEIGHTS,
+        FBDEEPFACE_WEIGHTS,
+        ARCFACE_WEIGHTS,
+        DEEPID_WEIGHTS,
+        SFACE_WEIGHTS,
+        {
+            "filename": "ghostfacenet_v1.h5",
+            "url": GHOSTFACENET_WEIGHTS,
+        },
+        DLIB_FR_WEIGHTS,
+        # demography
+        AGE_WEIGHTS,
+        GENDER_WEIGHTS,
+        RACE_WEIGHTS,
+        EMOTION_WEIGHTS,
+        # spoofing
+        FASNET_1ST_WEIGHTS,
+        FASNET_2ND_WEIGHTS,
+        # face detection
+        SSD_MODEL,
+        SSD_WEIGHTS,
+        {
+            "filename": YOLOV8_WEIGHT_NAME,
+            "url": YOLOV8_WEIGHTS,
+        },
+        YUNET_WEIGHTS,
+        DLIB_FD_WEIGHTS,
+        CENTERFACE_WEIGHTS,
+    ]
+
+    for i in WEIGHTS:
+        if isinstance(i, str):
+            url = i
+            filename = i.split("/")[-1]
+            compress_type = None
+            # if compressed file will be downloaded, get rid of its extension
+            if filename.endswith(tuple(ALLOWED_COMPRESS_TYPES)):
+                for ext in ALLOWED_COMPRESS_TYPES:
+                    compress_type = ext
+                    if filename.endswith(f".{ext}"):
+                        filename = filename[: -(len(ext) + 1)]
+                        break
+        elif isinstance(i, dict):
+            filename = i["filename"]
+            url = i["url"]
+        else:
+            raise ValueError("unimplemented scenario")
+        logger.info(
+            f"Downloading {url} to ~/.deepface/weights/{filename} with {compress_type} compression"
+        )
+        download_weights_if_necessary(
+            file_name=filename, source_url=url, compress_type=compress_type
+        )

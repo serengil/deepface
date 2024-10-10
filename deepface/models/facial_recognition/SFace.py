@@ -13,6 +13,7 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # pylint: disable=line-too-long, too-few-public-methods
+WEIGHTS_URL = "https://github.com/opencv/opencv_zoo/raw/main/models/face_recognition_sface/face_recognition_sface_2021dec.onnx"
 
 
 class SFaceClient(FacialRecognition):
@@ -47,7 +48,7 @@ class SFaceClient(FacialRecognition):
 
 
 def load_model(
-    url="https://github.com/opencv/opencv_zoo/raw/main/models/face_recognition_sface/face_recognition_sface_2021dec.onnx",
+    url=WEIGHTS_URL,
 ) -> Any:
     """
     Construct SFace model, download its weights and load
