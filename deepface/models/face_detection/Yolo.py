@@ -1,4 +1,5 @@
 # built-in dependencies
+import os
 from typing import Any, List
 
 # 3rd party dependencies
@@ -58,7 +59,12 @@ class YoloClient(Detector):
         resp = []
 
         # Detect faces
-        results = self.model.predict(img, verbose=False, show=False, conf=0.25)[0]
+        results = self.model.predict(
+            img,
+            verbose=False,
+            show=False,
+            conf=float(os.getenv("YOLO_MIN_DETECTION_CONFIDENCE", "0.25")),
+        )[0]
 
         # For each face, extract the bounding box, the landmarks and confidence
         for result in results:
