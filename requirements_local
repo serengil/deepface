@@ -2,5 +2,5 @@ numpy==1.22.3
 pandas==2.0.3
 Pillow==9.0.0
 opencv-python==4.9.0.80
-tensorflow==2.9.0
-keras==2.9.0
+tensorflow==2.13.1
+keras==2.13.1
