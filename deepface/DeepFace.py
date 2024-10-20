@@ -162,6 +162,19 @@ def verify(
         anti_spoofing=anti_spoofing,
     )
 
+def find_closest_embedding(
+    current_embedding: List[float],
+    embeddings_list: List[List[float]],
+    distance_metric: str = "cosine",
+    threshold: Optional[float] = 0.5,
+) -> Optional[int]:
+    
+    return verification.find_closest_embedding(
+        current_embedding=current_embedding,
+        embeddings_list=embeddings_list,
+        distance_metric=distance_metric,
+        threshold=threshold,
+    )
 
 def analyze(
     img_path: Union[str, np.ndarray],
