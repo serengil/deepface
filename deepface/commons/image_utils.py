@@ -127,7 +127,7 @@ def load_image_from_base64(uri: str) -> np.ndarray:
         if file_type not in {"jpeg", "png"}:
             raise ValueError(f"Input image can be jpg or png, but it is {file_type}")
 
-    nparr = np.fromstring(decoded_bytes, np.uint8)
+    nparr = np.frombuffer(decoded_bytes, np.uint8)
     img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
     return img_bgr
