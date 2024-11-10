@@ -18,8 +18,8 @@ class TestVerifyEndpoint(unittest.TestCase):
 
     def test_tp_verify(self):
         data = {
-            "img1_path": "dataset/img1.jpg",
-            "img2_path": "dataset/img2.jpg",
+            "img1": "dataset/img1.jpg",
+            "img2": "dataset/img2.jpg",
         }
         response = self.app.post("/verify", json=data)
         assert response.status_code == 200
@@ -40,8 +40,8 @@ class TestVerifyEndpoint(unittest.TestCase):
 
     def test_tn_verify(self):
         data = {
-            "img1_path": "dataset/img1.jpg",
-            "img2_path": "dataset/img2.jpg",
+            "img1": "dataset/img1.jpg",
+            "img2": "dataset/img2.jpg",
         }
         response = self.app.post("/verify", json=data)
         assert response.status_code == 200
@@ -83,14 +83,11 @@ class TestVerifyEndpoint(unittest.TestCase):
     def test_represent_encoded(self):
         image_path = "dataset/img1.jpg"
         with open(image_path, "rb") as image_file:
-            encoded_string = "data:image/jpeg;base64," + \
-                base64.b64encode(image_file.read()).decode("utf8")
+            encoded_string = "data:image/jpeg;base64," + base64.b64encode(image_file.read()).decode(
+                "utf8"
+            )
 
-        data = {
-            "model_name": "Facenet",
-            "detector_backend": "mtcnn",
-            "img": encoded_string
-        }
+        data = {"model_name": "Facenet", "detector_backend": "mtcnn", "img": encoded_string}
 
         response = self.app.post("/represent", json=data)
         assert response.status_code == 200
@@ -112,7 +109,7 @@ class TestVerifyEndpoint(unittest.TestCase):
         data = {
             "model_name": "Facenet",
             "detector_backend": "mtcnn",
-            "img": "https://github.com/serengil/deepface/blob/master/tests/dataset/couple.jpg?raw=true"
+            "img": "https://github.com/serengil/deepface/blob/master/tests/dataset/couple.jpg?raw=true",
         }
 
         response = self.app.post("/represent", json=data)
@@ -155,8 +152,9 @@ class TestVerifyEndpoint(unittest.TestCase):
     def test_analyze_inputformats(self):
         image_path = "dataset/couple.jpg"
         with open(image_path, "rb") as image_file:
-            encoded_image = "data:image/jpeg;base64," + \
-                base64.b64encode(image_file.read()).decode("utf8")
+            encoded_image = "data:image/jpeg;base64," + base64.b64encode(image_file.read()).decode(
+                "utf8"
+            )
 
         image_sources = [
             # image path
@@ -164,7 +162,7 @@ class TestVerifyEndpoint(unittest.TestCase):
             # image url
             f"https://github.com/serengil/deepface/blob/master/tests/{image_path}?raw=true",
             # encoded image
-            encoded_image
+            encoded_image,
         ]
 
         results = []
@@ -189,25 +187,38 @@ class TestVerifyEndpoint(unittest.TestCase):
                 assert i.get("dominant_emotion") is not None
                 assert i.get("dominant_race") is not None
 
-        assert len(results[0]["results"]) == len(results[1]["results"])\
-            and len(results[0]["results"]) == len(results[2]["results"])
+        assert len(results[0]["results"]) == len(results[1]["results"]) and len(
+            results[0]["results"]
+        ) == len(results[2]["results"])
 
-        for i in range(len(results[0]['results'])):
-            assert results[0]["results"][i]["dominant_emotion"] == results[1]["results"][i]["dominant_emotion"]\
-                and results[0]["results"][i]["dominant_emotion"] == results[2]["results"][i]["dominant_emotion"]
+        for i in range(len(results[0]["results"])):
+            assert (
+                results[0]["results"][i]["dominant_emotion"]
+                == results[1]["results"][i]["dominant_emotion"]
+                and results[0]["results"][i]["dominant_emotion"]
+                == results[2]["results"][i]["dominant_emotion"]
+            )
 
-            assert results[0]["results"][i]["dominant_gender"] == results[1]["results"][i]["dominant_gender"]\
-                and results[0]["results"][i]["dominant_gender"] == results[2]["results"][i]["dominant_gender"]
+            assert (
+                results[0]["results"][i]["dominant_gender"]
+                == results[1]["results"][i]["dominant_gender"]
+                and results[0]["results"][i]["dominant_gender"]
+                == results[2]["results"][i]["dominant_gender"]
+            )
 
-            assert results[0]["results"][i]["dominant_race"] == results[1]["results"][i]["dominant_race"]\
-                and results[0]["results"][i]["dominant_race"] == results[2]["results"][i]["dominant_race"]
+            assert (
+                results[0]["results"][i]["dominant_race"]
+                == results[1]["results"][i]["dominant_race"]
+                and results[0]["results"][i]["dominant_race"]
+                == results[2]["results"][i]["dominant_race"]
+            )
 
         logger.info("✅ different inputs test is done")
 
     def test_invalid_verify(self):
         data = {
-            "img1_path": "dataset/invalid_1.jpg",
-            "img2_path": "dataset/invalid_2.jpg",
+            "img1": "dataset/invalid_1.jpg",
+            "img2": "dataset/invalid_2.jpg",
         }
         response = self.app.post("/verify", json=data)
         assert response.status_code == 400
@@ -227,3 +238,78 @@ class TestVerifyEndpoint(unittest.TestCase):
         }
         response = self.app.post("/analyze", json=data)
         assert response.status_code == 400
+
+    def test_analyze_for_multipart_form_data(self):
+        with open("dataset/img1.jpg", "rb") as img_file:
+            response = self.app.post(
+                "/analyze",
+                content_type="multipart/form-data",
+                data={
+                    "img": (img_file, "test_image.jpg"),
+                    "actions": '["age", "gender"]',
+                    "detector_backend": "mtcnn",
+                },
+            )
+            assert response.status_code == 200
+            result = response.json
+            assert isinstance(result, dict)
+            assert result.get("age") is not True
+            assert result.get("dominant_gender") is not True
+            logger.info("✅ analyze api for multipart form data test is done")
+
+    def test_verify_for_multipart_form_data(self):
+        with open("dataset/img1.jpg", "rb") as img1_file:
+            with open("dataset/img2.jpg", "rb") as img2_file:
+                response = self.app.post(
+                    "/verify",
+                    content_type="multipart/form-data",
+                    data={
+                        "img1": (img1_file, "first_image.jpg"),
+                        "img2": (img2_file, "second_image.jpg"),
+                        "model_name": "Facenet",
+                        "detector_backend": "mtcnn",
+                        "distance_metric": "euclidean",
+                    },
+                )
+                assert response.status_code == 200
+                result = response.json
+                assert isinstance(result, dict)
+                assert result.get("verified") is not None
+                assert result.get("model") == "Facenet"
+                assert result.get("similarity_metric") is not None
+                assert result.get("detector_backend") == "mtcnn"
+                assert result.get("threshold") is not None
+                assert result.get("facial_areas") is not None
+
+                logger.info("✅ verify api for multipart form data test is done")
+
+    def test_represent_for_multipart_form_data(self):
+        with open("dataset/img1.jpg", "rb") as img_file:
+            response = self.app.post(
+                "/represent",
+                content_type="multipart/form-data",
+                data={
+                    "img": (img_file, "first_image.jpg"),
+                    "model_name": "Facenet",
+                    "detector_backend": "mtcnn",
+                },
+            )
+            assert response.status_code == 200
+            result = response.json
+            assert isinstance(result, dict)
+            logger.info("✅ represent api for multipart form data test is done")
+
+    def test_represent_for_multipart_form_data_and_filepath(self):
+        response = self.app.post(
+            "/represent",
+            content_type="multipart/form-data",
+            data={
+                "img": "dataset/img1.jpg",
+                "model_name": "Facenet",
+                "detector_backend": "mtcnn",
+            },
+        )
+        assert response.status_code == 200
+        result = response.json
+        assert isinstance(result, dict)
+        logger.info("✅ represent api for multipart form data and file path test is done")
