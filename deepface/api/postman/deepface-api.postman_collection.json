@@ -43,7 +43,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "  {\n  \t\"img1_path\": \"/Users/sefik/Desktop/deepface/tests/dataset/img1.jpg\",\n    \"img2_path\": \"/Users/sefik/Desktop/deepface/tests/dataset/img2.jpg\",\n    \"model_name\": \"Facenet\",\n    \"detector_backend\": \"mtcnn\",\n    \"distance_metric\": \"euclidean\"\n  }",
+					"raw": "  {\n  \t\"img1\": \"/Users/sefik/Desktop/deepface/tests/dataset/img1.jpg\",\n    \"img2\": \"/Users/sefik/Desktop/deepface/tests/dataset/img2.jpg\",\n    \"model_name\": \"Facenet\",\n    \"detector_backend\": \"mtcnn\",\n    \"distance_metric\": \"euclidean\"\n  }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -74,7 +74,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"img_path\": \"/Users/sefik/Desktop/deepface/tests/dataset/couple.jpg\",\n    \"actions\": [\"age\", \"gender\", \"emotion\", \"race\"]\n}",
+					"raw": "{\n    \"img\": \"/Users/sefik/Desktop/deepface/tests/dataset/couple.jpg\",\n    \"actions\": [\"age\", \"gender\", \"emotion\", \"race\"]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
