@@ -1,12 +1,54 @@
 {
 	"info": {
-		"_postman_id": "4c0b144e-4294-4bdd-8072-bcb326b1fed2",
+		"_postman_id": "26c5ee53-1f4b-41db-9342-3617c90059d3",
 		"name": "deepface-api",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Represent",
+			"name": "Represent - form data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "img",
+							"type": "file",
+							"src": "/Users/sefik/Desktop/deepface/tests/dataset/img1.jpg"
+						},
+						{
+							"key": "model_name",
+							"value": "Facenet",
+							"type": "text"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5005/represent",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5005",
+					"path": [
+						"represent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Represent - default",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -20,7 +62,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/represent",
+					"raw": "http://127.0.0.1:5005/represent",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -28,7 +70,7 @@
 						"0",
 						"1"
 					],
-					"port": "5000",
+					"port": "5005",
 					"path": [
 						"represent"
 					]
@@ -37,7 +79,7 @@
 			"response": []
 		},
 		{
-			"name": "Face verification",
+			"name": "Face verification - default",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -51,7 +93,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/verify",
+					"raw": "http://127.0.0.1:5005/verify",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -59,7 +101,7 @@
 						"0",
 						"1"
 					],
-					"port": "5000",
+					"port": "5005",
 					"path": [
 						"verify"
 					]
@@ -68,13 +110,29 @@
 			"response": []
 		},
 		{
-			"name": "Face analysis",
+			"name": "Face verification - form data",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"img\": \"/Users/sefik/Desktop/deepface/tests/dataset/couple.jpg\",\n    \"actions\": [\"age\", \"gender\", \"emotion\", \"race\"]\n}",
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "img1",
+							"type": "file",
+							"src": "/Users/sefik/Desktop/deepface/tests/dataset/img1.jpg"
+						},
+						{
+							"key": "img2",
+							"type": "file",
+							"src": "/Users/sefik/Desktop/deepface/tests/dataset/img2.jpg"
+						},
+						{
+							"key": "model_name",
+							"value": "Facenet",
+							"type": "text"
+						}
+					],
 					"options": {
 						"raw": {
 							"language": "json"
@@ -82,7 +140,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/analyze",
+					"raw": "http://127.0.0.1:5005/verify",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -90,7 +148,77 @@
 						"0",
 						"1"
 					],
-					"port": "5000",
+					"port": "5005",
+					"path": [
+						"verify"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Face analysis - default",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"img\": \"/Users/sefik/Desktop/deepface/tests/dataset/img1.jpg\",\n    \"actions\": [\"age\", \"gender\", \"emotion\", \"race\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5005/analyze",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5005",
+					"path": [
+						"analyze"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Face analysis - form data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "img",
+							"type": "file",
+							"src": "/Users/sefik/Desktop/deepface/tests/dataset/img1.jpg"
+						},
+						{
+							"key": "actions",
+							"value": "\"[age, gender]\"",
+							"type": "text"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5005/analyze",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5005",
 					"path": [
 						"analyze"
 					]
