@@ -1,6 +1,10 @@
 # built-in dependencies
+import os
 import base64
 import unittest
+
+# 3rd party dependencies
+import gdown
 
 # project dependencies
 from deepface.api.src.app import create_app
@@ -8,9 +12,18 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
+IMG1_SOURCE = (
+    "https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/tests/dataset/img1.jpg"
+)
+IMG2_SOURCE = (
+    "https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/tests/dataset/img2.jpg"
+)
+
 
 class TestVerifyEndpoint(unittest.TestCase):
     def setUp(self):
+        download_test_images(IMG1_SOURCE)
+        download_test_images(IMG2_SOURCE)
         app = create_app()
         app.config["DEBUG"] = True
         app.config["TESTING"] = True
@@ -240,7 +253,7 @@ class TestVerifyEndpoint(unittest.TestCase):
         assert response.status_code == 400
 
     def test_analyze_for_multipart_form_data(self):
-        with open("dataset/img1.jpg", "rb") as img_file:
+        with open("/tmp/img1.jpg", "rb") as img_file:
             response = self.app.post(
                 "/analyze",
                 content_type="multipart/form-data",
@@ -258,8 +271,8 @@ class TestVerifyEndpoint(unittest.TestCase):
             logger.info("✅ analyze api for multipart form data test is done")
 
     def test_verify_for_multipart_form_data(self):
-        with open("dataset/img1.jpg", "rb") as img1_file:
-            with open("dataset/img2.jpg", "rb") as img2_file:
+        with open("/tmp/img1.jpg", "rb") as img1_file:
+            with open("/tmp/img2.jpg", "rb") as img2_file:
                 response = self.app.post(
                     "/verify",
                     content_type="multipart/form-data",
@@ -284,7 +297,7 @@ class TestVerifyEndpoint(unittest.TestCase):
                 logger.info("✅ verify api for multipart form data test is done")
 
     def test_represent_for_multipart_form_data(self):
-        with open("dataset/img1.jpg", "rb") as img_file:
+        with open("/tmp/img1.jpg", "rb") as img_file:
             response = self.app.post(
                 "/represent",
                 content_type="multipart/form-data",
@@ -304,7 +317,7 @@ class TestVerifyEndpoint(unittest.TestCase):
             "/represent",
             content_type="multipart/form-data",
             data={
-                "img": "dataset/img1.jpg",
+                "img": "/tmp/img1.jpg",
                 "model_name": "Facenet",
                 "detector_backend": "mtcnn",
             },
@@ -313,3 +326,12 @@ class TestVerifyEndpoint(unittest.TestCase):
         result = response.json
         assert isinstance(result, dict)
         logger.info("✅ represent api for multipart form data and file path test is done")
+
+
+def download_test_images(url: str):
+    file_name = url.split("/")[-1]
+    target_file = f"/tmp/{file_name}"
+    if os.path.exists(target_file) is True:
+        return
+
+    gdown.download(url, target_file, quiet=False)
