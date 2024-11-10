@@ -11,6 +11,7 @@ import requests
 import numpy as np
 import cv2
 from PIL import Image
+from werkzeug.datastructures import FileStorage
 
 
 def list_images(path: str) -> List[str]:
@@ -131,6 +132,21 @@ def load_image_from_base64(uri: str) -> np.ndarray:
     img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
     return img_bgr
+
+
+def load_image_from_file_storage(file: FileStorage) -> np.ndarray:
+    """
+    Loads an image from a FileStorage object and decodes it into an OpenCV image.
+    Args:
+        file (FileStorage): The FileStorage object containing the image file.
+    Returns:
+        img (np.ndarray): The decoded image as a numpy array (OpenCV format).
+    """
+    file_bytes = np.frombuffer(file.read(), np.uint8)
+    image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+    if image is None:
+        raise ValueError("Failed to decode image")
+    return image
 
 
 def load_image_from_web(url: str) -> np.ndarray:

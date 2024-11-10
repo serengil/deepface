@@ -1,15 +1,22 @@
 # built-in dependencies
 import traceback
-from typing import Optional
+from typing import Optional, Union
+
+# 3rd party dependencies
+import numpy as np
 
 # project dependencies
 from deepface import DeepFace
+from deepface.commons.logger import Logger
+
+logger = Logger()
+
 
 # pylint: disable=broad-except
 
 
 def represent(
-    img_path: str,
+    img_path: Union[str, np.ndarray],
     model_name: str,
     detector_backend: str,
     enforce_detection: bool,
@@ -32,12 +39,14 @@ def represent(
         return result
     except Exception as err:
         tb_str = traceback.format_exc()
+        logger.error(str(err))
+        logger.error(tb_str)
         return {"error": f"Exception while representing: {str(err)} - {tb_str}"}, 400
 
 
 def verify(
-    img1_path: str,
-    img2_path: str,
+    img1_path: Union[str, np.ndarray],
+    img2_path: Union[str, np.ndarray],
     model_name: str,
     detector_backend: str,
     distance_metric: str,
@@ -59,11 +68,13 @@ def verify(
         return obj
     except Exception as err:
         tb_str = traceback.format_exc()
+        logger.error(str(err))
+        logger.error(tb_str)
         return {"error": f"Exception while verifying: {str(err)} - {tb_str}"}, 400
 
 
 def analyze(
-    img_path: str,
+    img_path: Union[str, np.ndarray],
     actions: list,
     detector_backend: str,
     enforce_detection: bool,
@@ -85,4 +96,6 @@ def analyze(
         return result
     except Exception as err:
         tb_str = traceback.format_exc()
+        logger.error(str(err))
+        logger.error(tb_str)
         return {"error": f"Exception while analyzing: {str(err)} - {tb_str}"}, 400
