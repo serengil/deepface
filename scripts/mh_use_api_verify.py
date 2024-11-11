@@ -156,7 +156,7 @@ if __name__ == "__main__":
     vec2 = vec1
 
     payload = {
-        "model_name": "Facenet",
+        "model_name": "GhostFaceNet",
         "img1_path": vec1,
         "img2_path": vec2,
     }
