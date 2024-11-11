@@ -623,5 +623,7 @@ def detectFace(
     extracted_face = None
     if len(face_objs) > 0:
         extracted_face = face_objs[0]["face"]
-        extracted_face = preprocessing.resize_image(img=extracted_face, target_size=target_size)
+        extracted_face = preprocessing.resize_image(
+            img=extracted_face, target_size=target_size
+        )
     return extracted_face

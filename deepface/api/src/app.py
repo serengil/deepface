@@ -16,3 +16,6 @@ def create_app():
     app.register_blueprint(blueprint)
     logger.info(f"Welcome to DeepFace API v{DeepFace.__version__}!")
     return app
+
+
+app = create_app()
