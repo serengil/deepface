@@ -22,7 +22,10 @@ if __name__ == "__main__":
     )
     b64encoded_string = get_base64_from_file(image_path)
 
-    payload = {"model_name": "GhostFaceNet", "img": b64encoded_string}
+    payload = {
+        "model_name": "GhostFaceNet",
+        "img": b64encoded_string,
+    }
 
     # img_path = "https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/tests/dataset/couple.jpg"
     # payload = {"model_name": "Facenet", "img": img_path}
