@@ -399,7 +399,7 @@ If you do like this work, then you can support it financially on [Patreon](https
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/bmc-button.png" width="25%" height="25%">
 </a>
 
-Also, your company's logo will be shown on README on GitHub if you become a sponsor in gold, silver or bronze tiers.
+Also, your company's logo will be shown on README on GitHub and PyPI if you become a sponsor in gold, silver or bronze tiers.
 
 ## Citation
 
