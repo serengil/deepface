@@ -13,10 +13,10 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # Model's weights paths
-WEIGHT_NAME = "yolov8n-face.pt"
+WEIGHT_NAME = "yolov11n-face.pt"
 
-# Google Drive URL from repo (https://github.com/derronqi/yolov8-face) ~6MB
-WEIGHT_URL = "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb"
+# Github download URL from repo (https://github.com/akanametov/yolo-face) ~5MB
+WEIGHT_URL = "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11n-face.pt"
 
 
 class YoloClient(Detector):
