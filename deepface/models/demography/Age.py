@@ -64,7 +64,9 @@ class ApparentAgeClient(Demography):
             imgs_ = np.expand_dims(imgs_, axis=0)
         # Batch prediction
         age_predictions = self.model.predict_on_batch(imgs_)
-        apparent_ages = np.array([find_apparent_age(age_prediction) for age_prediction in age_predictions])
+        apparent_ages = np.array(
+            [find_apparent_age(age_prediction) for age_prediction in age_predictions]
+        )
         return apparent_ages
 
 
