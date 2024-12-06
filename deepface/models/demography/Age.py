@@ -89,7 +89,7 @@ def load_model(
 
     # --------------------------
 
-    age_model = Model(inputs=model.input, outputs=base_model_output)
+    age_model = Model(inputs=model.inputs, outputs=base_model_output)
 
     # --------------------------
 

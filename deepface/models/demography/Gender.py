@@ -85,7 +85,7 @@ def load_model(
 
     # --------------------------
 
-    gender_model = Model(inputs=model.input, outputs=base_model_output)
+    gender_model = Model(inputs=model.inputs, outputs=base_model_output)
 
     # --------------------------
 
