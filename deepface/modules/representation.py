@@ -36,7 +36,7 @@ def represent(
             Default is True. Set to False to avoid the exception for low-resolution images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11m', 'centerface' or 'skip'.
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'.
 
         align (boolean): Perform alignment based on the eye positions.
 
@@ -122,11 +122,12 @@ def represent(
         confidence = img_obj["confidence"]
 
         # resize to expected shape of ml model
-        img = preprocessing.resize_image(
-            img=img,
-            # thanks to DeepId (!)
-            target_size=(target_size[1], target_size[0]),
-        )
+        if target_size is not None:
+            img = preprocessing.resize_image(
+                img=img,
+                # thanks to DeepId (!)
+                target_size=(target_size[1], target_size[0]),
+            )
 
         # custom normalization
         img = preprocessing.normalize_input(img=img, normalization=normalization)

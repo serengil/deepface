@@ -127,7 +127,7 @@ def download_all_models_in_one_shot() -> None:
         MODEL_URL as SSD_MODEL,
         WEIGHTS_URL as SSD_WEIGHTS,
     )
-    from deepface.models.face_detection.Yolo import (
+    from deepface.models.YoloModel import (
         WEIGHT_URLS as YOLO_WEIGHTS,
         WEIGHT_NAMES as YOLO_WEIGHT_NAMES,
         YoloModel
@@ -169,6 +169,10 @@ def download_all_models_in_one_shot() -> None:
         {
             "filename": YOLO_WEIGHT_NAMES[YoloModel.V11N.value],
             "url": YOLO_WEIGHTS[YoloModel.V11N.value],
+        },
+        {
+            "filename": YOLO_WEIGHT_NAMES[YoloModel.V11S.value],
+            "url": YOLO_WEIGHTS[YoloModel.V11S.value],
         },
         {
             "filename": YOLO_WEIGHT_NAMES[YoloModel.V11M.value],

@@ -38,7 +38,7 @@ def extract_faces(
             as a string, numpy array (BGR), or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11m', 'centerface' or 'skip'
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
             (default is opencv)
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.

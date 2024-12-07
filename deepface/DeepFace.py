@@ -56,7 +56,7 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
             - VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
                 ArcFace, SFace, GhostFaceNet for face recognition
             - Age, Gender, Emotion, Race for facial attributes
-            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, 'yolov11n', 'yolov11m', yunet,
+            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, 'yolov11n', 'yolov11s','yolov11m', yunet,
                 fastmtcnn or centerface for face detectors
             - Fasnet for spoofing
         task (str): facial_recognition, facial_attribute, face_detector, spoofing
@@ -96,7 +96,7 @@ def verify(
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11m', 'centerface' or 'skip'
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
             (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
@@ -187,7 +187,7 @@ def analyze(
             Set to False to avoid the exception for low-resolution images (default is True).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11m', 'centerface' or 'skip'
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n',  'yolov11s', 'yolov11m', 'centerface' or 'skip'
             (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
@@ -298,7 +298,7 @@ def find(
             Set to False to avoid the exception for low-resolution images (default is True).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11m', 'centerface' or 'skip'
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
             (default is opencv).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
@@ -396,7 +396,7 @@ def represent(
             (default is True).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11m', 'centerface' or 'skip'
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
             (default is opencv).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
@@ -462,7 +462,7 @@ def stream(
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11m', 'centerface' or 'skip'
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
             (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
@@ -517,7 +517,7 @@ def extract_faces(
             as a string, numpy array (BGR), or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11m', 'centerface' or 'skip'
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
             (default is opencv).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
@@ -601,7 +601,7 @@ def detectFace(
             added to resize the image (default is (224, 224)).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11m', 'centerface' or 'skip'
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
             (default is opencv).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
