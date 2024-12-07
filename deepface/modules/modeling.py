@@ -38,7 +38,7 @@ def build_model(task: str, model_name: str) -> Any:
             - VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
                 ArcFace, SFace, GhostFaceNet for face recognition
             - Age, Gender, Emotion, Race for facial attributes
-            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, yunet,
+            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, 'yolov11n', 'yolov11m', yunet,
                 fastmtcnn or centerface for face detectors
             - Fasnet for spoofing
     Returns:
@@ -77,7 +77,9 @@ def build_model(task: str, model_name: str) -> Any:
             "dlib": DlibDetector.DlibClient,
             "retinaface": RetinaFace.RetinaFaceClient,
             "mediapipe": MediaPipe.MediaPipeClient,
-            "yolov8": Yolo.YoloClient,
+            "yolov8": Yolo.YoloClientV8n,
+            "yolov11n": Yolo.YoloClientV11n,
+            "yolov11m": Yolo.YoloClientV11m,
             "yunet": YuNet.YuNetClient,
             "fastmtcnn": FastMtCnn.FastMtCnnClient,
             "centerface": CenterFace.CenterFaceClient,

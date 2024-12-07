@@ -34,6 +34,8 @@ detector_backends = [
     "retinaface",
     "yunet",
     "yolov8",
+    "yolov11n",
+    "yolov11m",
     "centerface",
 ]
 

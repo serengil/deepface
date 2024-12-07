@@ -1,6 +1,7 @@
 # built-in dependencies
 import os
 from typing import Any, List
+from enum import Enum
 
 # 3rd party dependencies
 import numpy as np
@@ -13,17 +14,27 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # Model's weights paths
-WEIGHT_NAME = "yolov8n-face.pt"
+WEIGHT_NAMES = ["yolov8n-face.pt",
+                "yolov11n-face.pt",
+                "yolov11m-face.pt"]
 
 # Google Drive URL from repo (https://github.com/derronqi/yolov8-face) ~6MB
-WEIGHT_URL = "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb"
+WEIGHT_URLS = ["https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb",
+               "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11n-face.pt",
+               "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11m-face.pt"]
+
+
+class YoloModel(Enum):
+    V8N = 0
+    V11N = 1
+    V11M = 2
 
 
 class YoloClient(Detector):
-    def __init__(self):
-        self.model = self.build_model()
+    def __init__(self, model: YoloModel):
+        self.model = self.build_model(model)
 
-    def build_model(self) -> Any:
+    def build_model(self, model: YoloModel) -> Any:
         """
         Build a yolo detector model
         Returns:
@@ -40,7 +51,7 @@ class YoloClient(Detector):
             ) from e
 
         weight_file = weight_utils.download_weights_if_necessary(
-            file_name=WEIGHT_NAME, source_url=WEIGHT_URL
+            file_name=WEIGHT_NAMES[model.value], source_url=WEIGHT_URLS[model.value]
         )
 
         # Return face_detector
@@ -98,3 +109,18 @@ class YoloClient(Detector):
             resp.append(facial_area)
 
         return resp
+
+
+class YoloClientV8n(YoloClient):
+    def __init__(self):
+        super().__init__(YoloModel.V8N)
+
+
+class YoloClientV11n(YoloClient):
+    def __init__(self):
+        super().__init__(YoloModel.V11N)
+
+
+class YoloClientV11m(YoloClient):
+    def __init__(self):
+        super().__init__(YoloModel.V11M)

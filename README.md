@@ -223,6 +223,8 @@ backends = [
   'retinaface', 
   'mediapipe',
   'yolov8',
+  'yolov11n',
+  'yolov11m',
   'yunet',
   'centerface',
 ]

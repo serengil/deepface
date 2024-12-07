@@ -128,8 +128,9 @@ def download_all_models_in_one_shot() -> None:
         WEIGHTS_URL as SSD_WEIGHTS,
     )
     from deepface.models.face_detection.Yolo import (
-        WEIGHT_URL as YOLOV8_WEIGHTS,
-        WEIGHT_NAME as YOLOV8_WEIGHT_NAME,
+        WEIGHT_URLS as YOLO_WEIGHTS,
+        WEIGHT_NAMES as YOLO_WEIGHT_NAMES,
+        YoloModel
     )
     from deepface.models.face_detection.YuNet import WEIGHTS_URL as YUNET_WEIGHTS
     from deepface.models.face_detection.Dlib import WEIGHTS_URL as DLIB_FD_WEIGHTS
@@ -162,8 +163,16 @@ def download_all_models_in_one_shot() -> None:
         SSD_MODEL,
         SSD_WEIGHTS,
         {
-            "filename": YOLOV8_WEIGHT_NAME,
-            "url": YOLOV8_WEIGHTS,
+            "filename": YOLO_WEIGHT_NAMES[YoloModel.V8N.value],
+            "url": YOLO_WEIGHTS[YoloModel.V8N.value],
+        },
+        {
+            "filename": YOLO_WEIGHT_NAMES[YoloModel.V11N.value],
+            "url": YOLO_WEIGHTS[YoloModel.V11N.value],
+        },
+        {
+            "filename": YOLO_WEIGHT_NAMES[YoloModel.V11M.value],
+            "url": YOLO_WEIGHTS[YoloModel.V11M.value],
         },
         YUNET_WEIGHTS,
         DLIB_FD_WEIGHTS,
