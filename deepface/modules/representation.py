@@ -122,12 +122,11 @@ def represent(
         confidence = img_obj["confidence"]
 
         # resize to expected shape of ml model
-        if target_size is not None:
-            img = preprocessing.resize_image(
-                img=img,
-                # thanks to DeepId (!)
-                target_size=(target_size[1], target_size[0]),
-            )
+        img = preprocessing.resize_image(
+            img=img,
+            # thanks to DeepId (!)
+            target_size=(target_size[1], target_size[0]),
+        )
 
         # custom normalization
         img = preprocessing.normalize_input(img=img, normalization=normalization)
