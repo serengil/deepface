@@ -54,7 +54,7 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
     Args:
         model_name (str): model identifier
             - VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
-                ArcFace, SFace, GhostFaceNet for face recognition
+                ArcFace, SFace, GhostFaceNet, Yolo-Face for face recognition
             - Age, Gender, Emotion, Race for facial attributes
             - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, 'yolov11n', 'yolov11s','yolov11m', yunet,
                 fastmtcnn or centerface for face detectors
@@ -93,7 +93,7 @@ def verify(
             or pre-calculated embeddings.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet and Yolo-Face (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
@@ -289,7 +289,7 @@ def find(
             in the database will be considered in the decision-making process.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet and Yolo-Face (default is VGG-Face).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
             'euclidean', 'euclidean_l2' (default is cosine).
@@ -388,7 +388,7 @@ def represent(
             include information for each detected face.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet and Yolo-Face
             (default is VGG-Face.).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
@@ -459,7 +459,7 @@ def stream(
             in the database will be considered in the decision-making process.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet and Yolo-Face (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
