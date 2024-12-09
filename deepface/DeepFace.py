@@ -54,10 +54,11 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
     Args:
         model_name (str): model identifier
             - VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
-                ArcFace, SFace, GhostFaceNet, Yolo-Face for face recognition
+                ArcFace, SFace, GhostFaceNet, Yolov8, Yolov11n, Yolov11s and
+                Yolov11m for face recognition
             - Age, Gender, Emotion, Race for facial attributes
-            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, 'yolov11n', 'yolov11s','yolov11m', yunet,
-                fastmtcnn or centerface for face detectors
+            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, yolov11n,
+              yolov11s, yolov11m, yunet, fastmtcnn or centerface for face detectors
             - Fasnet for spoofing
         task (str): facial_recognition, facial_attribute, face_detector, spoofing
             default is facial_recognition
@@ -68,18 +69,18 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
 
 
 def verify(
-    img1_path: Union[str, np.ndarray, List[float]],
-    img2_path: Union[str, np.ndarray, List[float]],
-    model_name: str = "VGG-Face",
-    detector_backend: str = "opencv",
-    distance_metric: str = "cosine",
-    enforce_detection: bool = True,
-    align: bool = True,
-    expand_percentage: int = 0,
-    normalization: str = "base",
-    silent: bool = False,
-    threshold: Optional[float] = None,
-    anti_spoofing: bool = False,
+        img1_path: Union[str, np.ndarray, List[float]],
+        img2_path: Union[str, np.ndarray, List[float]],
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        distance_metric: str = "cosine",
+        enforce_detection: bool = True,
+        align: bool = True,
+        expand_percentage: int = 0,
+        normalization: str = "base",
+        silent: bool = False,
+        threshold: Optional[float] = None,
+        anti_spoofing: bool = False,
 ) -> Dict[str, Any]:
     """
     Verify if an image pair represents the same person or different persons.
@@ -93,7 +94,8 @@ def verify(
             or pre-calculated embeddings.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet and Yolo-Face (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet, Yolov8, Yolov11n,
+            Yolov11s and Yolov11m (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
@@ -164,14 +166,14 @@ def verify(
 
 
 def analyze(
-    img_path: Union[str, np.ndarray],
-    actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
-    enforce_detection: bool = True,
-    detector_backend: str = "opencv",
-    align: bool = True,
-    expand_percentage: int = 0,
-    silent: bool = False,
-    anti_spoofing: bool = False,
+        img_path: Union[str, np.ndarray],
+        actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
+        enforce_detection: bool = True,
+        detector_backend: str = "opencv",
+        align: bool = True,
+        expand_percentage: int = 0,
+        silent: bool = False,
+        anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
@@ -187,8 +189,8 @@ def analyze(
             Set to False to avoid the exception for low-resolution images (default is True).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n',  'yolov11s', 'yolov11m', 'centerface' or 'skip'
-            (default is opencv).
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n',  'yolov11s', 'yolov11m',
+            'centerface' or 'skip' (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
             'euclidean', 'euclidean_l2' (default is cosine).
@@ -263,20 +265,20 @@ def analyze(
 
 
 def find(
-    img_path: Union[str, np.ndarray],
-    db_path: str,
-    model_name: str = "VGG-Face",
-    distance_metric: str = "cosine",
-    enforce_detection: bool = True,
-    detector_backend: str = "opencv",
-    align: bool = True,
-    expand_percentage: int = 0,
-    threshold: Optional[float] = None,
-    normalization: str = "base",
-    silent: bool = False,
-    refresh_database: bool = True,
-    anti_spoofing: bool = False,
-    batched: bool = False,
+        img_path: Union[str, np.ndarray],
+        db_path: str,
+        model_name: str = "VGG-Face",
+        distance_metric: str = "cosine",
+        enforce_detection: bool = True,
+        detector_backend: str = "opencv",
+        align: bool = True,
+        expand_percentage: int = 0,
+        threshold: Optional[float] = None,
+        normalization: str = "base",
+        silent: bool = False,
+        refresh_database: bool = True,
+        anti_spoofing: bool = False,
+        batched: bool = False,
 ) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
     """
     Identify individuals in a database
@@ -289,7 +291,8 @@ def find(
             in the database will be considered in the decision-making process.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet and Yolo-Face (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet, Yolov8, Yolov11n,
+            Yolov11s and Yolov11m (default is VGG-Face).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
             'euclidean', 'euclidean_l2' (default is cosine).
@@ -298,8 +301,8 @@ def find(
             Set to False to avoid the exception for low-resolution images (default is True).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
-            (default is opencv).
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
+            'centerface' or 'skip' (default is opencv).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
 
@@ -369,15 +372,15 @@ def find(
 
 
 def represent(
-    img_path: Union[str, np.ndarray],
-    model_name: str = "VGG-Face",
-    enforce_detection: bool = True,
-    detector_backend: str = "opencv",
-    align: bool = True,
-    expand_percentage: int = 0,
-    normalization: str = "base",
-    anti_spoofing: bool = False,
-    max_faces: Optional[int] = None,
+        img_path: Union[str, np.ndarray],
+        model_name: str = "VGG-Face",
+        enforce_detection: bool = True,
+        detector_backend: str = "opencv",
+        align: bool = True,
+        expand_percentage: int = 0,
+        normalization: str = "base",
+        anti_spoofing: bool = False,
+        max_faces: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -388,16 +391,16 @@ def represent(
             include information for each detected face.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet and Yolo-Face
-            (default is VGG-Face.).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet, Yolov8, Yolov11n,
+            Yolov11s and Yolov11m (default is VGG-Face.).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Default is True. Set to False to avoid the exception for low-resolution images
             (default is True).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
-            (default is opencv).
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
+            'centerface' or 'skip' (default is opencv).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
 
@@ -441,15 +444,15 @@ def represent(
 
 
 def stream(
-    db_path: str = "",
-    model_name: str = "VGG-Face",
-    detector_backend: str = "opencv",
-    distance_metric: str = "cosine",
-    enable_face_analysis: bool = True,
-    source: Any = 0,
-    time_threshold: int = 5,
-    frame_threshold: int = 5,
-    anti_spoofing: bool = False,
+        db_path: str = "",
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        distance_metric: str = "cosine",
+        enable_face_analysis: bool = True,
+        source: Any = 0,
+        time_threshold: int = 5,
+        frame_threshold: int = 5,
+        anti_spoofing: bool = False,
 ) -> None:
     """
     Run real time face recognition and facial attribute analysis
@@ -459,11 +462,12 @@ def stream(
             in the database will be considered in the decision-making process.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet and Yolo-Face (default is VGG-Face).
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet, Yolov8, Yolov11n,
+            Yolov11s and Yolov11m (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
-            (default is opencv).
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
+            'centerface' or 'skip' (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
             'euclidean', 'euclidean_l2' (default is cosine).
@@ -499,15 +503,15 @@ def stream(
 
 
 def extract_faces(
-    img_path: Union[str, np.ndarray],
-    detector_backend: str = "opencv",
-    enforce_detection: bool = True,
-    align: bool = True,
-    expand_percentage: int = 0,
-    grayscale: bool = False,
-    color_face: str = "rgb",
-    normalize_face: bool = True,
-    anti_spoofing: bool = False,
+        img_path: Union[str, np.ndarray],
+        detector_backend: str = "opencv",
+        enforce_detection: bool = True,
+        align: bool = True,
+        expand_percentage: int = 0,
+        grayscale: bool = False,
+        color_face: str = "rgb",
+        normalize_face: bool = True,
+        anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Extract faces from a given image
@@ -517,8 +521,8 @@ def extract_faces(
             as a string, numpy array (BGR), or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
-            (default is opencv).
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
+            'centerface' or 'skip' (default is opencv).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Set to False to avoid the exception for low-resolution images (default is True).
@@ -584,11 +588,11 @@ def cli() -> None:
 
 
 def detectFace(
-    img_path: Union[str, np.ndarray],
-    target_size: tuple = (224, 224),
-    detector_backend: str = "opencv",
-    enforce_detection: bool = True,
-    align: bool = True,
+        img_path: Union[str, np.ndarray],
+        target_size: tuple = (224, 224),
+        detector_backend: str = "opencv",
+        enforce_detection: bool = True,
+        align: bool = True,
 ) -> Union[np.ndarray, None]:
     """
     Deprecated face detection function. Use extract_faces for same functionality.
@@ -601,8 +605,8 @@ def detectFace(
             added to resize the image (default is (224, 224)).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m', 'centerface' or 'skip'
-            (default is opencv).
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
+            'centerface' or 'skip' (default is opencv).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Set to False to avoid the exception for low-resolution images (default is True).

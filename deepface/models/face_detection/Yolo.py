@@ -94,6 +94,8 @@ class YoloDetectorClient(Detector):
 
             right_eye = None
             left_eye = None
+
+            # yolo-facev8 is detecting eyes through keypoints, while for v11 keypoints are always None
             if result.keypoints is not None:
                 # right_eye_conf = result.keypoints.conf[0][0]
                 # left_eye_conf = result.keypoints.conf[0][1]
