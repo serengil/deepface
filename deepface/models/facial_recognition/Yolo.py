@@ -37,7 +37,7 @@ class YoloFacialRecognitionClient(FacialRecognition):
     def __init__(self, model: YoloModel):
         super().__init__()
         self.model_name = "Yolo"
-        self.input_shape = (224, 224)
+        self.input_shape = (640, 640)
         self.output_shape = 512
         self.model = self.build_model(model)
 
