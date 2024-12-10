@@ -11,8 +11,7 @@ from deepface.models.facial_recognition import (
     SFace,
     Dlib,
     Facenet,
-    GhostFaceNet,
-    Yolo as YoloFacialRecognition,
+    GhostFaceNet
 )
 from deepface.models.face_detection import (
     FastMtCnn,
@@ -37,7 +36,7 @@ def build_model(task: str, model_name: str) -> Any:
         task (str): facial_recognition, facial_attribute, face_detector, spoofing
         model_name (str): model identifier
             - VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
-                ArcFace, SFace, GhostFaceNet, Yolov8, Yolov11n, Yolov11s and Yolov11m for face recognition
+                ArcFace, SFace and GhostFaceNet for face recognition
             - Age, Gender, Emotion, Race for facial attributes
             - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, 'yolov11n', 'yolov11s', 'yolov11m', yunet,
                 fastmtcnn or centerface for face detectors
@@ -60,11 +59,7 @@ def build_model(task: str, model_name: str) -> Any:
             "Dlib": Dlib.DlibClient,
             "ArcFace": ArcFace.ArcFaceClient,
             "SFace": SFace.SFaceClient,
-            "GhostFaceNet": GhostFaceNet.GhostFaceNetClient,
-            "Yolov8": YoloFacialRecognition.YoloFacialRecognitionClientV8n,
-            "Yolov11n": YoloFacialRecognition.YoloFacialRecognitionClientV11n,
-            "Yolov11s": YoloFacialRecognition.YoloFacialRecognitionClientV11s,
-            "Yolov11m": YoloFacialRecognition.YoloFacialRecognitionClientV11m
+            "GhostFaceNet": GhostFaceNet.GhostFaceNetClient
         },
         "spoofing": {
             "Fasnet": FasNet.Fasnet,

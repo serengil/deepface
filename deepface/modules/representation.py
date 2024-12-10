@@ -30,7 +30,7 @@ def represent(
             include information for each detected face.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace, GhostFaceNet, Yolov8, Yolov11n, Yolov11s and Yolov11m
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Default is True. Set to False to avoid the exception for low-resolution images.
