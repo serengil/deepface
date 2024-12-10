@@ -21,11 +21,7 @@ model_names = [
     "Dlib",
     "ArcFace",
     "SFace",
-    "GhostFaceNet",
-    "yolov8",
-    "yolov11n",
-    "yolov11s",
-    "yolov11m"
+    "GhostFaceNet"
 ]
 
 detector_backends = [
