@@ -11,7 +11,7 @@ from deepface.models.facial_recognition import (
     SFace,
     Dlib,
     Facenet,
-    GhostFaceNet,
+    GhostFaceNet
 )
 from deepface.models.face_detection import (
     FastMtCnn,
@@ -21,7 +21,7 @@ from deepface.models.face_detection import (
     Dlib as DlibDetector,
     RetinaFace,
     Ssd,
-    Yolo,
+    Yolo as YoloFaceDetector,
     YuNet,
     CenterFace,
 )
@@ -36,10 +36,10 @@ def build_model(task: str, model_name: str) -> Any:
         task (str): facial_recognition, facial_attribute, face_detector, spoofing
         model_name (str): model identifier
             - VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
-                ArcFace, SFace, GhostFaceNet for face recognition
+                ArcFace, SFace and GhostFaceNet for face recognition
             - Age, Gender, Emotion, Race for facial attributes
-            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, yunet,
-                fastmtcnn or centerface for face detectors
+            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, 'yolov11n',
+                'yolov11s', 'yolov11m', yunet, fastmtcnn or centerface for face detectors
             - Fasnet for spoofing
     Returns:
             built model class
@@ -59,7 +59,7 @@ def build_model(task: str, model_name: str) -> Any:
             "Dlib": Dlib.DlibClient,
             "ArcFace": ArcFace.ArcFaceClient,
             "SFace": SFace.SFaceClient,
-            "GhostFaceNet": GhostFaceNet.GhostFaceNetClient,
+            "GhostFaceNet": GhostFaceNet.GhostFaceNetClient
         },
         "spoofing": {
             "Fasnet": FasNet.Fasnet,
@@ -77,7 +77,10 @@ def build_model(task: str, model_name: str) -> Any:
             "dlib": DlibDetector.DlibClient,
             "retinaface": RetinaFace.RetinaFaceClient,
             "mediapipe": MediaPipe.MediaPipeClient,
-            "yolov8": Yolo.YoloClient,
+            "yolov8": YoloFaceDetector.YoloDetectorClientV8n,
+            "yolov11n": YoloFaceDetector.YoloDetectorClientV11n,
+            "yolov11s": YoloFaceDetector.YoloDetectorClientV11s,
+            "yolov11m": YoloFaceDetector.YoloDetectorClientV11m,
             "yunet": YuNet.YuNetClient,
             "fastmtcnn": FastMtCnn.FastMtCnnClient,
             "centerface": CenterFace.CenterFaceClient,
