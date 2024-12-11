@@ -38,8 +38,8 @@ def build_model(task: str, model_name: str) -> Any:
             - VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
                 ArcFace, SFace and GhostFaceNet for face recognition
             - Age, Gender, Emotion, Race for facial attributes
-            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, 'yolov11n', 'yolov11s', 'yolov11m', yunet,
-                fastmtcnn or centerface for face detectors
+            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, 'yolov11n',
+                'yolov11s', 'yolov11m', yunet, fastmtcnn or centerface for face detectors
             - Fasnet for spoofing
     Returns:
             built model class
