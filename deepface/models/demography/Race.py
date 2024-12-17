@@ -97,7 +97,7 @@ def load_model(
 
     # --------------------------
 
-    race_model = Model(inputs=model.input, outputs=base_model_output)
+    race_model = Model(inputs=model.inputs, outputs=base_model_output)
 
     # --------------------------
 
