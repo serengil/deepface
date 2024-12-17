@@ -9,7 +9,7 @@ from tqdm import tqdm
 from deepface.modules import modeling, detection, preprocessing
 from deepface.models.demography import Gender, Race, Emotion
 
-
+# pylint: disable=trailing-whitespace
 def analyze(
     img_path: Union[str, np.ndarray],
     actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
@@ -130,83 +130,107 @@ def analyze(
         anti_spoofing=anti_spoofing,
     )
 
-    for img_obj in img_objs:
-        if anti_spoofing is True and img_obj.get("is_real", True) is False:
-            raise ValueError("Spoof detected in the given image.")
+    # Anti-spoofing check
+    if anti_spoofing:
+        for img_obj in img_objs:
+            if img_obj.get("is_real", True) is False:
+                raise ValueError("Spoof detected in the given image.")
 
+    # Prepare the input for the model
+    valid_faces = []
+    face_regions = []
+    face_confidences = []
+    
+    for img_obj in img_objs:
+        # Extract the face content
         img_content = img_obj["face"]
-        img_region = img_obj["facial_area"]
-        img_confidence = img_obj["confidence"]
+        # Check if the face content is empty
         if img_content.shape[0] == 0 or img_content.shape[1] == 0:
             continue
 
-        # rgb to bgr
+        # Convert the image to RGB format from BGR
         img_content = img_content[:, :, ::-1]
-
-        # resize input image
+        # Resize the image to the target size for the model
         img_content = preprocessing.resize_image(img=img_content, target_size=(224, 224))
 
-        obj = {}
-        # facial attribute analysis
-        pbar = tqdm(
-            range(0, len(actions)),
-            desc="Finding actions",
-            disable=silent if len(actions) > 1 else True,
-        )
-        for index in pbar:
-            action = actions[index]
-            pbar.set_description(f"Action: {action}")
+        valid_faces.append(img_content)
+        face_regions.append(img_obj["facial_area"])
+        face_confidences.append(img_obj["confidence"])
 
-            if action == "emotion":
-                emotion_predictions = modeling.build_model(
-                    task="facial_attribute", model_name="Emotion"
-                ).predict(img_content)
-                sum_of_predictions = emotion_predictions.sum()
+    # If no valid faces are found, return an empty list
+    if not valid_faces:
+        return []
 
-                obj["emotion"] = {}
+    # Convert the list of valid faces to a numpy array
+    faces_array = np.array(valid_faces)
+    resp_objects = [{} for _ in range(len(valid_faces))]
+
+    # For each action, predict the corresponding attribute
+    pbar = tqdm(
+        range(0, len(actions)),
+        desc="Finding actions",
+        disable=silent if len(actions) > 1 else True,
+    )
+    
+    for index in pbar:
+        action = actions[index]
+        pbar.set_description(f"Action: {action}")
+
+        if action == "emotion":
+            # Build the emotion model
+            model = modeling.build_model(task="facial_attribute", model_name="Emotion")
+            emotion_predictions = model.predict(faces_array)
+            
+            for idx, predictions in enumerate(emotion_predictions):
+                sum_of_predictions = predictions.sum()
+                resp_objects[idx]["emotion"] = {}
+                
                 for i, emotion_label in enumerate(Emotion.labels):
-                    emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
-                    obj["emotion"][emotion_label] = emotion_prediction
+                    emotion_prediction = 100 * predictions[i] / sum_of_predictions
+                    resp_objects[idx]["emotion"][emotion_label] = emotion_prediction
+                
+                resp_objects[idx]["dominant_emotion"] = Emotion.labels[np.argmax(predictions)]
 
-                obj["dominant_emotion"] = Emotion.labels[np.argmax(emotion_predictions)]
+        elif action == "age":
+            # Build the age model
+            model = modeling.build_model(task="facial_attribute", model_name="Age")
+            age_predictions = model.predict(faces_array)
+            
+            for idx, age in enumerate(age_predictions):
+                resp_objects[idx]["age"] = int(age)
 
-            elif action == "age":
-                apparent_age = modeling.build_model(
-                    task="facial_attribute", model_name="Age"
-                ).predict(img_content)
-                # int cast is for exception - object of type 'float32' is not JSON serializable
-                obj["age"] = int(apparent_age)
-
-            elif action == "gender":
-                gender_predictions = modeling.build_model(
-                    task="facial_attribute", model_name="Gender"
-                ).predict(img_content)
-                obj["gender"] = {}
+        elif action == "gender":
+            # Build the gender model
+            model = modeling.build_model(task="facial_attribute", model_name="Gender")
+            gender_predictions = model.predict(faces_array)
+            
+            for idx, predictions in enumerate(gender_predictions):
+                resp_objects[idx]["gender"] = {}
+                
                 for i, gender_label in enumerate(Gender.labels):
-                    gender_prediction = 100 * gender_predictions[i]
-                    obj["gender"][gender_label] = gender_prediction
+                    gender_prediction = 100 * predictions[i]
+                    resp_objects[idx]["gender"][gender_label] = gender_prediction
+                
+                resp_objects[idx]["dominant_gender"] = Gender.labels[np.argmax(predictions)]
 
-                obj["dominant_gender"] = Gender.labels[np.argmax(gender_predictions)]
-
-            elif action == "race":
-                race_predictions = modeling.build_model(
-                    task="facial_attribute", model_name="Race"
-                ).predict(img_content)
-                sum_of_predictions = race_predictions.sum()
-
-                obj["race"] = {}
+        elif action == "race":
+            # Build the race model
+            model = modeling.build_model(task="facial_attribute", model_name="Race")
+            race_predictions = model.predict(faces_array)
+            
+            for idx, predictions in enumerate(race_predictions):
+                sum_of_predictions = predictions.sum()
+                resp_objects[idx]["race"] = {}
+                
                 for i, race_label in enumerate(Race.labels):
-                    race_prediction = 100 * race_predictions[i] / sum_of_predictions
-                    obj["race"][race_label] = race_prediction
+                    race_prediction = 100 * predictions[i] / sum_of_predictions
+                    resp_objects[idx]["race"][race_label] = race_prediction
+                
+                resp_objects[idx]["dominant_race"] = Race.labels[np.argmax(predictions)]
 
-                obj["dominant_race"] = Race.labels[np.argmax(race_predictions)]
-
-            # -----------------------------
-            # mention facial areas
-            obj["region"] = img_region
-            # include image confidence
-            obj["face_confidence"] = img_confidence
-
-        resp_objects.append(obj)
+    # Add the face region and confidence to the response objects
+    for idx, resp_obj in enumerate(resp_objects):
+        resp_obj["region"] = face_regions[idx]
+        resp_obj["face_confidence"] = face_confidences[idx]
 
     return resp_objects

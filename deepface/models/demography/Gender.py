@@ -40,7 +40,7 @@ class GenderClient(Demography):
         self.model = load_model()
         self.model_name = "Gender"
 
-    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[np.ndarray, np.ndarray]:
+    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
         """
         Predict gender probabilities for single or multiple faces
         Args:
@@ -48,8 +48,7 @@ class GenderClient(Demography):
                 List of images as List[np.ndarray] or
                 Batch of images as np.ndarray (n, 224, 224, 3)
         Returns:
-            Single prediction as np.ndarray (2,) [female_prob, male_prob] or
-            Multiple predictions as np.ndarray (n, 2)
+            np.ndarray (n, 2)
         """
         # Convert to numpy array if input is list
         if isinstance(img, list):
@@ -64,16 +63,10 @@ class GenderClient(Demography):
         if len(imgs.shape) == 3:
             # Single image - add batch dimension
             imgs = np.expand_dims(imgs, axis=0)
-            is_single = True
-        else:
-            is_single = False
 
         # Batch prediction
         predictions = self.model.predict_on_batch(imgs)
 
-        # Return single prediction for single image
-        if is_single:
-            return predictions[0]
         return predictions
 
 

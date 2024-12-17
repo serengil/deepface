@@ -40,7 +40,7 @@ class ApparentAgeClient(Demography):
         self.model = load_model()
         self.model_name = "Age"
 
-    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[np.float64, np.ndarray]:
+    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
         """
         Predict apparent age(s) for single or multiple faces
         Args:
@@ -48,8 +48,7 @@ class ApparentAgeClient(Demography):
                 List of images as List[np.ndarray] or
                 Batch of images as np.ndarray (n, 224, 224, 3)
         Returns:
-            Single age as np.float64 or
-            Multiple ages as np.ndarray (n,)
+            np.ndarray (n,)
         """
         # Convert to numpy array if input is list
         if isinstance(img, list):
@@ -64,9 +63,6 @@ class ApparentAgeClient(Demography):
         if len(imgs.shape) == 3:
             # Single image - add batch dimension
             imgs = np.expand_dims(imgs, axis=0)
-            is_single = True
-        else:
-            is_single = False
 
         # Batch prediction
         age_predictions = self.model.predict_on_batch(imgs)
@@ -76,9 +72,6 @@ class ApparentAgeClient(Demography):
             [find_apparent_age(age_prediction) for age_prediction in age_predictions]
         )
 
-        # Return single value for single image
-        if is_single:
-            return apparent_ages[0]
         return apparent_ages
 
 
