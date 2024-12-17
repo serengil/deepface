@@ -1,5 +1,5 @@
 # stdlib dependencies
-from typing import List
+from typing import List, Union
 
 # 3rd party dependencies
 import numpy as np
@@ -40,28 +40,41 @@ class GenderClient(Demography):
         self.model = load_model()
         self.model_name = "Gender"
 
-    def predict(self, img: np.ndarray) -> np.ndarray:
-        # model.predict causes memory issue when it is called in a for loop
-        # return self.model.predict(img, verbose=0)[0, :]
-        return self.model(img, training=False).numpy()[0, :]
-
-    def predicts(self, imgs: List[np.ndarray]) -> np.ndarray:
+    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[np.ndarray, np.ndarray]:
         """
-        Predict apparent ages of multiple faces
+        Predict gender probabilities for single or multiple faces
         Args:
-            imgs (List[np.ndarray]): (n, 224, 224, 3)
+            img: Single image as np.ndarray (224, 224, 3) or
+                List of images as List[np.ndarray] or
+                Batch of images as np.ndarray (n, 224, 224, 3)
         Returns:
-            apparent_ages (np.ndarray): (n,)
+            Single prediction as np.ndarray (2,) [female_prob, male_prob] or
+            Multiple predictions as np.ndarray (n, 2)
         """
-        # Convert list to numpy array
-        imgs_:np.ndarray = np.array(imgs)
-        # Remove redundant dimensions
-        imgs_ = imgs_.squeeze()
-        # Check if the input is a single image
-        if len(imgs_.shape) == 3:
-            # Add batch dimension
-            imgs_ = np.expand_dims(imgs_, axis=0)
-        return self.model.predict_on_batch(imgs_)
+        # Convert to numpy array if input is list
+        if isinstance(img, list):
+            imgs = np.array(img)
+        else:
+            imgs = img
+
+        # Remove batch dimension if exists
+        imgs = imgs.squeeze()
+
+        # Check input dimension
+        if len(imgs.shape) == 3:
+            # Single image - add batch dimension
+            imgs = np.expand_dims(imgs, axis=0)
+            is_single = True
+        else:
+            is_single = False
+
+        # Batch prediction
+        predictions = self.model.predict_on_batch(imgs)
+
+        # Return single prediction for single image
+        if is_single:
+            return predictions[0]
+        return predictions
 
 
 def load_model(
