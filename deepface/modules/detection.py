@@ -324,6 +324,9 @@ def extract_face(
             int(rotated_y1) : int(rotated_y2), int(rotated_x1) : int(rotated_x2)
         ]
 
+        # do not spend memory for these temporary variables anymore
+        del aligned_sub_img, sub_img
+
         # restore x, y, le and re before border added
         x = x - width_border
         y = y - height_border
@@ -353,7 +356,7 @@ def extract_face(
             mouth_left=mouth_left,
             mouth_right=mouth_right,
         ),
-        confidence=confidence,
+        confidence=confidence or 0,
     )
 
 
@@ -411,8 +414,8 @@ def extract_sub_image(
 
 def align_img_wrt_eyes(
     img: np.ndarray,
-    left_eye: Union[list, tuple],
-    right_eye: Union[list, tuple],
+    left_eye: Optional[Union[list, tuple]],
+    right_eye: Optional[Union[list, tuple]],
 ) -> Tuple[np.ndarray, float]:
     """
     Align a given image horizantally with respect to their left and right eye locations
