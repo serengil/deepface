@@ -262,6 +262,83 @@ def analyze(
     )
 
 
+def analyze_from_image_objects(
+    img_objs: List[Dict[str, Any]],
+    actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
+    silent: bool = False,
+    anti_spoofing: bool = False,
+) -> List[Dict[str, Any]]:
+    """
+    Analyze facial attributes such as age, gender, emotion, and race in the provided image.
+
+    Args:
+        img_objs (List[Dict[str, Any]]): Output of detection.extract_faces.
+
+        actions (tuple): Attributes to analyze. The default is ('age', 'gender', 'emotion', 'race').
+            You can exclude some of these attributes from the analysis if needed.
+
+        silent (boolean): Suppress or allow some log messages for a quieter analysis process
+            (default is False).
+
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+
+    Returns:
+        results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
+           the analysis results for a detected face.
+
+           Each dictionary in the list contains the following keys:
+
+           - 'region' (dict): Represents the rectangular region of the detected face in the image.
+               - 'x': x-coordinate of the top-left corner of the face.
+               - 'y': y-coordinate of the top-left corner of the face.
+               - 'w': Width of the detected face region.
+               - 'h': Height of the detected face region.
+
+           - 'age' (float): Estimated age of the detected face.
+
+           - 'face_confidence' (float): Confidence score for the detected face.
+                Indicates the reliability of the face detection.
+
+           - 'dominant_gender' (str): The dominant gender in the detected face.
+                Either "Man" or "Woman."
+
+           - 'gender' (dict): Confidence scores for each gender category.
+               - 'Man': Confidence score for the male gender.
+               - 'Woman': Confidence score for the female gender.
+
+           - 'dominant_emotion' (str): The dominant emotion in the detected face.
+                Possible values include "sad," "angry," "surprise," "fear," "happy,"
+                "disgust," and "neutral."
+
+           - 'emotion' (dict): Confidence scores for each emotion category.
+               - 'sad': Confidence score for sadness.
+               - 'angry': Confidence score for anger.
+               - 'surprise': Confidence score for surprise.
+               - 'fear': Confidence score for fear.
+               - 'happy': Confidence score for happiness.
+               - 'disgust': Confidence score for disgust.
+               - 'neutral': Confidence score for neutrality.
+
+           - 'dominant_race' (str): The dominant race in the detected face.
+                Possible values include "indian," "asian," "latino hispanic,"
+                "black," "middle eastern," and "white."
+
+           - 'race' (dict): Confidence scores for each race category.
+               - 'indian': Confidence score for Indian ethnicity.
+               - 'asian': Confidence score for Asian ethnicity.
+               - 'latino hispanic': Confidence score for Latino/Hispanic ethnicity.
+               - 'black': Confidence score for Black ethnicity.
+               - 'middle eastern': Confidence score for Middle Eastern ethnicity.
+               - 'white': Confidence score for White ethnicity.
+    """
+    return demography.analyze_from_image_objects(
+        img_objs=img_objs,
+        actions=actions,
+        silent=silent,
+        anti_spoofing=anti_spoofing,
+    )
+
+
 def find(
         img_path: Union[str, np.ndarray],
         db_path: str,
@@ -434,6 +511,52 @@ def represent(
         detector_backend=detector_backend,
         align=align,
         expand_percentage=expand_percentage,
+        normalization=normalization,
+        anti_spoofing=anti_spoofing,
+        max_faces=max_faces,
+    )
+
+
+def represent_from_image_objects(
+    img_objs: List[Dict[str, Any]],
+    model_name: str = "VGG-Face",
+    normalization: str = "base",
+    anti_spoofing: bool = False,
+    max_faces: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Represent facial images as multi-dimensional vector embeddings.
+
+    Args:
+        img_objs (List[Dict[str, Any]]): Output of detection.extract_faces.
+
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet
+
+        normalization (string): Normalize the input image before feeding it to the model.
+            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
+
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+
+        max_faces (int): Set a limit on the number of faces to be processed (default is None).
+
+    Returns:
+        results (List[Dict[str, Any]]): A list of dictionaries, each containing the
+            following fields:
+
+        - embedding (List[float]): Multidimensional vector representing facial features.
+            The number of dimensions varies based on the reference model
+            (e.g., FaceNet returns 128 dimensions, VGG-Face returns 4096 dimensions).
+        - facial_area (dict): Detected facial area by face detection in dictionary format.
+            Contains 'x' and 'y' as the left-corner point, and 'w' and 'h'
+            as the width and height. If `detector_backend` is set to 'skip', it represents
+            the full image area and is nonsensical.
+        - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
+            to 'skip', the confidence will be 0 and is nonsensical.
+    """
+    return representation.represent_from_image_objects(
+        img_objs=img_objs,
+        model_name=model_name,
         normalization=normalization,
         anti_spoofing=anti_spoofing,
         max_faces=max_faces,

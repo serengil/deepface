@@ -64,15 +64,9 @@ def represent(
         - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
             to 'skip', the confidence will be 0 and is nonsensical.
     """
-    resp_objs = []
-
-    model: FacialRecognition = modeling.build_model(
-        task="facial_recognition", model_name=model_name
-    )
 
     # ---------------------------------
     # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
-    target_size = model.input_shape
     if detector_backend != "skip":
         img_objs = detection.extract_faces(
             img_path=img_path,
@@ -100,6 +94,60 @@ def represent(
             }
         ]
     # ---------------------------------
+
+    return represent_from_image_objects(
+        img_objs=img_objs,
+        model_name=model_name,
+        normalization=normalization,
+        anti_spoofing=anti_spoofing,
+        max_faces=max_faces
+    )
+
+
+def represent_from_image_objects(
+    img_objs: List[Dict[str, Any]],
+    model_name: str = "VGG-Face",
+    normalization: str = "base",
+    anti_spoofing: bool = False,
+    max_faces: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Represent facial images as multi-dimensional vector embeddings.
+
+    Args:
+        img_objs (List[Dict[str, Any]]): Output of detection.extract_faces.
+
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet
+
+        normalization (string): Normalize the input image before feeding it to the model.
+            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
+
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+
+        max_faces (int): Set a limit on the number of faces to be processed (default is None).
+
+    Returns:
+        results (List[Dict[str, Any]]): A list of dictionaries, each containing the
+            following fields:
+
+        - embedding (List[float]): Multidimensional vector representing facial features.
+            The number of dimensions varies based on the reference model
+            (e.g., FaceNet returns 128 dimensions, VGG-Face returns 4096 dimensions).
+        - facial_area (dict): Detected facial area by face detection in dictionary format.
+            Contains 'x' and 'y' as the left-corner point, and 'w' and 'h'
+            as the width and height. If `detector_backend` is set to 'skip', it represents
+            the full image area and is nonsensical.
+        - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
+            to 'skip', the confidence will be 0 and is nonsensical.
+    """
+    resp_objs = []
+
+    model: FacialRecognition = modeling.build_model(
+        task="facial_recognition", model_name=model_name
+    )
+
+    target_size = model.input_shape
 
     if max_faces is not None and max_faces < len(img_objs):
         # sort as largest facial areas come first
