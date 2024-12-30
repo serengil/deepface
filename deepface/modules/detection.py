@@ -286,6 +286,7 @@ def extract_face(
     mouth_left = facial_area.mouth_left
     mouth_right = facial_area.mouth_right
 
+    # Expand the facial area if needed
     if expand_percentage > 0:
         # Expand the facial region height and width by the provided percentage
         # ensuring that the expanded region stays within img.shape limits
@@ -300,48 +301,53 @@ def extract_face(
     # extract detected face unaligned
     detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
     # align original image, then find projection of detected face area after alignment
-    if align is True:  # and left_eye is not None and right_eye is not None:
+
+    if align:
         # we were aligning the original image before, but this comes with an extra cost
         # instead we now focus on the facial area with a margin
-        # and align it instead of original image to decrese the cost
+        # and align it instead of original image to decrease the cost
+        # 1. Extract sub-image (bigger region) around face
         sub_img, relative_x, relative_y = extract_sub_image(img=img, facial_area=(x, y, w, h))
 
-        aligned_sub_img, angle = align_img_wrt_eyes(
+        # 2. Align sub_img wrt eyes
+        aligned_sub_img, angle, M, new_w, new_h = align_img_wrt_eyes(
             img=sub_img, left_eye=left_eye, right_eye=right_eye
         )
 
-        rotated_x1, rotated_y1, rotated_x2, rotated_y2 = project_facial_area(
-            facial_area=(
-                relative_x,
-                relative_y,
-                relative_x + w,
-                relative_y + h,
-            ),
-            angle=angle,
-            size=(sub_img.shape[0], sub_img.shape[1]),
-        )
-        detected_face = aligned_sub_img[
-            int(rotated_y1) : int(rotated_y2), int(rotated_x1) : int(rotated_x2)
-        ]
+        # 3. Transform the bounding box (relative_x, relative_y, w, h)
+        #    in sub_img space => bounding box corners => then rotate them
+        x1_rel = relative_x
+        y1_rel = relative_y
+        x2_rel = x1_rel + w
+        y2_rel = y1_rel + h
 
-        # do not spend memory for these temporary variables anymore
+        (rotated_x1, rotated_y1, rotated_x2, rotated_y2) = transform_bounding_box(
+            x1_rel, y1_rel, x2_rel, y2_rel, M, new_w, new_h
+        )
+
+        # 4. Crop from rotated image
+        detected_face = aligned_sub_img[rotated_y1:rotated_y2, rotated_x1:rotated_x2]
+
+        # 5. Adjust original facial_area's top-left in case we have added borders
+        x -= width_border
+        y -= height_border
+
+        # 6. Re-position facial landmarks
+        def shift_landmark(landmark):
+            if landmark is not None:
+                return (landmark[0] - width_border, landmark[1] - height_border)
+            return None
+
+        left_eye = shift_landmark(left_eye)
+        right_eye = shift_landmark(right_eye)
+        nose = shift_landmark(nose)
+        mouth_left = shift_landmark(mouth_left)
+        mouth_right = shift_landmark(mouth_right)
+
+        # free memory from big arrays
         del aligned_sub_img, sub_img
 
-        # restore x, y, le and re before border added
-        x = x - width_border
-        y = y - height_border
-        # w and h will not change
-        if left_eye is not None:
-            left_eye = (left_eye[0] - width_border, left_eye[1] - height_border)
-        if right_eye is not None:
-            right_eye = (right_eye[0] - width_border, right_eye[1] - height_border)
-        if nose is not None:
-            nose = (nose[0] - width_border, nose[1] - height_border)
-        if mouth_left is not None:
-            mouth_left = (mouth_left[0] - width_border, mouth_left[1] - height_border)
-        if mouth_right is not None:
-            mouth_right = (mouth_right[0] - width_border, mouth_right[1] - height_border)
-
+    # Return final DetectedFace
     return DetectedFace(
         img=detected_face,
         facial_area=FacialAreaRegion(
@@ -412,38 +418,94 @@ def extract_sub_image(
     return extracted_face, relative_x, relative_y
 
 
+def transform_bounding_box(
+    x1: float, y1: float, x2: float, y2: float, M: np.ndarray, new_w: int, new_h: int
+) -> Tuple[int, int, int, int]:
+    """
+    Applies the rotation matrix M to the corners of the bounding box,
+    then returns the bounding box (min_x, min_y, max_x, max_y) in the rotated image space.
+    All values are clamped to the new image boundaries.
+    """
+    # corners in homogeneous coordinates
+    corners = np.array(
+        [[x1, y1, 1.0], [x2, y1, 1.0], [x2, y2, 1.0], [x1, y2, 1.0]], dtype=np.float32
+    )
+
+    # apply transformation
+    transformed = (M @ corners.T).T  # shape (4, 2)
+
+    xs = transformed[:, 0]
+    ys = transformed[:, 1]
+
+    min_x, max_x = np.min(xs), np.max(xs)
+    min_y, max_y = np.min(ys), np.max(ys)
+
+    # clamp to boundaries
+    min_x = max(0, min_x)
+    min_y = max(0, min_y)
+    max_x = min(new_w, max_x)
+    max_y = min(new_h, max_y)
+
+    return int(min_x), int(min_y), int(max_x), int(max_y)
+
+
 def align_img_wrt_eyes(
     img: np.ndarray,
     left_eye: Optional[Union[list, tuple]],
     right_eye: Optional[Union[list, tuple]],
-) -> Tuple[np.ndarray, float]:
+) -> Tuple[np.ndarray, float, np.ndarray, int, int]:
     """
-    Align a given image horizantally with respect to their left and right eye locations
+    Align a given image horizontally with respect to the left and right eye locations.
+    Returns the rotated image, rotation angle in degrees, rotation matrix M, and final image size.
     Args:
         img (np.ndarray): pre-loaded image with detected face
         left_eye (list or tuple): coordinates of left eye with respect to the person itself
         right_eye(list or tuple): coordinates of right eye with respect to the person itself
     Returns:
-        img (np.ndarray): aligned facial image
+        rotated_img (np.ndarray): The rotated image
+        angle (float): The rotation angle in degrees
+        M (np.ndarray): The rotation matrix
+        new_w (int): The width of the rotated image
+        new_h (int): The height of the rotated image
     """
-    # if eye could not be detected for the given image, return image itself
-    if left_eye is None or right_eye is None:
-        return img, 0
+    # if eyes are missing or image has nil dimensions, do nothing
+    if left_eye is None or right_eye is None or img.shape[0] == 0 or img.shape[1] == 0:
+        return img, 0.0, np.eye(3, dtype=np.float32), img.shape[1], img.shape[0]
 
-    # sometimes unexpectedly detected images come with nil dimensions
-    if img.shape[0] == 0 or img.shape[1] == 0:
-        return img, 0
-
-    angle = float(np.degrees(np.arctan2(left_eye[1] - right_eye[1], left_eye[0] - right_eye[0])))
+    # compute rotation angle
+    dy = left_eye[1] - right_eye[1]
+    dx = left_eye[0] - right_eye[0]
+    angle = float(np.degrees(np.arctan2(dy, dx)))
 
     (h, w) = img.shape[:2]
     center = (w // 2, h // 2)
+
+    # get initial rotation matrix
     M = cv2.getRotationMatrix2D(center, angle, 1.0)
-    img = cv2.warpAffine(
-        img, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT, borderValue=(0, 0, 0)
+
+    # compute the absolute values of cos and sin
+    cos_val = np.abs(M[0, 0])
+    sin_val = np.abs(M[0, 1])
+
+    # compute new bounding dimensions after rotation
+    new_w = int((h * sin_val) + (w * cos_val))
+    new_h = int((h * cos_val) + (w * sin_val))
+
+    # adjust the rotation matrix to account for translation
+    M[0, 2] += (new_w / 2) - center[0]
+    M[1, 2] += (new_h / 2) - center[1]
+
+    # rotate the image with a resized bounding box
+    rotated_img = cv2.warpAffine(
+        img,
+        M,
+        (new_w, new_h),
+        flags=cv2.INTER_CUBIC,
+        borderMode=cv2.BORDER_CONSTANT,
+        borderValue=(0, 0, 0),
     )
 
-    return img, angle
+    return rotated_img, angle, M, new_w, new_h
 
 
 def project_facial_area(
