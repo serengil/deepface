@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 from abc import ABC, abstractmethod
 import numpy as np
 from deepface.commons import package_utils
@@ -18,5 +18,5 @@ class Demography(ABC):
     model_name: str
 
     @abstractmethod
-    def predict(self, img: np.ndarray) -> Union[np.ndarray, np.float64]:
+    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[np.ndarray, np.float64]:
         pass
