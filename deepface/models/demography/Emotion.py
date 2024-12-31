@@ -58,7 +58,7 @@ class EmotionClient(Demography):
         img_gray = cv2.resize(img_gray, (48, 48))
         return img_gray
 
-    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[np.ndarray, np.ndarray]:
+    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
         """
         Predict emotion probabilities for single or multiple faces
         Args:
@@ -66,8 +66,7 @@ class EmotionClient(Demography):
                 List of images as List[np.ndarray] or
                 Batch of images as np.ndarray (n, 224, 224, 3)
         Returns:
-            Single prediction as np.ndarray (n_emotions,) [emotion_probs] or
-            Multiple predictions as np.ndarray (n, n_emotions)
+            np.ndarray (n, n_emotions)
             where n_emotions is the number of emotion categories
         """
         # Convert to numpy array if input is list
@@ -83,9 +82,6 @@ class EmotionClient(Demography):
         if len(imgs.shape) == 3:
             # Single image - add batch dimension
             imgs = np.expand_dims(imgs, axis=0)
-            is_single = True
-        else:
-            is_single = False
 
         # Preprocess each image
         processed_imgs = np.array([self._preprocess_image(img) for img in imgs])
@@ -96,11 +92,7 @@ class EmotionClient(Demography):
         # Batch prediction
         predictions = self.model.predict_on_batch(processed_imgs)
 
-        # Return single prediction for single image
-        if is_single:
-            return predictions[0]
         return predictions
-
 
 
 def load_model(
