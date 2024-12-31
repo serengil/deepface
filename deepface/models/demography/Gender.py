@@ -1,4 +1,5 @@
 # stdlib dependencies
+
 from typing import List, Union
 
 # 3rd party dependencies
@@ -75,6 +76,26 @@ class GenderClient(Demography):
         if is_single:
             return predictions[0]
         return predictions
+
+
+    def predicts(self, imgs: List[np.ndarray]) -> np.ndarray:
+        """
+        Predict apparent ages of multiple faces
+        Args:
+            imgs (List[np.ndarray]): (n, 224, 224, 3)
+        Returns:
+            apparent_ages (np.ndarray): (n,)
+        """
+        # Convert list to numpy array
+        imgs_:np.ndarray = np.array(imgs)
+        # Remove redundant dimensions
+        imgs_ = imgs_.squeeze()
+        # Check if the input is a single image
+        if len(imgs_.shape) == 3:
+            # Add batch dimension
+            imgs_ = np.expand_dims(imgs_, axis=0)
+        return self.model.predict_on_batch(imgs_)
+
 
 
 def load_model(
