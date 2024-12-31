@@ -121,7 +121,7 @@ models = [
   "ArcFace", 
   "Dlib", 
   "SFace",
-  "GhostFaceNet",
+  "GhostFaceNet"
 ]
 
 #face verification
@@ -223,6 +223,9 @@ backends = [
   'retinaface', 
   'mediapipe',
   'yolov8',
+  'yolov11s',
+  'yolov11n',
+  'yolov11m',
   'yunet',
   'centerface',
 ]
