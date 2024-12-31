@@ -1,3 +1,6 @@
+# stdlib dependencies
+from typing import List, Union
+
 # 3rd party dependencies
 import numpy as np
 import cv2
@@ -43,16 +46,53 @@ class EmotionClient(Demography):
         self.model = load_model()
         self.model_name = "Emotion"
 
-    def predict(self, img: np.ndarray) -> np.ndarray:
-        img_gray = cv2.cvtColor(img[0], cv2.COLOR_BGR2GRAY)
+    def _preprocess_image(self, img: np.ndarray) -> np.ndarray:
+        """
+        Preprocess single image for emotion detection
+        Args:
+            img: Input image (224, 224, 3)
+        Returns:
+            Preprocessed grayscale image (48, 48)
+        """
+        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         img_gray = cv2.resize(img_gray, (48, 48))
-        img_gray = np.expand_dims(img_gray, axis=0)
+        return img_gray
 
-        # model.predict causes memory issue when it is called in a for loop
-        # emotion_predictions = self.model.predict(img_gray, verbose=0)[0, :]
-        emotion_predictions = self.model(img_gray, training=False).numpy()[0, :]
+    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
+        """
+        Predict emotion probabilities for single or multiple faces
+        Args:
+            img: Single image as np.ndarray (224, 224, 3) or
+                List of images as List[np.ndarray] or
+                Batch of images as np.ndarray (n, 224, 224, 3)
+        Returns:
+            np.ndarray (n, n_emotions)
+            where n_emotions is the number of emotion categories
+        """
+        # Convert to numpy array if input is list
+        if isinstance(img, list):
+            imgs = np.array(img)
+        else:
+            imgs = img
 
-        return emotion_predictions
+        # Remove batch dimension if exists
+        imgs = imgs.squeeze()
+
+        # Check input dimension
+        if len(imgs.shape) == 3:
+            # Single image - add batch dimension
+            imgs = np.expand_dims(imgs, axis=0)
+
+        # Preprocess each image
+        processed_imgs = np.array([self._preprocess_image(img) for img in imgs])
+        
+        # Add channel dimension for grayscale images
+        processed_imgs = np.expand_dims(processed_imgs, axis=-1)
+
+        # Batch prediction
+        predictions = self.model.predict_on_batch(processed_imgs)
+
+        return predictions
 
 
 def load_model(

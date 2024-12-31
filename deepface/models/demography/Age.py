@@ -1,5 +1,6 @@
 # stdlib dependencies
-from typing import List
+
+from typing import List, Union
 
 # 3rd party dependencies
 import numpy as np
@@ -40,11 +41,40 @@ class ApparentAgeClient(Demography):
         self.model = load_model()
         self.model_name = "Age"
 
-    def predict(self, img: np.ndarray) -> np.float64:
-        # model.predict causes memory issue when it is called in a for loop
-        # age_predictions = self.model.predict(img, verbose=0)[0, :]
-        age_predictions = self.model(img, training=False).numpy()[0, :]
-        return find_apparent_age(age_predictions)
+    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
+        """
+        Predict apparent age(s) for single or multiple faces
+        Args:
+            img: Single image as np.ndarray (224, 224, 3) or
+                List of images as List[np.ndarray] or
+                Batch of images as np.ndarray (n, 224, 224, 3)
+        Returns:
+            np.ndarray (n,)
+        """
+        # Convert to numpy array if input is list
+        if isinstance(img, list):
+            imgs = np.array(img)
+        else:
+            imgs = img
+
+        # Remove batch dimension if exists
+        imgs = imgs.squeeze()
+
+        # Check input dimension
+        if len(imgs.shape) == 3:
+            # Single image - add batch dimension
+            imgs = np.expand_dims(imgs, axis=0)
+
+        # Batch prediction
+        age_predictions = self.model.predict_on_batch(imgs)
+        
+        # Calculate apparent ages
+        apparent_ages = np.array(
+            [find_apparent_age(age_prediction) for age_prediction in age_predictions]
+        )
+
+        return apparent_ages
+
 
     def predicts(self, imgs: List[np.ndarray]) -> np.ndarray:
         """
@@ -68,6 +98,7 @@ class ApparentAgeClient(Demography):
             [find_apparent_age(age_prediction) for age_prediction in age_predictions]
         )
         return apparent_ages
+
 
 
 def load_model(
