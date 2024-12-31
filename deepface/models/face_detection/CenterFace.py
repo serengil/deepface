@@ -46,7 +46,7 @@ class CenterFaceClient(Detector):
         """
         resp = []
 
-        threshold = float(os.getenv("CENTERFACE_THRESHOLD", "0.80"))
+        threshold = float(os.getenv("CENTERFACE_THRESHOLD", "0.35"))
 
         # BUG: model causes problematic results from 2nd call if it is not flushed
         # detections, landmarks = self.model.forward(

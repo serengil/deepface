@@ -64,7 +64,7 @@ class FaceNet128dClient(FacialRecognition):
 
 class FaceNet512dClient(FacialRecognition):
     """
-    FaceNet-1512d model class
+    FaceNet-512d model class
     """
 
     def __init__(self):
