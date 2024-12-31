@@ -135,3 +135,15 @@ def test_analyze_for_different_detectors():
                     assert result["gender"]["Man"] > result["gender"]["Woman"]
                 else:
                     assert result["gender"]["Man"] < result["gender"]["Woman"]
+
+def test_analyze_for_multiple_faces():
+    img = "dataset/img4.jpg"
+    # Copy and combine the same image to create multiple faces
+    img = cv2.imread(img)
+    img = cv2.hconcat([img, img])
+    demography_objs = DeepFace.analyze(img, silent=True)
+    for demography in demography_objs:
+        logger.debug(demography)
+        assert demography["age"] > 20 and demography["age"] < 40
+        assert demography["dominant_gender"] == "Woman"
+    logger.info("✅ test analyze for multiple faces done")

@@ -1,3 +1,6 @@
+# stdlib dependencies
+from typing import List, Union
+
 # 3rd party dependencies
 import numpy as np
 
@@ -37,10 +40,35 @@ class RaceClient(Demography):
         self.model = load_model()
         self.model_name = "Race"
 
-    def predict(self, img: np.ndarray) -> np.ndarray:
-        # model.predict causes memory issue when it is called in a for loop
-        # return self.model.predict(img, verbose=0)[0, :]
-        return self.model(img, training=False).numpy()[0, :]
+    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
+        """
+        Predict race probabilities for single or multiple faces
+        Args:
+            img: Single image as np.ndarray (224, 224, 3) or
+                List of images as List[np.ndarray] or
+                Batch of images as np.ndarray (n, 224, 224, 3)
+        Returns:
+            np.ndarray (n, n_races)
+            where n_races is the number of race categories
+        """
+        # Convert to numpy array if input is list
+        if isinstance(img, list):
+            imgs = np.array(img)
+        else:
+            imgs = img
+
+        # Remove batch dimension if exists
+        imgs = imgs.squeeze()
+
+        # Check input dimension
+        if len(imgs.shape) == 3:
+            # Single image - add batch dimension
+            imgs = np.expand_dims(imgs, axis=0)
+
+        # Batch prediction
+        predictions = self.model.predict_on_batch(imgs)
+
+        return predictions
 
 
 def load_model(
@@ -62,7 +90,7 @@ def load_model(
 
     # --------------------------
 
-    race_model = Model(inputs=model.input, outputs=base_model_output)
+    race_model = Model(inputs=model.inputs, outputs=base_model_output)
 
     # --------------------------
 
