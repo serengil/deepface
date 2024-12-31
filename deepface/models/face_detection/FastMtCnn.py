@@ -92,4 +92,4 @@ def xyxy_to_xywh(regions: Union[list, tuple]) -> tuple:
     x, y, x_plus_w, y_plus_h = regions[0], regions[1], regions[2], regions[3]
     w = x_plus_w - x
     h = y_plus_h - y
-    return (x, y, w, h)
+    return (int(x), int(y), int(w), int(h))

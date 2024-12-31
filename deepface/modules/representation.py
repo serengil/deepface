@@ -36,7 +36,8 @@ def represent(
             Default is True. Set to False to avoid the exception for low-resolution images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'centerface' or 'skip'.
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s',
+            'yolov11m', 'centerface' or 'skip'.
 
         align (boolean): Perform alignment based on the eye positions.
 
@@ -115,7 +116,7 @@ def represent(
             raise ValueError("Spoof detected in the given image.")
         img = img_obj["face"]
 
-        # rgb to bgr
+        # bgr to rgb
         img = img[:, :, ::-1]
 
         region = img_obj["facial_area"]

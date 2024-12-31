@@ -119,25 +119,31 @@ def image_to_base64(image_path):
 
 
 def test_facial_coordinates_are_in_borders():
+    detectors = ["retinaface", "mtcnn"]
+    expected_faces = [7, 6]
+
     img_path = "dataset/selfie-many-people.jpg"
     img = cv2.imread(img_path)
     height, width, _ = img.shape
 
-    results = DeepFace.extract_faces(img_path=img_path)
+    for i, detector_backend in enumerate(detectors):
+        results = DeepFace.extract_faces(img_path=img_path, detector_backend=detector_backend)
 
-    assert len(results) > 0
+        # this is a hard example, mtcnn can detect 6 and retinaface can detect 7 faces
+        # be sure all those faces detected. any change in detection module can break this.
+        assert len(results) == expected_faces[i]
 
-    for result in results:
-        facial_area = result["facial_area"]
+        for result in results:
+            facial_area = result["facial_area"]
 
-        x = facial_area["x"]
-        y = facial_area["y"]
-        w = facial_area["w"]
-        h = facial_area["h"]
+            x = facial_area["x"]
+            y = facial_area["y"]
+            w = facial_area["w"]
+            h = facial_area["h"]
 
-        assert x >= 0
-        assert y >= 0
-        assert x + w < width
-        assert y + h < height
+            assert x >= 0
+            assert y >= 0
+            assert x + w < width
+            assert y + h < height
 
-    logger.info("✅ facial area coordinates are all in image borders")
+        logger.info(f"✅ facial area coordinates are all in image borders for {detector_backend}")
