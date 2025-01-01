@@ -22,6 +22,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 IDENTIFIED_IMG_SIZE = 112
 TEXT_COLOR = (255, 255, 255)
 
+
 # pylint: disable=unused-variable
 def analysis(
     db_path: str,
@@ -82,7 +83,11 @@ def analysis(
     num_frames_with_faces = 0
     tic = time.time()
 
-    cap = cv2.VideoCapture(source)  # webcam
+    # If source is an integer, use it as a webcam index. Otherwise, treat it as a video file path.
+    if isinstance(source, int):
+        cap = cv2.VideoCapture(source)  # webcam
+    else:
+        cap = cv2.VideoCapture(str(source))  # video file
     while True:
         has_frame, img = cap.read()
         if not has_frame:
