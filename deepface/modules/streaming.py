@@ -34,42 +34,29 @@ def analysis(
     time_threshold=5,
     frame_threshold=5,
     anti_spoofing: bool = False,
+    output_path: Optional[str] = None,  # New parameter
 ):
     """
-    Run real time face recognition and facial attribute analysis
+    Run real-time face recognition and facial attribute analysis, with optional video output.
 
     Args:
-        db_path (string): Path to the folder containing image files. All detected faces
-            in the database will be considered in the decision-making process.
-
-        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face)
-
-        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
-            'centerface' or 'skip' (default is opencv).
-
-        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2' (default is cosine).
-
-        enable_face_analysis (bool): Flag to enable face analysis (default is True).
-
-        source (Any): The source for the video stream (default is 0, which represents the
-            default camera).
-
-        time_threshold (int): The time threshold (in seconds) for face recognition (default is 5).
-
-        frame_threshold (int): The frame threshold for face recognition (default is 5).
-
-        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+        db_path (str): Path to the folder containing image files.
+        model_name (str): Model for face recognition.
+        detector_backend (str): Face detector backend.
+        distance_metric (str): Metric for measuring similarity.
+        enable_face_analysis (bool): Flag to enable face analysis.
+        source (Any): The source for the video stream (camera index or video file path).
+        time_threshold (int): Time threshold (in seconds) for face recognition.
+        frame_threshold (int): Frame threshold for face recognition.
+        anti_spoofing (bool): Flag to enable anti-spoofing.
+        output_path (str): Path to save the output video. If None, no video is saved.
 
     Returns:
         None
     """
-    # initialize models
+    # Initialize models
     build_demography_models(enable_face_analysis=enable_face_analysis)
     build_facial_recognition_model(model_name=model_name)
-    # call a dummy find function for db_path once to create embeddings before starting webcam
     _ = search_identity(
         detected_face=np.zeros([224, 224, 3]),
         db_path=db_path,
@@ -78,35 +65,40 @@ def analysis(
         model_name=model_name,
     )
 
+    cap = cv2.VideoCapture(source if isinstance(source, str) else int(source))
+    if not cap.isOpened():
+        logger.error(f"Cannot open video source: {source}")
+        return
+
+    # Get video properties
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec for output file
+
+    # Initialize video writer if output_path is provided
+    video_writer = None
+    if output_path:
+        video_writer = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
     freezed_img = None
     freeze = False
     num_frames_with_faces = 0
     tic = time.time()
 
-    # If source is an integer, use it as a webcam index. Otherwise, treat it as a video file path.
-    if isinstance(source, int):
-        cap = cv2.VideoCapture(source)  # webcam
-    else:
-        cap = cv2.VideoCapture(str(source))  # video file
     while True:
         has_frame, img = cap.read()
         if not has_frame:
             break
 
-        # we are adding some figures into img such as identified facial image, age, gender
-        # that is why, we need raw image itself to make analysis
         raw_img = img.copy()
-
         faces_coordinates = []
-        if freeze is False:
+
+        if not freeze:
             faces_coordinates = grab_facial_areas(
                 img=img, detector_backend=detector_backend, anti_spoofing=anti_spoofing
             )
-
-            # we will pass img to analyze modules (identity, demography) and add some illustrations
-            # that is why, we will not be able to extract detected face from img clearly
             detected_faces = extract_facial_areas(img=img, faces_coordinates=faces_coordinates)
-
             img = highlight_facial_areas(img=img, faces_coordinates=faces_coordinates)
             img = countdown_to_freeze(
                 img=img,
@@ -116,22 +108,18 @@ def analysis(
             )
 
             num_frames_with_faces = num_frames_with_faces + 1 if len(faces_coordinates) else 0
-
             freeze = num_frames_with_faces > 0 and num_frames_with_faces % frame_threshold == 0
+
             if freeze:
-                # add analyze results into img - derive from raw_img
                 img = highlight_facial_areas(
                     img=raw_img, faces_coordinates=faces_coordinates, anti_spoofing=anti_spoofing
                 )
-
-                # age, gender and emotion analysis
                 img = perform_demography_analysis(
                     enable_face_analysis=enable_face_analysis,
                     img=raw_img,
                     faces_coordinates=faces_coordinates,
                     detected_faces=detected_faces,
                 )
-                # facial recogntion analysis
                 img = perform_facial_recognition(
                     img=img,
                     faces_coordinates=faces_coordinates,
@@ -141,30 +129,31 @@ def analysis(
                     distance_metric=distance_metric,
                     model_name=model_name,
                 )
-
-                # freeze the img after analysis
                 freezed_img = img.copy()
-
-                # start counter for freezing
                 tic = time.time()
-                logger.info("freezed")
+                logger.info("Image frozen for analysis")
 
-        elif freeze is True and time.time() - tic > time_threshold:
+        elif freeze and time.time() - tic > time_threshold:
             freeze = False
             freezed_img = None
-            # reset counter for freezing
             tic = time.time()
-            logger.info("freeze released")
+            logger.info("Freeze released")
 
         freezed_img = countdown_to_release(img=freezed_img, tic=tic, time_threshold=time_threshold)
+        display_img = img if freezed_img is None else freezed_img
 
-        cv2.imshow("img", img if freezed_img is None else freezed_img)
+        # Save the frame to output video if writer is initialized
+        if video_writer:
+            video_writer.write(display_img)
 
-        if cv2.waitKey(1) & 0xFF == ord("q"):  # press q to quit
+        cv2.imshow("img", display_img)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
-    # kill open cv things
+    # Release resources
     cap.release()
+    if video_writer:
+        video_writer.release()
     cv2.destroyAllWindows()
 
 
