@@ -450,7 +450,7 @@ def stream(
     time_threshold: int = 5,
     frame_threshold: int = 5,
     anti_spoofing: bool = False,
-    output_path: Optional[str] = None,  # New parameter
+    output_path: Optional[str] = None,
 ) -> None:
     """
     Run real time face recognition and facial attribute analysis
@@ -480,7 +480,7 @@ def stream(
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
-        output_path (str): Path to save the output video. If None, no video is saved.
+        output_path (str): Path to save the output video. If None, no video is saved (default is None).
 
     Returns:
         None
@@ -499,7 +499,7 @@ def stream(
         time_threshold=time_threshold,
         frame_threshold=frame_threshold,
         anti_spoofing=anti_spoofing,
-        output_path=output_path,  # Pass the output_path to analysis
+        output_path=output_path,
     )
 
 
