@@ -254,10 +254,10 @@ def search_identity(
     # detected face is coming from parent, safe to access 1st index
     df = dfs[0]
 
-    if df.shape[0] == 0:  # type: ignore
+    if df.shape[0] == 0:  
         return None, None
 
-    candidate = df.iloc[0]  # type: ignore
+    candidate = df.iloc[0]  
     target_path = candidate["identity"]
     logger.info(f"Hello, {target_path}")
 
