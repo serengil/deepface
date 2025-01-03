@@ -91,7 +91,9 @@ def analysis(
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec for output file
-
+    # Ensure the output directory exists if output_path is provided
+    if output_path:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
     # Initialize video writer if output_path is provided
     video_writer = (
         cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height))
@@ -254,10 +256,10 @@ def search_identity(
     # detected face is coming from parent, safe to access 1st index
     df = dfs[0]
 
-    if df.shape[0] == 0:  
+    if df.shape[0] == 0:
         return None, None
 
-    candidate = df.iloc[0]  
+    candidate = df.iloc[0]
     target_path = candidate["identity"]
     logger.info(f"Hello, {target_path}")
 
