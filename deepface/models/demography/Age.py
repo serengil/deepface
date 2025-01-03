@@ -51,19 +51,8 @@ class ApparentAgeClient(Demography):
         Returns:
             np.ndarray (n,)
         """
-        # Convert to numpy array if input is list
-        if isinstance(img, list):
-            imgs = np.array(img)
-        else:
-            imgs = img
-
-        # Remove batch dimension if exists
-        imgs = imgs.squeeze()
-
-        # Check input dimension
-        if len(imgs.shape) == 3:
-            # Single image - add batch dimension
-            imgs = np.expand_dims(imgs, axis=0)
+        # Preprocessing input image or image list.
+        imgs = self._preprocess_batch_or_single_input(img)
 
         # Batch prediction
         age_predictions = self.model.predict_on_batch(imgs)

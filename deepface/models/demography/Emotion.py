@@ -69,19 +69,8 @@ class EmotionClient(Demography):
             np.ndarray (n, n_emotions)
             where n_emotions is the number of emotion categories
         """
-        # Convert to numpy array if input is list
-        if isinstance(img, list):
-            imgs = np.array(img)
-        else:
-            imgs = img
-
-        # Remove batch dimension if exists
-        imgs = imgs.squeeze()
-
-        # Check input dimension
-        if len(imgs.shape) == 3:
-            # Single image - add batch dimension
-            imgs = np.expand_dims(imgs, axis=0)
+        # Preprocessing input image or image list.
+        imgs = self._preprocess_batch_or_single_input(img)
 
         # Preprocess each image
         processed_imgs = np.array([self._preprocess_image(img) for img in imgs])
