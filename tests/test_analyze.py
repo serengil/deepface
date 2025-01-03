@@ -142,6 +142,7 @@ def test_analyze_for_multiple_faces():
     img = cv2.imread(img)
     img = cv2.hconcat([img, img])
     demography_objs = DeepFace.analyze(img, silent=True)
+    assert len(demography_objs) == 2
     for demography in demography_objs:
         logger.debug(demography)
         assert demography["age"] > 20 and demography["age"] < 40
