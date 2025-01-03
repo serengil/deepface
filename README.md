@@ -403,9 +403,11 @@ If you do like this work, then you can support it financially on [Patreon](https
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/bmc-button.png" width="25%" height="25%">
 </a>
 
-Additionally, you can help us reach more people by upvoting our Hacker News post.
+Additionally, you can help us reach a wider audience by upvoting our posts on Hacker News and Product Hunt.
 
 [![Featured on Hacker News](https://hackerbadge.vercel.app/api?id=42584896&type=orange)](https://news.ycombinator.com/item?id=42584896)
+
+<a href="https://www.producthunt.com/posts/deepface?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-deepface" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=753599&theme=light" alt="DeepFace - A&#0032;Lightweight&#0032;Deep&#0032;Face&#0032;Recognition&#0032;Library&#0032;for&#0032;Python | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 ## Citation
 
