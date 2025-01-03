@@ -408,7 +408,7 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
 <div style="display: flex; align-items: center; gap: 10px;">
   <!-- Hacker News Badge -->
   <a href="https://news.ycombinator.com/item?id=42584896">
-    <img src="https://hackerbadge.vercel.app/api?id=42584896&type=orange" alt="Featured on Hacker News">
+    <img src="https://hackerbadge.vercel.app/api?id=42584896&type=orange" style="width: 250px; height: 54px;" width="250" alt="Featured on Hacker News">
   </a>
   
   <!-- Product Hunt Badge -->
