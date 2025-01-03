@@ -131,10 +131,8 @@ def analyze(
     )
 
     # Anti-spoofing check
-    if anti_spoofing:
-        for img_obj in img_objs:
-            if img_obj.get("is_real", True) is False:
-                raise ValueError("Spoof detected in the given image.")
+    if anti_spoofing and any(img_obj.get("is_real", True) is False for img_obj in img_objs):
+        raise ValueError("Spoof detected in the given image.")
 
     # Prepare the input for the model
     valid_faces = []
