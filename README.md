@@ -405,9 +405,17 @@ If you do like this work, then you can support it financially on [Patreon](https
 
 Additionally, you can help us reach a wider audience by upvoting our posts on Hacker News and Product Hunt.
 
-[![Featured on Hacker News](https://hackerbadge.vercel.app/api?id=42584896&type=orange)](https://news.ycombinator.com/item?id=42584896)
-
-<a href="https://www.producthunt.com/posts/deepface?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-deepface" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=753599&theme=light" alt="DeepFace - A&#0032;Lightweight&#0032;Deep&#0032;Face&#0032;Recognition&#0032;Library&#0032;for&#0032;Python | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+<div style="display: flex; align-items: center; gap: 10px;">
+  <!-- Hacker News Badge -->
+  <a href="https://news.ycombinator.com/item?id=42584896">
+    <img src="https://hackerbadge.vercel.app/api?id=42584896&type=orange" alt="Featured on Hacker News">
+  </a>
+  
+  <!-- Product Hunt Badge -->
+  <a href="https://www.producthunt.com/posts/deepface?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-deepface" target="_blank">
+    <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=753599&theme=light" alt="DeepFace - A Lightweight Deep Face Recognition Library for Python | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" />
+  </a>
+</div>
 
 ## Citation
 
