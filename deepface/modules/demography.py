@@ -163,7 +163,11 @@ def analyze(
 
     # Convert the list of valid faces to a numpy array
     faces_array = np.array(valid_faces)
-    resp_objects = [{} for _ in range(len(valid_faces))]
+
+    # Create placeholder response objects for each face
+    for _ in range(len(valid_faces)):
+        resp_objects.append({})
+
 
     # For each action, predict the corresponding attribute
     pbar = tqdm(
