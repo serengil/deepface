@@ -43,6 +43,6 @@ class Demography(ABC):
         # Check input dimension
         if len(image_batch.shape) == 3:
             # Single image - add batch dimension
-            imgs = np.expand_dims(image_batch, axis=0)
+            image_batch = np.expand_dims(image_batch, axis=0)
 
         return image_batch
