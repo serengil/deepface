@@ -64,8 +64,8 @@ def analysis(
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
-        output_path (str): Path to save the output video. If None, no video is saved (default is None).
-
+        output_path (str): Path to save the output video. (default is None
+            If None, no video is saved).
     Returns:
         None
     """
