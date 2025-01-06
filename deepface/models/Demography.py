@@ -21,14 +21,37 @@ class Demography(ABC):
     def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[np.ndarray, np.float64]:
         pass
 
+    def _predict_internal(self, img_batch: np.ndarray) -> np.ndarray:
+        """
+        Predict for single image or batched images.
+        This method uses legacy method while receiving single image as input. 
+        And switch to batch prediction if receives batched images.
+
+        Args:
+            img_batch: Batch of images as np.ndarray (n, 224, 224, 3), with n >= 1.
+        """
+        if not self.model_name: # Check if called from derived class
+            raise NotImplementedError("virtual method must not be called directly")
+        
+        assert img_batch.ndim == 4, "expected 4-dimensional tensor input"
+
+        if img_batch.shape[0] == 1: # Single image
+            img_batch = img_batch.squeeze(0) # Remove batch dimension
+            predict_result = self.model(img_batch, training=False).numpy()[0, :]
+            predict_result = np.expand_dims(predict_result, axis=0) # Add batch dimension
+            return predict_result
+        else: # Batch of images
+            return self.model.predict_on_batch(img_batch)
+
     def _preprocess_batch_or_single_input(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
 
         """
         Preprocess single or batch of images, return as 4-D numpy array.
         Args:
             img: Single image as np.ndarray (224, 224, 3) or
-                List of images as List[np.ndarray] or
-                Batch of images as np.ndarray (n, 224, 224, 3)
+                 List of images as List[np.ndarray] or
+                 Batch of images as np.ndarray (n, 224, 224, 3)
+                 NOTE: If the imput is grayscale, then there's no channel dimension.
         Returns:
             Four-dimensional numpy array (n, 224, 224, 3)
         """
