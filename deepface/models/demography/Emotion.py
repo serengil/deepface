@@ -72,13 +72,11 @@ class EmotionClient(Demography):
         # Preprocessing input image or image list.
         imgs = self._preprocess_batch_or_single_input(img)
 
-        # Preprocess each image
-        processed_imgs = np.array([self._preprocess_image(img) for img in imgs])
-        
-        # Add channel dimension for grayscale images
-        processed_imgs = np.expand_dims(processed_imgs, axis=-1)
+        # Preprocess each image and add channel dimension for grayscale images
+        processed_imgs = np.expand_dims(np.array([self._preprocess_image(img) for img in imgs]), axis=0)
 
         # Prediction
+        # Emotion model input shape is (48, 48, 1, n), where n is the batch size
         predictions = self._predict_internal(processed_imgs)
 
         return predictions
