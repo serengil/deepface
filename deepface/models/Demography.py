@@ -28,7 +28,7 @@ class Demography(ABC):
         And switch to batch prediction if receives batched images.
 
         Args:
-            img_batch: Batch of images as np.ndarray (n, 224, 224, 3), with n >= 1.
+            img_batch: Batch of images as np.ndarray (n, x, y, c), with n >= 1, x = image width, y = image height, c = channel
         """
         if not self.model_name: # Check if called from derived class
             raise NotImplementedError("virtual method must not be called directly")
