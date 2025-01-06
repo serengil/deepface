@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
 
 # 3rd party dependencies
 import numpy as np
@@ -117,8 +117,6 @@ def analyze(
                 f"Invalid action passed ({repr(action)})). "
                 "Valid actions are `emotion`, `age`, `gender`, `race`."
             )
-    # ---------------------------------
-    resp_objects = []
 
     img_objs = detection.extract_faces(
         img_path=img_path,
@@ -130,137 +128,105 @@ def analyze(
         anti_spoofing=anti_spoofing,
     )
 
-    # Anti-spoofing check
     if anti_spoofing and any(img_obj.get("is_real", True) is False for img_obj in img_objs):
         raise ValueError("Spoof detected in the given image.")
 
-    # Prepare the input for the model
-    valid_faces = []
-    face_regions = []
-    face_confidences = []
-    
-    for img_obj in img_objs:
-        # Extract the face content
+    def preprocess_face(img_obj: Dict[str, Any]) -> Optional[np.ndarray]:
+        """
+        Preprocess the face image for analysis.
+        """
         img_content = img_obj["face"]
-        # Check if the face content is empty
         if img_content.shape[0] == 0 or img_content.shape[1] == 0:
-            continue
+            return None
+        img_content = img_content[:, :, ::-1]  # BGR to RGB
+        return preprocessing.resize_image(img=img_content, target_size=(224, 224))
 
-        # Convert the image to RGB format from BGR
-        img_content = img_content[:, :, ::-1]
-        # Resize the image to the target size for the model
-        img_content = preprocessing.resize_image(img=img_content, target_size=(224, 224))
-
-        valid_faces.append(img_content)
-        face_regions.append(img_obj["facial_area"])
-        face_confidences.append(img_obj["confidence"])
-
-    # If no valid faces are found, return an empty list
-    if not valid_faces:
+    # Filter out empty faces
+    face_data = [(preprocess_face(img_obj), img_obj["facial_area"], img_obj["confidence"]) 
+                 for img_obj in img_objs if img_obj["face"].size > 0]
+    
+    if not face_data:
         return []
 
-    # Convert the list of valid faces to a numpy array
+    # Unpack the face data
+    valid_faces, face_regions, face_confidences = zip(*face_data)
     faces_array = np.array(valid_faces)
 
-    # Preprocess the result to a list of dictionaries
-    resp_objects = []
+    # Initialize the results list with face regions and confidence scores
+    results = [{"region": region, "face_confidence": conf} 
+              for region, conf in zip(face_regions, face_confidences)]
 
-    # For each action, predict the corresponding attribute
+    # Iterate over the actions and perform analysis
     pbar = tqdm(
-        range(0, len(actions)),
+        actions,
         desc="Finding actions",
         disable=silent if len(actions) > 1 else True,
     )
-    
-    for index in pbar:
-        action = actions[index]
+
+    for action in pbar:
         pbar.set_description(f"Action: {action}")
-        resp_object = {}
+        model = modeling.build_model(task="facial_attribute", model_name=action.capitalize())
+        predictions = model.predict(faces_array)
 
+        # If the model returns a single prediction, reshape it to match the number of faces
+        # Use number of faces and number of predictions shape to determine the correct shape of predictions
+        # For example, if there are 1 face to predict with Emotion model, reshape predictions to (1, 7)
+        if faces_array.shape[0] == 1 and len(predictions.shape) == 1:
+            # For models like `Emotion`, which return a single prediction for a single face
+            predictions = predictions.reshape(1, -1)
+
+        # Update the results with the predictions
+        # ----------------------------------------
+        # For emotion, calculate the percentage of each emotion and find the dominant emotion
         if action == "emotion":
-            # Build the emotion model
-            model = modeling.build_model(task="facial_attribute", model_name="Emotion")
-            emotion_predictions = model.predict(faces_array)
-
-            # Handle single vs multiple emotion predictions
-            if len(emotion_predictions.shape) == 1:
-                # Single face case - reshape predictions to 2D array for consistent handling
-                emotion_predictions = emotion_predictions.reshape(1, -1)
-
-            # Process predictions for each face
-            for idx, predictions in enumerate(emotion_predictions):
-                sum_of_predictions = predictions.sum()
-                resp_object["emotion"] = {}
-
-                # Calculate emotion probabilities and store in response
-                for i, emotion_label in enumerate(Emotion.labels):
-                    emotion_probability = 100 * predictions[i] / sum_of_predictions
-                    resp_object["emotion"][emotion_label] = emotion_probability
-                    
-                # Store dominant emotion
-                    resp_object["dominant_emotion"] = Emotion.labels[np.argmax(predictions)]
-
+            emotion_results = [
+                {
+                    "emotion": {
+                        label: 100 * pred[i] / pred.sum()
+                        for i, label in enumerate(Emotion.labels)
+                    },
+                    "dominant_emotion": Emotion.labels[np.argmax(pred)]
+                }
+                for pred in predictions
+            ]
+            for result, emotion_result in zip(results, emotion_results):
+                result.update(emotion_result)
+        # ----------------------------------------
+        # For age, find the dominant age category (0-100)
         elif action == "age":
-            # Build the age model
-            model = modeling.build_model(task="facial_attribute", model_name="Age")
-            age_predictions = model.predict(faces_array)
-
-            # Handle single vs multiple age predictions
-            if faces_array.shape[0] == 1:
-                # Single face case - reshape predictions to 2D array for consistent handling
-                resp_object["age"] = int(np.argmax(age_predictions))
-            else:
-                # Multiple face case - iterate over each prediction
-                for idx, age in enumerate(age_predictions):
-                    resp_object["age"] = int(age)
-                
-
+            age_results = [{"age": int(np.argmax(pred) if len(pred.shape) > 0 else pred)} 
+                         for pred in predictions]
+            for result, age_result in zip(results, age_results):
+                result.update(age_result)
+        # ----------------------------------------
+        # For gender, calculate the percentage of each gender and find the dominant gender
         elif action == "gender":
-            # Build the gender model
-            model = modeling.build_model(task="facial_attribute", model_name="Gender")
-            gender_predictions = model.predict(faces_array)
-
-            # Handle single vs multiple gender predictions
-            if len(gender_predictions.shape) == 1:
-                # Single face case - reshape predictions to 2D array for consistent handling
-                gender_predictions = gender_predictions.reshape(1, -1)
-            
-            # Process predictions for each face
-            for idx, predictions in enumerate(gender_predictions):
-                resp_object["gender"] = {}
-                
-                for i, gender_label in enumerate(Gender.labels):
-                    gender_prediction = 100 * predictions[i]
-                    resp_object["gender"][gender_label] = gender_prediction
-                
-                resp_object["dominant_gender"] = Gender.labels[np.argmax(predictions)]
-
+            gender_results = [
+                {
+                    "gender": {
+                        label: 100 * pred[i]
+                        for i, label in enumerate(Gender.labels)
+                    },
+                    "dominant_gender": Gender.labels[np.argmax(pred)]
+                }
+                for pred in predictions
+            ]
+            for result, gender_result in zip(results, gender_results):
+                result.update(gender_result)
+        # ----------------------------------------
+        # For race, calculate the percentage of each race and find the dominant race
         elif action == "race":
-            # Build the race model
-            model = modeling.build_model(task="facial_attribute", model_name="Race")
-            race_predictions = model.predict(faces_array)
+            race_results = [
+                {
+                    "race": {
+                        label: 100 * pred[i] / pred.sum()
+                        for i, label in enumerate(Race.labels)
+                    },
+                    "dominant_race": Race.labels[np.argmax(pred)]
+                }
+                for pred in predictions
+            ]
+            for result, race_result in zip(results, race_results):
+                result.update(race_result)
 
-            # Handle single vs multiple race predictions
-            if len(race_predictions.shape) == 1:
-                # Single face case - reshape predictions to 2D array for consistent handling
-                race_predictions = race_predictions.reshape(1, -1)
-
-            for idx, predictions in enumerate(race_predictions):
-                sum_of_predictions = predictions.sum()
-                resp_object["race"] = {}
-                
-                for i, race_label in enumerate(Race.labels):
-                    race_prediction = 100 * predictions[i] / sum_of_predictions
-                    resp_object["race"][race_label] = race_prediction
-                
-                resp_object["dominant_race"] = Race.labels[np.argmax(predictions)]
-
-        # Add the response object to the list of response objects
-        resp_objects.append(resp_object)
-
-    # Add the face region and confidence to the response objects
-    for idx, resp_obj in enumerate(resp_objects):
-        resp_obj["region"] = face_regions[idx]
-        resp_obj["face_confidence"] = face_confidences[idx]
-
-    return resp_objects
+    return results
