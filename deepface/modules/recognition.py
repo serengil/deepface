@@ -136,7 +136,7 @@ def find(
     representations = []
 
     # required columns for representations
-    df_cols = [
+    df_cols = {
         "identity",
         "hash",
         "embedding",
@@ -144,7 +144,7 @@ def find(
         "target_y",
         "target_w",
         "target_h",
-    ]
+    }
 
     # Ensure the proper pickle file exists
     if not os.path.exists(datastore_path):
@@ -157,7 +157,7 @@ def find(
 
     # check each item of representations list has required keys
     for i, current_representation in enumerate(representations):
-        missing_keys = set(df_cols) - set(current_representation.keys())
+        missing_keys = df_cols - set(current_representation.keys())
         if len(missing_keys) > 0:
             raise ValueError(
                 f"{i}-th item does not have some required keys - {missing_keys}."
