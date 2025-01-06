@@ -78,8 +78,8 @@ class EmotionClient(Demography):
         # Add channel dimension for grayscale images
         processed_imgs = np.expand_dims(processed_imgs, axis=-1)
 
-        # Batch prediction
-        predictions = self.model.predict_on_batch(processed_imgs)
+        # Prediction
+        predictions = self._predict_internal(processed_imgs)
 
         return predictions
 
