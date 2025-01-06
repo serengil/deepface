@@ -162,10 +162,8 @@ def analyze(
     # Convert the list of valid faces to a numpy array
     faces_array = np.array(valid_faces)
 
-    # Create placeholder response objects for each face
-    for _ in range(len(valid_faces)):
-        resp_objects.append({})
-
+    # Preprocess the result to a list of dictionaries
+    resp_objects = []
 
     # For each action, predict the corresponding attribute
     pbar = tqdm(
@@ -177,6 +175,7 @@ def analyze(
     for index in pbar:
         action = actions[index]
         pbar.set_description(f"Action: {action}")
+        resp_object = {}
 
         if action == "emotion":
             # Build the emotion model
@@ -191,15 +190,15 @@ def analyze(
             # Process predictions for each face
             for idx, predictions in enumerate(emotion_predictions):
                 sum_of_predictions = predictions.sum()
-                resp_objects[idx]["emotion"] = {}
+                resp_object["emotion"] = {}
 
                 # Calculate emotion probabilities and store in response
                 for i, emotion_label in enumerate(Emotion.labels):
                     emotion_probability = 100 * predictions[i] / sum_of_predictions
-                    resp_objects[idx]["emotion"][emotion_label] = emotion_probability
+                    resp_object["emotion"][emotion_label] = emotion_probability
                     
                 # Store dominant emotion
-                    resp_objects[idx]["dominant_emotion"] = Emotion.labels[np.argmax(predictions)]
+                    resp_object["dominant_emotion"] = Emotion.labels[np.argmax(predictions)]
 
         elif action == "age":
             # Build the age model
@@ -209,11 +208,11 @@ def analyze(
             # Handle single vs multiple age predictions
             if faces_array.shape[0] == 1:
                 # Single face case - reshape predictions to 2D array for consistent handling
-                resp_objects[idx]["age"] = int(np.argmax(age_predictions))
+                resp_object["age"] = int(np.argmax(age_predictions))
             else:
                 # Multiple face case - iterate over each prediction
                 for idx, age in enumerate(age_predictions):
-                    resp_objects[idx]["age"] = int(age)
+                    resp_object["age"] = int(age)
                 
 
         elif action == "gender":
@@ -228,13 +227,13 @@ def analyze(
             
             # Process predictions for each face
             for idx, predictions in enumerate(gender_predictions):
-                resp_objects[idx]["gender"] = {}
+                resp_object["gender"] = {}
                 
                 for i, gender_label in enumerate(Gender.labels):
                     gender_prediction = 100 * predictions[i]
-                    resp_objects[idx]["gender"][gender_label] = gender_prediction
+                    resp_object["gender"][gender_label] = gender_prediction
                 
-                resp_objects[idx]["dominant_gender"] = Gender.labels[np.argmax(predictions)]
+                resp_object["dominant_gender"] = Gender.labels[np.argmax(predictions)]
 
         elif action == "race":
             # Build the race model
@@ -248,13 +247,16 @@ def analyze(
 
             for idx, predictions in enumerate(race_predictions):
                 sum_of_predictions = predictions.sum()
-                resp_objects[idx]["race"] = {}
+                resp_object["race"] = {}
                 
                 for i, race_label in enumerate(Race.labels):
                     race_prediction = 100 * predictions[i] / sum_of_predictions
-                    resp_objects[idx]["race"][race_label] = race_prediction
+                    resp_object["race"][race_label] = race_prediction
                 
-                resp_objects[idx]["dominant_race"] = Race.labels[np.argmax(predictions)]
+                resp_object["dominant_race"] = Race.labels[np.argmax(predictions)]
+
+        # Add the response object to the list of response objects
+        resp_objects.append(resp_object)
 
     # Add the face region and confidence to the response objects
     for idx, resp_obj in enumerate(resp_objects):
