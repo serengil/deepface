@@ -95,12 +95,23 @@ def test_filetype_for_find():
 
 
 def test_filetype_for_find_bulk_embeddings():
-    imgs = image_utils.list_images("dataset")
+    # List
+    list_imgs = image_utils.list_images("dataset")
 
-    assert len(imgs) > 0
+    assert len(list_imgs) > 0
 
     # img47 is webp even though its extension is jpg
-    assert "dataset/img47.jpg" not in imgs
+    assert "dataset/img47.jpg" not in list_imgs
+
+    # Generator
+    gen_imgs = list(image_utils.yield_images("dataset"))
+
+    assert len(gen_imgs) > 0
+
+    # img47 is webp even though its extension is jpg
+    assert "dataset/img47.jpg" not in gen_imgs
+
+    assert gen_imgs == list_imgs
 
 
 def test_find_without_refresh_database():
