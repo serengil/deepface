@@ -68,18 +68,18 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
 
 
 def verify(
-        img1_path: Union[str, np.ndarray, List[float]],
-        img2_path: Union[str, np.ndarray, List[float]],
-        model_name: str = "VGG-Face",
-        detector_backend: str = "opencv",
-        distance_metric: str = "cosine",
-        enforce_detection: bool = True,
-        align: bool = True,
-        expand_percentage: int = 0,
-        normalization: str = "base",
-        silent: bool = False,
-        threshold: Optional[float] = None,
-        anti_spoofing: bool = False,
+    img1_path: Union[str, np.ndarray, List[float]],
+    img2_path: Union[str, np.ndarray, List[float]],
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    distance_metric: str = "cosine",
+    enforce_detection: bool = True,
+    align: bool = True,
+    expand_percentage: int = 0,
+    normalization: str = "base",
+    silent: bool = False,
+    threshold: Optional[float] = None,
+    anti_spoofing: bool = False,
 ) -> Dict[str, Any]:
     """
     Verify if an image pair represents the same person or different persons.
@@ -164,14 +164,14 @@ def verify(
 
 
 def analyze(
-        img_path: Union[str, np.ndarray],
-        actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
-        enforce_detection: bool = True,
-        detector_backend: str = "opencv",
-        align: bool = True,
-        expand_percentage: int = 0,
-        silent: bool = False,
-        anti_spoofing: bool = False,
+    img_path: Union[str, np.ndarray],
+    actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
+    enforce_detection: bool = True,
+    detector_backend: str = "opencv",
+    align: bool = True,
+    expand_percentage: int = 0,
+    silent: bool = False,
+    anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
@@ -263,20 +263,20 @@ def analyze(
 
 
 def find(
-        img_path: Union[str, np.ndarray],
-        db_path: str,
-        model_name: str = "VGG-Face",
-        distance_metric: str = "cosine",
-        enforce_detection: bool = True,
-        detector_backend: str = "opencv",
-        align: bool = True,
-        expand_percentage: int = 0,
-        threshold: Optional[float] = None,
-        normalization: str = "base",
-        silent: bool = False,
-        refresh_database: bool = True,
-        anti_spoofing: bool = False,
-        batched: bool = False,
+    img_path: Union[str, np.ndarray],
+    db_path: str,
+    model_name: str = "VGG-Face",
+    distance_metric: str = "cosine",
+    enforce_detection: bool = True,
+    detector_backend: str = "opencv",
+    align: bool = True,
+    expand_percentage: int = 0,
+    threshold: Optional[float] = None,
+    normalization: str = "base",
+    silent: bool = False,
+    refresh_database: bool = True,
+    anti_spoofing: bool = False,
+    batched: bool = False,
 ) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
     """
     Identify individuals in a database
@@ -369,15 +369,15 @@ def find(
 
 
 def represent(
-        img_path: Union[str, np.ndarray],
-        model_name: str = "VGG-Face",
-        enforce_detection: bool = True,
-        detector_backend: str = "opencv",
-        align: bool = True,
-        expand_percentage: int = 0,
-        normalization: str = "base",
-        anti_spoofing: bool = False,
-        max_faces: Optional[int] = None,
+    img_path: Union[str, np.ndarray],
+    model_name: str = "VGG-Face",
+    enforce_detection: bool = True,
+    detector_backend: str = "opencv",
+    align: bool = True,
+    expand_percentage: int = 0,
+    normalization: str = "base",
+    anti_spoofing: bool = False,
+    max_faces: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -441,15 +441,16 @@ def represent(
 
 
 def stream(
-        db_path: str = "",
-        model_name: str = "VGG-Face",
-        detector_backend: str = "opencv",
-        distance_metric: str = "cosine",
-        enable_face_analysis: bool = True,
-        source: Any = 0,
-        time_threshold: int = 5,
-        frame_threshold: int = 5,
-        anti_spoofing: bool = False,
+    db_path: str = "",
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    distance_metric: str = "cosine",
+    enable_face_analysis: bool = True,
+    source: Any = 0,
+    time_threshold: int = 5,
+    frame_threshold: int = 5,
+    anti_spoofing: bool = False,
+    output_path: Optional[str] = None,
 ) -> None:
     """
     Run real time face recognition and facial attribute analysis
@@ -478,6 +479,10 @@ def stream(
         frame_threshold (int): The frame threshold for face recognition (default is 5).
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+
+        output_path (str): Path to save the output video. (default is None
+            If None, no video is saved).
+
     Returns:
         None
     """
@@ -495,19 +500,20 @@ def stream(
         time_threshold=time_threshold,
         frame_threshold=frame_threshold,
         anti_spoofing=anti_spoofing,
+        output_path=output_path,
     )
 
 
 def extract_faces(
-        img_path: Union[str, np.ndarray],
-        detector_backend: str = "opencv",
-        enforce_detection: bool = True,
-        align: bool = True,
-        expand_percentage: int = 0,
-        grayscale: bool = False,
-        color_face: str = "rgb",
-        normalize_face: bool = True,
-        anti_spoofing: bool = False,
+    img_path: Union[str, np.ndarray],
+    detector_backend: str = "opencv",
+    enforce_detection: bool = True,
+    align: bool = True,
+    expand_percentage: int = 0,
+    grayscale: bool = False,
+    color_face: str = "rgb",
+    normalize_face: bool = True,
+    anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Extract faces from a given image
@@ -584,11 +590,11 @@ def cli() -> None:
 
 
 def detectFace(
-        img_path: Union[str, np.ndarray],
-        target_size: tuple = (224, 224),
-        detector_backend: str = "opencv",
-        enforce_detection: bool = True,
-        align: bool = True,
+    img_path: Union[str, np.ndarray],
+    target_size: tuple = (224, 224),
+    detector_backend: str = "opencv",
+    enforce_detection: bool = True,
+    align: bool = True,
 ) -> Union[np.ndarray, None]:
     """
     Deprecated face detection function. Use extract_faces for same functionality.

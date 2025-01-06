@@ -22,6 +22,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 IDENTIFIED_IMG_SIZE = 112
 TEXT_COLOR = (255, 255, 255)
 
+
 # pylint: disable=unused-variable
 def analysis(
     db_path: str,
@@ -33,6 +34,7 @@ def analysis(
     time_threshold=5,
     frame_threshold=5,
     anti_spoofing: bool = False,
+    output_path: Optional[str] = None,
 ):
     """
     Run real time face recognition and facial attribute analysis
@@ -62,6 +64,8 @@ def analysis(
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
+        output_path (str): Path to save the output video. (default is None
+            If None, no video is saved).
     Returns:
         None
     """
@@ -77,12 +81,31 @@ def analysis(
         model_name=model_name,
     )
 
+    cap = cv2.VideoCapture(source if isinstance(source, str) else int(source))
+    if not cap.isOpened():
+        logger.error(f"Cannot open video source: {source}")
+        return
+
+    # Get video properties
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec for output file
+    # Ensure the output directory exists if output_path is provided
+    if output_path:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Initialize video writer if output_path is provided
+    video_writer = (
+        cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height))
+        if output_path
+        else None
+    )
+
     freezed_img = None
     freeze = False
     num_frames_with_faces = 0
     tic = time.time()
 
-    cap = cv2.VideoCapture(source)  # webcam
     while True:
         has_frame, img = cap.read()
         if not has_frame:
@@ -91,9 +114,9 @@ def analysis(
         # we are adding some figures into img such as identified facial image, age, gender
         # that is why, we need raw image itself to make analysis
         raw_img = img.copy()
-
         faces_coordinates = []
-        if freeze is False:
+
+        if not freeze:
             faces_coordinates = grab_facial_areas(
                 img=img, detector_backend=detector_backend, anti_spoofing=anti_spoofing
             )
@@ -101,7 +124,6 @@ def analysis(
             # we will pass img to analyze modules (identity, demography) and add some illustrations
             # that is why, we will not be able to extract detected face from img clearly
             detected_faces = extract_facial_areas(img=img, faces_coordinates=faces_coordinates)
-
             img = highlight_facial_areas(img=img, faces_coordinates=faces_coordinates)
             img = countdown_to_freeze(
                 img=img,
@@ -111,8 +133,8 @@ def analysis(
             )
 
             num_frames_with_faces = num_frames_with_faces + 1 if len(faces_coordinates) else 0
-
             freeze = num_frames_with_faces > 0 and num_frames_with_faces % frame_threshold == 0
+
             if freeze:
                 # add analyze results into img - derive from raw_img
                 img = highlight_facial_areas(
@@ -144,22 +166,28 @@ def analysis(
                 tic = time.time()
                 logger.info("freezed")
 
-        elif freeze is True and time.time() - tic > time_threshold:
+        elif freeze and time.time() - tic > time_threshold:
             freeze = False
             freezed_img = None
             # reset counter for freezing
             tic = time.time()
-            logger.info("freeze released")
+            logger.info("Freeze released")
 
         freezed_img = countdown_to_release(img=freezed_img, tic=tic, time_threshold=time_threshold)
+        display_img = img if freezed_img is None else freezed_img
 
-        cv2.imshow("img", img if freezed_img is None else freezed_img)
+        # Save the frame to output video if writer is initialized
+        if video_writer:
+            video_writer.write(display_img)
 
-        if cv2.waitKey(1) & 0xFF == ord("q"):  # press q to quit
+        cv2.imshow("img", display_img)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
-    # kill open cv things
+    # Release resources
     cap.release()
+    if video_writer:
+        video_writer.release()
     cv2.destroyAllWindows()
 
 
