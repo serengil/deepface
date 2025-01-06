@@ -54,9 +54,9 @@ class ApparentAgeClient(Demography):
         # Preprocessing input image or image list.
         imgs = self._preprocess_batch_or_single_input(img)
 
-        # Prediction
+        # Prediction from 3 channels image
         age_predictions = self._predict_internal(imgs)
-        
+
         # Calculate apparent ages
         apparent_ages = np.array(
             [find_apparent_age(age_prediction) for age_prediction in age_predictions]
