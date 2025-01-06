@@ -1,7 +1,7 @@
 # built-in dependencies
 import os
 import io
-from typing import List, Union, Tuple
+from typing import Generator, List, Union, Tuple
 import hashlib
 import base64
 from pathlib import Path
@@ -33,6 +33,26 @@ def list_images(path: str) -> List[str]:
                     if img.format.lower() in pil_exts:
                         images.append(exact_path)
     return images
+
+
+def yield_images(path: str) -> Generator[str]:
+    """
+    List images in a given path
+    Args:
+        path (str): path's location
+    Yields:
+        image (str): image path
+    """
+    images = []
+    image_exts = {".jpg", ".jpeg", ".png"}
+    pil_exts = {"jpeg", "png"}
+    for r, _, f in os.walk(path):
+        for file in f:
+            if os.path.splitext(file)[1].lower() in image_exts:
+                exact_path = os.path.join(r, file)
+                with Image.open(exact_path) as img:  # lazy
+                    if img.format.lower() in pil_exts:
+                        yield exact_path
 
 
 def find_image_hash(file_path: str) -> str:
