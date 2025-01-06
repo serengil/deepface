@@ -192,7 +192,7 @@ def analyze(
             for idx, predictions in enumerate(emotion_predictions):
                 sum_of_predictions = predictions.sum()
                 resp_objects[idx]["emotion"] = {}
-                    
+
                 # Calculate emotion probabilities and store in response
                 for i, emotion_label in enumerate(Emotion.labels):
                     emotion_probability = 100 * predictions[i] / sum_of_predictions
@@ -205,14 +205,16 @@ def analyze(
             # Build the age model
             model = modeling.build_model(task="facial_attribute", model_name="Age")
             age_predictions = model.predict(faces_array)
-            
-            # Handle single vs multiple age predictions
-            if len(age_predictions.shape) == 1:
-                # Single face case - reshape predictions to 2D array for consistent handling
-                age_predictions = age_predictions.reshape(1, -1)
 
-            for idx, age in enumerate(age_predictions):
-                resp_objects[idx]["age"] = np.argmax(age)
+            # Handle single vs multiple age predictions
+            if faces_array.shape[0] == 1:
+                # Single face case - reshape predictions to 2D array for consistent handling
+                resp_objects[idx]["age"] = int(np.argmax(age_predictions))
+            else:
+                # Multiple face case - iterate over each prediction
+                for idx, age in enumerate(age_predictions):
+                    resp_objects[idx]["age"] = int(age)
+                
 
         elif action == "gender":
             # Build the gender model
