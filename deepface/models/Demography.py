@@ -37,8 +37,7 @@ class Demography(ABC):
 
         if img_batch.shape[0] == 1: # Single image
             img_batch = img_batch.squeeze(0) # Remove batch dimension
-            predict_result = self.model(img_batch, training=False).numpy()[0, :]
-            predict_result = np.expand_dims(predict_result, axis=0) # Add batch dimension
+            predict_result = self.model(img_batch, training=False).numpy()[0, :] # Predict with legacy method.
             return predict_result
         else: # Batch of images
             return self.model.predict_on_batch(img_batch)
