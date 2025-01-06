@@ -164,9 +164,6 @@ def find(
                 f"Consider to delete {datastore_path}"
             )
 
-    # embedded images
-    pickled_images = {representation["identity"] for representation in representations}
-
     # Get the list of images on storage
     storage_images = set(image_utils.yield_images(path=db_path))
 
@@ -186,6 +183,11 @@ def find(
 
     # Enforce data consistency amongst on disk images and pickle file
     if refresh_database:
+        # embedded images
+        pickled_images = {
+            representation["identity"] for representation in representations
+        }
+
         new_images = storage_images - pickled_images  # images added to storage
         old_images = pickled_images - storage_images  # images removed from storage
 
