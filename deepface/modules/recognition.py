@@ -168,7 +168,7 @@ def find(
     pickled_images = [representation["identity"] for representation in representations]
 
     # Get the list of images on storage
-    storage_images = image_utils.list_images(path=db_path)
+    storage_images = set(image_utils.yield_images(path=db_path))
 
     if len(storage_images) == 0 and refresh_database is True:
         raise ValueError(f"No item found in {db_path}")
@@ -186,8 +186,8 @@ def find(
 
     # Enforce data consistency amongst on disk images and pickle file
     if refresh_database:
-        new_images = set(storage_images) - set(pickled_images)  # images added to storage
-        old_images = set(pickled_images) - set(storage_images)  # images removed from storage
+        new_images = storage_images - set(pickled_images)  # images added to storage
+        old_images = set(pickled_images) - storage_images  # images removed from storage
 
         # detect replaced images
         for current_representation in representations:
