@@ -165,7 +165,7 @@ def find(
             )
 
     # embedded images
-    pickled_images = [representation["identity"] for representation in representations]
+    pickled_images = {representation["identity"] for representation in representations}
 
     # Get the list of images on storage
     storage_images = set(image_utils.yield_images(path=db_path))
@@ -186,8 +186,8 @@ def find(
 
     # Enforce data consistency amongst on disk images and pickle file
     if refresh_database:
-        new_images = storage_images - set(pickled_images)  # images added to storage
-        old_images = set(pickled_images) - storage_images  # images removed from storage
+        new_images = storage_images - pickled_images  # images added to storage
+        old_images = pickled_images - storage_images  # images removed from storage
 
         # detect replaced images
         for current_representation in representations:
