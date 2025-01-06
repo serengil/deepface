@@ -149,7 +149,7 @@ def find(
     # Ensure the proper pickle file exists
     if not os.path.exists(datastore_path):
         with open(datastore_path, "wb") as f:
-            pickle.dump([], f)
+            pickle.dump([], f, pickle.HIGHEST_PROTOCOL)
 
     # Load the representations from the pickle file
     with open(datastore_path, "rb") as f:
@@ -232,7 +232,7 @@ def find(
 
     if must_save_pickle:
         with open(datastore_path, "wb") as f:
-            pickle.dump(representations, f)
+            pickle.dump(representations, f, pickle.HIGHEST_PROTOCOL)
         if not silent:
             logger.info(f"There are now {len(representations)} representations in {file_name}")
 
