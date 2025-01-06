@@ -43,7 +43,6 @@ def yield_images(path: str) -> Generator[str]:
     Yields:
         image (str): image path
     """
-    images = []
     image_exts = {".jpg", ".jpeg", ".png"}
     pil_exts = {"jpeg", "png"}
     for r, _, f in os.walk(path):
