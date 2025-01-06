@@ -37,7 +37,7 @@ def list_images(path: str) -> List[str]:
 
 def yield_images(path: str) -> Generator[str]:
     """
-    List images in a given path
+    Yield images in a given path
     Args:
         path (str): path's location
     Yields:
