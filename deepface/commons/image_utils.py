@@ -23,18 +23,15 @@ def list_images(path: str) -> List[str]:
         images (list): list of exact image paths
     """
     images = []
+    image_exts = {".jpg", ".jpeg", ".png"}
+    pil_exts = {"jpeg", "png"}
     for r, _, f in os.walk(path):
         for file in f:
-            exact_path = os.path.join(r, file)
-
-            ext_lower = os.path.splitext(exact_path)[-1].lower()
-
-            if ext_lower not in {".jpg", ".jpeg", ".png"}:
-                continue
-
-            with Image.open(exact_path) as img:  # lazy
-                if img.format.lower() in {"jpeg", "png"}:
-                    images.append(exact_path)
+            if os.path.splitext(file)[1].lower() in image_exts:
+                exact_path = os.path.join(r, file)
+                with Image.open(exact_path) as img:  # lazy
+                    if img.format.lower() in pil_exts:
+                        images.append(exact_path)
     return images
 
 
