@@ -1,7 +1,7 @@
 # built-in dependencies
 import os
 import io
-from typing import List, Union, Tuple
+from typing import Generator, List, Union, Tuple
 import hashlib
 import base64
 from pathlib import Path
@@ -12,6 +12,10 @@ import numpy as np
 import cv2
 from PIL import Image
 from werkzeug.datastructures import FileStorage
+
+
+IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
+PIL_EXTS = {"jpeg", "png"}
 
 
 def list_images(path: str) -> List[str]:
@@ -25,17 +29,29 @@ def list_images(path: str) -> List[str]:
     images = []
     for r, _, f in os.walk(path):
         for file in f:
-            exact_path = os.path.join(r, file)
-
-            ext_lower = os.path.splitext(exact_path)[-1].lower()
-
-            if ext_lower not in {".jpg", ".jpeg", ".png"}:
-                continue
-
-            with Image.open(exact_path) as img:  # lazy
-                if img.format.lower() in {"jpeg", "png"}:
-                    images.append(exact_path)
+            if os.path.splitext(file)[1].lower() in IMAGE_EXTS:
+                exact_path = os.path.join(r, file)
+                with Image.open(exact_path) as img:  # lazy
+                    if img.format.lower() in PIL_EXTS:
+                        images.append(exact_path)
     return images
+
+
+def yield_images(path: str) -> Generator[str, None, None]:
+    """
+    Yield images in a given path
+    Args:
+        path (str): path's location
+    Yields:
+        image (str): image path
+    """
+    for r, _, f in os.walk(path):
+        for file in f:
+            if os.path.splitext(file)[1].lower() in IMAGE_EXTS:
+                exact_path = os.path.join(r, file)
+                with Image.open(exact_path) as img:  # lazy
+                    if img.format.lower() in PIL_EXTS:
+                        yield exact_path
 
 
 def find_image_hash(file_path: str) -> str:
