@@ -51,7 +51,6 @@ class Demography(ABC):
             img: Single image as np.ndarray (224, 224, 3) or
                  List of images as List[np.ndarray] or
                  Batch of images as np.ndarray (n, 224, 224, 3)
-                 NOTE: If the imput is grayscale, then there's no channel dimension.
         Returns:
             Four-dimensional numpy array (n, 224, 224, 3)
         """
