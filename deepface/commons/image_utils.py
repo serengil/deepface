@@ -1,7 +1,7 @@
 # built-in dependencies
 import os
 import io
-from typing import Generator, List, Union, Tuple
+from typing import IO, Generator, List, Union, Tuple
 import hashlib
 import base64
 from pathlib import Path
@@ -77,11 +77,11 @@ def find_image_hash(file_path: str) -> str:
     return hasher.hexdigest()
 
 
-def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
+def load_image(img: Union[str, np.ndarray, IO[bytes]]) -> Tuple[np.ndarray, str]:
     """
-    Load image from path, url, base64 or numpy array.
+    Load image from path, url, file object, base64 or numpy array.
     Args:
-        img: a path, url, base64 or numpy array.
+        img: a path, url, file object, base64 or numpy array.
     Returns:
         image (numpy array): the loaded image in BGR format
         image name (str): image name itself
@@ -90,6 +90,14 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
     # The image is already a numpy array
     if isinstance(img, np.ndarray):
         return img, "numpy array"
+
+    # The image is an object that supports `.read`
+    if hasattr(img, 'read') and callable(img.read):
+        if isinstance(img, io.StringIO):
+            raise ValueError(
+                'img requires bytes and cannot be an io.StringIO object.'
+            )
+        return load_image_from_io_object(img), 'io object'
 
     if isinstance(img, Path):
         img = str(img)
@@ -118,6 +126,30 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
     img_obj_bgr = cv2.imread(img)
     # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
     return img_obj_bgr, img
+
+
+def load_image_from_io_object(obj: IO[bytes]) -> np.ndarray:
+    """
+    Load image from an object that supports being read
+    Args:
+        obj: a file like object.
+    Returns:
+        img (np.ndarray): The decoded image as a numpy array (OpenCV format).
+    """
+    try:
+        _ = obj.seek(0)
+    except (AttributeError, TypeError, io.UnsupportedOperation):
+        seekable = False
+        obj = io.BytesIO(obj.read())
+    else:
+        seekable = True
+    try:
+        nparr = np.frombuffer(obj.read(), np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        return img
+    finally:
+        if not seekable:
+            obj.close()
 
 
 def load_image_from_base64(uri: str) -> np.ndarray:
