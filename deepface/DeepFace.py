@@ -2,7 +2,7 @@
 import os
 import warnings
 import logging
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, IO, List, Union, Optional
 
 # this has to be set before importing tensorflow
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
@@ -68,8 +68,8 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
 
 
 def verify(
-    img1_path: Union[str, np.ndarray, List[float]],
-    img2_path: Union[str, np.ndarray, List[float]],
+    img1_path: Union[str, np.ndarray, IO[bytes], List[float]],
+    img2_path: Union[str, np.ndarray, IO[bytes], List[float]],
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",
     distance_metric: str = "cosine",
@@ -164,7 +164,7 @@ def verify(
 
 
 def analyze(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes]],
     actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -263,7 +263,7 @@ def analyze(
 
 
 def find(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes]],
     db_path: str,
     model_name: str = "VGG-Face",
     distance_metric: str = "cosine",
@@ -369,7 +369,7 @@ def find(
 
 
 def represent(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes]],
     model_name: str = "VGG-Face",
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -505,7 +505,7 @@ def stream(
 
 
 def extract_faces(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes]],
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,

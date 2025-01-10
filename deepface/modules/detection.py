@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Tuple, Union, Optional
+from typing import Any, Dict, IO, List, Tuple, Union, Optional
 
 # 3rd part dependencies
 from heapq import nlargest
@@ -19,7 +19,7 @@ logger = Logger()
 
 
 def extract_faces(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes]],
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
