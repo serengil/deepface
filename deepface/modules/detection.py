@@ -34,7 +34,7 @@ def extract_faces(
     Extract faces from a given image
 
     Args:
-        img_path (str or np.ndarray): Path to the first image. Accepts exact image path
+        img_path (str or np.ndarray or IO[bytes]): Path to the first image. Accepts exact image path
             as a string, numpy array (BGR), or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',

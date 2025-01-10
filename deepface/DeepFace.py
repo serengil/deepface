@@ -84,11 +84,11 @@ def verify(
     """
     Verify if an image pair represents the same person or different persons.
     Args:
-        img1_path (str or np.ndarray or List[float]): Path to the first image.
+        img1_path (str or np.ndarray or IO[bytes] or List[float]): Path to the first image.
             Accepts exact image path as a string, numpy array (BGR), base64 encoded images
             or pre-calculated embeddings.
 
-        img2_path (str or np.ndarray or List[float]): Path to the second image.
+        img2_path (str or np.ndarray or IO[bytes] or List[float]): Path to the second image.
             Accepts exact image path as a string, numpy array (BGR), base64 encoded images
             or pre-calculated embeddings.
 
@@ -176,7 +176,7 @@ def analyze(
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
     Args:
-        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
+        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array in BGR format,
             or a base64 encoded image. If the source image contains multiple faces, the result will
             include information for each detected face.
 
@@ -281,7 +281,7 @@ def find(
     """
     Identify individuals in a database
     Args:
-        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
+        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array in BGR format,
             or a base64 encoded image. If the source image contains multiple faces, the result will
             include information for each detected face.
 
@@ -383,7 +383,7 @@ def represent(
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
+        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array in BGR format,
             or a base64 encoded image. If the source image contains multiple faces, the result will
             include information for each detected face.
 
@@ -519,7 +519,7 @@ def extract_faces(
     Extract faces from a given image
 
     Args:
-        img_path (str or np.ndarray): Path to the first image. Accepts exact image path
+        img_path (str or np.ndarray or IO[bytes]): Path to the first image. Accepts exact image path
             as a string, numpy array (BGR), or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
