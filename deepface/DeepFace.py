@@ -176,9 +176,9 @@ def analyze(
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
     Args:
-        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array in BGR format,
-            or a base64 encoded image. If the source image contains multiple faces, the result will
-            include information for each detected face.
+        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+            in BGR format, or a base64 encoded image. If the source image contains multiple faces,
+            the result will include information for each detected face.
 
         actions (tuple): Attributes to analyze. The default is ('age', 'gender', 'emotion', 'race').
             You can exclude some of these attributes from the analysis if needed.
@@ -281,9 +281,9 @@ def find(
     """
     Identify individuals in a database
     Args:
-        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array in BGR format,
-            or a base64 encoded image. If the source image contains multiple faces, the result will
-            include information for each detected face.
+        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+            in BGR format, or a base64 encoded image. If the source image contains multiple
+            faces, the result will include information for each detected face.
 
         db_path (string): Path to the folder containing image files. All detected faces
             in the database will be considered in the decision-making process.
@@ -383,9 +383,9 @@ def represent(
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array in BGR format,
-            or a base64 encoded image. If the source image contains multiple faces, the result will
-            include information for each detected face.
+        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+            in BGR format, or a base64 encoded image. If the source image contains multiple faces,
+            the result will include information for each detected face.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet
