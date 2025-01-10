@@ -85,11 +85,13 @@ def verify(
     Verify if an image pair represents the same person or different persons.
     Args:
         img1_path (str or np.ndarray or IO[bytes] or List[float]): Path to the first image.
-            Accepts exact image path as a string, numpy array (BGR), base64 encoded images
+            Accepts exact image path as a string, numpy array (BGR), a file object that supports
+            at least `.read` and is opened in binary mode, base64 encoded images
             or pre-calculated embeddings.
 
         img2_path (str or np.ndarray or IO[bytes] or List[float]): Path to the second image.
-            Accepts exact image path as a string, numpy array (BGR), base64 encoded images
+            Accepts exact image path as a string, numpy array (BGR), a file object that supports
+            at least `.read` and is opened in binary mode, base64 encoded images
             or pre-calculated embeddings.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
@@ -177,7 +179,8 @@ def analyze(
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
     Args:
         img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
-            in BGR format, or a base64 encoded image. If the source image contains multiple faces,
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If the source image contains multiple faces,
             the result will include information for each detected face.
 
         actions (tuple): Attributes to analyze. The default is ('age', 'gender', 'emotion', 'race').
@@ -282,7 +285,8 @@ def find(
     Identify individuals in a database
     Args:
         img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
-            in BGR format, or a base64 encoded image. If the source image contains multiple
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If the source image contains multiple
             faces, the result will include information for each detected face.
 
         db_path (string): Path to the folder containing image files. All detected faces
@@ -384,7 +388,8 @@ def represent(
 
     Args:
         img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
-            in BGR format, or a base64 encoded image. If the source image contains multiple faces,
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If the source image contains multiple faces,
             the result will include information for each detected face.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
@@ -520,7 +525,8 @@ def extract_faces(
 
     Args:
         img_path (str or np.ndarray or IO[bytes]): Path to the first image. Accepts exact image path
-            as a string, numpy array (BGR), or base64 encoded images.
+            as a string, numpy array (BGR), a file object that supports at least `.read` and is
+            opened in binary mode, or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',

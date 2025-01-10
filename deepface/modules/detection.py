@@ -35,7 +35,8 @@ def extract_faces(
 
     Args:
         img_path (str or np.ndarray or IO[bytes]): Path to the first image. Accepts exact image path
-            as a string, numpy array (BGR), or base64 encoded images.
+            as a string, numpy array (BGR), a file object that supports at least `.read` and is
+            opened in binary mode, or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
