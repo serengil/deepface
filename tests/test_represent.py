@@ -34,7 +34,7 @@ def test_standard_represent_with_io_object():
 
     # Confirm non-image io objects raise exceptions
     with pytest.raises(ValueError, match='Failed to decode image'):
-        DeepFace.represent(io.BytesIO(open(__file__, 'rb').read()))
+        DeepFace.represent(io.BytesIO(open(r'../requirements.txt', 'rb').read()))
 
     logger.info("✅ test standard represent with io object function done")
 
