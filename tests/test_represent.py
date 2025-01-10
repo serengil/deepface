@@ -1,5 +1,7 @@
 # built-in dependencies
+import io
 import cv2
+import pytest
 
 # project dependencies
 from deepface import DeepFace
@@ -16,6 +18,25 @@ def test_standard_represent():
         logger.debug(f"Function returned {len(embedding)} dimensional vector")
         assert len(embedding) == 4096
     logger.info("✅ test standard represent function done")
+
+
+def test_standard_represent_with_io_object():
+    img_path = "dataset/img1.jpg"
+    default_embedding_objs = DeepFace.represent(img_path)
+    io_embedding_objs = DeepFace.represent(open(img_path, 'rb'))
+    assert default_embedding_objs == io_embedding_objs
+
+    # Confirm non-seekable io objects are handled properly
+    io_obj = io.BytesIO(open(img_path, 'rb').read())
+    io_obj.seek = None
+    no_seek_io_embedding_objs = DeepFace.represent(io_obj)
+    assert default_embedding_objs == no_seek_io_embedding_objs
+
+    # Confirm non-image io objects raise exceptions
+    with pytest.raises(ValueError, match='Failed to decode image'):
+        DeepFace.represent(io.BytesIO(open(r'../requirements.txt', 'rb').read()))
+
+    logger.info("✅ test standard represent with io object function done")
 
 
 def test_represent_for_skipped_detector_backend_with_image_path():

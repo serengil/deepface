@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Tuple, Union, Optional
+from typing import Any, Dict, IO, List, Tuple, Union, Optional
 
 # 3rd part dependencies
 from heapq import nlargest
@@ -19,7 +19,7 @@ logger = Logger()
 
 
 def extract_faces(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes]],
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -34,8 +34,9 @@ def extract_faces(
     Extract faces from a given image
 
     Args:
-        img_path (str or np.ndarray): Path to the first image. Accepts exact image path
-            as a string, numpy array (BGR), or base64 encoded images.
+        img_path (str or np.ndarray or IO[bytes]): Path to the first image. Accepts exact image path
+            as a string, numpy array (BGR), a file object that supports at least `.read` and is
+            opened in binary mode, or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
