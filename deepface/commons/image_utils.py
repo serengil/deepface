@@ -1,7 +1,7 @@
 # built-in dependencies
 import os
 import io
-from typing import IO, Generator, List, Union, Tuple
+from typing import Generator, IO, List, Union, Tuple
 import hashlib
 import base64
 from pathlib import Path
