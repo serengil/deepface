@@ -1,6 +1,7 @@
 # built-in dependencies
 import io
 import cv2
+import pytest
 
 # project dependencies
 from deepface import DeepFace
@@ -30,6 +31,10 @@ def test_standard_represent_with_io_object():
     io_obj.seek = None
     no_seek_io_embedding_objs = DeepFace.represent(io_obj)
     assert default_embedding_objs == no_seek_io_embedding_objs
+
+    # Confirm non-image io objects raise exceptions
+    with pytest.raises(ValueError, match='Failed to decode image'):
+        DeepFace.represent(io.BytesIO(open(__file__, 'rb').read()))
 
     logger.info("✅ test standard represent with io object function done")
 

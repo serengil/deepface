@@ -146,6 +146,8 @@ def load_image_from_io_object(obj: IO[bytes]) -> np.ndarray:
     try:
         nparr = np.frombuffer(obj.read(), np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if img is None:
+            raise ValueError("Failed to decode image")
         return img
     finally:
         if not seekable:
