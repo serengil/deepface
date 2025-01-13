@@ -1,7 +1,7 @@
 # built-in dependencies
 import os
 import io
-from typing import List, Union, Tuple
+from typing import Generator, IO, List, Union, Tuple
 import hashlib
 import base64
 from pathlib import Path
@@ -12,6 +12,10 @@ import numpy as np
 import cv2
 from PIL import Image
 from werkzeug.datastructures import FileStorage
+
+
+IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
+PIL_EXTS = {"jpeg", "png"}
 
 
 def list_images(path: str) -> List[str]:
@@ -25,17 +29,29 @@ def list_images(path: str) -> List[str]:
     images = []
     for r, _, f in os.walk(path):
         for file in f:
-            exact_path = os.path.join(r, file)
-
-            ext_lower = os.path.splitext(exact_path)[-1].lower()
-
-            if ext_lower not in {".jpg", ".jpeg", ".png"}:
-                continue
-
-            with Image.open(exact_path) as img:  # lazy
-                if img.format.lower() in {"jpeg", "png"}:
-                    images.append(exact_path)
+            if os.path.splitext(file)[1].lower() in IMAGE_EXTS:
+                exact_path = os.path.join(r, file)
+                with Image.open(exact_path) as img:  # lazy
+                    if img.format.lower() in PIL_EXTS:
+                        images.append(exact_path)
     return images
+
+
+def yield_images(path: str) -> Generator[str, None, None]:
+    """
+    Yield images in a given path
+    Args:
+        path (str): path's location
+    Yields:
+        image (str): image path
+    """
+    for r, _, f in os.walk(path):
+        for file in f:
+            if os.path.splitext(file)[1].lower() in IMAGE_EXTS:
+                exact_path = os.path.join(r, file)
+                with Image.open(exact_path) as img:  # lazy
+                    if img.format.lower() in PIL_EXTS:
+                        yield exact_path
 
 
 def find_image_hash(file_path: str) -> str:
@@ -61,11 +77,11 @@ def find_image_hash(file_path: str) -> str:
     return hasher.hexdigest()
 
 
-def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
+def load_image(img: Union[str, np.ndarray, IO[bytes]]) -> Tuple[np.ndarray, str]:
     """
-    Load image from path, url, base64 or numpy array.
+    Load image from path, url, file object, base64 or numpy array.
     Args:
-        img: a path, url, base64 or numpy array.
+        img: a path, url, file object, base64 or numpy array.
     Returns:
         image (numpy array): the loaded image in BGR format
         image name (str): image name itself
@@ -74,6 +90,14 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
     # The image is already a numpy array
     if isinstance(img, np.ndarray):
         return img, "numpy array"
+
+    # The image is an object that supports `.read`
+    if hasattr(img, 'read') and callable(img.read):
+        if isinstance(img, io.StringIO):
+            raise ValueError(
+                'img requires bytes and cannot be an io.StringIO object.'
+            )
+        return load_image_from_io_object(img), 'io object'
 
     if isinstance(img, Path):
         img = str(img)
@@ -102,6 +126,32 @@ def load_image(img: Union[str, np.ndarray]) -> Tuple[np.ndarray, str]:
     img_obj_bgr = cv2.imread(img)
     # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
     return img_obj_bgr, img
+
+
+def load_image_from_io_object(obj: IO[bytes]) -> np.ndarray:
+    """
+    Load image from an object that supports being read
+    Args:
+        obj: a file like object.
+    Returns:
+        img (np.ndarray): The decoded image as a numpy array (OpenCV format).
+    """
+    try:
+        _ = obj.seek(0)
+    except (AttributeError, TypeError, io.UnsupportedOperation):
+        seekable = False
+        obj = io.BytesIO(obj.read())
+    else:
+        seekable = True
+    try:
+        nparr = np.frombuffer(obj.read(), np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if img is None:
+            raise ValueError("Failed to decode image")
+        return img
+    finally:
+        if not seekable:
+            obj.close()
 
 
 def load_image_from_base64(uri: str) -> np.ndarray:

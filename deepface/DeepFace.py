@@ -2,7 +2,7 @@
 import os
 import warnings
 import logging
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, IO, List, Union, Optional
 
 # this has to be set before importing tensorflow
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
@@ -68,8 +68,8 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
 
 
 def verify(
-    img1_path: Union[str, np.ndarray, List[float]],
-    img2_path: Union[str, np.ndarray, List[float]],
+    img1_path: Union[str, np.ndarray, IO[bytes], List[float]],
+    img2_path: Union[str, np.ndarray, IO[bytes], List[float]],
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",
     distance_metric: str = "cosine",
@@ -84,12 +84,14 @@ def verify(
     """
     Verify if an image pair represents the same person or different persons.
     Args:
-        img1_path (str or np.ndarray or List[float]): Path to the first image.
-            Accepts exact image path as a string, numpy array (BGR), base64 encoded images
+        img1_path (str or np.ndarray or IO[bytes] or List[float]): Path to the first image.
+            Accepts exact image path as a string, numpy array (BGR), a file object that supports
+            at least `.read` and is opened in binary mode, base64 encoded images
             or pre-calculated embeddings.
 
-        img2_path (str or np.ndarray or List[float]): Path to the second image.
-            Accepts exact image path as a string, numpy array (BGR), base64 encoded images
+        img2_path (str or np.ndarray or IO[bytes] or List[float]): Path to the second image.
+            Accepts exact image path as a string, numpy array (BGR), a file object that supports
+            at least `.read` and is opened in binary mode, base64 encoded images
             or pre-calculated embeddings.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
@@ -164,7 +166,7 @@ def verify(
 
 
 def analyze(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes]],
     actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -176,9 +178,10 @@ def analyze(
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
     Args:
-        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
-            or a base64 encoded image. If the source image contains multiple faces, the result will
-            include information for each detected face.
+        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If the source image contains multiple faces,
+            the result will include information for each detected face.
 
         actions (tuple): Attributes to analyze. The default is ('age', 'gender', 'emotion', 'race').
             You can exclude some of these attributes from the analysis if needed.
@@ -263,7 +266,7 @@ def analyze(
 
 
 def find(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes]],
     db_path: str,
     model_name: str = "VGG-Face",
     distance_metric: str = "cosine",
@@ -281,9 +284,10 @@ def find(
     """
     Identify individuals in a database
     Args:
-        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
-            or a base64 encoded image. If the source image contains multiple faces, the result will
-            include information for each detected face.
+        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If the source image contains multiple
+            faces, the result will include information for each detected face.
 
         db_path (string): Path to the folder containing image files. All detected faces
             in the database will be considered in the decision-making process.
@@ -369,7 +373,7 @@ def find(
 
 
 def represent(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes]],
     model_name: str = "VGG-Face",
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -383,9 +387,10 @@ def represent(
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
-            or a base64 encoded image. If the source image contains multiple faces, the result will
-            include information for each detected face.
+        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If the source image contains multiple faces,
+            the result will include information for each detected face.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet
@@ -505,7 +510,7 @@ def stream(
 
 
 def extract_faces(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes]],
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -519,8 +524,9 @@ def extract_faces(
     Extract faces from a given image
 
     Args:
-        img_path (str or np.ndarray): Path to the first image. Accepts exact image path
-            as a string, numpy array (BGR), or base64 encoded images.
+        img_path (str or np.ndarray or IO[bytes]): Path to the first image. Accepts exact image path
+            as a string, numpy array (BGR), a file object that supports at least `.read` and is
+            opened in binary mode, or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
