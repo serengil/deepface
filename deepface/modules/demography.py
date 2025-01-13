@@ -168,9 +168,9 @@ def analyze(
         model = modeling.build_model(task="facial_attribute", model_name=action.capitalize())
         predictions = model.predict(faces_array)
 
-        # If the model returns a single prediction, reshape it to match the number of faces
-        # Use number of faces and number of predictions shape to determine the correct shape of predictions
-        # For example, if there are 1 face to predict with Emotion model, reshape predictions to (1, 7)
+        # If the model returns a single prediction, reshape it to match the number of faces.
+        # Determine the correct shape of predictions by using number of faces and predictions shape.
+        # Example: For 1 face with Emotion model, predictions will be reshaped to (1, 7).
         if faces_array.shape[0] == 1 and len(predictions.shape) == 1:
             # For models like `Emotion`, which return a single prediction for a single face
             predictions = predictions.reshape(1, -1)
