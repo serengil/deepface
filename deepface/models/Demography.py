@@ -21,28 +21,54 @@ class Demography(ABC):
     def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[np.ndarray, np.float64]:
         pass
 
-    def _preprocess_batch_or_single_input(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
+    def _predict_internal(self, img_batch: np.ndarray) -> np.ndarray:
+        """
+        Predict for single image or batched images.
+        This method uses legacy method while receiving single image as input. 
+        And switch to batch prediction if receives batched images.
+
+        Args:
+            img_batch:
+                Batch of images as np.ndarray (n, x, y, c)
+                    with n >= 1, x = image width, y = image height, c = channel
+                Or Single image as np.ndarray (1, x, y, c)
+                    with x = image width, y = image height and c = channel
+                The channel dimension may be omitted if the image is grayscale. (For emotion model)
+        """
+        if not self.model_name: # Check if called from derived class
+            raise NotImplementedError("no model selected")
+        assert img_batch.ndim == 4, "expected 4-dimensional tensor input"
+        # Single image
+        if img_batch.shape[0] == 1:
+            # Check if grayscale by checking last dimension, if not 3, it is grayscale.
+            if img_batch.shape[-1] != 3:
+                # Remove batch dimension
+                img_batch = img_batch.squeeze(0)
+            # Predict with legacy method.
+            return self.model(img_batch, training=False).numpy()[0, :]
+        # Batch of images
+        # Predict with batch prediction
+        return self.model.predict_on_batch(img_batch)
+
+    def _preprocess_batch_or_single_input(
+        self,
+        img: Union[np.ndarray, List[np.ndarray]]
+    ) -> np.ndarray:
 
         """
         Preprocess single or batch of images, return as 4-D numpy array.
         Args:
             img: Single image as np.ndarray (224, 224, 3) or
-                List of images as List[np.ndarray] or
-                Batch of images as np.ndarray (n, 224, 224, 3)
+                 List of images as List[np.ndarray] or
+                 Batch of images as np.ndarray (n, 224, 224, 3)
         Returns:
             Four-dimensional numpy array (n, 224, 224, 3)
         """
-        if isinstance(img, list): # Convert from list to image batch.
-            image_batch = np.array(img)
-        else:
-            image_batch = img
-
+        image_batch = np.array(img)
         # Remove batch dimension in advance if exists
         image_batch = image_batch.squeeze()
-
         # Check input dimension
         if len(image_batch.shape) == 3:
             # Single image - add batch dimension
             image_batch = np.expand_dims(image_batch, axis=0)
-
         return image_batch

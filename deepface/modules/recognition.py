@@ -136,7 +136,7 @@ def find(
     representations = []
 
     # required columns for representations
-    df_cols = [
+    df_cols = {
         "identity",
         "hash",
         "embedding",
@@ -144,12 +144,12 @@ def find(
         "target_y",
         "target_w",
         "target_h",
-    ]
+    }
 
     # Ensure the proper pickle file exists
     if not os.path.exists(datastore_path):
         with open(datastore_path, "wb") as f:
-            pickle.dump([], f)
+            pickle.dump([], f, pickle.HIGHEST_PROTOCOL)
 
     # Load the representations from the pickle file
     with open(datastore_path, "rb") as f:
@@ -157,18 +157,15 @@ def find(
 
     # check each item of representations list has required keys
     for i, current_representation in enumerate(representations):
-        missing_keys = set(df_cols) - set(current_representation.keys())
+        missing_keys = df_cols - set(current_representation.keys())
         if len(missing_keys) > 0:
             raise ValueError(
                 f"{i}-th item does not have some required keys - {missing_keys}."
                 f"Consider to delete {datastore_path}"
             )
 
-    # embedded images
-    pickled_images = [representation["identity"] for representation in representations]
-
     # Get the list of images on storage
-    storage_images = image_utils.list_images(path=db_path)
+    storage_images = set(image_utils.yield_images(path=db_path))
 
     if len(storage_images) == 0 and refresh_database is True:
         raise ValueError(f"No item found in {db_path}")
@@ -186,8 +183,13 @@ def find(
 
     # Enforce data consistency amongst on disk images and pickle file
     if refresh_database:
-        new_images = set(storage_images) - set(pickled_images)  # images added to storage
-        old_images = set(pickled_images) - set(storage_images)  # images removed from storage
+        # embedded images
+        pickled_images = {
+            representation["identity"] for representation in representations
+        }
+
+        new_images = storage_images - pickled_images  # images added to storage
+        old_images = pickled_images - storage_images  # images removed from storage
 
         # detect replaced images
         for current_representation in representations:
@@ -232,7 +234,7 @@ def find(
 
     if must_save_pickle:
         with open(datastore_path, "wb") as f:
-            pickle.dump(representations, f)
+            pickle.dump(representations, f, pickle.HIGHEST_PROTOCOL)
         if not silent:
             logger.info(f"There are now {len(representations)} representations in {file_name}")
 
