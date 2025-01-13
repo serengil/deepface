@@ -33,23 +33,20 @@ class Demography(ABC):
                     with n >= 1, x = image width, y = image height, c = channel
                 Or Single image as np.ndarray (1, x, y, c)
                     with x = image width, y = image height and c = channel
-                The channel dimension may be omitted if the image is grayscale. (For emotion model)
+                The channel dimension will be 1 if input is grayscale. (For emotion model)
         """
         if not self.model_name: # Check if called from derived class
             raise NotImplementedError("no model selected")
         assert img_batch.ndim == 4, "expected 4-dimensional tensor input"
-
-        if img_batch.shape[-1] != 3: # Handle grayscale image, check last dimension.
-            # Check if grayscale by checking last dimension, if not 3, it is grayscale.
-            img_batch = img_batch.squeeze(0) # Remove batch dimension
-        
+                  
         if img_batch.shape[0] == 1: # Single image
+            img_batch = img_batch.squeeze(0) # Remove batch dimension
             # Predict with legacy method.
             return self.model(img_batch, training=False).numpy()[0, :]
-        
-        # Batch of images
-        # Predict with batch prediction
-        return self.model.predict_on_batch(img_batch)
+        else:
+            # Batch of images
+            # Predict with batch prediction
+            return self.model.predict_on_batch(img_batch)
 
     def _preprocess_batch_or_single_input(
         self,
