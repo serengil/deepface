@@ -40,7 +40,6 @@ class Demography(ABC):
         assert img_batch.ndim == 4, "expected 4-dimensional tensor input"
                   
         if img_batch.shape[0] == 1: # Single image
-            img_batch = img_batch.squeeze(0) # Remove batch dimension
             # Predict with legacy method.
             return self.model(img_batch, training=False).numpy()[0, :]
         else:
