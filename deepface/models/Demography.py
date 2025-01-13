@@ -29,19 +29,21 @@ class Demography(ABC):
 
         Args:
             img_batch: Batch of images as np.ndarray (n, x, y, c), with n >= 1, x = image width, y = image height, c = channel
+                       Or Single image as np.ndarray (1, x, y, c), with x = image width, y = image height and c = channel
+                       The channel dimension may be omitted if the image is grayscale. (For emotion model)
         """
         if not self.model_name: # Check if called from derived class
-            raise NotImplementedError("virtual method must not be called directly")
+            raise NotImplementedError("no model selected")
         
         assert img_batch.ndim == 4, "expected 4-dimensional tensor input"
 
         if img_batch.shape[0] == 1: # Single image
-            if img_batch.shape[-1] != 3: # Check if grayscale
+            if img_batch.shape[-1] != 3: # Check if grayscale by checking last dimension, if not 3, it is grayscale.
                 img_batch = img_batch.squeeze(0) # Remove batch dimension
             predict_result = self.model(img_batch, training=False).numpy()[0, :] # Predict with legacy method.
             return predict_result
         else: # Batch of images
-            return self.model.predict_on_batch(img_batch)
+            return self.model.predict_on_batch(img_batch) # Predict with batch prediction
 
     def _preprocess_batch_or_single_input(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
 
@@ -54,10 +56,8 @@ class Demography(ABC):
         Returns:
             Four-dimensional numpy array (n, 224, 224, 3)
         """
-        if isinstance(img, list): # Convert from list to image batch.
-            image_batch = np.array(img)
-        else:
-            image_batch = img
+
+        image_batch = np.array(img)
 
         # Remove batch dimension in advance if exists
         image_batch = image_batch.squeeze()
