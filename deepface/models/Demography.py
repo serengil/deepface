@@ -38,14 +38,14 @@ class Demography(ABC):
         if not self.model_name: # Check if called from derived class
             raise NotImplementedError("no model selected")
         assert img_batch.ndim == 4, "expected 4-dimensional tensor input"
-                  
+
         if img_batch.shape[0] == 1: # Single image
             # Predict with legacy method.
             return self.model(img_batch, training=False).numpy()[0, :]
-        else:
-            # Batch of images
-            # Predict with batch prediction
-            return self.model.predict_on_batch(img_batch)
+
+        # Batch of images
+        # Predict with batch prediction
+        return self.model.predict_on_batch(img_batch)
 
     def _preprocess_batch_or_single_input(
         self,
