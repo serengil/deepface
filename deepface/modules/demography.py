@@ -9,7 +9,6 @@ from tqdm import tqdm
 from deepface.modules import modeling, detection, preprocessing
 from deepface.models.demography import Gender, Race, Emotion
 
-# pylint: disable=trailing-whitespace
 def analyze(
     img_path: Union[str, np.ndarray],
     actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
@@ -142,39 +141,40 @@ def analyze(
         return preprocessing.resize_image(img=img_content, target_size=(224, 224))
 
     # Filter out empty faces
-    face_data = [(preprocess_face(img_obj), img_obj["facial_area"], img_obj["confidence"]) 
-                 for img_obj in img_objs if img_obj["face"].size > 0]
-    
+    face_data = [
+        (
+            preprocess_face(img_obj),
+            img_obj["facial_area"],
+            img_obj["confidence"]
+        )
+            for img_obj in img_objs if img_obj["face"].size > 0
+    ]
+
     if not face_data:
         return []
 
     # Unpack the face data
     valid_faces, face_regions, face_confidences = zip(*face_data)
     faces_array = np.array(valid_faces)
-
     # Initialize the results list with face regions and confidence scores
-    results = [{"region": region, "face_confidence": conf} 
+    results = [{"region": region, "face_confidence": conf}
               for region, conf in zip(face_regions, face_confidences)]
-
     # Iterate over the actions and perform analysis
     pbar = tqdm(
         actions,
         desc="Finding actions",
         disable=silent if len(actions) > 1 else True,
     )
-
     for action in pbar:
         pbar.set_description(f"Action: {action}")
         model = modeling.build_model(task="facial_attribute", model_name=action.capitalize())
         predictions = model.predict(faces_array)
-
         # If the model returns a single prediction, reshape it to match the number of faces.
         # Determine the correct shape of predictions by using number of faces and predictions shape.
         # Example: For 1 face with Emotion model, predictions will be reshaped to (1, 7).
         if faces_array.shape[0] == 1 and len(predictions.shape) == 1:
             # For models like `Emotion`, which return a single prediction for a single face
             predictions = predictions.reshape(1, -1)
-
         # Update the results with the predictions
         # ----------------------------------------
         # For emotion, calculate the percentage of each emotion and find the dominant emotion
@@ -194,7 +194,7 @@ def analyze(
         # ----------------------------------------
         # For age, find the dominant age category (0-100)
         elif action == "age":
-            age_results = [{"age": int(np.argmax(pred) if len(pred.shape) > 0 else pred)} 
+            age_results = [{"age": int(np.argmax(pred) if len(pred.shape) > 0 else pred)}
                          for pred in predictions]
             for result, age_result in zip(results, age_results):
                 result.update(age_result)
@@ -228,5 +228,4 @@ def analyze(
             ]
             for result, race_result in zip(results, race_results):
                 result.update(race_result)
-
     return results
