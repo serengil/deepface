@@ -119,7 +119,7 @@ def represent(
             raise ValueError("Spoof detected in the given image.")
         img = img_obj["face"]
 
-        # bgr to rgb
+        # rgb to bgr
         img = img[:, :, ::-1]
 
         region = img_obj["facial_area"]
