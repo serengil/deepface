@@ -87,7 +87,10 @@ def represent(
     else:  # skip
         # Try load. If load error, will raise exception internal
         img, _ = image_utils.load_image(img_path)
-
+        
+        # bgr to rgb
+        img = img[:, :, ::-1]
+        
         if len(img.shape) != 3:
             raise ValueError(f"Input img must be 3 dimensional but it is {img.shape}")
 
