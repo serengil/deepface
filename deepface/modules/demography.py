@@ -175,7 +175,6 @@ def analyze(
                     task="facial_attribute", model_name="Age"
                 ).predict(img_content)
                 # int cast is for exception - object of type 'float32' is not JSON serializable
-                print(apparent_age.shape)
                 obj["age"] = int(apparent_age)
 
             elif action == "gender":
