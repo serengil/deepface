@@ -1,5 +1,6 @@
 # 3rd party dependencies
 import cv2
+import numpy as np
 
 # project dependencies
 from deepface import DeepFace
@@ -136,7 +137,7 @@ def test_analyze_for_different_detectors():
                 else:
                     assert result["gender"]["Man"] < result["gender"]["Woman"]
 
-def test_analyze_for_multiple_faces():
+def test_analyze_for_multiple_faces_in_one_image():
     img = "dataset/img4.jpg"
     # Copy and combine the same image to create multiple faces
     img = cv2.imread(img)
@@ -147,4 +148,13 @@ def test_analyze_for_multiple_faces():
         logger.debug(demography)
         assert demography["age"] > 20 and demography["age"] < 40
         assert demography["dominant_gender"] == "Woman"
-    logger.info("✅ test analyze for multiple faces done")
+    logger.info("✅ test analyze for multiple faces in one image done")
+
+def test_batch_detect_emotion_for_multiple_faces():
+    img = "dataset/img4.jpg"
+    img = cv2.imread(img)
+    imgs = [img, img]
+    results = DeepFace.demography.Emotion.EmotionClient().predict(imgs)
+    # Check two faces emotions are the same
+    assert np.array_equal(results[0], results[1])
+    logger.info("✅ test batch detect emotion for multiple faces done")
