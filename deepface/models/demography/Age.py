@@ -1,3 +1,7 @@
+# stdlib dependencies
+
+from typing import List, Union
+
 # 3rd party dependencies
 import numpy as np
 
@@ -37,11 +41,29 @@ class ApparentAgeClient(Demography):
         self.model = load_model()
         self.model_name = "Age"
 
-    def predict(self, img: np.ndarray) -> np.float64:
-        # model.predict causes memory issue when it is called in a for loop
-        # age_predictions = self.model.predict(img, verbose=0)[0, :]
-        age_predictions = self.model(img, training=False).numpy()[0, :]
-        return find_apparent_age(age_predictions)
+    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[np.float64, np.ndarray]:
+        """
+        Predict apparent age(s) for single or multiple faces
+        Args:
+            img: Single image as np.ndarray (224, 224, 3) or
+                List of images as List[np.ndarray] or
+                Batch of images as np.ndarray (n, 224, 224, 3)
+        Returns:
+            np.ndarray (age_classes,) if single image, 
+            np.ndarray (n, age_classes) if batched images.
+        """
+        # Preprocessing input image or image list.
+        imgs = self._preprocess_batch_or_single_input(img)
+
+        # Prediction from 3 channels image
+        age_predictions = self._predict_internal(imgs)
+
+        # Calculate apparent ages
+        if len(age_predictions.shape) == 1: # Single prediction list
+            return find_apparent_age(age_predictions)
+
+        return np.array([
+            find_apparent_age(age_prediction) for age_prediction in age_predictions])
 
 
 def load_model(
@@ -65,7 +87,7 @@ def load_model(
 
     # --------------------------
 
-    age_model = Model(inputs=model.input, outputs=base_model_output)
+    age_model = Model(inputs=model.inputs, outputs=base_model_output)
 
     # --------------------------
 
@@ -78,15 +100,16 @@ def load_model(
 
     return age_model
 
-
 def find_apparent_age(age_predictions: np.ndarray) -> np.float64:
     """
     Find apparent age prediction from a given probas of ages
     Args:
-        age_predictions (?)
+        age_predictions (age_classes,)
     Returns:
         apparent_age (float)
     """
+    assert len(age_predictions.shape) == 1, f"Input should be a list of predictions, \
+                                             not batched. Got shape: {age_predictions.shape}"
     output_indexes = np.arange(0, 101)
     apparent_age = np.sum(age_predictions * output_indexes)
     return apparent_age
