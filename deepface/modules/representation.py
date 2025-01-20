@@ -87,7 +87,10 @@ def represent(
     else:  # skip
         # Try load. If load error, will raise exception internal
         img, _ = image_utils.load_image(img_path)
-
+        
+        # bgr to rgb
+        img = img[:, :, ::-1]
+        
         if len(img.shape) != 3:
             raise ValueError(f"Input img must be 3 dimensional but it is {img.shape}")
 
@@ -116,7 +119,7 @@ def represent(
             raise ValueError("Spoof detected in the given image.")
         img = img_obj["face"]
 
-        # bgr to rgb
+        # rgb to bgr
         img = img[:, :, ::-1]
 
         region = img_obj["facial_area"]
