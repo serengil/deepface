@@ -62,8 +62,7 @@ class Demography(ABC):
             Four-dimensional numpy array (n, 224, 224, 3)
         """
         image_batch = np.array(img)
-        # Remove batch dimension in advance if exists
-        image_batch = image_batch.squeeze()
+
         # Check input dimension
         if len(image_batch.shape) == 3:
             # Single image - add batch dimension
