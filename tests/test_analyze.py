@@ -4,6 +4,7 @@ import numpy as np
 
 # project dependencies
 from deepface import DeepFace
+from deepface.models.demography import Age, Emotion, Gender, Race
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -150,11 +151,46 @@ def test_analyze_for_multiple_faces_in_one_image():
         assert demography["dominant_gender"] == "Woman"
     logger.info("✅ test analyze for multiple faces in one image done")
 
-def test_batch_detect_emotion_for_multiple_faces():
-    img = "dataset/img4.jpg"
-    img = cv2.imread(img)
+def test_batch_detect_age_for_multiple_faces():
+    # Load test image and resize to model input size
+    img = cv2.resize(cv2.imread("dataset/img1.jpg"), (224, 224))
     imgs = [img, img]
-    results = DeepFace.demography.Emotion.EmotionClient().predict(imgs)
+    results = Age.ApparentAgeClient().predict(imgs)
+    # Check there are two ages detected
+    assert len(results) == 2
+    # Check two faces ages are the same
+    assert np.array_equal(results[0], results[1])
+    logger.info("✅ test batch detect age for multiple faces done")
+
+def test_batch_detect_emotion_for_multiple_faces():
+    # Load test image and resize to model input size
+    img = cv2.resize(cv2.imread("dataset/img1.jpg"), (224, 224))
+    imgs = [img, img]
+    results = Emotion.EmotionClient().predict(imgs)
+    # Check there are two emotions detected
+    assert len(results) == 2
     # Check two faces emotions are the same
     assert np.array_equal(results[0], results[1])
     logger.info("✅ test batch detect emotion for multiple faces done")
+
+def test_batch_detect_gender_for_multiple_faces():
+    # Load test image and resize to model input size
+    img = cv2.resize(cv2.imread("dataset/img1.jpg"), (224, 224))
+    imgs = [img, img]
+    results = Gender.GenderClient().predict(imgs)
+    # Check there are two genders detected
+    assert len(results) == 2
+    # Check two genders are the same
+    assert np.array_equal(results[0], results[1])
+    logger.info("✅ test batch detect gender for multiple faces done")
+
+def test_batch_detect_race_for_multiple_faces():
+    # Load test image and resize to model input size
+    img = cv2.resize(cv2.imread("dataset/img1.jpg"), (224, 224))
+    imgs = [img, img]
+    results = Race.RaceClient().predict(imgs)
+    # Check there are two races detected
+    assert len(results) == 2
+    # Check two races are the same
+    assert np.array_equal(results[0], results[1])
+    logger.info("✅ test batch detect race for multiple faces done")
