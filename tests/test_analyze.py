@@ -17,6 +17,7 @@ def test_standard_analyze():
     demography_objs = DeepFace.analyze(img, silent=True)
     for demography in demography_objs:
         logger.debug(demography)
+        assert type(demography) == dict
         assert demography["age"] > 20 and demography["age"] < 40
         assert demography["dominant_gender"] == "Woman"
     logger.info("✅ test standard analyze done")
@@ -30,6 +31,7 @@ def test_analyze_with_all_actions_as_tuple():
 
     for demography in demography_objs:
         logger.debug(f"Demography: {demography}")
+        assert type(demography) == dict
         age = demography["age"]
         gender = demography["dominant_gender"]
         race = demography["dominant_race"]
@@ -54,6 +56,7 @@ def test_analyze_with_all_actions_as_list():
 
     for demography in demography_objs:
         logger.debug(f"Demography: {demography}")
+        assert type(demography) == dict
         age = demography["age"]
         gender = demography["dominant_gender"]
         race = demography["dominant_race"]
@@ -75,6 +78,7 @@ def test_analyze_for_some_actions():
     demography_objs = DeepFace.analyze(img, ["age", "gender"], silent=True)
 
     for demography in demography_objs:
+        assert type(demography) == dict
         age = demography["age"]
         gender = demography["dominant_gender"]
 
@@ -96,6 +100,7 @@ def test_analyze_for_preloaded_image():
     resp_objs = DeepFace.analyze(img, silent=True)
     for resp_obj in resp_objs:
         logger.debug(resp_obj)
+        assert type(resp_obj) == dict
         assert resp_obj["age"] > 20 and resp_obj["age"] < 40
         assert resp_obj["dominant_gender"] == "Woman"
 
@@ -132,23 +137,31 @@ def test_analyze_for_different_detectors():
                 ]
 
                 # validate probabilities
+                assert type(result) == dict
                 if result["dominant_gender"] == "Man":
                     assert result["gender"]["Man"] > result["gender"]["Woman"]
                 else:
                     assert result["gender"]["Man"] < result["gender"]["Woman"]
 
-def test_analyze_for_multiple_faces_in_one_image():
+def test_analyze_for_batched_image():
     img = "dataset/img4.jpg"
     # Copy and combine the same image to create multiple faces
     img = cv2.imread(img)
-    img = cv2.hconcat([img, img])
-    demography_objs = DeepFace.analyze(img, silent=True)
-    assert len(demography_objs) == 2
-    for demography in demography_objs:
-        logger.debug(demography)
-        assert demography["age"] > 20 and demography["age"] < 40
-        assert demography["dominant_gender"] == "Woman"
-    logger.info("✅ test analyze for multiple faces in one image done")
+    img = np.stack([img, img])
+    assert len(img.shape) == 4 # Check dimension.
+    assert img.shape[0] == 2 # Check batch size.
+
+    demography_batch = DeepFace.analyze(img, silent=True)
+    # 2 image in batch, so 2 demography objects.
+    assert len(demography_batch) == 2 
+
+    for demography_objs in demography_batch:
+        assert len(demography_objs) == 1 # 1 face in each image
+        for demography in demography_objs: # Iterate over faces
+            assert type(demography) == dict # Check type
+            assert demography["age"] > 20 and demography["age"] < 40
+            assert demography["dominant_gender"] == "Woman"
+    logger.info("✅ test analyze for multiple faces done")
 
 def test_batch_detect_emotion_for_multiple_faces():
     img = "dataset/img4.jpg"
