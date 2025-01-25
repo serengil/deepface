@@ -171,8 +171,9 @@ def test_batch_detect_age_for_multiple_faces():
     results = Age.ApparentAgeClient().predict(imgs)
     # Check there are two ages detected
     assert len(results) == 2
-    # Check two faces ages are the same
-    assert np.array_equal(results[0], results[1])
+    # Check two faces ages are the same in integer format（e.g. 23.6 -> 23）
+    # Must use int() to compare because of max float precision issue in different platforms
+    assert np.array_equal(int(results[0]), int(results[1]))
     logger.info("✅ test batch detect age for multiple faces done")
 
 def test_batch_detect_emotion_for_multiple_faces():
