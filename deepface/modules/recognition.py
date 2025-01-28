@@ -398,6 +398,7 @@ def __find_bulk_embeddings(
                 enforce_detection=enforce_detection,
                 align=align,
                 expand_percentage=expand_percentage,
+                color_face='bgr'  # `represent` expects images in bgr format.
             )
 
         except ValueError as err:

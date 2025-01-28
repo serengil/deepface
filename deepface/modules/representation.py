@@ -74,6 +74,7 @@ def represent(
     # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
     target_size = model.input_shape
     if detector_backend != "skip":
+        # Images are returned in RGB format.
         img_objs = detection.extract_faces(
             img_path=img_path,
             detector_backend=detector_backend,
@@ -87,12 +88,12 @@ def represent(
     else:  # skip
         # Try load. If load error, will raise exception internal
         img, _ = image_utils.load_image(img_path)
-        
-        # bgr to rgb
-        img = img[:, :, ::-1]
-        
+
         if len(img.shape) != 3:
             raise ValueError(f"Input img must be 3 dimensional but it is {img.shape}")
+
+        # Convert to RGB format to keep compatability with `extract_faces`.
+        img = img[:, :, ::-1]
 
         # make dummy region and confidence to keep compatibility with `extract_faces`
         img_objs = [
