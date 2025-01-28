@@ -84,6 +84,12 @@ def test_max_faces():
 
 
 def test_represent_detector_backend():
+    """
+    There shouldn't be a difference between:
+        - Using a detector backend provided by `represent`
+        - Manually calling a detector backend, then calling `represent`.
+    """
+
     # Results using a detection backend.
     results_1 = DeepFace.represent(img_path="dataset/img1.jpg")
     assert len(results_1) == 1
@@ -101,3 +107,4 @@ def test_represent_detector_backend():
     embedding_1 = results_1[0]['embedding']
     embedding_2 = results_2[0]['embedding']
     assert embedding_1 == embedding_2
+    logger.info("✅ test represent function for consistent output.")
