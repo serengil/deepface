@@ -406,7 +406,7 @@ If you do like this work, then you can support it financially on [Patreon](https
 </a>
 
 <a href="https://github.com/sponsors/serengil">
-<img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/github_sponsor_button.png" width="35%" height="35%">
+<img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/github_sponsor_button.png" width="37%" height="37%">
 </a>
 
 <a href="https://buymeacoffee.com/serengil">
