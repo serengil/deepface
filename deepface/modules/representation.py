@@ -154,6 +154,8 @@ def represent(
 
     # Forward pass through the model for the entire batch
     embeddings = model.forward(batch_images)
+    if len(batch_images) == 1:
+        embeddings = [embeddings]
 
     for embedding, region, confidence in zip(embeddings, batch_regions, batch_confidences):
         resp_objs.append(
