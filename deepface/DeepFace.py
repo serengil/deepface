@@ -373,7 +373,7 @@ def find(
 
 
 def represent(
-    img_path: Union[str, np.ndarray, IO[bytes]],
+    img_path: Union[str, np.ndarray, IO[bytes], List[Union[str, np.ndarray]]],
     model_name: str = "VGG-Face",
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -387,10 +387,12 @@ def represent(
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+        img_path (str, np.ndarray, IO[bytes], or List[Union[str, np.ndarray]]): The exact path to the image, a numpy array
             in BGR format, a file object that supports at least `.read` and is opened in binary
             mode, or a base64 encoded image. If the source image contains multiple faces,
-            the result will include information for each detected face.
+            the result will include information for each detected face. If a list is provided,
+            each element should be a string or numpy array representing an image, and the function
+            will process images in batch.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet
