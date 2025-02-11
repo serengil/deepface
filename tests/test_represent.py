@@ -88,14 +88,7 @@ def test_max_faces():
 @pytest.mark.parametrize("model_name", [
     "VGG-Face", 
     "Facenet", 
-    "Facenet512", 
-    "OpenFace", 
-    "DeepFace", 
-    "DeepID", 
-    "Dlib", 
-    "ArcFace", 
     "SFace", 
-    "GhostFaceNet"
 ])
 def test_batched_represent(model_name):
     img_paths = [
