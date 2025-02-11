@@ -150,7 +150,7 @@ def represent(
             batch_confidences.append(confidence)
 
     # Convert list of images to a numpy array for batch processing
-    batch_images = np.concat(batch_images)
+    batch_images = np.concatenate(batch_images, axis=0)
 
     # Forward pass through the model for the entire batch
     embeddings = model.forward(batch_images)
