@@ -387,7 +387,8 @@ def represent(
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str, np.ndarray, IO[bytes], or Sequence[Union[str, np.ndarray, IO[bytes]]]): The exact path to the image, a numpy array
+        img_path (str, np.ndarray, IO[bytes], or Sequence[Union[str, np.ndarray, IO[bytes]]]): 
+            The exact path to the image, a numpy array
             in BGR format, a file object that supports at least `.read` and is opened in binary
             mode, or a base64 encoded image. If the source image contains multiple faces,
             the result will include information for each detected face. If a sequence is provided,

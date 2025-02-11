@@ -71,7 +71,7 @@ class VggFaceClient(FacialRecognition):
         # instead we are now calculating it with traditional way not with keras backend
         embedding = super().forward(img)
         if (
-            isinstance(embedding, list) and 
+            isinstance(embedding, list) and
             isinstance(embedding[0], list)
         ):
             embedding = verification.l2_normalize(embedding, axis=1)

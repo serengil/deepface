@@ -31,5 +31,4 @@ class FacialRecognition(ABC):
         embeddings = self.model(img, training=False).numpy()
         if embeddings.shape[0] == 1:
             return embeddings[0].tolist()
-        else:
-            return embeddings.tolist()
+        return embeddings.tolist()

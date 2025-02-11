@@ -25,8 +25,10 @@ def represent(
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str, np.ndarray, or Sequence[Union[str, np.ndarray]]): The exact path to the image, a numpy array in BGR format,
-            a base64 encoded image, or a sequence of these. If the source image contains multiple faces,
+        img_path (str, np.ndarray, or Sequence[Union[str, np.ndarray]]): 
+            The exact path to the image, a numpy array in BGR format,
+            a base64 encoded image, or a sequence of these.
+            If the source image contains multiple faces,
             the result will include information for each detected face.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
@@ -84,7 +86,8 @@ def represent(
 
     for single_img_path in images:
         # ---------------------------------
-        # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
+        # we have run pre-process in verification.
+        # so, this can be skipped if it is coming from verify.
         target_size = model.input_shape
         if detector_backend != "skip":
             img_objs = detection.extract_faces(

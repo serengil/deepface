@@ -53,8 +53,7 @@ class DlibClient(FacialRecognition):
         embeddings = [np.array(embedding).tolist() for embedding in embeddings]
         if len(embeddings) == 1:
             return embeddings[0]
-        else:
-            return embeddings
+        return embeddings
 
 
 class DlibResNet:
