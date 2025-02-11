@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Union, Optional, Sequence, IO
 
 # 3rd party dependencies
 import numpy as np
@@ -11,7 +11,7 @@ from deepface.models.FacialRecognition import FacialRecognition
 
 
 def represent(
-    img_path: Union[str, np.ndarray, List[Union[str, np.ndarray]]],
+    img_path: Union[str, IO[bytes], np.ndarray, Sequence[Union[str, np.ndarray, IO[bytes]]]],
     model_name: str = "VGG-Face",
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -25,8 +25,8 @@ def represent(
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str, np.ndarray, or list): The exact path to the image, a numpy array in BGR format,
-            a base64 encoded image, or a list of these. If the source image contains multiple faces,
+        img_path (str, np.ndarray, or Sequence[Union[str, np.ndarray]]): The exact path to the image, a numpy array in BGR format,
+            a base64 encoded image, or a sequence of these. If the source image contains multiple faces,
             the result will include information for each detected face.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
