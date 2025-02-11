@@ -40,21 +40,17 @@ class DlibClient(FacialRecognition):
         if len(img.shape) == 3:
             img = np.expand_dims(img, axis=0)
 
-        embeddings = []
-        for single_img in img:
-            # bgr to rgb
-            single_img = single_img[:, :, ::-1]  # bgr to rgb
+        # bgr to rgb
+        img = img[:, :, :, ::-1]  # bgr to rgb
 
-            # img is in scale of [0, 1] but expected [0, 255]
-            if single_img.max() <= 1:
-                single_img = single_img * 255
+        # img is in scale of [0, 1] but expected [0, 255]
+        if img.max() <= 1:
+            img = img * 255
 
-            single_img = single_img.astype(np.uint8)
+        img = img.astype(np.uint8)
 
-            img_representation = self.model.model.compute_face_descriptor(single_img)
-            img_representation = np.array(img_representation)
-            embeddings.append(img_representation.tolist())
-        
+        embeddings = self.model.model.compute_face_descriptor(img)
+        embeddings = [np.array(embedding).tolist() for embedding in embeddings]
         if len(embeddings) == 1:
             return embeddings[0]
         else:
