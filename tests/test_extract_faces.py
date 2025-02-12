@@ -79,6 +79,20 @@ def test_different_detectors():
         logger.info(f"✅ extract_faces for {detector} backend test is done")
 
 
+@pytest.mark.parametrize("detector_backend", [
+    # "YOLO",
+    "opencv",
+])
+def test_batch_extract_faces(detector_backend):
+    img_paths = [
+        "dataset/img2.jpg",
+        "dataset/img3.jpg",
+        "dataset/img11.jpg",
+    ]
+    img_objs = DeepFace.extract_faces(img_path=img_paths, detector_backend=detector_backend)
+    assert len(img_objs) == 3
+
+
 def test_backends_for_enforced_detection_with_non_facial_inputs():
     black_img = np.zeros([224, 224, 3])
     for detector in detectors:
