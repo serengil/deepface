@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Union
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import numpy as np
@@ -9,15 +9,19 @@ import numpy as np
 # pylint: disable=unnecessary-pass, too-few-public-methods, too-many-instance-attributes
 class Detector(ABC):
     @abstractmethod
-    def detect_faces(self, img: np.ndarray) -> List["FacialAreaRegion"]:
+    def detect_faces(
+        self, 
+        imgs: Union[np.ndarray, List[np.ndarray]]
+    ) -> Union[List["FacialAreaRegion"], List[List["FacialAreaRegion"]]]:
         """
-        Interface for detect and align face
+        Interface for detect and align faces in a batch of images
 
         Args:
-            img (np.ndarray): pre-loaded image as numpy array
+            imgs (Union[np.ndarray, List[np.ndarray]]): pre-loaded image as numpy array or a list of those
 
         Returns:
-            results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
+            results (Union[List[List[FacialAreaRegion]], List[FacialAreaRegion]]): 
+            A list or a list of lists of FacialAreaRegion objects
                 where each object contains:
 
             - facial_area (FacialAreaRegion): The facial area region represented
