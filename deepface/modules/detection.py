@@ -19,7 +19,7 @@ logger = Logger()
 
 
 def extract_faces(
-    img_path: Union[str, np.ndarray, IO[bytes]],
+    img_path: Union[List[Union[str, np.ndarray, IO[bytes]]], str, np.ndarray, IO[bytes]],
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -31,10 +31,10 @@ def extract_faces(
     max_faces: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Extract faces from a given image
+    Extract faces from a given image or list of images
 
     Args:
-        img_path (str or np.ndarray or IO[bytes]): Path to the first image. Accepts exact image path
+        img_paths (List[str or np.ndarray or IO[bytes]] or str or np.ndarray or IO[bytes]): Path(s) to the image(s). Accepts exact image path
             as a string, numpy array (BGR), a file object that supports at least `.read` and is
             opened in binary mode, or base64 encoded images.
 
@@ -80,135 +80,140 @@ def extract_faces(
             just available in the result only if anti_spoofing is set to True in input arguments.
     """
 
-    resp_objs = []
+    if not isinstance(img_path, list):
+        img_path = [img_path]
 
-    # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
-    img, img_name = image_utils.load_image(img_path)
+    all_images = []
+    img_names = []
 
-    if img is None:
-        raise ValueError(f"Exception while loading {img_name}")
+    for single_img_path in img_path:
+        # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
+        img, img_name = image_utils.load_image(single_img_path)
 
-    height, width, _ = img.shape
+        if img is None:
+            raise ValueError(f"Exception while loading {img_name}")
 
-    base_region = FacialAreaRegion(x=0, y=0, w=width, h=height, confidence=0)
+        all_images.append(img)
+        img_names.append(img_name)
 
-    if detector_backend == "skip":
-        face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
-    else:
-        face_objs = detect_faces(
-            detector_backend=detector_backend,
-            img=img,
-            align=align,
-            expand_percentage=expand_percentage,
-            max_faces=max_faces,
-        )
+    # Run detect_faces for all images at once
+    all_face_objs = detect_faces(
+        detector_backend=detector_backend,
+        img=all_images,
+        align=align,
+        expand_percentage=expand_percentage,
+        max_faces=max_faces,
+    )
 
-    # in case of no face found
-    if len(face_objs) == 0 and enforce_detection is True:
-        if img_name is not None:
-            raise ValueError(
-                f"Face could not be detected in {img_name}."
-                "Please confirm that the picture is a face photo "
-                "or consider to set enforce_detection param to False."
-            )
-        else:
-            raise ValueError(
-                "Face could not be detected. Please confirm that the picture is a face photo "
-                "or consider to set enforce_detection param to False."
-            )
+    if len(all_images) == 1:
+        all_face_objs = [all_face_objs]
 
-    if len(face_objs) == 0 and enforce_detection is False:
-        face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
+    all_resp_objs = []
 
-    for face_obj in face_objs:
-        current_img = face_obj.img
-        current_region = face_obj.facial_area
+    for img, img_name, face_objs in zip(all_images, img_names, all_face_objs):
+        height, width, _ = img.shape
 
-        if current_img.shape[0] == 0 or current_img.shape[1] == 0:
-            continue
+        if len(face_objs) == 0 and enforce_detection is True:
+            if img_name is not None:
+                raise ValueError(
+                    f"Face could not be detected in {img_name}."
+                    "Please confirm that the picture is a face photo "
+                    "or consider to set enforce_detection param to False."
+                )
+            else:
+                raise ValueError(
+                    "Face could not be detected. Please confirm that the picture is a face photo "
+                    "or consider to set enforce_detection param to False."
+                )
 
-        if grayscale is True:
-            logger.warn("Parameter grayscale is deprecated. Use color_face instead.")
-            current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
-        else:
-            if color_face == "rgb":
-                current_img = current_img[:, :, ::-1]
-            elif color_face == "bgr":
-                pass  # image is in BGR
-            elif color_face == "gray":
+        if len(face_objs) == 0 and enforce_detection is False:
+            base_region = FacialAreaRegion(x=0, y=0, w=width, h=height, confidence=0)
+            face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
+
+        for face_obj in face_objs:
+            current_img = face_obj.img
+            current_region = face_obj.facial_area
+
+            if current_img.shape[0] == 0 or current_img.shape[1] == 0:
+                continue
+
+            if grayscale is True:
+                logger.warn("Parameter grayscale is deprecated. Use color_face instead.")
                 current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
             else:
-                raise ValueError(f"The color_face can be rgb, bgr or gray, but it is {color_face}.")
+                if color_face == "rgb":
+                    current_img = current_img[:, :, ::-1]
+                elif color_face == "bgr":
+                    pass  # image is in BGR
+                elif color_face == "gray":
+                    current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
+                else:
+                    raise ValueError(f"The color_face can be rgb, bgr or gray, but it is {color_face}.")
 
-        if normalize_face:
-            current_img = current_img / 255  # normalize input in [0, 1]
+            if normalize_face:
+                current_img = current_img / 255  # normalize input in [0, 1]
 
-        # cast to int for flask, and do final checks for borders
-        x = max(0, int(current_region.x))
-        y = max(0, int(current_region.y))
-        w = min(width - x - 1, int(current_region.w))
-        h = min(height - y - 1, int(current_region.h))
+            # cast to int for flask, and do final checks for borders
+            x = max(0, int(current_region.x))
+            y = max(0, int(current_region.y))
+            w = min(width - x - 1, int(current_region.w))
+            h = min(height - y - 1, int(current_region.h))
 
-        facial_area = {
-            "x": x,
-            "y": y,
-            "w": w,
-            "h": h,
-            "left_eye": current_region.left_eye,
-            "right_eye": current_region.right_eye,
-        }
+            facial_area = {
+                "x": x,
+                "y": y,
+                "w": w,
+                "h": h,
+                "left_eye": current_region.left_eye,
+                "right_eye": current_region.right_eye,
+            }
 
-        # optional nose, mouth_left and mouth_right fields are coming just for retinaface
-        if current_region.nose is not None:
-            facial_area["nose"] = current_region.nose
-        if current_region.mouth_left is not None:
-            facial_area["mouth_left"] = current_region.mouth_left
-        if current_region.mouth_right is not None:
-            facial_area["mouth_right"] = current_region.mouth_right
+            # optional nose, mouth_left and mouth_right fields are coming just for retinaface
+            if current_region.nose is not None:
+                facial_area["nose"] = current_region.nose
+            if current_region.mouth_left is not None:
+                facial_area["mouth_left"] = current_region.mouth_left
+            if current_region.mouth_right is not None:
+                facial_area["mouth_right"] = current_region.mouth_right
 
-        resp_obj = {
-            "face": current_img,
-            "facial_area": facial_area,
-            "confidence": round(float(current_region.confidence or 0), 2),
-        }
+            resp_obj = {
+                "face": current_img,
+                "facial_area": facial_area,
+                "confidence": round(float(current_region.confidence or 0), 2),
+            }
 
-        if anti_spoofing is True:
-            antispoof_model = modeling.build_model(task="spoofing", model_name="Fasnet")
-            is_real, antispoof_score = antispoof_model.analyze(img=img, facial_area=(x, y, w, h))
-            resp_obj["is_real"] = is_real
-            resp_obj["antispoof_score"] = antispoof_score
+            if anti_spoofing is True:
+                antispoof_model = modeling.build_model(task="spoofing", model_name="Fasnet")
+                is_real, antispoof_score = antispoof_model.analyze(img=img, facial_area=(x, y, w, h))
+                resp_obj["is_real"] = is_real
+                resp_obj["antispoof_score"] = antispoof_score
 
-        resp_objs.append(resp_obj)
+            all_resp_objs.append(resp_obj)
 
-    if len(resp_objs) == 0 and enforce_detection == True:
-        raise ValueError(
-            f"Exception while extracting faces from {img_name}."
-            "Consider to set enforce_detection arg to False."
-        )
-
-    return resp_objs
+    return all_resp_objs
 
 
 def detect_faces(
     detector_backend: str,
-    img: np.ndarray,
+    img: Union[np.ndarray, List[np.ndarray]],
     align: bool = True,
     expand_percentage: int = 0,
     max_faces: Optional[int] = None,
-) -> List[DetectedFace]:
+) -> Union[List[List[DetectedFace]], List[DetectedFace]]:
     """
-    Detect face(s) from a given image
+    Detect face(s) from a given image or list of images
     Args:
         detector_backend (str): detector name
 
-        img (np.ndarray): pre-loaded image
+        img (np.ndarray or List[np.ndarray]): pre-loaded image or list of images
 
         align (bool): enable or disable alignment after detection
 
         expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
     Returns:
-        results (List[DetectedFace]): A list of DetectedFace objects
+        results (Union[List[List[DetectedFace]], List[DetectedFace]]): 
+        A list of lists of DetectedFace objects or a list of DetectedFace objects
             where each object contains:
 
         - img (np.ndarray): The detected face as a NumPy array.
@@ -219,53 +224,65 @@ def detect_faces(
 
         - confidence (float): The confidence score associated with the detected face.
     """
-    height, width, _ = img.shape
+    if not isinstance(img, list):
+        img = [img]
+
     face_detector: Detector = modeling.build_model(
         task="face_detector", model_name=detector_backend
     )
+    all_detected_faces = []
 
-    # validate expand percentage score
-    if expand_percentage < 0:
-        logger.warn(
-            f"Expand percentage cannot be negative but you set it to {expand_percentage}."
-            "Overwritten it to 0."
-        )
-        expand_percentage = 0
+    for single_img in img:
+        height, width, _ = single_img.shape
 
-    # If faces are close to the upper boundary, alignment move them outside
-    # Add a black border around an image to avoid this.
-    height_border = int(0.5 * height)
-    width_border = int(0.5 * width)
-    if align is True:
-        img = cv2.copyMakeBorder(
-            img,
-            height_border,
-            height_border,
-            width_border,
-            width_border,
-            cv2.BORDER_CONSTANT,
-            value=[0, 0, 0],  # Color of the border (black)
-        )
+        # validate expand percentage score
+        if expand_percentage < 0:
+            logger.warn(
+                f"Expand percentage cannot be negative but you set it to {expand_percentage}."
+                "Overwritten it to 0."
+            )
+            expand_percentage = 0
 
-    # find facial areas of given image
-    facial_areas = face_detector.detect_faces(img)
+        # If faces are close to the upper boundary, alignment move them outside
+        # Add a black border around an image to avoid this.
+        height_border = int(0.5 * height)
+        width_border = int(0.5 * width)
+        if align is True:
+            single_img = cv2.copyMakeBorder(
+                single_img,
+                height_border,
+                height_border,
+                width_border,
+                width_border,
+                cv2.BORDER_CONSTANT,
+                value=[0, 0, 0],  # Color of the border (black)
+            )
 
-    if max_faces is not None and max_faces < len(facial_areas):
-        facial_areas = nlargest(
-            max_faces, facial_areas, key=lambda facial_area: facial_area.w * facial_area.h
-        )
+        # find facial areas of given image
+        facial_areas = face_detector.detect_faces(single_img)
 
-    return [
-        extract_face(
-            facial_area=facial_area,
-            img=img,
-            align=align,
-            expand_percentage=expand_percentage,
-            width_border=width_border,
-            height_border=height_border,
-        )
-        for facial_area in facial_areas
-    ]
+        if max_faces is not None and max_faces < len(facial_areas):
+            facial_areas = nlargest(
+                max_faces, facial_areas, key=lambda facial_area: facial_area.w * facial_area.h
+            )
+
+        detected_faces = [
+            extract_face(
+                facial_area=facial_area,
+                img=single_img,
+                align=align,
+                expand_percentage=expand_percentage,
+                width_border=width_border,
+                height_border=height_border,
+            )
+            for facial_area in facial_areas
+        ]
+
+        all_detected_faces.append(detected_faces)
+
+    if len(all_detected_faces) == 1:
+        return all_detected_faces[0]
+    return all_detected_faces
 
 
 def extract_face(
