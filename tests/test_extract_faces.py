@@ -80,7 +80,7 @@ def test_different_detectors():
 
 
 @pytest.mark.parametrize("detector_backend", [
-    # "YOLO",
+    "yolov11n",
     "opencv",
 ])
 def test_batch_extract_faces(detector_backend):
@@ -89,8 +89,19 @@ def test_batch_extract_faces(detector_backend):
         "dataset/img3.jpg",
         "dataset/img11.jpg",
     ]
-    img_objs = DeepFace.extract_faces(img_path=img_paths, detector_backend=detector_backend)
-    assert len(img_objs) == 3
+    
+    # Extract faces one by one
+    img_objs_individual = [DeepFace.extract_faces(img_path=img_path, detector_backend=detector_backend)[0] for img_path in img_paths]
+    
+    # Extract faces in batch
+    img_objs_batch = DeepFace.extract_faces(img_path=img_paths, detector_backend=detector_backend)
+    
+    assert len(img_objs_batch) == len(img_objs_individual)
+    
+    for img_obj_individual, img_obj_batch in zip(img_objs_individual, img_objs_batch):
+        assert np.array_equal(img_obj_individual["face"], img_obj_batch["face"])
+        assert img_obj_individual["facial_area"] == img_obj_batch["facial_area"]
+        assert img_obj_individual["confidence"] == img_obj_batch["confidence"]
 
 
 def test_backends_for_enforced_detection_with_non_facial_inputs():
