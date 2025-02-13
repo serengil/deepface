@@ -230,8 +230,10 @@ def detect_faces(
     face_detector: Detector = modeling.build_model(
         task="face_detector", model_name=detector_backend
     )
-    all_detected_faces = []
 
+    preprocessed_images = []
+    width_borders = []
+    height_borders = []
     for single_img in img:
         height, width, _ = single_img.shape
 
@@ -258,8 +260,20 @@ def detect_faces(
                 value=[0, 0, 0],  # Color of the border (black)
             )
 
-        # find facial areas of given image
-        facial_areas = face_detector.detect_faces(single_img)
+        preprocessed_images.append(single_img)
+        width_borders.append(width_border)
+        height_borders.append(height_border)
+
+    # Detect faces in all preprocessed images
+    all_facial_areas = face_detector.detect_faces(preprocessed_images)
+
+    if len(preprocessed_images) == 1:
+        all_facial_areas = [all_facial_areas]
+
+    all_detected_faces = []
+    for single_img, facial_areas, width_border, height_border in zip(preprocessed_images, all_facial_areas, width_borders, height_borders):
+        if not isinstance(facial_areas, list):
+            facial_areas = [facial_areas]
 
         if max_faces is not None and max_faces < len(facial_areas):
             facial_areas = nlargest(
@@ -275,7 +289,7 @@ def detect_faces(
                 width_border=width_border,
                 height_border=height_border,
             )
-            for facial_area in facial_areas
+            for facial_area in facial_areas if isinstance(facial_area, FacialAreaRegion)
         ]
 
         all_detected_faces.append(detected_faces)
