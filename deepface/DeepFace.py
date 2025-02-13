@@ -519,7 +519,7 @@ def extract_faces(
     color_face: str = "rgb",
     normalize_face: bool = True,
     anti_spoofing: bool = False,
-) -> List[Dict[str, Any]]:
+) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Extract faces from a given image or sequence of images.
 
@@ -551,7 +551,8 @@ def extract_faces(
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
-        results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary contains:
+        results (Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]): 
+        A list or a list of lists of dictionaries, where each dictionary contains:
 
         - "face" (np.ndarray): The detected face as a NumPy array.
 

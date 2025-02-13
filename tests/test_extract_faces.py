@@ -106,6 +106,12 @@ def test_batch_extract_faces(detector_backend):
         align=True,
     )
     
+    assert (
+        len(img_objs_batch) == 3 and 
+        all(isinstance(obj, list) and len(obj) == 1 for obj in img_objs_batch)
+    )
+    img_objs_batch = [obj for sublist in img_objs_batch for obj in sublist]
+    
     assert len(img_objs_batch) == len(img_objs_individual)
     
     for img_obj_individual, img_obj_batch in zip(img_objs_individual, img_objs_batch):

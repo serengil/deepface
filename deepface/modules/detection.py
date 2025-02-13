@@ -29,7 +29,7 @@ def extract_faces(
     normalize_face: bool = True,
     anti_spoofing: bool = False,
     max_faces: Optional[int] = None,
-) -> List[Dict[str, Any]]:
+) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Extract faces from a given image or list of images
 
@@ -62,7 +62,8 @@ def extract_faces(
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
-        results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary contains:
+        results (Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]): 
+        A list or list of lists of dictionaries, where each dictionary contains:
 
         - "face" (np.ndarray): The detected face as a NumPy array in RGB format.
 
@@ -131,6 +132,7 @@ def extract_faces(
             base_region = FacialAreaRegion(x=0, y=0, w=width, h=height, confidence=0)
             face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
 
+        img_resp_objs = []
         for face_obj in face_objs:
             current_img = face_obj.img
             current_region = face_obj.facial_area
@@ -195,8 +197,12 @@ def extract_faces(
                 resp_obj["is_real"] = is_real
                 resp_obj["antispoof_score"] = antispoof_score
 
-            all_resp_objs.append(resp_obj)
+            img_resp_objs.append(resp_obj)
 
+        all_resp_objs.append(img_resp_objs)
+
+    if len(all_resp_objs) == 1:
+        return all_resp_objs[0]
     return all_resp_objs
 
 
