@@ -2,6 +2,8 @@
 import io
 import cv2
 import pytest
+import numpy as np
+import pytest
 
 # project dependencies
 from deepface import DeepFace
@@ -81,3 +83,42 @@ def test_max_faces():
     max_faces = 1
     results = DeepFace.represent(img_path="dataset/couple.jpg", max_faces=max_faces)
     assert len(results) == max_faces
+
+
+@pytest.mark.parametrize("model_name", [
+    "VGG-Face", 
+    "Facenet", 
+    "SFace", 
+])
+def test_batched_represent(model_name):
+    img_paths = [
+        "dataset/img1.jpg",
+        "dataset/img2.jpg",
+        "dataset/img3.jpg",
+        "dataset/img4.jpg",
+        "dataset/img5.jpg",
+    ]
+
+    embedding_objs = DeepFace.represent(img_path=img_paths, model_name=model_name)
+    assert len(embedding_objs) == len(img_paths), f"Expected {len(img_paths)} embeddings, got {len(embedding_objs)}"
+
+    if model_name == "VGG-Face":
+        for embedding_obj in embedding_objs:
+            embedding = embedding_obj["embedding"]
+            logger.debug(f"Function returned {len(embedding)} dimensional vector")
+            assert len(embedding) == 4096, f"Expected embedding of length 4096, got {len(embedding)}"
+
+    embedding_objs_one_by_one = [
+        embedding_obj
+        for img_path in img_paths
+        for embedding_obj in DeepFace.represent(img_path=img_path, model_name=model_name) 
+    ]
+    for embedding_obj_one_by_one, embedding_obj in zip(embedding_objs_one_by_one, embedding_objs):
+        assert np.allclose(
+            embedding_obj_one_by_one["embedding"], 
+            embedding_obj["embedding"],
+            rtol=1e-2,
+            atol=1e-2
+        ), "Embeddings do not match within tolerance"
+
+    logger.info(f"✅ test batch represent function for model {model_name} done")

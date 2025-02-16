@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Union, Optional, Sequence, IO
 
 # 3rd party dependencies
 import numpy as np
@@ -11,7 +11,7 @@ from deepface.models.FacialRecognition import FacialRecognition
 
 
 def represent(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, IO[bytes], np.ndarray, Sequence[Union[str, np.ndarray, IO[bytes]]]],
     model_name: str = "VGG-Face",
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -25,9 +25,11 @@ def represent(
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
-            or a base64 encoded image. If the source image contains multiple faces, the result will
-            include information for each detected face.
+        img_path (str, np.ndarray, or Sequence[Union[str, np.ndarray]]): 
+            The exact path to the image, a numpy array in BGR format,
+            a base64 encoded image, or a sequence of these.
+            If the source image contains multiple faces,
+            the result will include information for each detected face.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet
@@ -70,70 +72,95 @@ def represent(
         task="facial_recognition", model_name=model_name
     )
 
-    # ---------------------------------
-    # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
-    target_size = model.input_shape
-    if detector_backend != "skip":
-        img_objs = detection.extract_faces(
-            img_path=img_path,
-            detector_backend=detector_backend,
-            grayscale=False,
-            enforce_detection=enforce_detection,
-            align=align,
-            expand_percentage=expand_percentage,
-            anti_spoofing=anti_spoofing,
-            max_faces=max_faces,
-        )
-    else:  # skip
-        # Try load. If load error, will raise exception internal
-        img, _ = image_utils.load_image(img_path)
+    # Handle list of image paths or 4D numpy array
+    if isinstance(img_path, list):
+        images = img_path
+    elif isinstance(img_path, np.ndarray) and img_path.ndim == 4:
+        images = [img_path[i] for i in range(img_path.shape[0])]
+    else:
+        images = [img_path]
 
-        if len(img.shape) != 3:
-            raise ValueError(f"Input img must be 3 dimensional but it is {img.shape}")
+    batch_images = []
+    batch_regions = []
+    batch_confidences = []
 
-        # make dummy region and confidence to keep compatibility with `extract_faces`
-        img_objs = [
-            {
-                "face": img,
-                "facial_area": {"x": 0, "y": 0, "w": img.shape[0], "h": img.shape[1]},
-                "confidence": 0,
-            }
-        ]
-    # ---------------------------------
+    for single_img_path in images:
+        # ---------------------------------
+        # we have run pre-process in verification.
+        # so, this can be skipped if it is coming from verify.
+        target_size = model.input_shape
+        if detector_backend != "skip":
+            img_objs = detection.extract_faces(
+                img_path=single_img_path,
+                detector_backend=detector_backend,
+                grayscale=False,
+                enforce_detection=enforce_detection,
+                align=align,
+                expand_percentage=expand_percentage,
+                anti_spoofing=anti_spoofing,
+                max_faces=max_faces,
+            )
+        else:  # skip
+            # Try load. If load error, will raise exception internal
+            img, _ = image_utils.load_image(single_img_path)
 
-    if max_faces is not None and max_faces < len(img_objs):
-        # sort as largest facial areas come first
-        img_objs = sorted(
-            img_objs,
-            key=lambda img_obj: img_obj["facial_area"]["w"] * img_obj["facial_area"]["h"],
-            reverse=True,
-        )
-        # discard rest of the items
-        img_objs = img_objs[0:max_faces]
+            if len(img.shape) != 3:
+                raise ValueError(f"Input img must be 3 dimensional but it is {img.shape}")
 
-    for img_obj in img_objs:
-        if anti_spoofing is True and img_obj.get("is_real", True) is False:
-            raise ValueError("Spoof detected in the given image.")
-        img = img_obj["face"]
+            # make dummy region and confidence to keep compatibility with `extract_faces`
+            img_objs = [
+                {
+                    "face": img,
+                    "facial_area": {"x": 0, "y": 0, "w": img.shape[0], "h": img.shape[1]},
+                    "confidence": 0,
+                }
+            ]
+        # ---------------------------------
 
-        # bgr to rgb
-        img = img[:, :, ::-1]
+        if max_faces is not None and max_faces < len(img_objs):
+            # sort as largest facial areas come first
+            img_objs = sorted(
+                img_objs,
+                key=lambda img_obj: img_obj["facial_area"]["w"] * img_obj["facial_area"]["h"],
+                reverse=True,
+            )
+            # discard rest of the items
+            img_objs = img_objs[0:max_faces]
 
-        region = img_obj["facial_area"]
-        confidence = img_obj["confidence"]
+        for img_obj in img_objs:
+            if anti_spoofing is True and img_obj.get("is_real", True) is False:
+                raise ValueError("Spoof detected in the given image.")
+            img = img_obj["face"]
 
-        # resize to expected shape of ml model
-        img = preprocessing.resize_image(
-            img=img,
-            # thanks to DeepId (!)
-            target_size=(target_size[1], target_size[0]),
-        )
+            # bgr to rgb
+            img = img[:, :, ::-1]
 
-        # custom normalization
-        img = preprocessing.normalize_input(img=img, normalization=normalization)
+            region = img_obj["facial_area"]
+            confidence = img_obj["confidence"]
 
-        embedding = model.forward(img)
+            # resize to expected shape of ml model
+            img = preprocessing.resize_image(
+                img=img,
+                # thanks to DeepId (!)
+                target_size=(target_size[1], target_size[0]),
+            )
 
+            # custom normalization
+            img = preprocessing.normalize_input(img=img, normalization=normalization)
+
+            batch_images.append(img)
+            batch_regions.append(region)
+            batch_confidences.append(confidence)
+
+    # Convert list of images to a numpy array for batch processing
+    batch_images = np.concatenate(batch_images, axis=0)
+
+    # Forward pass through the model for the entire batch
+    embeddings = model.forward(batch_images)
+    if len(batch_images) == 1:
+        embeddings = [embeddings]
+
+    for embedding, region, confidence in zip(embeddings, batch_regions, batch_confidences):
         resp_objs.append(
             {
                 "embedding": embedding,
