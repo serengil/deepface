@@ -226,6 +226,15 @@ def detect_faces(
     """
     if not isinstance(img, list):
         img = [img]
+    
+    if detector_backend == "skip":
+        all_face_objs = [
+            [DetectedFace(img=single_img, facial_area=FacialAreaRegion(x=0, y=0, w=single_img.shape[1], h=single_img.shape[0]), confidence=0)]
+            for single_img in img
+        ]
+        if len(img) == 1:
+            all_face_objs = all_face_objs[0]
+        return all_face_objs
 
     face_detector: Detector = modeling.build_model(
         task="face_detector", model_name=detector_backend
