@@ -1,6 +1,6 @@
 # built-in dependencies
 import os
-from typing import List, Any, Union, Tuple
+from typing import List, Any, Union
 from enum import Enum
 
 # 3rd party dependencies
@@ -62,25 +62,30 @@ class YoloDetectorClient(Detector):
         # Return face_detector
         return YOLO(weight_file)
 
-    def detect_faces(self, imgs: Union[np.ndarray, List[np.ndarray]]) -> Union[List[List[FacialAreaRegion]], List[FacialAreaRegion]]:
+    def detect_faces(
+        self,
+        img: Union[np.ndarray, List[np.ndarray]]
+    ) -> Union[List[List[FacialAreaRegion]], List[FacialAreaRegion]]:
         """
-        Detect and align faces in an image or a list of images with yolo
+        Detect and align faces in a batch of images with yolo
 
         Args:
-            imgs (Union[np.ndarray, List[np.ndarray]]): pre-loaded image as numpy array or a list of those
+            img (Union[np.ndarray, List[np.ndarray]]): 
+            Pre-loaded image as numpy array or a list of those
 
         Returns:
             results (Union[List[List[FacialAreaRegion]], List[FacialAreaRegion]]): 
-                A list of lists of FacialAreaRegion objects for each image or a list of FacialAreaRegion objects
+            A list of lists of FacialAreaRegion objects 
+            for each image or a list of FacialAreaRegion objects
         """
-        if not isinstance(imgs, list):
-            imgs = [imgs]
+        if not isinstance(img, list):
+            img = [img]
 
         all_results = []
 
         # Detect faces for all images
         results_list = self.model.predict(
-            imgs,
+            img,
             verbose=False,
             show=False,
             conf=float(os.getenv("YOLO_MIN_DETECTION_CONFIDENCE", "0.25")),
@@ -113,9 +118,16 @@ class YoloDetectorClient(Detector):
 
                     # eyes are list of float, need to cast them tuple of int
                     # Ensure eyes are tuples of exactly two integers or None
-                    left_eye = tuple(map(int, left_eye[:2])) if left_eye and len(left_eye) == 2 else None
-                    right_eye = tuple(map(int, right_eye[:2])) if right_eye and len(right_eye) == 2 else None
-
+                    left_eye = (
+                        tuple(map(int, left_eye[:2]))
+                        if left_eye and len(left_eye) == 2
+                        else None
+                    )
+                    right_eye = (
+                        tuple(map(int, right_eye[:2]))
+                        if right_eye and len(right_eye) == 2
+                        else None
+                    )
                 x, y, w, h = int(x - w / 2), int(y - h / 2), int(w), int(h)
                 facial_area = FacialAreaRegion(
                     x=x,

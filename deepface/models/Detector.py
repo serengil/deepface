@@ -10,14 +10,15 @@ import numpy as np
 class Detector(ABC):
     @abstractmethod
     def detect_faces(
-        self, 
-        imgs: Union[np.ndarray, List[np.ndarray]]
+        self,
+        img: Union[np.ndarray, List[np.ndarray]]
     ) -> Union[List["FacialAreaRegion"], List[List["FacialAreaRegion"]]]:
         """
         Interface for detect and align faces in a batch of images
 
         Args:
-            imgs (Union[np.ndarray, List[np.ndarray]]): pre-loaded image as numpy array or a list of those
+            img (Union[np.ndarray, List[np.ndarray]]): 
+            Pre-loaded image as numpy array or a list of those
 
         Returns:
             results (Union[List[List[FacialAreaRegion]], List[FacialAreaRegion]]): 

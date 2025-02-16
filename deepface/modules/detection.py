@@ -34,8 +34,9 @@ def extract_faces(
     Extract faces from a given image or list of images
 
     Args:
-        img_paths (List[str or np.ndarray or IO[bytes]] or str or np.ndarray or IO[bytes]): Path(s) to the image(s). Accepts exact image path
-            as a string, numpy array (BGR), a file object that supports at least `.read` and is
+        img_paths (List[str or np.ndarray or IO[bytes]] or str or np.ndarray or IO[bytes]): 
+            Path(s) to the image(s) as a string, 
+            numpy array (BGR), a file object that supports at least `.read` and is
             opened in binary mode, or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
@@ -148,7 +149,10 @@ def extract_faces(
                 elif color_face == "gray":
                     current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
                 else:
-                    raise ValueError(f"The color_face can be rgb, bgr or gray, but it is {color_face}.")
+                    raise ValueError(
+                        f"The color_face can be rgb, bgr or gray, "
+                        f"but it is {color_face}."
+                    )
 
             if normalize_face:
                 current_img = current_img / 255  # normalize input in [0, 1]
@@ -184,7 +188,10 @@ def extract_faces(
 
             if anti_spoofing is True:
                 antispoof_model = modeling.build_model(task="spoofing", model_name="Fasnet")
-                is_real, antispoof_score = antispoof_model.analyze(img=img, facial_area=(x, y, w, h))
+                is_real, antispoof_score = antispoof_model.analyze(
+                    img=img,
+                    facial_area=(x, y, w, h)
+                )
                 resp_obj["is_real"] = is_real
                 resp_obj["antispoof_score"] = antispoof_score
 
@@ -226,10 +233,18 @@ def detect_faces(
     """
     if not isinstance(img, list):
         img = [img]
-    
+
     if detector_backend == "skip":
         all_face_objs = [
-            [DetectedFace(img=single_img, facial_area=FacialAreaRegion(x=0, y=0, w=single_img.shape[1], h=single_img.shape[0]), confidence=0)]
+            [
+                DetectedFace(
+                    img=single_img,
+                    facial_area=FacialAreaRegion(
+                        x=0, y=0, w=single_img.shape[1], h=single_img.shape[0]
+                    ),
+                    confidence=0,
+                )
+            ]
             for single_img in img
         ]
         if len(img) == 1:
@@ -280,7 +295,17 @@ def detect_faces(
         all_facial_areas = [all_facial_areas]
 
     all_detected_faces = []
-    for single_img, facial_areas, width_border, height_border in zip(preprocessed_images, all_facial_areas, width_borders, height_borders):
+    for (
+        single_img,
+        facial_areas,
+        width_border,
+        height_border
+    ) in zip(
+        preprocessed_images,
+        all_facial_areas,
+        width_borders,
+        height_borders
+    ):
         if not isinstance(facial_areas, list):
             facial_areas = [facial_areas]
 

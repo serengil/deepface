@@ -13,15 +13,20 @@ class RetinaFaceClient(Detector):
     def __init__(self):
         self.model = rf.build_model()
 
-    def detect_faces(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
+    def detect_faces(
+        self,
+        img: Union[np.ndarray, List[np.ndarray]]
+    ) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
         """
-        Detect and align faces with retinaface in an image or a list of images
+        Detect and align faces with retinaface in a batch of images
 
         Args:
-            img (Union[np.ndarray, List[np.ndarray]]): pre-loaded image as numpy array or a list of those
+            img (Union[np.ndarray, List[np.ndarray]]): 
+            Pre-loaded image as numpy array or a list of those
 
         Returns:
-            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): A list or a list of lists of FacialAreaRegion objects
+            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): 
+            A list or a list of lists of FacialAreaRegion objects
         """
         if isinstance(img, np.ndarray):
             imgs = [img]
@@ -30,9 +35,9 @@ class RetinaFaceClient(Detector):
 
         batch_results = []
 
-        for img in imgs:
+        for single_img in imgs:
             resp = []
-            obj = rf.detect_faces(img, model=self.model, threshold=0.9)
+            obj = rf.detect_faces(single_img, model=self.model, threshold=0.9)
 
             if isinstance(obj, dict):
                 for face_idx in obj.keys():

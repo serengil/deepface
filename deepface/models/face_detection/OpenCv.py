@@ -29,35 +29,42 @@ class OpenCvClient(Detector):
         detector["eye_detector"] = self.__build_cascade("haarcascade_eye")
         return detector
 
-    def detect_faces(self, imgs: Union[np.ndarray, List[np.ndarray]]) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
+    def detect_faces(
+        self,
+        img: Union[np.ndarray, List[np.ndarray]]
+    ) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
         """
         Detect and align face with opencv
 
         Args:
-            imgs (Union[np.ndarray, List[np.ndarray]]): pre-loaded image as numpy array or a list of those
+            img (Union[np.ndarray, List[np.ndarray]]):
+            Pre-loaded image as numpy array or a list of those
 
         Returns:
-            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): A list or a list of lists of FacialAreaRegion objects
+            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): 
+            A list or a list of lists of FacialAreaRegion objects
         """
-        if isinstance(imgs, np.ndarray):
-            imgs = [imgs]
+        if isinstance(img, np.ndarray):
+            imgs = [img]
+        else:
+            imgs = img
 
         batch_results = []
 
-        for img in imgs:
+        for single_img in imgs:
             resp = []
             detected_face = None
             faces = []
             try:
                 faces, _, scores = self.model["face_detector"].detectMultiScale3(
-                    img, 1.1, 10, outputRejectLevels=True
+                    single_img, 1.1, 10, outputRejectLevels=True
                 )
             except:
                 pass
 
             if len(faces) > 0:
                 for (x, y, w, h), confidence in zip(faces, scores):
-                    detected_face = img[int(y):int(y + h), int(x):int(x + w)]
+                    detected_face = single_img[int(y):int(y + h), int(x):int(x + w)]
                     left_eye, right_eye = self.find_eyes(img=detected_face)
 
                     if left_eye is not None:

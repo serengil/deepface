@@ -18,9 +18,8 @@ class MtCnnClient(Detector):
         self.model = MTCNN()
 
     def detect_faces(
-        self, 
-        img: Union[np.ndarray, 
-        List[np.ndarray]]
+        self,
+        img: Union[np.ndarray, List[np.ndarray]]
     ) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
         """
         Detect and align faces with mtcnn for a list of images
@@ -31,7 +30,8 @@ class MtCnnClient(Detector):
 
         Returns:
             results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): 
-                A list of FacialAreaRegion objects for a single image or a list of lists of FacialAreaRegion objects for each image
+                A list of FacialAreaRegion objects for a single image 
+                or a list of lists of FacialAreaRegion objects for each image
         """
 
         if not isinstance(img, list):
