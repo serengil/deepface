@@ -174,7 +174,7 @@ def analyze(
     expand_percentage: int = 0,
     silent: bool = False,
     anti_spoofing: bool = False,
-) -> List[Dict[str, Any]]:
+) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
     Args:
@@ -206,7 +206,10 @@ def analyze(
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
-        results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
+        (List[List[Dict[str, Any]]]): A list of analysis results if received batched image, 
+                                      explained below.
+                                      
+        (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
            the analysis results for a detected face. Each dictionary in the list contains the
            following keys:
 
