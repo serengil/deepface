@@ -80,10 +80,8 @@ def test_different_detectors():
 
 
 @pytest.mark.parametrize("detector_backend", [
-    # "yolov11n",
-    # "yolov8",
-    "yolov11s",
-    # "opencv",
+    "opencv",
+    "ssd"
 ])
 def test_batch_extract_faces(detector_backend):
     img_paths = [
