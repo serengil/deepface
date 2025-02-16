@@ -74,6 +74,7 @@ def represent(
     # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
     target_size = model.input_shape
     if detector_backend != "skip":
+        # Images are returned in RGB format.
         img_objs = detection.extract_faces(
             img_path=img_path,
             detector_backend=detector_backend,
@@ -90,6 +91,9 @@ def represent(
 
         if len(img.shape) != 3:
             raise ValueError(f"Input img must be 3 dimensional but it is {img.shape}")
+
+        # Convert to RGB format to keep compatability with `extract_faces`.
+        img = img[:, :, ::-1]
 
         # make dummy region and confidence to keep compatibility with `extract_faces`
         img_objs = [
@@ -116,7 +120,7 @@ def represent(
             raise ValueError("Spoof detected in the given image.")
         img = img_obj["face"]
 
-        # bgr to rgb
+        # rgb to bgr
         img = img[:, :, ::-1]
 
         region = img_obj["facial_area"]
