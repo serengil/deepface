@@ -516,7 +516,7 @@ def stream(
 
 
 def extract_faces(
-    img_path: Union[str, np.ndarray, IO[bytes]],
+    img_path: Union[str, np.ndarray, IO[bytes], Sequence[Union[str, np.ndarray, IO[bytes]]]],
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -527,12 +527,12 @@ def extract_faces(
     anti_spoofing: bool = False,
 ) -> List[Dict[str, Any]]:
     """
-    Extract faces from a given image
+    Extract faces from a given image or sequence of images.
 
     Args:
-        img_path (str or np.ndarray or IO[bytes]): Path to the first image. Accepts exact image path
-            as a string, numpy array (BGR), a file object that supports at least `.read` and is
-            opened in binary mode, or base64 encoded images.
+        img_path (Union[str, np.ndarray, IO[bytes], Sequence[Union[str, np.ndarray, IO[bytes]]]]): 
+            Path(s) to the image(s). Accepts a string path, a numpy array (BGR), a file object 
+            that supports at least `.read` and is opened in binary mode, or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
