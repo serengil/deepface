@@ -79,7 +79,7 @@ class MtCnnClient(Detector):
         if len(resp) == 1:
             return resp[0]
         return resp
-    
+
     def _supports_batch_detection(self) -> bool:
         import mtcnn
         try:
