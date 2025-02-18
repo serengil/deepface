@@ -82,6 +82,8 @@ def extract_faces(
             just available in the result only if anti_spoofing is set to True in input arguments.
     """
 
+    if isinstance(img_path, np.ndarray) and img_path.ndim == 4:
+        img_path = [img_path[i] for i in range(img_path.shape[0])]
     if not isinstance(img_path, list):
         img_path = [img_path]
 
