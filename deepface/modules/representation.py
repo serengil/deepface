@@ -20,12 +20,12 @@ def represent(
     normalization: str = "base",
     anti_spoofing: bool = False,
     max_faces: Optional[int] = None,
-) -> List[Dict[str, Any]]:
+) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str, np.ndarray, or Sequence[Union[str, np.ndarray]]): 
+        img_path (str, np.ndarray, or Sequence[Union[str, np.ndarray]]):
             The exact path to the image, a numpy array in BGR format,
             a base64 encoded image, or a sequence of these.
             If the source image contains multiple faces,
@@ -53,8 +53,9 @@ def represent(
         max_faces (int): Set a limit on the number of faces to be processed (default is None).
 
     Returns:
-        results (List[Dict[str, Any]]): A list of dictionaries, each containing the
-            following fields:
+        results (List[Dict[str, Any]] or List[Dict[str, Any]]): A list of dictionaries.
+            Result type becomes List of List of Dict if batch input passed.
+            Each containing the following fields:
 
         - embedding (List[float]): Multidimensional vector representing facial features.
             The number of dimensions varies based on the reference model
@@ -80,14 +81,10 @@ def represent(
     else:
         images = [img_path]
 
-    batch_images = []
-    batch_regions = []
-    batch_confidences = []
+    batch_images, batch_regions, batch_confidences, batch_indexes = [], [], [], []
 
-    for single_img_path in images:
-        # ---------------------------------
-        # we have run pre-process in verification.
-        # so, this can be skipped if it is coming from verify.
+    for idx, single_img_path in enumerate(images):
+        # we have run pre-process in verification. so, skip if it is coming from verify.
         target_size = model.input_shape
         if detector_backend != "skip":
             img_objs = detection.extract_faces(
@@ -130,6 +127,7 @@ def represent(
         for img_obj in img_objs:
             if anti_spoofing is True and img_obj.get("is_real", True) is False:
                 raise ValueError("Spoof detected in the given image.")
+
             img = img_obj["face"]
 
             # bgr to rgb
@@ -151,22 +149,25 @@ def represent(
             batch_images.append(img)
             batch_regions.append(region)
             batch_confidences.append(confidence)
+            batch_indexes.append(idx)
 
     # Convert list of images to a numpy array for batch processing
     batch_images = np.concatenate(batch_images, axis=0)
 
     # Forward pass through the model for the entire batch
     embeddings = model.forward(batch_images)
-    if len(batch_images) == 1:
-        embeddings = [embeddings]
 
-    for embedding, region, confidence in zip(embeddings, batch_regions, batch_confidences):
-        resp_objs.append(
-            {
-                "embedding": embedding,
-                "facial_area": region,
-                "face_confidence": confidence,
-            }
-        )
+    for idx in range(0, len(images)):
+        resp_obj = []
+        for idy, batch_index in enumerate(batch_indexes):
+            if idx == batch_index:
+                resp_obj.append(
+                    {
+                        "embedding": embeddings if len(batch_images) == 1 else embeddings[idy],
+                        "facial_area": batch_regions[idy],
+                        "face_confidence": batch_confidences[idy],
+                    }
+                )
+        resp_objs.append(resp_obj)
 
-    return resp_objs
+    return resp_objs[0] if len(images) == 1 else resp_objs

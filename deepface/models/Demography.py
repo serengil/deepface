@@ -24,7 +24,7 @@ class Demography(ABC):
     def _predict_internal(self, img_batch: np.ndarray) -> np.ndarray:
         """
         Predict for single image or batched images.
-        This method uses legacy method while receiving single image as input. 
+        This method uses legacy method while receiving single image as input.
         And switch to batch prediction if receives batched images.
 
         Args:
@@ -35,11 +35,11 @@ class Demography(ABC):
                     with x = image width, y = image height and c = channel
                 The channel dimension will be 1 if input is grayscale. (For emotion model)
         """
-        if not self.model_name: # Check if called from derived class
+        if not self.model_name:  # Check if called from derived class
             raise NotImplementedError("no model selected")
         assert img_batch.ndim == 4, "expected 4-dimensional tensor input"
 
-        if img_batch.shape[0] == 1: # Single image
+        if img_batch.shape[0] == 1:  # Single image
             # Predict with legacy method.
             return self.model(img_batch, training=False).numpy()[0, :]
 
@@ -48,10 +48,8 @@ class Demography(ABC):
         return self.model.predict_on_batch(img_batch)
 
     def _preprocess_batch_or_single_input(
-        self,
-        img: Union[np.ndarray, List[np.ndarray]]
+        self, img: Union[np.ndarray, List[np.ndarray]]
     ) -> np.ndarray:
-
         """
         Preprocess single or batch of images, return as 4-D numpy array.
         Args:
