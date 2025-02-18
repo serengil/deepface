@@ -57,14 +57,14 @@ class DlibClient(Detector):
         Returns:
             results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): A list or a list of lists of FacialAreaRegion objects
         """
-        if isinstance(img, np.ndarray):
-            return self._detect_faces_in_single_image(img)
-        elif isinstance(img, list):
-            return [self._detect_faces_in_single_image(single_img) for single_img in img]
-        else:
-            raise ValueError("Input must be a numpy array or a list of numpy arrays.")
+        if not isinstance(img, list):
+            img = [img]
+        results = [self._process_single_image(single_img) for single_img in img]
+        if len(results) == 1:
+            return results[0]
+        return results
 
-    def _detect_faces_in_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
         Helper function to detect faces in a single image.
 
