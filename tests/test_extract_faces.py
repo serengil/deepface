@@ -88,45 +88,51 @@ def test_batch_extract_faces(detector_backend):
         "dataset/img2.jpg",
         "dataset/img3.jpg",
         "dataset/img11.jpg",
+        "dataset/couple.jpg"
     ]
     
     # Extract faces one by one
-    img_objs_individual = [
+    imgs_objs_individual = [
         DeepFace.extract_faces(
             img_path=img_path,
             detector_backend=detector_backend,
             align=True,
-        )[0] for img_path in img_paths
+        ) for img_path in img_paths
     ]
     
     # Extract faces in batch
-    img_objs_batch = DeepFace.extract_faces(
+    imgs_objs_batch = DeepFace.extract_faces(
         img_path=img_paths,
         detector_backend=detector_backend,
         align=True,
     )
     
     assert (
-        len(img_objs_batch) == 3 and 
-        all(isinstance(obj, list) and len(obj) == 1 for obj in img_objs_batch)
+        len(imgs_objs_batch) == 4 and 
+        all(isinstance(obj, list) for obj in imgs_objs_batch)
     )
-    img_objs_batch = [obj for sublist in img_objs_batch for obj in sublist]
-    
-    assert len(img_objs_batch) == len(img_objs_individual)
-    
-    for img_obj_individual, img_obj_batch in zip(img_objs_individual, img_objs_batch):
-        # assert np.array_equal(img_obj_individual["face"], img_obj_batch["face"])
-        for key in img_obj_individual["facial_area"]:
-            if key == "left_eye" or key == "right_eye":
-                continue
+    assert all(
+        len(imgs_objs_batch[i]) == 1 
+        for i in range(len(imgs_objs_batch[:-1]))
+    )
+    assert len(imgs_objs_batch[-1]) == 2
+
+    for img_objs_individual, img_objs_batch in zip(imgs_objs_individual, imgs_objs_batch):
+        assert len(img_objs_batch) == len(img_objs_individual), (
+            "Batch and individual extraction results should have the same number of detected faces"
+        )
+        for img_obj_individual, img_obj_batch in zip(img_objs_individual, img_objs_batch):
+            for key in img_obj_individual["facial_area"]:
+                if key == "left_eye" or key == "right_eye":
+                    continue
+                assert abs(
+                    img_obj_individual["facial_area"][key] - 
+                    img_obj_batch["facial_area"][key]
+                ) <= 0.03 * img_obj_individual["facial_area"][key]
             assert abs(
-                img_obj_individual["facial_area"][key] - 
-                img_obj_batch["facial_area"][key]
-            ) <= 0.03 * img_obj_individual["facial_area"][key]
-        assert abs(
-            img_obj_individual["confidence"] - 
-            img_obj_batch["confidence"]
-        ) <= 0.03 * img_obj_individual["confidence"]
+                img_obj_individual["confidence"] - 
+                img_obj_batch["confidence"]
+            ) <= 0.03 * img_obj_individual["confidence"]
     
 
 def test_backends_for_enforced_detection_with_non_facial_inputs():
