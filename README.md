@@ -405,23 +405,27 @@ If you do like this work, then you can support it financially on [Patreon](https
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/patreon.png" width="30%" height="30%">
 </a>
 
+<a href="https://github.com/sponsors/serengil">
+<img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/github_sponsor_button.png" width="37%" height="37%">
+</a>
+
 <a href="https://buymeacoffee.com/serengil">
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/bmc-button.png" width="25%" height="25%">
 </a>
 
+<!--
 Additionally, you can help us reach a wider audience by upvoting our posts on Hacker News and Product Hunt.
 
 <div style="display: flex; align-items: center; gap: 10px;">
-  <!-- Hacker News Badge -->
   <a href="https://news.ycombinator.com/item?id=42584896">
     <img src="https://hackerbadge.vercel.app/api?id=42584896&type=orange" style="width: 250px; height: 54px;" width="250" alt="Featured on Hacker News">
   </a>
   
-  <!-- Product Hunt Badge -->
   <a href="https://www.producthunt.com/posts/deepface?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-deepface" target="_blank">
     <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=753599&theme=light" alt="DeepFace - A Lightweight Deep Face Recognition Library for Python | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" />
   </a>
 </div>
+-->
 
 ## Citation
 

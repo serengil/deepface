@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import List
+from typing import List, Union
 
 # 3rd party dependencies
 import numpy as np
@@ -26,24 +26,22 @@ class DlibClient(FacialRecognition):
         self.input_shape = (150, 150)
         self.output_shape = 128
 
-    def forward(self, img: np.ndarray) -> List[float]:
+    def forward(self, img: np.ndarray) -> Union[List[float], List[List[float]]]:
         """
         Find embeddings with Dlib model.
             This model necessitates the override of the forward method
             because it is not a keras model.
         Args:
-            img (np.ndarray): pre-loaded image in BGR
+            img (np.ndarray): pre-loaded image(s) in BGR
         Returns
-            embeddings (list): multi-dimensional vector
+            embeddings (list of lists or list of floats): multi-dimensional vectors
         """
-        # return self.model.predict(img)[0].tolist()
-
-        # extract_faces returns 4 dimensional images
-        if len(img.shape) == 4:
-            img = img[0]
+        # Handle single image case
+        if len(img.shape) == 3:
+            img = np.expand_dims(img, axis=0)
 
         # bgr to rgb
-        img = img[:, :, ::-1]  # bgr to rgb
+        img = img[:, :, :, ::-1]  # bgr to rgb
 
         # img is in scale of [0, 1] but expected [0, 255]
         if img.max() <= 1:
@@ -51,10 +49,11 @@ class DlibClient(FacialRecognition):
 
         img = img.astype(np.uint8)
 
-        img_representation = self.model.model.compute_face_descriptor(img)
-        img_representation = np.array(img_representation)
-        img_representation = np.expand_dims(img_representation, axis=0)
-        return img_representation[0].tolist()
+        embeddings = self.model.model.compute_face_descriptor(img)
+        embeddings = [np.array(embedding).tolist() for embedding in embeddings]
+        if len(embeddings) == 1:
+            return embeddings[0]
+        return embeddings
 
 
 class DlibResNet:

@@ -2,7 +2,7 @@
 import os
 import warnings
 import logging
-from typing import Any, Dict, IO, List, Union, Optional
+from typing import Any, Dict, IO, List, Union, Optional, Sequence
 
 # this has to be set before importing tensorflow
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
@@ -174,7 +174,7 @@ def analyze(
     expand_percentage: int = 0,
     silent: bool = False,
     anti_spoofing: bool = False,
-) -> List[Dict[str, Any]]:
+) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
     Args:
@@ -206,7 +206,10 @@ def analyze(
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
     Returns:
-        results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
+        (List[List[Dict[str, Any]]]): A list of analysis results if received batched image,
+                                      explained below.
+
+        (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
            the analysis results for a detected face. Each dictionary in the list contains the
            following keys:
 
@@ -373,7 +376,7 @@ def find(
 
 
 def represent(
-    img_path: Union[str, np.ndarray, IO[bytes]],
+    img_path: Union[str, np.ndarray, IO[bytes], Sequence[Union[str, np.ndarray, IO[bytes]]]],
     model_name: str = "VGG-Face",
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -382,15 +385,18 @@ def represent(
     normalization: str = "base",
     anti_spoofing: bool = False,
     max_faces: Optional[int] = None,
-) -> List[Dict[str, Any]]:
+) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+        img_path (str, np.ndarray, IO[bytes], or Sequence[Union[str, np.ndarray, IO[bytes]]]):
+            The exact path to the image, a numpy array
             in BGR format, a file object that supports at least `.read` and is opened in binary
             mode, or a base64 encoded image. If the source image contains multiple faces,
-            the result will include information for each detected face.
+            the result will include information for each detected face. If a sequence is provided,
+            each element should be a string or numpy array representing an image, and the function
+            will process images in batch.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet
@@ -417,8 +423,9 @@ def represent(
         max_faces (int): Set a limit on the number of faces to be processed (default is None).
 
     Returns:
-        results (List[Dict[str, Any]]): A list of dictionaries, each containing the
-            following fields:
+        results (List[Dict[str, Any]] or List[Dict[str, Any]]): A list of dictionaries.
+            Result type becomes List of List of Dict if batch input passed.
+            Each containing the following fields:
 
         - embedding (List[float]): Multidimensional vector representing facial features.
             The number of dimensions varies based on the reference model

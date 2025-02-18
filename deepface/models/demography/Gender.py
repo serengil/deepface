@@ -1,3 +1,7 @@
+# stdlib dependencies
+
+from typing import List, Union
+
 # 3rd party dependencies
 import numpy as np
 
@@ -37,11 +41,23 @@ class GenderClient(Demography):
         self.model = load_model()
         self.model_name = "Gender"
 
-    def predict(self, img: np.ndarray) -> np.ndarray:
-        # model.predict causes memory issue when it is called in a for loop
-        # return self.model.predict(img, verbose=0)[0, :]
-        return self.model(img, training=False).numpy()[0, :]
+    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
+        """
+        Predict gender probabilities for single or multiple faces
+        Args:
+            img: Single image as np.ndarray (224, 224, 3) or
+                List of images as List[np.ndarray] or
+                Batch of images as np.ndarray (n, 224, 224, 3)
+        Returns:
+            np.ndarray (n, 2)
+        """
+        # Preprocessing input image or image list.
+        imgs = self._preprocess_batch_or_single_input(img)
 
+        # Prediction
+        predictions = self._predict_internal(imgs)
+
+        return predictions
 
 def load_model(
     url=WEIGHTS_URL,
@@ -64,7 +80,7 @@ def load_model(
 
     # --------------------------
 
-    gender_model = Model(inputs=model.input, outputs=base_model_output)
+    gender_model = Model(inputs=model.inputs, outputs=base_model_output)
 
     # --------------------------
 

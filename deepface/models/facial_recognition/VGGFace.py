@@ -57,8 +57,7 @@ class VggFaceClient(FacialRecognition):
     def forward(self, img: np.ndarray) -> List[float]:
         """
         Generates embeddings using the VGG-Face model.
-            This method incorporates an additional normalization layer,
-            necessitating the override of the forward method.
+            This method incorporates an additional normalization layer.
 
         Args:
             img (np.ndarray): pre-loaded image in BGR
@@ -70,8 +69,14 @@ class VggFaceClient(FacialRecognition):
 
         # having normalization layer in descriptor troubles for some gpu users (e.g. issue 957, 966)
         # instead we are now calculating it with traditional way not with keras backend
-        embedding = self.model(img, training=False).numpy()[0].tolist()
-        embedding = verification.l2_normalize(embedding)
+        embedding = super().forward(img)
+        if (
+            isinstance(embedding, list) and
+            isinstance(embedding[0], list)
+        ):
+            embedding = verification.l2_normalize(embedding, axis=1)
+        else:
+            embedding = verification.l2_normalize(embedding)
         return embedding.tolist()
 
 

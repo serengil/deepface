@@ -100,6 +100,29 @@ def analyze(
                - 'white': Confidence score for White ethnicity.
     """
 
+    if isinstance(img_path, np.ndarray) and len(img_path.shape) == 4:
+        # Received 4-D array, which means image batch.
+        # Check batch dimension and process each image separately.
+        if img_path.shape[0] > 1:
+            batch_resp_obj = []
+            # Execute analysis for each image in the batch.
+            for single_img in img_path:
+                # Call the analyze function for each image in the batch.
+                resp_obj = analyze(
+                    img_path=single_img,
+                    actions=actions,
+                    enforce_detection=enforce_detection,
+                    detector_backend=detector_backend,
+                    align=align,
+                    expand_percentage=expand_percentage,
+                    silent=silent,
+                    anti_spoofing=anti_spoofing,
+                )
+
+                # Append the response object to the batch response list.
+                batch_resp_obj.append(resp_obj)
+            return batch_resp_obj
+
     # if actions is passed as tuple with single item, interestingly it becomes str here
     if isinstance(actions, str):
         actions = (actions,)
