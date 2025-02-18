@@ -13,7 +13,6 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-# ----------------------------------------
 # dependency configurations
 
 tf_version = package_utils.get_tf_major_version()
@@ -25,11 +24,10 @@ else:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 
-# ----------------------------------------
-
 WEIGHTS_URL = (
     "https://github.com/serengil/deepface_models/releases/download/v1.0/age_model_weights.h5"
 )
+
 
 # pylint: disable=too-few-public-methods
 class ApparentAgeClient(Demography):
@@ -49,7 +47,7 @@ class ApparentAgeClient(Demography):
                 List of images as List[np.ndarray] or
                 Batch of images as np.ndarray (n, 224, 224, 3)
         Returns:
-            np.ndarray (age_classes,) if single image, 
+            np.ndarray (age_classes,) if single image,
             np.ndarray (n, age_classes) if batched images.
         """
         # Preprocessing input image or image list.
@@ -59,11 +57,10 @@ class ApparentAgeClient(Demography):
         age_predictions = self._predict_internal(imgs)
 
         # Calculate apparent ages
-        if len(age_predictions.shape) == 1: # Single prediction list
+        if len(age_predictions.shape) == 1:  # Single prediction list
             return find_apparent_age(age_predictions)
 
-        return np.array([
-            find_apparent_age(age_prediction) for age_prediction in age_predictions])
+        return np.array([find_apparent_age(age_prediction) for age_prediction in age_predictions])
 
 
 def load_model(
@@ -100,6 +97,7 @@ def load_model(
 
     return age_model
 
+
 def find_apparent_age(age_predictions: np.ndarray) -> np.float64:
     """
     Find apparent age prediction from a given probas of ages
@@ -108,7 +106,9 @@ def find_apparent_age(age_predictions: np.ndarray) -> np.float64:
     Returns:
         apparent_age (float)
     """
-    assert len(age_predictions.shape) == 1, f"Input should be a list of predictions, \
+    assert (
+        len(age_predictions.shape) == 1
+    ), f"Input should be a list of predictions, \
                                              not batched. Got shape: {age_predictions.shape}"
     output_indexes = np.arange(0, 101)
     apparent_age = np.sum(age_predictions * output_indexes)
