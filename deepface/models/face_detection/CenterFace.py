@@ -35,7 +35,7 @@ class CenterFaceClient(Detector):
         return CenterFace(weight_path=weights_path)
 
     def detect_faces(
-        self, 
+        self,
         img: Union[np.ndarray, List[np.ndarray]],
     ) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
         """
