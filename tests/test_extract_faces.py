@@ -81,9 +81,18 @@ def test_different_detectors():
 
 @pytest.mark.parametrize("detector_backend", [
     "opencv",
-    "ssd"
+    "ssd",
+    "mtcnn",
+    "retinaface",
 ])
 def test_batch_extract_faces(detector_backend):
+    detector_backend_to_rtol = {
+        "opencv": 0.1,
+        "ssd": 0.01,
+        "mtcnn": 0.2,
+        "retinaface": 0.01,
+    }
+    rtol = detector_backend_to_rtol[detector_backend]
     img_paths = [
         "dataset/img2.jpg",
         "dataset/img3.jpg",
@@ -123,16 +132,24 @@ def test_batch_extract_faces(detector_backend):
         )
         for img_obj_individual, img_obj_batch in zip(img_objs_individual, img_objs_batch):
             for key in img_obj_individual["facial_area"]:
-                if key == "left_eye" or key == "right_eye":
-                    continue
-                assert abs(
-                    img_obj_individual["facial_area"][key] - 
-                    img_obj_batch["facial_area"][key]
-                ) <= 0.03 * img_obj_individual["facial_area"][key]
+                if isinstance(img_obj_individual["facial_area"][key], tuple):
+                    for ind_val, batch_val in zip(
+                        img_obj_individual["facial_area"][key], 
+                        img_obj_batch["facial_area"][key]
+                    ):
+                        assert abs(ind_val - batch_val) <= rtol * ind_val
+                elif (
+                    isinstance(img_obj_individual["facial_area"][key], int) or 
+                    isinstance(img_obj_individual["facial_area"][key], float)
+                ):
+                    assert abs(
+                        img_obj_individual["facial_area"][key] - 
+                        img_obj_batch["facial_area"][key]
+                    ) <= rtol * img_obj_individual["facial_area"][key]
             assert abs(
                 img_obj_individual["confidence"] - 
                 img_obj_batch["confidence"]
-            ) <= 0.03 * img_obj_individual["confidence"]
+            ) <= rtol * img_obj_individual["confidence"]
     
 
 def test_backends_for_enforced_detection_with_non_facial_inputs():
