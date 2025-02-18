@@ -84,15 +84,20 @@ def test_different_detectors():
     "ssd",
     "mtcnn",
     "retinaface",
+    "yunet",
+    "centerface",
+    # optional
+    # "yolov11s",
+    # "mediapipe",
+    # "dlib",
 ])
 def test_batch_extract_faces(detector_backend):
     detector_backend_to_rtol = {
         "opencv": 0.1,
-        "ssd": 0.01,
         "mtcnn": 0.2,
-        "retinaface": 0.01,
+        "yolov11s": 0.03,
     }
-    rtol = detector_backend_to_rtol[detector_backend]
+    rtol = detector_backend_to_rtol.get(detector_backend, 0.01)
     img_paths = [
         "dataset/img2.jpg",
         "dataset/img3.jpg",
