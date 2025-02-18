@@ -34,15 +34,20 @@ class CenterFaceClient(Detector):
 
         return CenterFace(weight_path=weights_path)
 
-    def detect_faces(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
+    def detect_faces(
+        self, 
+        img: Union[np.ndarray, List[np.ndarray]],
+    ) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
         """
         Detect and align face with CenterFace
 
         Args:
-            img (Union[np.ndarray, List[np.ndarray]]): pre-loaded image as numpy array or a list of those
+            img (Union[np.ndarray, List[np.ndarray]]): 
+            pre-loaded image as numpy array or a list of those
 
         Returns:
-            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): A list or a list of lists of FacialAreaRegion objects
+            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): 
+            A list or a list of lists of FacialAreaRegion objects
         """
         if not isinstance(img, list):
             img = [img]
