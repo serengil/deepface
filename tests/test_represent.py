@@ -111,6 +111,27 @@ def test_max_faces():
     assert len(results) == max_faces
 
 
+def test_represent_detector_backend():
+    # Results using a detection backend.
+    results_1 = DeepFace.represent(img_path="dataset/img1.jpg")
+    assert len(results_1) == 1
+
+    # Results performing face extraction first.
+    faces = DeepFace.extract_faces(img_path="dataset/img1.jpg", color_face='bgr')
+    assert len(faces) == 1
+
+    # Images sent into represent need to be in BGR format.
+    img = faces[0]['face']
+    results_2 = DeepFace.represent(img_path=img, detector_backend="skip")
+    assert len(results_2) == 1
+
+    # The embeddings should be the exact same for both cases.
+    embedding_1 = results_1[0]['embedding']
+    embedding_2 = results_2[0]['embedding']
+    assert embedding_1 == embedding_2
+    logger.info("✅ test represent function for consistent output.")
+
+
 @pytest.mark.parametrize(
     "model_name",
     [
