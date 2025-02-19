@@ -79,6 +79,144 @@ def test_different_detectors():
         logger.info(f"✅ extract_faces for {detector} backend test is done")
 
 
+@pytest.mark.parametrize("detector_backend", [
+    "opencv",
+    "ssd",
+    "mtcnn",
+    "retinaface",
+    "yunet",
+    "centerface",
+    # optional
+    # "yolov11s",
+    # "mediapipe",
+    # "dlib",
+])
+def test_batch_extract_faces(detector_backend):
+    detector_backend_to_rtol = {
+        "opencv": 0.1,
+        "mtcnn": 0.2,
+        "yolov11s": 0.03,
+    }
+    rtol = detector_backend_to_rtol.get(detector_backend, 0.01)
+    img_paths = [
+        "dataset/img2.jpg",
+        "dataset/img3.jpg",
+        "dataset/img11.jpg",
+        "dataset/couple.jpg"
+    ]
+    
+    # Extract faces one by one
+    imgs_objs_individual = [
+        DeepFace.extract_faces(
+            img_path=img_path,
+            detector_backend=detector_backend,
+            align=True,
+        ) for img_path in img_paths
+    ]
+    
+    # Extract faces in batch
+    imgs_objs_batch = DeepFace.extract_faces(
+        img_path=img_paths,
+        detector_backend=detector_backend,
+        align=True,
+    )
+    
+    assert (
+        len(imgs_objs_batch) == 4 and 
+        all(isinstance(obj, list) for obj in imgs_objs_batch)
+    )
+    assert all(
+        len(imgs_objs_batch[i]) == 1 
+        for i in range(len(imgs_objs_batch[:-1]))
+    )
+    assert len(imgs_objs_batch[-1]) == 2
+
+    for img_objs_individual, img_objs_batch in zip(imgs_objs_individual, imgs_objs_batch):
+        assert len(img_objs_batch) == len(img_objs_individual), (
+            "Batch and individual extraction results should have the same number of detected faces"
+        )
+        for img_obj_individual, img_obj_batch in zip(img_objs_individual, img_objs_batch):
+            for key in img_obj_individual["facial_area"]:
+                if isinstance(img_obj_individual["facial_area"][key], tuple):
+                    for ind_val, batch_val in zip(
+                        img_obj_individual["facial_area"][key], 
+                        img_obj_batch["facial_area"][key]
+                    ):
+                        assert abs(ind_val - batch_val) <= rtol * ind_val
+                elif (
+                    isinstance(img_obj_individual["facial_area"][key], int) or 
+                    isinstance(img_obj_individual["facial_area"][key], float)
+                ):
+                    assert abs(
+                        img_obj_individual["facial_area"][key] - 
+                        img_obj_batch["facial_area"][key]
+                    ) <= rtol * img_obj_individual["facial_area"][key]
+            assert abs(
+                img_obj_individual["confidence"] - 
+                img_obj_batch["confidence"]
+            ) <= rtol * img_obj_individual["confidence"]
+    
+
+@pytest.mark.parametrize("detector_backend", [
+    "opencv",
+    "ssd",
+    "mtcnn",
+    "retinaface",
+    "yunet",
+    "centerface",
+    # optional
+    # "yolov11s",
+    # "mediapipe",
+    # "dlib",
+])
+def test_batch_extract_faces_with_nparray(detector_backend):
+    img_paths = [
+        "dataset/img2.jpg",
+        "dataset/img3.jpg",
+        "dataset/img11.jpg",
+        "dataset/couple.jpg"
+    ]
+    imgs = [
+        cv2.resize(image_utils.load_image(img_path)[0], (1920, 1080))
+        for img_path in img_paths
+    ]
+
+    # load images as numpy arrays
+    imgs_batch = np.stack(imgs, axis=0)
+
+    # extract faces in batch of numpy arrays
+    imgs_objs_batch = DeepFace.extract_faces(
+        img_path=imgs_batch,
+        detector_backend=detector_backend,
+        align=True,
+        enforce_detection=False,
+    )
+
+    # extract faces in batch of paths
+    imgs_objs_batch_paths = DeepFace.extract_faces(
+        img_path=imgs,
+        detector_backend=detector_backend,
+        align=True,
+        enforce_detection=False,
+    )
+
+    # compare results
+    for img_objs_batch, img_objs_batch_paths in zip(imgs_objs_batch, imgs_objs_batch_paths):
+        assert len(img_objs_batch) == len(img_objs_batch_paths), (
+            "Batch and individual extraction results should have the same number of detected faces"
+        )
+
+
+def test_batch_extract_faces_single_image():
+    img_path = "dataset/couple.jpg"
+    imgs_objs_batch = DeepFace.extract_faces(
+        img_path=[img_path],
+        align=True,
+    )
+    assert len(imgs_objs_batch) == 2
+    assert [isinstance(obj, dict) for obj in imgs_objs_batch]
+
+
 def test_backends_for_enforced_detection_with_non_facial_inputs():
     black_img = np.zeros([224, 224, 3])
     for detector in detectors:
