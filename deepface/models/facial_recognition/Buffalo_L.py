@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
+from deepface.basemodel import get_weights_path
+from deepface.common import weight_utils
+import os
 
 logger = Logger()
 
@@ -22,11 +25,16 @@ class Buffalo_L(FacialRecognition):
         self.load_model()
 
     def load_model(self):
-        """
-        Load the InsightFace Buffalo_L recognition model.
-        """
-        self.model = get_model('buffalo_l/w600k_r50.onnx', download=True)
-        self.model.prepare(ctx_id=-1, input_size=self.input_shape)  # ctx_id=-1 for CPU
+        root = os.path.join(get_weights_path(), 'insightface')
+        model_name = 'buffalo_l/w600k_r50.onnx'
+        model_path = os.path.join(root, model_name)
+        
+        if not os.path.exists(model_path):
+            url = 'https://drive.google.com/file/d/1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg/view?usp=sharing'
+            weight_utils.download_file(url, model_path)
+        
+        self.model = get_model(model_name, root=root)
+        self.model.prepare(ctx_id=-1, input_size=self.input_shape)
 
     def preprocess(self, img):
         """
