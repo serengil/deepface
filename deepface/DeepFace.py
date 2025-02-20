@@ -54,7 +54,7 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
     Args:
         model_name (str): model identifier
             - VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
-                ArcFace, SFace and GhostFaceNet for face recognition
+                ArcFace, SFace GhostFaceNet and buffalo_l for face recognition
             - Age, Gender, Emotion, Race for facial attributes
             - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, yolov11n,
               yolov11s, yolov11m, yunet, fastmtcnn or centerface for face detectors
