@@ -422,6 +422,7 @@ def find_threshold(model_name: str, distance_metric: str) -> float:
         "DeepFace": {"cosine": 0.23, "euclidean": 64, "euclidean_l2": 0.64},
         "DeepID": {"cosine": 0.015, "euclidean": 45, "euclidean_l2": 0.17},
         "GhostFaceNet": {"cosine": 0.65, "euclidean": 35.71, "euclidean_l2": 1.10},
+        "Buffalo_L": {"cosine": 0.65, "euclidean": 11.13, "euclidean_l2": 1.1},
     }
 
     threshold = thresholds.get(model_name, base_threshold).get(distance_metric, 0.4)

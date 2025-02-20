@@ -4,3 +4,6 @@ dlib>=19.20.0
 ultralytics>=8.0.122
 facenet-pytorch>=2.5.3
 torch>=2.1.2
+insightface>=0.7.3
+onnxruntime>=1.9.0
+tf-keras
