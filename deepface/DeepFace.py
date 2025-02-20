@@ -166,7 +166,7 @@ def verify(
 
 
 def analyze(
-    img_path: Union[str, np.ndarray, IO[bytes]],
+    img_path: Union[str, np.ndarray, IO[bytes], List[str], List[np.ndarray], List[IO[bytes]]],
     actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -178,7 +178,7 @@ def analyze(
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
     Args:
-        img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+        img_path (str, np.ndarray, IO[bytes], list): The exact path to the image, a numpy array
             in BGR format, a file object that supports at least `.read` and is opened in binary
             mode, or a base64 encoded image. If the source image contains multiple faces,
             the result will include information for each detected face.

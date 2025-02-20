@@ -1,5 +1,6 @@
 # built-in dependencies
 from typing import Any, Dict, List, Union, Optional, Sequence, IO
+from collections import defaultdict
 
 # 3rd party dependencies
 import numpy as np
@@ -161,17 +162,16 @@ def represent(
     # Forward pass through the model for the entire batch
     embeddings = model.forward(batch_images)
 
-    for idx in range(0, len(images)):
-        resp_obj = []
-        for idy, batch_index in enumerate(batch_indexes):
-            if idx == batch_index:
-                resp_obj.append(
-                    {
-                        "embedding": embeddings if len(batch_images) == 1 else embeddings[idy],
-                        "facial_area": batch_regions[idy],
-                        "face_confidence": batch_confidences[idy],
-                    }
-                )
-        resp_objs.append(resp_obj)
+    resp_objs_dict = defaultdict(list)
+    for idy, batch_index in enumerate(batch_indexes):
+        resp_objs_dict[batch_index].append(
+            {
+                "embedding": embeddings if len(batch_images) == 1 else embeddings[idy],
+                "facial_area": batch_regions[idy],
+                "face_confidence": batch_confidences[idy],
+            }
+        )
+
+    resp_objs = [resp_objs_dict[idx] for idx in range(len(images))]
 
     return resp_objs[0] if len(images) == 1 else resp_objs

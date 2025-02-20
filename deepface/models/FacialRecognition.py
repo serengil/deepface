@@ -11,6 +11,7 @@ else:
 
 # Notice that all facial recognition models must be inherited from this class
 
+
 # pylint: disable=too-few-public-methods
 class FacialRecognition(ABC):
     model: Union[Model, Any]
@@ -24,11 +25,24 @@ class FacialRecognition(ABC):
                 "You must overwrite forward method if it is not a keras model,"
                 f"but {self.model_name} not overwritten!"
             )
-        # model.predict causes memory issue when it is called in a for loop
-        # embedding = model.predict(img, verbose=0)[0].tolist()
-        if img.shape == 4 and img.shape[0] == 1:
-            img = img[0]
-        embeddings = self.model(img, training=False).numpy()
+
+        # predict expexts e.g. (1, 224, 224, 3) shaped inputs
+        if img.ndim == 3:
+            img = np.expand_dims(img, axis=0)
+
+        if img.ndim == 4 and img.shape[0] == 1:
+            # model.predict causes memory issue when it is called in a for loop
+            # embedding = model.predict(img, verbose=0)[0].tolist()
+            embeddings = self.model(img, training=False).numpy()
+        elif img.ndim == 4 and img.shape[0] > 1:
+            embeddings = self.model.predict_on_batch(img)
+        else:
+            raise ValueError(f"Input image must be (1, X, X, 3) shaped but it is {img.shape}")
+
+        assert isinstance(
+            embeddings, np.ndarray
+        ), f"Embeddings must be numpy array but it is {type(embeddings)}"
+
         if embeddings.shape[0] == 1:
             return embeddings[0].tolist()
         return embeddings.tolist()

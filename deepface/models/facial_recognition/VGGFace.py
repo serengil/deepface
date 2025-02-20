@@ -42,6 +42,7 @@ WEIGHTS_URL = (
     "https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.h5"
 )
 
+
 # pylint: disable=too-few-public-methods
 class VggFaceClient(FacialRecognition):
     """
@@ -70,10 +71,7 @@ class VggFaceClient(FacialRecognition):
         # having normalization layer in descriptor troubles for some gpu users (e.g. issue 957, 966)
         # instead we are now calculating it with traditional way not with keras backend
         embedding = super().forward(img)
-        if (
-            isinstance(embedding, list) and
-            isinstance(embedding[0], list)
-        ):
+        if isinstance(embedding, list) and len(embedding) > 0 and isinstance(embedding[0], list):
             embedding = verification.l2_normalize(embedding, axis=1)
         else:
             embedding = verification.l2_normalize(embedding)
