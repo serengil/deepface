@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, IO
 
 # 3rd party dependencies
 import numpy as np
@@ -11,7 +11,7 @@ from deepface.models.demography import Gender, Race, Emotion
 
 
 def analyze(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, np.ndarray, IO[bytes], List[str], List[np.ndarray], List[IO[bytes]]],
     actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -19,14 +19,14 @@ def analyze(
     expand_percentage: int = 0,
     silent: bool = False,
     anti_spoofing: bool = False,
-) -> List[Dict[str, Any]]:
+) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
 
     Args:
-        img_path (str or np.ndarray): The exact path to the image, a numpy array in BGR format,
-            or a base64 encoded image. If the source image contains multiple faces, the result will
-            include information for each detected face.
+        img_path (str, np.ndarray, IO[bytes], list): The exact path to the image,
+            a numpy array in BGR format, or a base64 encoded image. If the source image
+            contains multiple faces, the result will include information for each detected face.
 
         actions (tuple): Attributes to analyze. The default is ('age', 'gender', 'emotion', 'race').
             You can exclude some of these attributes from the analysis if needed.
@@ -100,28 +100,28 @@ def analyze(
                - 'white': Confidence score for White ethnicity.
     """
 
-    if isinstance(img_path, np.ndarray) and len(img_path.shape) == 4:
-        # Received 4-D array, which means image batch.
-        # Check batch dimension and process each image separately.
-        if img_path.shape[0] > 1:
-            batch_resp_obj = []
-            # Execute analysis for each image in the batch.
-            for single_img in img_path:
-                # Call the analyze function for each image in the batch.
-                resp_obj = analyze(
-                    img_path=single_img,
-                    actions=actions,
-                    enforce_detection=enforce_detection,
-                    detector_backend=detector_backend,
-                    align=align,
-                    expand_percentage=expand_percentage,
-                    silent=silent,
-                    anti_spoofing=anti_spoofing,
-                )
+    # batch input
+    if (isinstance(img_path, np.ndarray) and img_path.ndim == 4 and img_path.shape[0] > 1) or (
+        isinstance(img_path, list)
+    ):
+        batch_resp_obj = []
+        # Execute analysis for each image in the batch.
+        for single_img in img_path:
+            # Call the analyze function for each image in the batch.
+            resp_obj = analyze(
+                img_path=single_img,
+                actions=actions,
+                enforce_detection=enforce_detection,
+                detector_backend=detector_backend,
+                align=align,
+                expand_percentage=expand_percentage,
+                silent=silent,
+                anti_spoofing=anti_spoofing,
+            )
 
-                # Append the response object to the batch response list.
-                batch_resp_obj.append(resp_obj)
-            return batch_resp_obj
+            # Append the response object to the batch response list.
+            batch_resp_obj.append(resp_obj)
+        return batch_resp_obj
 
     # if actions is passed as tuple with single item, interestingly it becomes str here
     if isinstance(actions, str):

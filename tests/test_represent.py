@@ -162,6 +162,8 @@ def test_batched_represent_for_list_input(model_name):
         assert len(single_embedding_objs) == len(batched_embedding_objs[idx])
 
         for alpha, beta in zip(single_embedding_objs, batched_embedding_objs[idx]):
+            assert isinstance(alpha, dict)
+            assert isinstance(beta, dict)
             assert np.allclose(
                 alpha["embedding"], beta["embedding"], rtol=1e-2, atol=1e-2
             ), "Embeddings do not match within tolerance"

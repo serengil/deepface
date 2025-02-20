@@ -16,9 +16,13 @@ detectors = ["opencv", "mtcnn"]
 def test_standard_analyze():
     img = "dataset/img4.jpg"
     demography_objs = DeepFace.analyze(img, silent=True)
+
+    # return type should be list of dict for non batch input
+    assert isinstance(demography_objs, list)
+
     for demography in demography_objs:
+        assert isinstance(demography, dict)
         logger.debug(demography)
-        assert type(demography) == dict
         assert demography["age"] > 20 and demography["age"] < 40
         assert demography["dominant_gender"] == "Woman"
     logger.info("✅ test standard analyze done")
@@ -99,9 +103,13 @@ def test_analyze_for_some_actions():
 def test_analyze_for_preloaded_image():
     img = cv2.imread("dataset/img1.jpg")
     resp_objs = DeepFace.analyze(img, silent=True)
+
+    # return type should be list of dict for non batch input
+    assert isinstance(resp_objs, list)
+
     for resp_obj in resp_objs:
+        assert isinstance(resp_obj, dict)
         logger.debug(resp_obj)
-        assert type(resp_obj) == dict
         assert resp_obj["age"] > 20 and resp_obj["age"] < 40
         assert resp_obj["dominant_gender"] == "Woman"
 
@@ -127,7 +135,10 @@ def test_analyze_for_different_detectors():
             results = DeepFace.analyze(
                 img_path, actions=("gender",), detector_backend=detector, enforce_detection=False
             )
+            # return type should be list of dict for non batch input
+            assert isinstance(results, list)
             for result in results:
+                assert isinstance(result, dict)
                 logger.debug(result)
 
                 # validate keys
@@ -138,11 +149,61 @@ def test_analyze_for_different_detectors():
                 ]
 
                 # validate probabilities
-                assert type(result) == dict
                 if result["dominant_gender"] == "Man":
                     assert result["gender"]["Man"] > result["gender"]["Woman"]
                 else:
                     assert result["gender"]["Man"] < result["gender"]["Woman"]
+
+
+def test_analyze_for_batched_image_as_list_of_string():
+    img_paths = ["dataset/img1.jpg", "dataset/img2.jpg", "dataset/couple.jpg"]
+    expected_faces = [1, 1, 2]
+
+    demography_batch = DeepFace.analyze(img_path=img_paths, silent=True)
+    # return type should be list of list of dict for batch input
+    assert isinstance(demography_batch, list)
+
+    # 3 image in batch, so 3 demography objects
+    assert len(demography_batch) == len(img_paths)
+
+    for idx, demography_objs in enumerate(demography_batch):
+        assert isinstance(demography_objs, list)
+        assert len(demography_objs) == expected_faces[idx]
+        for demography_obj in demography_objs:
+            assert isinstance(demography_obj, dict)
+
+            assert demography_obj["age"] > 20 and demography_obj["age"] < 40
+            assert demography_obj["dominant_gender"] in ["Woman", "Man"]
+
+    logger.info("✅ test analyze for batched image as list of string done")
+
+
+def test_analyze_for_batched_image_as_list_of_numpy():
+    img_paths = ["dataset/img1.jpg", "dataset/img2.jpg", "dataset/couple.jpg"]
+    expected_faces = [1, 1, 2]
+
+    imgs = []
+    for img_path in img_paths:
+        img = cv2.imread(img_path)
+        imgs.append(img)
+
+    demography_batch = DeepFace.analyze(img_path=imgs, silent=True)
+    # return type should be list of list of dict for batch input
+    assert isinstance(demography_batch, list)
+
+    # 3 image in batch, so 3 demography objects
+    assert len(demography_batch) == len(img_paths)
+
+    for idx, demography_objs in enumerate(demography_batch):
+        assert isinstance(demography_objs, list)
+        assert len(demography_objs) == expected_faces[idx]
+        for demography_obj in demography_objs:
+            assert isinstance(demography_obj, dict)
+
+            assert demography_obj["age"] > 20 and demography_obj["age"] < 40
+            assert demography_obj["dominant_gender"] in ["Woman", "Man"]
+
+    logger.info("✅ test analyze for batched image as list of numpy done")
 
 
 def test_analyze_for_numpy_batched_image():
@@ -163,14 +224,20 @@ def test_analyze_for_numpy_batched_image():
     assert img.shape[0] == 2  # Check batch size.
 
     demography_batch = DeepFace.analyze(img, silent=True)
+    # return type should be list of list of dict for batch input
+
+    assert isinstance(demography_batch, list)
+
     # 2 image in batch, so 2 demography objects.
     assert len(demography_batch) == 2
 
     for i, demography_objs in enumerate(demography_batch):
+        assert isinstance(demography_objs, list)
 
         assert len(demography_objs) == expected_num_faces[i]
         for demography in demography_objs:  # Iterate over faces
-            assert isinstance(demography, dict)  # Check type
+            assert isinstance(demography, dict)
+
             assert demography["age"] > 20 and demography["age"] < 40
             assert demography["dominant_gender"] in ["Woman", "Man"]
 
