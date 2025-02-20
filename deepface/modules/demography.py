@@ -123,7 +123,6 @@ def analyze(
                 batch_resp_obj.append(resp_obj)
             return batch_resp_obj
 
-
     # if actions is passed as tuple with single item, interestingly it becomes str here
     if isinstance(actions, str):
         actions = (actions,)

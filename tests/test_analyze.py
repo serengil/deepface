@@ -144,25 +144,38 @@ def test_analyze_for_different_detectors():
                 else:
                     assert result["gender"]["Man"] < result["gender"]["Woman"]
 
-def test_analyze_for_batched_image():
-    img = "dataset/img4.jpg"
+
+def test_analyze_for_numpy_batched_image():
+    img1_path = "dataset/img4.jpg"
+    img2_path = "dataset/couple.jpg"
+
     # Copy and combine the same image to create multiple faces
-    img = cv2.imread(img)
-    img = np.stack([img, img])
-    assert len(img.shape) == 4 # Check dimension.
-    assert img.shape[0] == 2 # Check batch size.
+    img1 = cv2.imread(img1_path)
+    img2 = cv2.imread(img2_path)
+
+    expected_num_faces = [1, 2]
+
+    img1 = cv2.resize(img1, (500, 500))
+    img2 = cv2.resize(img2, (500, 500))
+
+    img = np.stack([img1, img2])
+    assert len(img.shape) == 4  # Check dimension.
+    assert img.shape[0] == 2  # Check batch size.
 
     demography_batch = DeepFace.analyze(img, silent=True)
     # 2 image in batch, so 2 demography objects.
-    assert len(demography_batch) == 2 
+    assert len(demography_batch) == 2
 
-    for demography_objs in demography_batch:
-        assert len(demography_objs) == 1 # 1 face in each image
-        for demography in demography_objs: # Iterate over faces
-            assert type(demography) == dict # Check type
+    for i, demography_objs in enumerate(demography_batch):
+
+        assert len(demography_objs) == expected_num_faces[i]
+        for demography in demography_objs:  # Iterate over faces
+            assert isinstance(demography, dict)  # Check type
             assert demography["age"] > 20 and demography["age"] < 40
-            assert demography["dominant_gender"] == "Woman"
+            assert demography["dominant_gender"] in ["Woman", "Man"]
+
     logger.info("✅ test analyze for multiple faces done")
+
 
 def test_batch_detect_age_for_multiple_faces():
     # Load test image and resize to model input size
@@ -176,6 +189,7 @@ def test_batch_detect_age_for_multiple_faces():
     assert np.array_equal(int(results[0]), int(results[1]))
     logger.info("✅ test batch detect age for multiple faces done")
 
+
 def test_batch_detect_emotion_for_multiple_faces():
     # Load test image and resize to model input size
     img = cv2.resize(cv2.imread("dataset/img1.jpg"), (224, 224))
@@ -187,6 +201,7 @@ def test_batch_detect_emotion_for_multiple_faces():
     assert np.array_equal(results[0], results[1])
     logger.info("✅ test batch detect emotion for multiple faces done")
 
+
 def test_batch_detect_gender_for_multiple_faces():
     # Load test image and resize to model input size
     img = cv2.resize(cv2.imread("dataset/img1.jpg"), (224, 224))
@@ -197,6 +212,7 @@ def test_batch_detect_gender_for_multiple_faces():
     # Check two genders are the same
     assert np.array_equal(results[0], results[1])
     logger.info("✅ test batch detect gender for multiple faces done")
+
 
 def test_batch_detect_race_for_multiple_faces():
     # Load test image and resize to model input size
