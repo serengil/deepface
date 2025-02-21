@@ -180,6 +180,7 @@ def test_batch_extract_faces_with_nparray(detector_backend):
         cv2.resize(image_utils.load_image(img_path)[0], (1920, 1080))
         for img_path in img_paths
     ]
+    expected_num_faces = [1, 1, 1, 2]
 
     # load images as numpy arrays
     imgs_batch = np.stack(imgs, axis=0)
@@ -191,6 +192,9 @@ def test_batch_extract_faces_with_nparray(detector_backend):
         align=True,
         enforce_detection=False,
     )
+    assert len(imgs_objs_batch) == 4
+    for img_objs_batch, expected_num_faces in zip(imgs_objs_batch, expected_num_faces):
+        assert len(img_objs_batch) == expected_num_faces
 
     # extract faces in batch of paths
     imgs_objs_batch_paths = DeepFace.extract_faces(
