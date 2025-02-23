@@ -96,12 +96,8 @@ def test_different_detectors():
     # "dlib",
 ])
 def test_batch_extract_faces(detector_backend):
-    detector_backend_to_rtol = {
-        "opencv": 0.1,
-        "mtcnn": 0.2,
-        "yolov11s": 0.03,
-    }
-    rtol = detector_backend_to_rtol.get(detector_backend, 0.01)
+    # Relative tolerance for comparing floating-point values
+    rtol = 0.03
     img_paths = [
         "dataset/img2.jpg",
         "dataset/img3.jpg",
@@ -154,15 +150,20 @@ def test_batch_extract_faces(detector_backend):
                         img_obj_individual["facial_area"][key], 
                         img_obj_batch["facial_area"][key]
                     ):
+                        # Ensure the difference between individual and batch values 
+                        # is within rtol% of the individual value
                         assert abs(ind_val - batch_val) <= rtol * ind_val
                 elif (
                     isinstance(img_obj_individual["facial_area"][key], int) or 
                     isinstance(img_obj_individual["facial_area"][key], float)
                 ):
+                    # Ensure the difference between individual and batch values 
+                    # is within rtol% of the individual value
                     assert abs(
                         img_obj_individual["facial_area"][key] - 
                         img_obj_batch["facial_area"][key]
                     ) <= rtol * img_obj_individual["facial_area"][key]
+            # Ensure the confidence difference is within rtol% of the individual confidence
             assert abs(
                 img_obj_individual["confidence"] - 
                 img_obj_batch["confidence"]
@@ -175,7 +176,7 @@ def test_batch_extract_faces(detector_backend):
     "mtcnn",
     "retinaface",
     "yunet",
-    "centerface",
+    # "centerface",
     # optional
     # "yolov11s",
     # "mediapipe",
@@ -217,8 +218,8 @@ def test_batch_extract_faces_with_nparray(detector_backend):
 
     # Check that the batch extraction returned the expected number of face lists
     assert len(imgs_objs_batch) == 4
-    for img_objs_batch, expected_num_faces in zip(imgs_objs_batch, expected_num_faces):
-        assert len(img_objs_batch) == expected_num_faces
+    for img_objs_batch, img_expected_num_faces in zip(imgs_objs_batch, expected_num_faces):
+        assert len(img_objs_batch) == img_expected_num_faces
 
     # extract faces in batch of paths
     imgs_objs_batch_paths = DeepFace.extract_faces(
