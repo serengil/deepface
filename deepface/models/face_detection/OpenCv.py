@@ -1,6 +1,7 @@
 # built-in dependencies
 import os
 from typing import Any, List, Union
+import logging
 
 # 3rd party dependencies
 import cv2
@@ -9,6 +10,7 @@ import numpy as np
 #project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
 
+logger = logging.getLogger(__name__)
 
 class OpenCvClient(Detector):
     """
@@ -17,6 +19,7 @@ class OpenCvClient(Detector):
 
     def __init__(self):
         self.model = self.build_model()
+        self.supports_batch_detection = self._supports_batch_detection()
 
     def build_model(self):
         """
@@ -28,6 +31,19 @@ class OpenCvClient(Detector):
         detector["face_detector"] = self.__build_cascade("haarcascade")
         detector["eye_detector"] = self.__build_cascade("haarcascade_eye")
         return detector
+    
+    def _supports_batch_detection(self) -> bool:
+        supports_batch_detection = os.getenv(
+            "ENABLE_OPENCV_BATCH_DETECTION", "false"
+        ).lower() == "true"
+        if not supports_batch_detection:
+            logger.warning(
+                "Batch detection is disabled for opencv by default "
+                "since the results are not consistent with single image detection. "
+                "You can force enable it by setting the environment variable "
+                "ENABLE_OPENCV_BATCH_DETECTION to true."
+            )
+        return supports_batch_detection
 
     def detect_faces(
         self,
@@ -46,8 +62,10 @@ class OpenCvClient(Detector):
         """
         if isinstance(img, np.ndarray):
             imgs = [img]
-        else:
+        elif self.supports_batch_detection:
             imgs = img
+        else:
+            return [self.detect_faces(single_img) for single_img in img]
 
         batch_results = []
 

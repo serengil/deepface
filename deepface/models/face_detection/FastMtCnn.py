@@ -32,10 +32,11 @@ class FastMtCnnClient(Detector):
             results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): 
             A list or a list of lists of FacialAreaRegion objects
         """
-        if not isinstance(img, list):
+        is_batched_input = isinstance(img, list)
+        if not is_batched_input:
             img = [img]
         results = [self._process_single_image(single_img) for single_img in img]
-        if len(results) == 1:
+        if not is_batched_input:
             return results[0]
         return results
 

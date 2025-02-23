@@ -28,7 +28,8 @@ class RetinaFaceClient(Detector):
             results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): 
             A list or a list of lists of FacialAreaRegion objects
         """
-        if isinstance(img, np.ndarray):
+        is_batched_input = isinstance(img, list)
+        if not is_batched_input:
             imgs = [img]
         else:
             imgs = img
@@ -81,4 +82,6 @@ class RetinaFaceClient(Detector):
 
             batch_results.append(resp)
 
-        return batch_results if len(batch_results) > 1 else batch_results[0]
+        if not is_batched_input:
+            return batch_results[0]
+        return batch_results

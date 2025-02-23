@@ -82,15 +82,23 @@ def extract_faces(
             just available in the result only if anti_spoofing is set to True in input arguments.
     """
 
-    if isinstance(img_path, np.ndarray) and img_path.ndim == 4:
-        img_path = [img_path[i] for i in range(img_path.shape[0])]
-    if not isinstance(img_path, list):
-        img_path = [img_path]
+    batched_input = (
+        (
+            isinstance(img_path, np.ndarray) and 
+            img_path.ndim == 4
+        ) or isinstance(img_path, list)
+    )
+    if not batched_input:
+        imgs_path = [img_path]
+    elif isinstance(img_path, np.ndarray):
+        imgs_path = [img_path[i] for i in range(img_path.shape[0])]
+    else:
+        imgs_path = img_path
 
     all_images = []
     img_names = []
 
-    for single_img_path in img_path:
+    for single_img_path in imgs_path:
         # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
         img, img_name = image_utils.load_image(single_img_path)
 
@@ -108,9 +116,6 @@ def extract_faces(
         expand_percentage=expand_percentage,
         max_faces=max_faces,
     )
-
-    if len(all_images) == 1:
-        all_face_objs = [all_face_objs]
 
     all_resp_objs = []
 
@@ -203,7 +208,7 @@ def extract_faces(
 
         all_resp_objs.append(img_resp_objs)
 
-    if len(all_resp_objs) == 1:
+    if not batched_input:
         return all_resp_objs[0]
     return all_resp_objs
 
@@ -239,8 +244,18 @@ def detect_faces(
 
         - confidence (float): The confidence score associated with the detected face.
     """
-    if not isinstance(img, list):
-        img = [img]
+    batched_input = (
+        (
+            isinstance(img, np.ndarray) and 
+            img.ndim == 4
+        ) or isinstance(img, list)
+    )
+    if not batched_input:
+        imgs = [img]
+    elif isinstance(img, np.ndarray):
+        imgs = [img[i] for i in range(img.shape[0])]
+    else:
+        imgs = img
 
     if detector_backend == "skip":
         all_face_objs = [
@@ -253,9 +268,9 @@ def detect_faces(
                     confidence=0,
                 )
             ]
-            for single_img in img
+            for single_img in imgs
         ]
-        if len(img) == 1:
+        if not batched_input:
             all_face_objs = all_face_objs[0]
         return all_face_objs
 
@@ -266,7 +281,7 @@ def detect_faces(
     preprocessed_images = []
     width_borders = []
     height_borders = []
-    for single_img in img:
+    for single_img in imgs:
         height, width, _ = single_img.shape
 
         # validate expand percentage score
@@ -298,9 +313,6 @@ def detect_faces(
 
     # Detect faces in all preprocessed images
     all_facial_areas = face_detector.detect_faces(preprocessed_images)
-
-    if len(preprocessed_images) == 1:
-        all_facial_areas = [all_facial_areas]
 
     all_detected_faces = []
     for (
@@ -336,7 +348,7 @@ def detect_faces(
 
         all_detected_faces.append(detected_faces)
 
-    if len(all_detected_faces) == 1:
+    if not batched_input:
         return all_detected_faces[0]
     return all_detected_faces
 

@@ -242,8 +242,8 @@ def test_batch_extract_faces_single_image():
         img_path=[img_path],
         align=True,
     )
-    assert len(imgs_objs_batch) == 2
-    assert [isinstance(obj, dict) for obj in imgs_objs_batch]
+    assert len(imgs_objs_batch) == 1 and isinstance(imgs_objs_batch[0], list)
+    assert [isinstance(obj, dict) for obj in imgs_objs_batch[0]]
 
 
 def test_backends_for_enforced_detection_with_non_facial_inputs():

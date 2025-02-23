@@ -38,7 +38,8 @@ class MtCnnClient(Detector):
                 or a list of lists of FacialAreaRegion objects for each image
         """
 
-        if not isinstance(img, list):
+        is_batched_input = isinstance(img, list)
+        if not is_batched_input:
             img = [img]
 
         resp = []
@@ -76,7 +77,7 @@ class MtCnnClient(Detector):
 
             resp.append(image_resp)
 
-        if len(resp) == 1:
+        if not is_batched_input:
             return resp[0]
         return resp
 
