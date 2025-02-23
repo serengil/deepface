@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import numpy as np
 
 
+# pylint: disable=unnecessary-pass, too-few-public-methods, too-many-instance-attributes
 @dataclass
 class FacialAreaRegion:
     """
@@ -52,7 +53,6 @@ class DetectedFace:
 
 # Notice that all facial detector models must be inherited from this class
 
-# pylint: disable=unnecessary-pass, too-few-public-methods, too-many-instance-attributes
 class Detector(ABC):
 
     def detect_faces(
