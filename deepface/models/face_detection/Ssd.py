@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import List, Union
+from typing import List
 from enum import IntEnum
 
 # 3rd party dependencies
@@ -54,48 +54,25 @@ class SsdClient(Detector):
 
         return {"face_detector": face_detector, "opencv_module": OpenCv.OpenCvClient()}
 
-    def detect_faces(
-        self,
-        img: Union[np.ndarray, List[np.ndarray]]
-    ) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
-        """
-        Detect and align faces with ssd in a batch of images
-
-        Args:
-            img (Union[np.ndarray, List[np.ndarray]]): 
-            Pre-loaded image as numpy array or a list of those
-
-        Returns:
-            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): 
-            A list or a list of lists of FacialAreaRegion objects
-        """
-        is_batched_input = isinstance(img, list)
-        if not is_batched_input:
-            img = [img]
-        results = [self._process_single_image(single_img) for single_img in img]
-        if not is_batched_input:
-            return results[0]
-        return results
-
-    def _process_single_image(self, single_img: np.ndarray) -> List[FacialAreaRegion]:
+    def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
         Helper function to detect faces in a single image.
 
         Args:
-            single_img (np.ndarray): Pre-loaded image as numpy array
+            img (np.ndarray): Pre-loaded image as numpy array
 
         Returns:
             results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
         """
         # Because cv2.dnn.blobFromImage expects CV_8U (8-bit unsigned integer) values
-        if single_img.dtype != np.uint8:
-            single_img = single_img.astype(np.uint8)
+        if img.dtype != np.uint8:
+            img = img.astype(np.uint8)
 
         opencv_module: OpenCv.OpenCvClient = self.model["opencv_module"]
 
         target_size = (300, 300)
-        original_size = single_img.shape
-        current_img = cv2.resize(single_img, target_size)
+        original_size = img.shape
+        current_img = cv2.resize(img, target_size)
 
         aspect_ratio_x = original_size[1] / target_size[1]
         aspect_ratio_y = original_size[0] / target_size[0]
@@ -132,7 +109,7 @@ class SsdClient(Detector):
         for face in faces:
             confidence = float(face[ssd_labels.confidence])
             x, y, w, h = map(int, face[margins])
-            detected_face = single_img[y : y + h, x : x + w]
+            detected_face = img[y : y + h, x : x + w]
 
             left_eye, right_eye = opencv_module.find_eyes(detected_face)
 

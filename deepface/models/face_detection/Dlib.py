@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import List, Union
+from typing import List
 
 # 3rd party dependencies
 import numpy as np
@@ -46,29 +46,6 @@ class DlibClient(Detector):
         detector["face_detector"] = face_detector
         detector["sp"] = sp
         return detector
-
-    def detect_faces(
-        self,
-        img: Union[np.ndarray, List[np.ndarray]],
-    ) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
-        """
-        Detect and align face with dlib
-
-        Args:
-            img (Union[np.ndarray, List[np.ndarray]]): 
-            pre-loaded image as numpy array or a list of those
-
-        Returns:
-            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): 
-            A list or a list of lists of FacialAreaRegion objects
-        """
-        is_batched_input = isinstance(img, list)
-        if not is_batched_input:
-            img = [img]
-        results = [self._process_single_image(single_img) for single_img in img]
-        if not is_batched_input:
-            return results[0]
-        return results
 
     def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """

@@ -1,6 +1,6 @@
 # built-in dependencies
 import os
-from typing import Any, List, Union
+from typing import Any, List
 
 # 3rd party dependencies
 import cv2
@@ -56,24 +56,6 @@ class YuNetClient(Detector):
                 + "You can install it as pip install opencv-contrib-python."
             ) from err
         return face_detector
-
-    def detect_faces(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
-        """
-        Detect and align face with yunet
-
-        Args:
-            img (Union[np.ndarray, List[np.ndarray]]): pre-loaded image as numpy array or a list of those
-
-        Returns:
-            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): A list or a list of lists of FacialAreaRegion objects
-        """
-        is_batched_input = isinstance(img, list)
-        if not is_batched_input:
-            img = [img]
-        results = [self._process_single_image(single_img) for single_img in img]
-        if not is_batched_input:
-            return results[0]
-        return results
 
     def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """

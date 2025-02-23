@@ -1,6 +1,6 @@
 # built-in dependencies
 import os
-from typing import Any, List, Union
+from typing import Any, List
 import logging
 
 # 3rd party dependencies
@@ -45,65 +45,48 @@ class OpenCvClient(Detector):
             )
         return supports_batch_detection
 
-    def detect_faces(
-        self,
-        img: Union[np.ndarray, List[np.ndarray]]
-    ) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
+    def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
-        Detect and align face with opencv
+        Helper function to detect faces in a single image.
 
         Args:
-            img (Union[np.ndarray, List[np.ndarray]]):
-            Pre-loaded image as numpy array or a list of those
+            img (np.ndarray): pre-loaded image as numpy array
 
         Returns:
-            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): 
-            A list or a list of lists of FacialAreaRegion objects
+            results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
         """
-        if isinstance(img, np.ndarray):
-            imgs = [img]
-        elif self.supports_batch_detection:
-            imgs = img
-        else:
-            return [self.detect_faces(single_img) for single_img in img]
+        resp = []
+        detected_face = None
+        faces = []
+        try:
+            faces, _, scores = self.model["face_detector"].detectMultiScale3(
+                img, 1.1, 10, outputRejectLevels=True
+            )
+        except:
+            pass
 
-        batch_results = []
+        if len(faces) > 0:
+            for (x, y, w, h), confidence in zip(faces, scores):
+                detected_face = img[int(y):int(y + h), int(x):int(x + w)]
+                left_eye, right_eye = self.find_eyes(img=detected_face)
 
-        for single_img in imgs:
-            resp = []
-            detected_face = None
-            faces = []
-            try:
-                faces, _, scores = self.model["face_detector"].detectMultiScale3(
-                    single_img, 1.1, 10, outputRejectLevels=True
+                if left_eye is not None:
+                    left_eye = (int(x + left_eye[0]), int(y + left_eye[1]))
+                if right_eye is not None:
+                    right_eye = (int(x + right_eye[0]), int(y + right_eye[1]))
+
+                facial_area = FacialAreaRegion(
+                    x=x,
+                    y=y,
+                    w=w,
+                    h=h,
+                    left_eye=left_eye,
+                    right_eye=right_eye,
+                    confidence=(100 - confidence) / 100,
                 )
-            except:
-                pass
+                resp.append(facial_area)
 
-            if len(faces) > 0:
-                for (x, y, w, h), confidence in zip(faces, scores):
-                    detected_face = single_img[int(y):int(y + h), int(x):int(x + w)]
-                    left_eye, right_eye = self.find_eyes(img=detected_face)
-
-                    if left_eye is not None:
-                        left_eye = (int(x + left_eye[0]), int(y + left_eye[1]))
-                    if right_eye is not None:
-                        right_eye = (int(x + right_eye[0]), int(y + right_eye[1]))
-
-                    facial_area = FacialAreaRegion(
-                        x=x,
-                        y=y,
-                        w=w,
-                        h=h,
-                        left_eye=left_eye,
-                        right_eye=right_eye,
-                        confidence=(100 - confidence) / 100,
-                    )
-                    resp.append(facial_area)
-
-            batch_results.append(resp)
-
-        return batch_results if len(batch_results) > 1 else batch_results[0]
+        return resp
 
     def find_eyes(self, img: np.ndarray) -> tuple:
         """
