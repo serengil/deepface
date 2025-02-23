@@ -84,7 +84,7 @@ def extract_faces(
 
     batched_input = (
         (
-            isinstance(img_path, np.ndarray) and 
+            isinstance(img_path, np.ndarray) and
             img_path.ndim == 4
         ) or isinstance(img_path, list)
     )
@@ -246,7 +246,7 @@ def detect_faces(
     """
     batched_input = (
         (
-            isinstance(img, np.ndarray) and 
+            isinstance(img, np.ndarray) and
             img.ndim == 4
         ) or isinstance(img, list)
     )

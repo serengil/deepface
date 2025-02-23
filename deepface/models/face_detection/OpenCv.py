@@ -31,7 +31,7 @@ class OpenCvClient(Detector):
         detector["face_detector"] = self.__build_cascade("haarcascade")
         detector["eye_detector"] = self.__build_cascade("haarcascade_eye")
         return detector
-    
+
     def _supports_batch_detection(self) -> bool:
         supports_batch_detection = os.getenv(
             "ENABLE_OPENCV_BATCH_DETECTION", "false"

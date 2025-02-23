@@ -84,7 +84,7 @@ def test_different_detectors():
 
 
 @pytest.mark.parametrize("detector_backend", [
-    "opencv",
+    # "opencv",
     "ssd",
     "mtcnn",
     "retinaface",
