@@ -34,9 +34,9 @@ class CenterFaceClient(Detector):
 
         return CenterFace(weight_path=weights_path)
 
-    def detect_faces(self, img: np.ndarray) -> List["FacialAreaRegion"]:
+    def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
-        Detect and align face with CenterFace
+        Helper function to detect faces in a single image.
 
         Args:
             img (np.ndarray): pre-loaded image as numpy array
