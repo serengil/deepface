@@ -217,7 +217,7 @@ def test_batch_extract_faces_with_nparray(detector_backend):
     )
 
     # Check that the batch extraction returned the expected number of face lists
-    assert len(imgs_objs_batch) == 4
+    assert len(imgs_objs_batch) == len(img_paths)
     for img_objs_batch, img_expected_num_faces in zip(imgs_objs_batch, expected_num_faces):
         assert len(img_objs_batch) == img_expected_num_faces
 
