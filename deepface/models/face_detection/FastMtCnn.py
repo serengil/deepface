@@ -17,9 +17,9 @@ class FastMtCnnClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
-        Detect and align face with mtcnn
+        Helper function to detect faces in a single image.
 
         Args:
             img (np.ndarray): pre-loaded image as numpy array

@@ -1,6 +1,7 @@
 # built-in dependencies
 import os
 from typing import Any, List
+import logging
 
 # 3rd party dependencies
 import cv2
@@ -9,6 +10,7 @@ import numpy as np
 #project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
 
+logger = logging.getLogger(__name__)
 
 class OpenCvClient(Detector):
     """
@@ -17,6 +19,7 @@ class OpenCvClient(Detector):
 
     def __init__(self):
         self.model = self.build_model()
+        self.supports_batch_detection = self._supports_batch_detection()
 
     def build_model(self):
         """
@@ -29,9 +32,22 @@ class OpenCvClient(Detector):
         detector["eye_detector"] = self.__build_cascade("haarcascade_eye")
         return detector
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def _supports_batch_detection(self) -> bool:
+        supports_batch_detection = os.getenv(
+            "ENABLE_OPENCV_BATCH_DETECTION", "false"
+        ).lower() == "true"
+        if not supports_batch_detection:
+            logger.warning(
+                "Batch detection is disabled for opencv by default "
+                "since the results are not consistent with single image detection. "
+                "You can force enable it by setting the environment variable "
+                "ENABLE_OPENCV_BATCH_DETECTION to true."
+            )
+        return supports_batch_detection
+
+    def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
-        Detect and align face with opencv
+        Helper function to detect faces in a single image.
 
         Args:
             img (np.ndarray): pre-loaded image as numpy array
@@ -40,14 +56,9 @@ class OpenCvClient(Detector):
             results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
         """
         resp = []
-
         detected_face = None
-
         faces = []
         try:
-            # faces = detector["face_detector"].detectMultiScale(img, 1.3, 5)
-
-            # note that, by design, opencv's haarcascade scores are >0 but not capped at 1
             faces, _, scores = self.model["face_detector"].detectMultiScale3(
                 img, 1.1, 10, outputRejectLevels=True
             )
@@ -56,11 +67,9 @@ class OpenCvClient(Detector):
 
         if len(faces) > 0:
             for (x, y, w, h), confidence in zip(faces, scores):
-                detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+                detected_face = img[int(y):int(y + h), int(x):int(x + w)]
                 left_eye, right_eye = self.find_eyes(img=detected_face)
 
-                # eyes found in the detected face instead image itself
-                # detected face's coordinates should be added
                 if left_eye is not None:
                     left_eye = (int(x + left_eye[0]), int(y + left_eye[1]))
                 if right_eye is not None:

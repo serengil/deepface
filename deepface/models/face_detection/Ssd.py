@@ -54,17 +54,16 @@ class SsdClient(Detector):
 
         return {"face_detector": face_detector, "opencv_module": OpenCv.OpenCvClient()}
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
-        Detect and align face with ssd
+        Helper function to detect faces in a single image.
 
         Args:
-            img (np.ndarray): pre-loaded image as numpy array
+            img (np.ndarray): Pre-loaded image as numpy array
 
         Returns:
             results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
         """
-
         # Because cv2.dnn.blobFromImage expects CV_8U (8-bit unsigned integer) values
         if img.dtype != np.uint8:
             img = img.astype(np.uint8)
@@ -72,9 +71,7 @@ class SsdClient(Detector):
         opencv_module: OpenCv.OpenCvClient = self.model["opencv_module"]
 
         target_size = (300, 300)
-
         original_size = img.shape
-
         current_img = cv2.resize(img, target_size)
 
         aspect_ratio_x = original_size[1] / target_size[1]
@@ -133,4 +130,5 @@ class SsdClient(Detector):
                 confidence=confidence,
             )
             resp.append(facial_area)
+
         return resp
