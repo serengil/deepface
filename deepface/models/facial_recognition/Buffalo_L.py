@@ -50,7 +50,7 @@ class Buffalo_L(FacialRecognition):
         if os.path.exists(weights_path):
             logger.debug(f"Model file found at: {weights_path}")
         else:
-            logger.debug(f"Model file NOT found at: {weights_path}")
+            raise FileNotFoundError(f"Model file not found at: {weights_path}")
 
         # Load the model using the full absolute path
         self.model = get_model(weights_path)
@@ -66,9 +66,11 @@ class Buffalo_L(FacialRecognition):
         """
         if len(img.shape) == 4:
             img = img[0]
+        if len(img.shape) != 3:
+            raise ValueError(f"Expected image to be 3D after preprocessing, but got shape: {img.shape}")
         if img.max() <= 1.0:
             img = (img * 255).astype(np.uint8)
-        img = img[:, :, ::-1]
+        img = img[:, :, ::-1]  # Convert RGB to BGR
         return img
 
     def forward(self, img: np.ndarray) -> List[float]:
