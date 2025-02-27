@@ -438,7 +438,7 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
 Please cite deepface in your publications if it helps your research.
 
 <details>
-  <summary>S. Serengil and A. Ozpinar, **"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"**, *Journal of Information Technologies*, vol. 17, no. 2, pp. 95-107, 2024.</summary>
+  <summary>S. Serengil and A. Ozpinar, "A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules", Journal of Information Technologies, vol. 17, no. 2, pp. 95-107, 2024.</summary>
   
   ```BibTeX
   @article{serengil2024lightface,
@@ -456,40 +456,39 @@ Please cite deepface in your publications if it helps your research.
   ```
 </details>
 
-- S. I. Serengil and A. Ozpinar, **"LightFace: A Hybrid Deep Face Recognition Framework"**, *2020 Innovations in Intelligent Systems and Applications Conference (ASYU)*, 2020, pp. 23-27.   [`doi`](https://doi.org/10.1109/ASYU50717.2020.9259802)   [`pdf`](https://ieeexplore.ieee.org/document/9259802)
-  <details>
-    <summary>BibTeX</summary>
-    
-    ```BibTeX
-    @inproceedings{serengil2020lightface,
-      title        = {LightFace: A Hybrid Deep Face Recognition Framework},
-      author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-      booktitle    = {2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
-      pages        = {23-27},
-      year         = {2020},
-      doi          = {10.1109/ASYU50717.2020.9259802},
-      url          = {https://ieeexplore.ieee.org/document/9259802},
-      organization = {IEEE}
-    }
-    ```
-  </details>
-- S. I. Serengil and A. Ozpinar, **"HyperExtended LightFace: A Facial Attribute Analysis Framework"**, *2021 International Conference on Engineering and Emerging Technologies (ICEET)*, 2021, pp. 1-4.   [`doi`](https://doi.org/10.1109/ICEET53442.2021.9659697)   [`pdf`](https://ieeexplore.ieee.org/document/9659697)
-  <details>
-    <summary>BibTeX</summary>
-    
-    ```BibTeX
-    @inproceedings{serengil2021lightface,
-      title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
-      author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-      booktitle    = {2021 International Conference on Engineering and Emerging Technologies (ICEET)},
-      pages        = {1-4},
-      year         = {2021},
-      doi          = {10.1109/ICEET53442.2021.9659697},
-      url          = {https://ieeexplore.ieee.org/document/9659697},
-      organization = {IEEE}
-    }
-    ```
-  </details>
+<details>
+  <summary>S. I. Serengil and A. Ozpinar, "LightFace: A Hybrid Deep Face Recognition Framework", 2020 Innovations in Intelligent Systems and Applications Conference (ASYU), 2020, pp. 23-27.</summary>
+  
+  ```BibTeX
+  @inproceedings{serengil2020lightface,
+    title        = {LightFace: A Hybrid Deep Face Recognition Framework},
+    author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+    booktitle    = {2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
+    pages        = {23-27},
+    year         = {2020},
+    doi          = {10.1109/ASYU50717.2020.9259802},
+    url          = {https://ieeexplore.ieee.org/document/9259802},
+    organization = {IEEE}
+  }
+  ```
+</details>
+
+<details>
+  <summary>S. I. Serengil and A. Ozpinar, "HyperExtended LightFace: A Facial Attribute Analysis Framework", 2021 International Conference on Engineering and Emerging Technologies (ICEET), 2021, pp. 1-4.</summary>
+  
+  ```BibTeX
+  @inproceedings{serengil2021lightface,
+    title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
+    author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+    booktitle    = {2021 International Conference on Engineering and Emerging Technologies (ICEET)},
+    pages        = {1-4},
+    year         = {2021},
+    doi          = {10.1109/ICEET53442.2021.9659697},
+    url          = {https://ieeexplore.ieee.org/document/9659697},
+    organization = {IEEE}
+  }
+  ```
+</details>
 
 Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
 
