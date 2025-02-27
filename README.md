@@ -435,52 +435,11 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
 
 ## Citation
 
-Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATION.md) for more details. Here are its BibTex entries:
+Please cite deepface in your publications if it helps your research.
 
-If you use deepface in your research for facial recognition or face detection purposes, please cite these publications:
-
-```BibTeX
-@article{serengil2024lightface,
-  title     = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
-  author    = {Serengil, Sefik and Ozpinar, Alper},
-  journal   = {Journal of Information Technologies},
-  volume    = {17},
-  number    = {2},
-  pages     = {95-107},
-  year      = {2024},
-  doi       = {10.17671/gazibtd.1399077},
-  url       = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
-  publisher = {Gazi University}
-}
-```
-
-```BibTeX
-@inproceedings{serengil2020lightface,
-  title        = {LightFace: A Hybrid Deep Face Recognition Framework},
-  author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-  booktitle    = {2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
-  pages        = {23-27},
-  year         = {2020},
-  doi          = {10.1109/ASYU50717.2020.9259802},
-  url          = {https://ieeexplore.ieee.org/document/9259802},
-  organization = {IEEE}
-}
-```
-
-On the other hand, if you use deepface in your research for facial attribute analysis purposes such as age, gender, emotion or ethnicity prediction tasks, please cite this publication.
-
-```BibTeX
-@inproceedings{serengil2021lightface,
-  title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
-  author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-  booktitle    = {2021 International Conference on Engineering and Emerging Technologies (ICEET)},
-  pages        = {1-4},
-  year         = {2021},
-  doi          = {10.1109/ICEET53442.2021.9659697},
-  url          = {https://ieeexplore.ieee.org/document/9659697},
-  organization = {IEEE}
-}
-```
+- S. Serengil and A. Ozpinar, "A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules," *Journal of Information Technologies*, vol. 17, no. 2, pp. 95-107, 2024.   [`doi`](https://doi.org/10.17671/gazibtd.1399077)   [`pdf`](https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077)
+- S. I. Serengil and A. Ozpinar, "LightFace: A Hybrid Deep Face Recognition Framework," in 2020 Innovations in Intelligent Systems and Applications Conference (ASYU), 2020, pp. 23-27.   [`doi`](https://doi.org/10.1109/ASYU50717.2020.9259802)   [`pdf`](https://ieeexplore.ieee.org/document/9259802)
+- S. I. Serengil and A. Ozpinar, "HyperExtended LightFace: A Facial Attribute Analysis Framework," in 2021 International Conference on Engineering and Emerging Technologies (ICEET), 2021, pp. 1-4.   [`doi`](https://doi.org/10.1109/ICEET53442.2021.9659697)   [`pdf`](https://ieeexplore.ieee.org/document/9659697)
 
 Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
 
