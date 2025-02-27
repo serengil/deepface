@@ -438,7 +438,7 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
 Please cite deepface in your publications if it helps your research.
 
 <details>
-  <summary>S. Serengil and A. Ozpinar, **"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"**, *Journal of Information Technologies*, vol. 17, no. 2, pp. 95-107, 2024.  [`doi`](https://doi.org/10.17671/gazibtd.1399077)   [`pdf`](https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077)  </summary>
+  <summary>S. Serengil and A. Ozpinar, **"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"**, *Journal of Information Technologies*, vol. 17, no. 2, pp. 95-107, 2024.</summary>
   
   ```BibTeX
   @article{serengil2024lightface,
