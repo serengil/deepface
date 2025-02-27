@@ -437,9 +437,9 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
 
 Please cite deepface in your publications if it helps your research.
 
-- S. Serengil and A. Ozpinar, "A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules," *Journal of Information Technologies*, vol. 17, no. 2, pp. 95-107, 2024.   [`doi`](https://doi.org/10.17671/gazibtd.1399077)   [`pdf`](https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077)
-- S. I. Serengil and A. Ozpinar, "LightFace: A Hybrid Deep Face Recognition Framework," in 2020 Innovations in Intelligent Systems and Applications Conference (ASYU), 2020, pp. 23-27.   [`doi`](https://doi.org/10.1109/ASYU50717.2020.9259802)   [`pdf`](https://ieeexplore.ieee.org/document/9259802)
-- S. I. Serengil and A. Ozpinar, "HyperExtended LightFace: A Facial Attribute Analysis Framework," in 2021 International Conference on Engineering and Emerging Technologies (ICEET), 2021, pp. 1-4.   [`doi`](https://doi.org/10.1109/ICEET53442.2021.9659697)   [`pdf`](https://ieeexplore.ieee.org/document/9659697)
+- S. Serengil and A. Ozpinar, **"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"**, *Journal of Information Technologies*, vol. 17, no. 2, pp. 95-107, 2024.   [`doi`](https://doi.org/10.17671/gazibtd.1399077)   [`pdf`](https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077)
+- S. I. Serengil and A. Ozpinar, **"LightFace: A Hybrid Deep Face Recognition Framework"**, *2020 Innovations in Intelligent Systems and Applications Conference (ASYU)*, 2020, pp. 23-27.   [`doi`](https://doi.org/10.1109/ASYU50717.2020.9259802)   [`pdf`](https://ieeexplore.ieee.org/document/9259802)
+- S. I. Serengil and A. Ozpinar, **"HyperExtended LightFace: A Facial Attribute Analysis Framework"**, *2021 International Conference on Engineering and Emerging Technologies (ICEET)*, 2021, pp. 1-4.   [`doi`](https://doi.org/10.1109/ICEET53442.2021.9659697)   [`pdf`](https://ieeexplore.ieee.org/document/9659697)
 
 Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
 
