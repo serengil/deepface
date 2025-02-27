@@ -21,6 +21,8 @@ def represent(
     detector_backend: str,
     enforce_detection: bool,
     align: bool,
+    expand_percentage: int,
+    normalization: str,
     anti_spoofing: bool,
     max_faces: Optional[int] = None,
 ):
@@ -32,6 +34,8 @@ def represent(
             detector_backend=detector_backend,
             enforce_detection=enforce_detection,
             align=align,
+            expand_percentage=expand_percentage,
+            normalization=normalization,
             anti_spoofing=anti_spoofing,
             max_faces=max_faces,
         )
@@ -52,6 +56,10 @@ def verify(
     distance_metric: str,
     enforce_detection: bool,
     align: bool,
+    expand_percentage: int,
+    normalization: str,
+    silent: bool,
+    threshold: Optional[float],
     anti_spoofing: bool,
 ):
     try:
@@ -61,8 +69,12 @@ def verify(
             model_name=model_name,
             detector_backend=detector_backend,
             distance_metric=distance_metric,
-            align=align,
             enforce_detection=enforce_detection,
+            align=align,
+            expand_percentage=expand_percentage,
+            normalization=normalization,
+            silent=silent,
+            threshold=threshold,
             anti_spoofing=anti_spoofing,
         )
         return obj
@@ -79,6 +91,8 @@ def analyze(
     detector_backend: str,
     enforce_detection: bool,
     align: bool,
+    expand_percentage: int,
+    silent: bool,
     anti_spoofing: bool,
 ):
     try:
@@ -89,7 +103,8 @@ def analyze(
             detector_backend=detector_backend,
             enforce_detection=enforce_detection,
             align=align,
-            silent=True,
+            expand_percentage=expand_percentage,
+            silent=silent,
             anti_spoofing=anti_spoofing,
         )
         result["results"] = demographies
