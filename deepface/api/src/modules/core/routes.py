@@ -87,6 +87,8 @@ def represent():
         detector_backend=input_args.get("detector_backend", "opencv"),
         enforce_detection=input_args.get("enforce_detection", True),
         align=input_args.get("align", True),
+        expand_percentage=input_args.get("expand_percentage", 0),
+        normalization=input_args.get("normalization", "base"),
         anti_spoofing=input_args.get("anti_spoofing", False),
         max_faces=input_args.get("max_faces"),
     )
@@ -118,8 +120,12 @@ def verify():
         model_name=input_args.get("model_name", "VGG-Face"),
         detector_backend=input_args.get("detector_backend", "opencv"),
         distance_metric=input_args.get("distance_metric", "cosine"),
-        align=input_args.get("align", True),
         enforce_detection=input_args.get("enforce_detection", True),
+        align=input_args.get("align", True),
+        expand_percentage=input_args.get("expand_percentage", 0),
+        normalization=input_args.get("normalization", "base"),
+        silent=input_args.get("silent", False),
+        threshold=input_args.get("threshold", None),
         anti_spoofing=input_args.get("anti_spoofing", False),
     )
 
@@ -160,6 +166,8 @@ def analyze():
         detector_backend=input_args.get("detector_backend", "opencv"),
         enforce_detection=input_args.get("enforce_detection", True),
         align=input_args.get("align", True),
+        expand_percentage=input_args.get("expand_percentage", 0),
+        silent=input_args.get("silent", False),
         anti_spoofing=input_args.get("anti_spoofing", False),
     )
 
