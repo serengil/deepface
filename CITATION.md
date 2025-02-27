@@ -56,6 +56,17 @@ If you use deepface in your research for facial attribute analysis purposes such
 We have additionally released these papers within the DeepFace project for a multitude of purposes.
 
 ```BibTeX
+@misc{serengil2025cipherface,
+   title     = {CipherFace: A Fully Homomorphic Encryption-Driven Framework for Secure Cloud-Based Facial Recognition}, 
+   author    = {Serengil, Sefik and Ozpinar, Alper},
+   year      = {2025},
+   publisher = {arXiv},
+   url       = {https://arxiv.org/abs/2502.18514},
+   doi       = {10.48550/arXiv.2502.18514}
+}
+```
+
+```BibTeX
 @misc{serengil2023db,
   title         = {An evaluation of sql and nosql databases for facial recognition pipelines},
   author        = {Serengil, Sefik Ilkin and Ozpinar, Alper},
