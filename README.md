@@ -437,25 +437,25 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
 
 Please cite deepface in your publications if it helps your research.
 
-- S. Serengil and A. Ozpinar, **"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"**, *Journal of Information Technologies*, vol. 17, no. 2, pp. 95-107, 2024.  [`doi`](https://doi.org/10.17671/gazibtd.1399077)   [`pdf`](https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077)  
-  <details>
-    <summary>BibTeX</summary>
-    
-    ```BibTeX
-    @article{serengil2024lightface,
-      title     = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
-      author    = {Serengil, Sefik and Ozpinar, Alper},
-      journal   = {Journal of Information Technologies},
-      volume    = {17},
-      number    = {2},
-      pages     = {95-107},
-      year      = {2024},
-      doi       = {10.17671/gazibtd.1399077},
-      url       = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
-      publisher = {Gazi University}
-    }
-    ```
-  </details>
+<details>
+  <summary>S. Serengil and A. Ozpinar, **"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"**, *Journal of Information Technologies*, vol. 17, no. 2, pp. 95-107, 2024.  [`doi`](https://doi.org/10.17671/gazibtd.1399077)   [`pdf`](https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077)  </summary>
+  
+  ```BibTeX
+  @article{serengil2024lightface,
+    title     = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
+    author    = {Serengil, Sefik and Ozpinar, Alper},
+    journal   = {Journal of Information Technologies},
+    volume    = {17},
+    number    = {2},
+    pages     = {95-107},
+    year      = {2024},
+    doi       = {10.17671/gazibtd.1399077},
+    url       = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
+    publisher = {Gazi University}
+  }
+  ```
+</details>
+
 - S. I. Serengil and A. Ozpinar, **"LightFace: A Hybrid Deep Face Recognition Framework"**, *2020 Innovations in Intelligent Systems and Applications Conference (ASYU)*, 2020, pp. 23-27.   [`doi`](https://doi.org/10.1109/ASYU50717.2020.9259802)   [`pdf`](https://ieeexplore.ieee.org/document/9259802)
   <details>
     <summary>BibTeX</summary>
