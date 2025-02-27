@@ -11,7 +11,8 @@ from deepface.models.facial_recognition import (
     SFace,
     Dlib,
     Facenet,
-    GhostFaceNet
+    GhostFaceNet,
+    Buffalo_L
 )
 from deepface.models.face_detection import (
     FastMtCnn,
@@ -59,7 +60,8 @@ def build_model(task: str, model_name: str) -> Any:
             "Dlib": Dlib.DlibClient,
             "ArcFace": ArcFace.ArcFaceClient,
             "SFace": SFace.SFaceClient,
-            "GhostFaceNet": GhostFaceNet.GhostFaceNetClient
+            "GhostFaceNet": GhostFaceNet.GhostFaceNetClient,
+            "Buffalo_L": Buffalo_L.Buffalo_L
         },
         "spoofing": {
             "Fasnet": FasNet.Fasnet,
