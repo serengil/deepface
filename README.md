@@ -438,7 +438,7 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
 Please cite deepface in your publications if it helps your research.
 
 <details>
-  <summary>S. Serengil and A. Ozpinar, "A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules", Journal of Information Technologies, vol. 17, no. 2, pp. 95-107, 2024.</summary>
+  <summary>S. Serengil and A. Ozpinar, <b>"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"</b>, <i>Journal of Information Technologies</i>, vol. 17, no. 2, pp. 95-107, 2024.</summary>
   
   ```BibTeX
   @article{serengil2024lightface,
@@ -457,7 +457,7 @@ Please cite deepface in your publications if it helps your research.
 </details>
 
 <details>
-  <summary>S. I. Serengil and A. Ozpinar, "LightFace: A Hybrid Deep Face Recognition Framework", 2020 Innovations in Intelligent Systems and Applications Conference (ASYU), 2020, pp. 23-27.</summary>
+  <summary>S. I. Serengil and A. Ozpinar, <b>"LightFace: A Hybrid Deep Face Recognition Framework"</b>, <i>2020 Innovations in Intelligent Systems and Applications Conference (ASYU)</i>, 2020, pp. 23-27.</summary>
   
   ```BibTeX
   @inproceedings{serengil2020lightface,
@@ -474,7 +474,7 @@ Please cite deepface in your publications if it helps your research.
 </details>
 
 <details>
-  <summary>S. I. Serengil and A. Ozpinar, "HyperExtended LightFace: A Facial Attribute Analysis Framework", 2021 International Conference on Engineering and Emerging Technologies (ICEET), 2021, pp. 1-4.</summary>
+  <summary>S. I. Serengil and A. Ozpinar, <b>"HyperExtended LightFace: A Facial Attribute Analysis Framework"</b>, <i>2021 International Conference on Engineering and Emerging Technologies (ICEET)</i>, 2021, pp. 1-4.</summary>
   
   ```BibTeX
   @inproceedings{serengil2021lightface,
@@ -486,6 +486,21 @@ Please cite deepface in your publications if it helps your research.
     doi          = {10.1109/ICEET53442.2021.9659697},
     url          = {https://ieeexplore.ieee.org/document/9659697},
     organization = {IEEE}
+  }
+  ```
+</details>
+
+<details>
+  <summary>S. Serengil and A. Ozpinar, <b>"CipherFace: A Fully Homomorphic Encryption-Driven Framework for Secure Cloud-Based Facial Recognition"</b>, arXiv preprint arXiv: 2502.18154, 2025.</summary>
+  
+  ```BibTeX
+  @misc{serengil2025cipherface,
+    title     = {CipherFace: A Fully Homomorphic Encryption-Driven Framework for Secure Cloud-Based Facial Recognition}, 
+    author    = {Serengil, Sefik and Ozpinar, Alper},
+    year      = {2025},
+    publisher = {arXiv},
+    url       = {https://arxiv.org/abs/2502.18514},
+    doi       = {10.48550/arXiv.2502.18514}
   }
   ```
 </details>
