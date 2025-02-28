@@ -1,6 +1,6 @@
 import os
-import numpy as np
 from typing import List
+import numpy as np
 
 from deepface.commons import weight_utils, folder_utils
 from deepface.commons.logger import Logger
@@ -70,7 +70,8 @@ class Buffalo_L(FacialRecognition):
         if len(img.shape) == 4:
             img = img[0]
         if len(img.shape) != 3:
-            raise ValueError(f"Expected image to be 3D after preprocessing, but got shape: {img.shape}")
+            raise ValueError(
+                f"Expected image to be 3D after preprocessing, but got shape: {img.shape}")
         if img.max() <= 1.0:
             img = (img * 255).astype(np.uint8)
         img = img[:, :, ::-1]  # Convert RGB to BGR
@@ -86,12 +87,11 @@ class Buffalo_L(FacialRecognition):
         """
         img = self.preprocess(img)
         embedding = self.model.get_feat(img)
-        
         if isinstance(embedding, np.ndarray) and len(embedding.shape) > 1:
             embedding = embedding.flatten()
         elif isinstance(embedding, list):
             embedding = np.array(embedding).flatten()
         else:
             raise ValueError(f"Unexpected embedding type: {type(embedding)}")
-        
         return embedding.tolist()
+    
