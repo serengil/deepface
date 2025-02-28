@@ -141,7 +141,8 @@ def verify(
         """
         if isinstance(img_path, list):
             # given image is already pre-calculated embedding
-            if not all(isinstance(dim, float) for dim in img_path):
+            if not all(isinstance(dim, (float, int)) for dim in img_path):
+
                 raise ValueError(
                     f"When passing img{index}_path as a list,"
                     " ensure that all its items are of type float."

@@ -16,7 +16,13 @@
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/serengil?logo=GitHub&color=lightgray)](https://github.com/sponsors/serengil)
 [![Buy Me a Coffee](https://img.shields.io/badge/-buy_me_a%C2%A0coffee-gray?logo=buy-me-a-coffee)](https://buymeacoffee.com/serengil)
 
-<a href="https://trendshift.io/repositories/4227" target="_blank"><img src="https://trendshift.io/api/badge/repositories/4227" alt="serengil%2Fdeepface | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+<div align="center">
+  <a href="https://trendshift.io/repositories/4227" target="_blank"><img src="https://trendshift.io/api/badge/repositories/4227" alt="serengil%2Fdeepface | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+
+  <a href="https://www.producthunt.com/posts/deepface?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-deepface" target="_blank">
+      <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=753599&theme=light" alt="DeepFace - A Lightweight Deep Face Recognition Library for Python | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" />
+  </a>
+</div>
 
 <!--
 [![Hacker News](https://img.shields.io/badge/dynamic/json?color=orange&label=Hacker%20News&query=score&url=https%3A%2F%2Fhacker-news.firebaseio.com%2Fv0%2Fitem%2F42584896.json&logo=y-combinator)](https://news.ycombinator.com/item?id=42584896)
@@ -399,7 +405,7 @@ Before creating a PR, you should run the unit tests and linting locally by runni
 
 There are many ways to support a project - starring⭐️ the GitHub repo is just one 🙏
 
-If you do like this work, then you can support it financially on [Patreon](https://www.patreon.com/serengil?repo=deepface), [GitHub Sponsors](https://github.com/sponsors/serengil) or [Buy Me a Coffee](https://buymeacoffee.com/serengil). Also, your company's logo will be shown on README on GitHub and PyPI if you become a sponsor in gold, silver or bronze tiers.
+If you do like this work, then you can support it financially on [Patreon](https://www.patreon.com/serengil?repo=deepface), [GitHub Sponsors](https://github.com/sponsors/serengil) or [Buy Me a Coffee](https://buymeacoffee.com/serengil). Also, your company's logo will be shown on README on GitHub if you become a sponsor in gold, silver or bronze tiers.
 
 <a href="https://www.patreon.com/serengil?repo=deepface">
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/patreon.png" width="30%" height="30%">
@@ -429,52 +435,75 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
 
 ## Citation
 
-Please cite deepface in your publications if it helps your research - see [`CITATIONS`](https://github.com/serengil/deepface/blob/master/CITATION.md) for more details. Here are its BibTex entries:
+Please cite deepface in your publications if it helps your research.
 
-If you use deepface in your research for facial recognition or face detection purposes, please cite these publications:
+<details>
+  <summary>S. Serengil and A. Ozpinar, <b>"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"</b>, <i>Journal of Information Technologies</i>, vol. 17, no. 2, pp. 95-107, 2024.</summary>
+  
+  ```BibTeX
+  @article{serengil2024lightface,
+    title     = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
+    author    = {Serengil, Sefik and Ozpinar, Alper},
+    journal   = {Journal of Information Technologies},
+    volume    = {17},
+    number    = {2},
+    pages     = {95-107},
+    year      = {2024},
+    doi       = {10.17671/gazibtd.1399077},
+    url       = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
+    publisher = {Gazi University}
+  }
+  ```
+</details>
 
-```BibTeX
-@article{serengil2024lightface,
-  title     = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
-  author    = {Serengil, Sefik and Ozpinar, Alper},
-  journal   = {Journal of Information Technologies},
-  volume    = {17},
-  number    = {2},
-  pages     = {95-107},
-  year      = {2024},
-  doi       = {10.17671/gazibtd.1399077},
-  url       = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
-  publisher = {Gazi University}
-}
-```
+<details>
+  <summary>S. I. Serengil and A. Ozpinar, <b>"LightFace: A Hybrid Deep Face Recognition Framework"</b>, <i>2020 Innovations in Intelligent Systems and Applications Conference (ASYU)</i>, 2020, pp. 23-27.</summary>
+  
+  ```BibTeX
+  @inproceedings{serengil2020lightface,
+    title        = {LightFace: A Hybrid Deep Face Recognition Framework},
+    author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+    booktitle    = {2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
+    pages        = {23-27},
+    year         = {2020},
+    doi          = {10.1109/ASYU50717.2020.9259802},
+    url          = {https://ieeexplore.ieee.org/document/9259802},
+    organization = {IEEE}
+  }
+  ```
+</details>
 
-```BibTeX
-@inproceedings{serengil2020lightface,
-  title        = {LightFace: A Hybrid Deep Face Recognition Framework},
-  author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-  booktitle    = {2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
-  pages        = {23-27},
-  year         = {2020},
-  doi          = {10.1109/ASYU50717.2020.9259802},
-  url          = {https://ieeexplore.ieee.org/document/9259802},
-  organization = {IEEE}
-}
-```
+<details>
+  <summary>S. I. Serengil and A. Ozpinar, <b>"HyperExtended LightFace: A Facial Attribute Analysis Framework"</b>, <i>2021 International Conference on Engineering and Emerging Technologies (ICEET)</i>, 2021, pp. 1-4.</summary>
+  
+  ```BibTeX
+  @inproceedings{serengil2021lightface,
+    title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
+    author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+    booktitle    = {2021 International Conference on Engineering and Emerging Technologies (ICEET)},
+    pages        = {1-4},
+    year         = {2021},
+    doi          = {10.1109/ICEET53442.2021.9659697},
+    url          = {https://ieeexplore.ieee.org/document/9659697},
+    organization = {IEEE}
+  }
+  ```
+</details>
 
-On the other hand, if you use deepface in your research for facial attribute analysis purposes such as age, gender, emotion or ethnicity prediction tasks, please cite this publication.
-
-```BibTeX
-@inproceedings{serengil2021lightface,
-  title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
-  author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-  booktitle    = {2021 International Conference on Engineering and Emerging Technologies (ICEET)},
-  pages        = {1-4},
-  year         = {2021},
-  doi          = {10.1109/ICEET53442.2021.9659697},
-  url          = {https://ieeexplore.ieee.org/document/9659697},
-  organization = {IEEE}
-}
-```
+<details>
+  <summary>S. Serengil and A. Ozpinar, <b>"CipherFace: A Fully Homomorphic Encryption-Driven Framework for Secure Cloud-Based Facial Recognition"</b>, arXiv preprint arXiv: 2502.18154, 2025.</summary>
+  
+  ```BibTeX
+  @misc{serengil2025cipherface,
+    title     = {CipherFace: A Fully Homomorphic Encryption-Driven Framework for Secure Cloud-Based Facial Recognition}, 
+    author    = {Serengil, Sefik and Ozpinar, Alper},
+    year      = {2025},
+    publisher = {arXiv},
+    url       = {https://arxiv.org/abs/2502.18514},
+    doi       = {10.48550/arXiv.2502.18514}
+  }
+  ```
+</details>
 
 Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
 
