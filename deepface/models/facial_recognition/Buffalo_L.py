@@ -21,8 +21,8 @@ class Buffalo_L(FacialRecognition):
         """
         try:
             from insightface.model_zoo import get_model
-        except ModuleNotFoundError as err:
-            raise ModuleNotFoundError(
+        except Exception as err:
+            raise Exception(
                 "InsightFace and its dependencies are optional for the Buffalo_L model. "
                 "Please install them with: "
                 "pip install insightface>=0.7.3 onnxruntime>=1.9.0 typing-extensions pydantic"
