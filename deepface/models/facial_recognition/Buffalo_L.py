@@ -2,14 +2,6 @@ import os
 import numpy as np
 from typing import List
 
-try:
-    from insightface.model_zoo import get_model
-except ModuleNotFoundError as err:
-    raise ModuleNotFoundError(
-        "InsightFace is an optional dependency for the Buffalo_L model."
-        "You can install it with: pip install insightface>=0.7.3"
-    ) from err
-
 from deepface.commons import weight_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
@@ -27,20 +19,30 @@ class Buffalo_L(FacialRecognition):
         """
         Load the InsightFace Buffalo_L recognition model.
         """
-        # Define the relative model path
-        model_rel_path = os.path.join("buffalo_l", "w600k_r50.onnx")
+        try:
+            from insightface.model_zoo import get_model
+        except ModuleNotFoundError as err:
+            raise ModuleNotFoundError(
+                "InsightFace is an optional dependency for the Buffalo_L model."
+                "You can install it with: pip install insightface>=0.7.3"
+            ) from err
 
-        # Get the DeepFace weights directory
+        # Define the model filename and subdirectory
+        sub_dir = "buffalo_l"
+        model_file = "w600k_r50.onnx"
+        model_rel_path = os.path.join(sub_dir, model_file)
+
+        # Get the DeepFace home directory and construct weights path
         home = folder_utils.get_deepface_home()
         weights_dir = os.path.join(home, ".deepface", "weights")
-        buffalo_l_dir = os.path.join(weights_dir, "buffalo_l")
+        buffalo_l_dir = os.path.join(weights_dir, sub_dir)
 
         # Ensure the buffalo_l subdirectory exists
         if not os.path.exists(buffalo_l_dir):
             os.makedirs(buffalo_l_dir, exist_ok=True)
             logger.info(f"Created directory: {buffalo_l_dir}")
 
-        # Download the model weights
+        # Download the model weights if not already present
         weights_path = weight_utils.download_weights_if_necessary(
             file_name=model_rel_path,
             source_url="https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg"
@@ -52,8 +54,8 @@ class Buffalo_L(FacialRecognition):
         else:
             raise FileNotFoundError(f"Model file not found at: {weights_path}")
 
-        # Load the model using the full absolute path
-        self.model = get_model(weights_path)
+        # Load the model
+        self.model = get_model(model_file, root=buffalo_l_dir)
         self.model.prepare(ctx_id=-1, input_size=self.input_shape)
 
     def preprocess(self, img: np.ndarray) -> np.ndarray:
