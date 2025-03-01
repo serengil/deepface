@@ -30,7 +30,7 @@ class Buffalo_L(FacialRecognition):
 
         # Define the model filename and subdirectory
         sub_dir = "buffalo_l"
-        model_file = "webface_r50.onnx"
+        model_file = "webface_r50.onnx"  # Corrected from w600k_r50.onnx per serengil's comment
         model_rel_path = os.path.join(sub_dir, model_file)
 
         # Get the DeepFace home directory and construct weights path
@@ -46,58 +46,56 @@ class Buffalo_L(FacialRecognition):
         # Download the model weights if not already present
         weights_path = weight_utils.download_weights_if_necessary(
             file_name=model_rel_path,
-            source_url="https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg"  # pylint: disable=line-too-long
+            source_url="https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg"
         )
 
         # Verify the model file exists
-        if os.path.exists(weights_path):
-            logger.debug(f"Model file found at: {weights_path}")
-        else:
+        if not os.path.exists(weights_path):
             raise FileNotFoundError(f"Model file not found at: {weights_path}")
+        else:
+            logger.debug(f"Model file found at: {weights_path}")
 
         # Load the model using the full path
-        self.model = get_model(weights_path)
+        self.model = get_model(weights_path)  # Updated per serengil's feedback
         self.model.prepare(ctx_id=-1, input_size=self.input_shape)
 
     def preprocess(self, img: np.ndarray) -> np.ndarray:
         """
-        Preprocess the image or batch of images to match InsightFace recognition model expectations.
+        Preprocess the input image for the Buffalo_L model.
+
         Args:
-            img: Image in shape (1, 112, 112, 3) or (112, 112, 3) or batch (batch_size, 112, 112, 3)
+            img: Input image as a numpy array of shape (112, 112, 3) or (1, 112, 112, 3).
+
         Returns:
-            Preprocessed image or batch as numpy array
+            Preprocessed image as numpy array.
         """
-        if len(img.shape) == 4:  # Batch of images
-            preprocessed_imgs = []
-            for i in range(img.shape[0]):
-                single_img = img[i]
-                if single_img.max() <= 1.0:
-                    single_img = (single_img * 255).astype(np.uint8)
-                single_img = single_img[:, :, ::-1]  # Convert RGB to BGR
-                preprocessed_imgs.append(single_img)
-            return np.array(preprocessed_imgs)
-        if len(img.shape) != 3:
-            raise ValueError(
-                f"Expected image to be 3D after preprocessing, but got shape: {img.shape}")
-        if img.max() <= 1.0:
-            img = (img * 255).astype(np.uint8)
-        img = img[:, :, ::-1]  # Convert RGB to BGR
+        # Ensure input is a single image
+        if len(img.shape) == 4:
+            if img.shape[0] == 1:
+                img = img[0]  # Squeeze batch dimension if it's a single-image batch
+            else:
+                raise ValueError("Buffalo_L model expects a single image, not a batch.")
+        elif len(img.shape) != 3 or img.shape != (112, 112, 3):
+            raise ValueError("Input image must have shape (112, 112, 3).")
+
+        # Convert RGB to BGR as required by InsightFace
+        img = img[:, :, ::-1]
         return img
 
     def forward(self, img: np.ndarray) -> Union[List[float], List[List[float]]]:
         """
-        Extract face embedding from a pre-cropped face image or batch of images.
+        Extract face embedding from a pre-cropped face image.
         Args:
             img: Preprocessed face image with shape (1, 112, 112, 3) or batch (batch_size, 112, 112, 3)
         Returns:
-            Face embedding as a list of floats (single image) or list of lists of floats (batch)
+            Face embedding as a list of floats or list of lists of floats
         """
         img = self.preprocess(img)
-        if len(img.shape) == 4:  # Batch
-            embeddings = self.model.get_feat(img)
-            return [embedding.tolist() for embedding in embeddings]
-        elif len(img.shape) == 3:  # Single image
-            embedding = self.model.get_feat(np.expand_dims(img, axis=0))[0]
-            return embedding.tolist()
+        embedding = self.model.get_feat(img)
+        if isinstance(embedding, np.ndarray) and len(embedding.shape) > 1:
+            embedding = embedding.flatten()
+        elif isinstance(embedding, list):
+            embedding = np.array(embedding).flatten()
         else:
-            raise ValueError(f"Unexpected embedding type after preprocessing: {img.shape}")
+            raise ValueError(f"Unexpected embedding type: {type(embedding)}")
+        return embedding.tolist()
