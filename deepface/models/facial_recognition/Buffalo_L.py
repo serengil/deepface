@@ -64,7 +64,7 @@ class Buffalo_L(FacialRecognition):
         if len(img.shape) == 3:
             img = np.expand_dims(img, axis=0)  # Convert single image to batch of 1
         elif len(img.shape) != 4:
-            raise ValueError(f"Input must have shape (112, 112, 3) or (X, 112, 112, 3). Got {img.shape}")
+            raise ValueError(f"Input must be (112, 112, 3) or (X, 112, 112, 3). Got {img.shape}")
         # Convert RGB to BGR for the entire batch
         img = img[:, :, :, ::-1]
         return img
@@ -93,3 +93,4 @@ class Buffalo_L(FacialRecognition):
 
         # Return single embedding if batch_size is 1, otherwise return list of embeddings
         return embeddings[0] if batch_size == 1 else embeddings
+    
