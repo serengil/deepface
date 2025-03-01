@@ -46,7 +46,7 @@ class Buffalo_L(FacialRecognition):
         # Download the model weights if not already present
         weights_path = weight_utils.download_weights_if_necessary(
             file_name=model_rel_path,
-            source_url="https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg"
+            source_url="https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg" #pylint: disable=line-too-long
         )
 
         # Verify the model file exists
