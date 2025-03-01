@@ -25,7 +25,8 @@ class Buffalo_L(FacialRecognition):
             raise ModuleNotFoundError(
                 "InsightFace and its dependencies are optional for the Buffalo_L model. "
                 "Please install them with: "
-                "pip install insightface>=0.7.3 onnxruntime>=1.9.0 typing-extensions pydantic albumentations"
+                "pip install insightface>=0.7.3 onnxruntime>=1.9.0 typing-extensions pydantic"
+                "albumentations"
             ) from err
 
         # Define the model filename and subdirectory
@@ -86,7 +87,8 @@ class Buffalo_L(FacialRecognition):
         """
         Extract face embedding from a pre-cropped face image.
         Args:
-            img: Preprocessed face image with shape (1, 112, 112, 3) or batch (batch_size, 112, 112, 3)
+            img: Preprocessed face image with shape (1, 112, 112, 3) 
+            or batch (batch_size, 112, 112, 3)
         Returns:
             Face embedding as a list of floats or list of lists of floats
         """
@@ -99,3 +101,4 @@ class Buffalo_L(FacialRecognition):
         else:
             raise ValueError(f"Unexpected embedding type: {type(embedding)}")
         return embedding.tolist()
+    
