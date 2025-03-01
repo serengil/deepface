@@ -39,14 +39,13 @@ class Buffalo_L(FacialRecognition):
             logger.info(f"Created directory: {buffalo_l_dir}")
 
         weights_path = weight_utils.download_weights_if_necessary(
-            file_name=model_rel_path,
-            source_url="https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg" #pylint: disable=line-too-long
+        file_name=model_rel_path,
+        source_url="https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg" #pylint: disable=line-too-long
         )
 
         if not os.path.exists(weights_path):
             raise FileNotFoundError(f"Model file not found at: {weights_path}")
-        else:
-            logger.debug(f"Model file found at: {weights_path}")
+        logger.debug(f"Model file found at: {weights_path}")
 
         self.model = get_model(weights_path)
         self.model.prepare(ctx_id=-1, input_size=self.input_shape)
@@ -65,8 +64,7 @@ class Buffalo_L(FacialRecognition):
         if len(img.shape) == 3:
             img = np.expand_dims(img, axis=0)  # Convert single image to batch of 1
         elif len(img.shape) != 4:
-            raise ValueError("Input must have shape (112, 112, 3) or (batch_size, 112, 112, 3).")
-
+            raise ValueError(f"Input must have shape (112, 112, 3) or (X, 112, 112, 3). Got {img.shape}")
         # Convert RGB to BGR for the entire batch
         img = img[:, :, :, ::-1]
         return img
