@@ -57,9 +57,9 @@ class YuNetClient(Detector):
             ) from err
         return face_detector
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
-        Detect and align face with yunet
+        Helper function to detect faces in a single image.
 
         Args:
             img (np.ndarray): pre-loaded image as numpy array

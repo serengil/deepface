@@ -43,9 +43,9 @@ class MediaPipeClient(Detector):
         )
         return face_detection
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
-        Detect and align face with mediapipe
+        Helper function to detect faces in a single image.
 
         Args:
             img (np.ndarray): pre-loaded image as numpy array
