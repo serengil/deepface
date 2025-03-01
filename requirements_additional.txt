@@ -9,3 +9,4 @@ onnxruntime>=1.9.0
 tf-keras
 typing-extensions
 pydantic
+albumentations
