@@ -85,12 +85,12 @@ def represent():
         img_path=img,
         model_name=input_args.get("model_name", "VGG-Face"),
         detector_backend=input_args.get("detector_backend", "opencv"),
-        enforce_detection=input_args.get("enforce_detection", True),
-        align=input_args.get("align", True),
-        expand_percentage=input_args.get("expand_percentage", 0),
+        enforce_detection=input_args.get("enforce_detection", True) if type(input_args.get("enforce_detection", True)) is bool else input_args.get("enforce_detection") == "true",
+        align=input_args.get("align", True) if type(input_args.get("align", True)) is bool else input_args.get("align") == "true",
+        expand_percentage=int(input_args.get("expand_percentage", 0)),
         normalization=input_args.get("normalization", "base"),
-        anti_spoofing=input_args.get("anti_spoofing", False),
-        max_faces=input_args.get("max_faces"),
+        anti_spoofing=input_args.get("anti_spoofing", False) if type(input_args.get("anti_spoofing", False)) is bool else input_args.get("anti_spoofing") == "true",
+        max_faces=None if input_args.get("max_faces", None) is None else int(input_args.get("max_faces")),
     )
 
     logger.debug(obj)
@@ -120,13 +120,13 @@ def verify():
         model_name=input_args.get("model_name", "VGG-Face"),
         detector_backend=input_args.get("detector_backend", "opencv"),
         distance_metric=input_args.get("distance_metric", "cosine"),
-        enforce_detection=input_args.get("enforce_detection", True),
-        align=input_args.get("align", True),
-        expand_percentage=input_args.get("expand_percentage", 0),
+        enforce_detection=input_args.get("enforce_detection", True) if type(input_args.get("enforce_detection", True)) is bool else input_args.get("enforce_detection") == "true",
+        align=input_args.get("align", True) if type(input_args.get("align", True)) is bool else input_args.get("align") == "true",
+        expand_percentage=int(input_args.get("expand_percentage", 0)),
         normalization=input_args.get("normalization", "base"),
-        silent=input_args.get("silent", False),
-        threshold=input_args.get("threshold", None),
-        anti_spoofing=input_args.get("anti_spoofing", False),
+        silent=input_args.get("silent", False) if type(input_args.get("silent", False)) is bool else input_args.get("silent") == "true",
+        threshold=None if input_args.get("threshold", None) is None else float(input_args.get("threshold")),
+        anti_spoofing=input_args.get("anti_spoofing", False) if type(input_args.get("anti_spoofing", False)) is bool else input_args.get("anti_spoofing") == "true",
     )
 
     logger.debug(verification)
@@ -164,11 +164,11 @@ def analyze():
         img_path=img,
         actions=actions,
         detector_backend=input_args.get("detector_backend", "opencv"),
-        enforce_detection=input_args.get("enforce_detection", True),
-        align=input_args.get("align", True),
-        expand_percentage=input_args.get("expand_percentage", 0),
-        silent=input_args.get("silent", False),
-        anti_spoofing=input_args.get("anti_spoofing", False),
+        enforce_detection=input_args.get("enforce_detection", True) if type(input_args.get("enforce_detection", True)) is bool else input_args.get("enforce_detection") == "true",
+        align=input_args.get("align", True) if type(input_args.get("align", True)) is bool else input_args.get("align") == "true",
+        expand_percentage=int(input_args.get("expand_percentage", 0)),
+        silent=input_args.get("silent", False) if type(input_args.get("silent", False)) is bool else input_args.get("silent") == "true",
+        anti_spoofing=input_args.get("anti_spoofing", False) if type(input_args.get("anti_spoofing", False)) is bool else input_args.get("anti_spoofing") == "true",
     )
 
     logger.debug(demographies)
