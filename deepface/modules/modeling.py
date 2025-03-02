@@ -61,7 +61,7 @@ def build_model(task: str, model_name: str) -> Any:
             "ArcFace": ArcFace.ArcFaceClient,
             "SFace": SFace.SFaceClient,
             "GhostFaceNet": GhostFaceNet.GhostFaceNetClient,
-            "Buffalo_L": Buffalo_L
+            "Buffalo_L": Buffalo_L.Buffalo_L
         },
         "spoofing": {
             "Fasnet": FasNet.Fasnet,
