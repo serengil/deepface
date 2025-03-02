@@ -134,8 +134,10 @@ models = [
   "ArcFace", 
   "Dlib", 
   "SFace",
-  "GhostFaceNet"
+  "GhostFaceNet",
+  "Buffalo_L" (InsightFace-based, requires additional dependencies; see Installation)
 ]
+
 
 #face verification
 result = DeepFace.verify(
@@ -157,10 +159,12 @@ embedding_objs = DeepFace.represent(
   model_name = models[2],
 )
 ```
+**Note:** The `Buffalo_L` model uses InsightFace’s `webface_r50.onnx`. If automated download fails, manually download it from [here](https://drive.google.com/file/d/1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg/view?usp=sharing) and place it in `~/.deepface/weights/buffalo_l/`.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/model-portfolio-20240316.jpg" width="95%" height="95%"></p>
 
 FaceNet, VGG-Face, ArcFace and Dlib are overperforming ones based on experiments - see [`BENCHMARKS`](https://github.com/serengil/deepface/tree/master/benchmarks) for more details. You can find the measured scores of various models in DeepFace and the reported scores from their original studies in the following table.
+
 
 | Model          | Measured Score | Declared Score     |
 | -------------- | -------------- | ------------------ |
@@ -201,6 +205,9 @@ dfs = DeepFace.find(
   distance_metric = metrics[2],
 )
 ```
+
+**Note:** The `Buffalo_L` model works best with cosine similarity. you can play around with the thresholds as it pleases you.
+
 
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
