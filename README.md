@@ -399,6 +399,53 @@ If your task requires facial recognition on large datasets, you should combine D
 
 Conversely, if your task involves facial recognition on small to moderate-sized databases, you can adopt use relational databases such as [Postgres](https://youtu.be/f41sLxn1c0k) or [SQLite](https://youtu.be/_1ShBeWToPg), or NoSQL databases like [Mongo](https://youtu.be/dmprgum9Xu8), [Redis](https://youtu.be/X7DSpUMVTsw) or [Cassandra](https://youtu.be/J_yXpc3Y8Ec) to perform exact nearest neighbor search.
 
+**Encrypt Embeddings** - [`Demo with FHE`](https://youtu.be/njjw0PEhH00)
+
+Even though vector embeddings are not reversible to original images, they still contain sensitive information such as fingerprints, making their security critical. Traditional encryption methods like AES are very safe but limited in securely utilizing cloud computational power for distance calculations. Herein, [homomorphic Encryption](https://youtu.be/3ejI0zNPMEQ), allowing calculations on encrypted data, offers a robust alternative. In summary, we are able to compute similarity between encrypted embeddings with homomorphic encryption.
+
+```python
+from lightphe import LightPHE
+
+# build an additively homomorhic encryption cryptosystem
+onprem_cs = LightPHE(algorithm_name = "Paillier", precision = 19)
+
+# export public key
+onprem_cs.export_keys("public.txt", public=True)
+
+# build cryptosystem in cloud with only public key
+cloud_cs = LightPHE(
+	algorithm_name = "Paillier",
+	precision = 19,
+	key_file = "public.txt",
+)
+
+# find l2 normalized vector embeddings - VGG-Face already does
+source_embedding = DeepFace.represent("img1.jpg")[0]["embedding"]
+target_embedding = DeepFace.represent("target.jpg")[0]["embedding"]
+
+# encrypt source embedding on-prem
+encrypted_source_embedding = onprem_cs.encrypt(source_embedding)
+
+# find dot product of encrypted embedding and plain embedding in cloud
+encrypted_cosine_similarity = encrypted_source_embedding @ target_embedding
+
+# confirm that cloud cannot decrypt it
+with pytest.raises(ValueError, match="You must have private key"):
+	cloud_cs.decrypt(encrypted_source_embedding)
+
+# restore cosine similarity on prem
+cosine_similarity = onprem_cs.decrypt(encrypted_cosine_similarity)[0]
+
+# proof of work
+assert abs(
+	cosine_similarity - sum(x * y for x, y in zip(source_embedding, target_embedding))
+) < 1e-2
+```
+
+Check out [`LightPHE`](https://github.com/serengil/LightPHE) library to find out more about partially homomorphic encryption.
+
+Additionally, you can opt for fully homomorphic encryption (FHE) instead of partially homomorphic encryption (PHE). However, FHE has certain limitations, including larger ciphertexts and keys, higher computational demands, and unsuitability for memory-constrained environments. Nevertheless, if you are determined to use FHE over PHE, you may consider exploring the [`CipherFace`](https://github.com/serengil/cipherface) library. It integrates DeepFace and TenSEAL, offering a simple interface for encrypting vector embeddings using FHE.
+
 ## Contribution
 
 Pull requests are more than welcome! If you are planning to contribute a large patch, please create an issue first to get any upfront questions or design decisions out of the way first.
