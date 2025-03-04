@@ -413,11 +413,7 @@ onprem_cs = LightPHE(algorithm_name = "Paillier", precision = 19)
 onprem_cs.export_keys("public.txt", public=True)
 
 # build cryptosystem in cloud with only public key
-cloud_cs = LightPHE(
-	algorithm_name = "Paillier",
-	precision = 19,
-	key_file = "public.txt",
-)
+cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
 
 # find l2 normalized vector embeddings - VGG-Face already does
 source_embedding = DeepFace.represent("img1.jpg")[0]["embedding"]
