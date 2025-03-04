@@ -401,7 +401,7 @@ Conversely, if your task involves facial recognition on small to moderate-sized 
 
 **Encrypt Embeddings** - `Demo with PHE`, [`Demo with FHE`](https://youtu.be/njjw0PEhH00)
 
-Even though vector embeddings are not reversible to original images, they still contain sensitive information such as fingerprints, making their security critical. Traditional encryption methods like AES are very safe but limited in securely utilizing cloud computational power for distance calculations. Herein, [homomorphic Encryption](https://youtu.be/3ejI0zNPMEQ), allowing calculations on encrypted data, offers a robust alternative. In summary, we are able to compute similarity between encrypted embeddings with homomorphic encryption.
+Even though vector embeddings are not reversible to original images, they still contain sensitive information such as fingerprints, making their security critical. Encrypting embeddings is essential for higher security applications to prevent adversarial attacks that could manipulate or extract sensitive information. Traditional encryption methods like AES are very safe but limited in securely utilizing cloud computational power for distance calculations. Herein, [homomorphic Encryption](https://youtu.be/3ejI0zNPMEQ), allowing calculations on encrypted data, offers a robust alternative. In summary, we are able to compute similarity between encrypted embeddings with homomorphic encryption.
 
 ```python
 from lightphe import LightPHE
