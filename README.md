@@ -454,6 +454,8 @@ def proof_of_work(encrypted_cosine_similarity):
         print("different persons")
 ```
 
+In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals.
+
 Check out [`LightPHE`](https://github.com/serengil/LightPHE) library to find out more about partially homomorphic encryption.
 
 Additionally, you can opt for fully homomorphic encryption (FHE) instead of partially homomorphic encryption (PHE). However, FHE has certain limitations, including larger ciphertexts and keys, higher computational demands, and unsuitability for memory-constrained environments. Nevertheless, if you are determined to use FHE over PHE, you may consider exploring the [`CipherFace`](https://github.com/serengil/cipherface) library. It integrates DeepFace and TenSEAL, offering a simple interface for encrypting vector embeddings using FHE.
