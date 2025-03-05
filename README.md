@@ -351,13 +351,16 @@ DeepFace.stream(
 )
 ```
 
-**API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
+**API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI), [`Docker Demo`](https://youtu.be/9Tk9lRQareA)
 
 DeepFace serves an API as well - see [`api folder`](https://github.com/serengil/deepface/tree/master/deepface/api/src) for more details. You can clone deepface source code and run the api with the following command. It will use gunicorn server to get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
 
 ```shell
-cd scripts
+cd script
 ./service.sh
+
+# or run the service via docker
+# ./dockerize.sh
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
