@@ -419,7 +419,6 @@ def on_prem():
     
     # encrypt source embedding
     encrypted_source_embedding = onprem_cs.encrypt(source_embedding)
-
     return encrypted_source_embedding
 
 def cloud(encrypted_source_embedding):
@@ -429,7 +428,7 @@ def cloud(encrypted_source_embedding):
     # find l2 normalized vector embeddings - VGG-Face already does
     target_embedding = DeepFace.represent("target.jpg")[0]["embedding"]
     
-    # find dot product of encrypted embedding and plain embedding in cloud
+    # find dot product of encrypted embedding and plain embedding
     encrypted_cosine_similarity = encrypted_source_embedding @ target_embedding
 
     # confirm that cloud cannot decrypt it even though it is calculated by cloud
@@ -438,20 +437,14 @@ def cloud(encrypted_source_embedding):
     
     return encrypted_cosine_similarity
 
-def proof_of_work(encrypted_cosine_similarity):
-    # build the cryptosystem in cloud with private key
+def proof_of_work(encrypted_cosine_similarity, threshold = 0.68):
+    # build the cryptosystem on-prem with secret key
     cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "secret.txt")
     
     # restore cosine similarity
     cosine_similarity = onprem_cs.decrypt(encrypted_cosine_similarity)[0]
-    
-    # distance threshold for VGG-Face and cosine
-    threshold = 0.68
-    
-    if cosine_similarity >= 1 - threshold:
-        print("same person")
-    else:
-        print("different persons")
+
+    print("same person" if cosine_similarity >= 1 - threshold else "different persons")
 ```
 
 In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals.
