@@ -438,7 +438,7 @@ def cloud(encrypted_source_embedding):
 
 def verify(encrypted_cosine_similarity, threshold = 0.68):
     # restore the built cryptosystem on-prem with secret key
-    cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "secret.txt")
+    onprem_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "secret.txt")
     
     # restore cosine similarity
     cosine_similarity = onprem_cs.decrypt(encrypted_cosine_similarity)[0]
