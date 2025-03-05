@@ -439,6 +439,7 @@ If you do like this work, then you can support it financially on [Patreon](https
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/patreon.png" width="30%" height="30%">
 </a>
 
+<!--
 <a href="https://github.com/sponsors/serengil">
 <img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/github_sponsor_button.png" width="37%" height="37%">
 </a>
@@ -446,6 +447,7 @@ If you do like this work, then you can support it financially on [Patreon](https
 <a href="https://buymeacoffee.com/serengil">
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/bmc-button.png" width="25%" height="25%">
 </a>
+-->
 
 <!--
 Additionally, you can help us reach a wider audience by upvoting our posts on Hacker News and Product Hunt.
@@ -465,7 +467,7 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
 
 Please cite deepface in your publications if it helps your research.
 
-<details open>
+<details>
   <summary>S. Serengil and A. Ozpinar, <b>"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"</b>, <i>Journal of Information Technologies</i>, vol. 17, no. 2, pp. 95-107, 2024.</summary>
   
   ```BibTeX
