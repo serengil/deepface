@@ -401,40 +401,57 @@ Conversely, if your task involves facial recognition on small to moderate-sized 
 
 **Encrypt Embeddings** - `Demo with PHE`, [`Demo with FHE`](https://youtu.be/njjw0PEhH00), [`Tutorial for PHE`](https://sefiks.com/2025/03/04/vector-similarity-search-with-partially-homomorphic-encryption-in-python/), [`Tutorial for FHE`](https://sefiks.com/2021/12/01/homomorphic-facial-recognition-with-tenseal/)
 
-Even though vector embeddings are not reversible to original images, they still contain sensitive information such as fingerprints, making their security critical. Encrypting embeddings is essential for higher security applications to prevent adversarial attacks that could manipulate or extract sensitive information. Traditional encryption methods like AES are very safe but limited in securely utilizing cloud computational power for distance calculations. Herein, [homomorphic encryption](https://youtu.be/3ejI0zNPMEQ), allowing calculations on encrypted data, offers a robust alternative. In summary, we are able to compute similarity between encrypted embeddings with homomorphic encryption.
+Even though vector embeddings are not reversible to original images, they still contain sensitive information such as fingerprints, making their security critical. Encrypting embeddings is essential for higher security applications to prevent adversarial attacks that could manipulate or extract sensitive information. Traditional encryption methods like AES are very safe but limited in securely utilizing cloud computational power for distance calculations. Herein, [homomorphic encryption](https://youtu.be/3ejI0zNPMEQ), allowing calculations on encrypted data, offers a robust alternative. In summary, we are able to compute encrypted similarity between encrypted embeddings with homomorphic encryption.
 
 ```python
 from lightphe import LightPHE
 
-# build an additively homomorhic encryption cryptosystem
-onprem_cs = LightPHE(algorithm_name = "Paillier", precision = 19)
+def on_prem():
+    # build an additively homomorhic encryption cryptosystem
+    onprem_cs = LightPHE(algorithm_name = "Paillier", precision = 19)
+    
+    # export keys
+    onprem_cs.export_keys("secret.txt")
+    onprem_cs.export_keys("public.txt", public=True)
+    
+    # find l2 normalized vector embeddings - VGG-Face already does
+    source_embedding = DeepFace.represent("img1.jpg")[0]["embedding"]
+    
+    # encrypt source embedding
+    encrypted_source_embedding = onprem_cs.encrypt(source_embedding)
 
-# export public key
-onprem_cs.export_keys("public.txt", public=True)
+    return encrypted_source_embedding
 
-# build cryptosystem in cloud with only public key
-cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
+def cloud(encrypted_source_embedding):
+    # build the cryptosystem in cloud with only public key
+    cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
+    
+    # find l2 normalized vector embeddings - VGG-Face already does
+    target_embedding = DeepFace.represent("target.jpg")[0]["embedding"]
+    
+    # find dot product of encrypted embedding and plain embedding in cloud
+    encrypted_cosine_similarity = encrypted_source_embedding @ target_embedding
 
-# find l2 normalized vector embeddings - VGG-Face already does
-source_embedding = DeepFace.represent("img1.jpg")[0]["embedding"]
-target_embedding = DeepFace.represent("target.jpg")[0]["embedding"]
+    # confirm that cloud cannot decrypt it even though it is calculated by cloud
+    with pytest.raises(ValueError, match="must have private key"):
+        cloud_cs.decrypt(encrypted_cosine_similarity)
+    
+    return encrypted_cosine_similarity
 
-# encrypt source embedding on-prem
-encrypted_source_embedding = onprem_cs.encrypt(source_embedding)
-
-# find dot product of encrypted embedding and plain embedding in cloud
-encrypted_cosine_similarity = encrypted_source_embedding @ target_embedding
-
-# confirm that cloud cannot decrypt it even though it is calculated by cloud
-with pytest.raises(ValueError, match="You must have private key"):
-	cloud_cs.decrypt(encrypted_source_embedding)
-
-# restore cosine similarity on prem
-cosine_similarity = onprem_cs.decrypt(encrypted_cosine_similarity)[0]
-
-# proof of work
-expected_similarity = sum(x * y for x, y in zip(source_embedding, target_embedding))
-assert abs(cosine_similarity - expected_similarity) < 1e-2
+def proof_of_work(encrypted_cosine_similarity):
+    # build the cryptosystem in cloud with private key
+    cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "secret.txt")
+    
+    # restore cosine similarity
+    cosine_similarity = onprem_cs.decrypt(encrypted_cosine_similarity)[0]
+    
+    # distance threshold for VGG-Face and cosine
+    threshold = 0.68
+    
+    if cosine_similarity >= 1 - threshold:
+        print("same person")
+    else:
+        print("different persons")
 ```
 
 Check out [`LightPHE`](https://github.com/serengil/LightPHE) library to find out more about partially homomorphic encryption.
