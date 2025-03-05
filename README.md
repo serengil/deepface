@@ -414,7 +414,7 @@ def on_prem():
     onprem_cs.export_keys("secret.txt")
     onprem_cs.export_keys("public.txt", public=True)
     
-    # find l2 normalized vector embeddings - VGG-Face already does
+    # find l2 normalized and all positive vector embeddings - VGG-Face already does
     source_embedding = DeepFace.represent("img1.jpg")[0]["embedding"]
     
     # encrypt source embedding
@@ -422,10 +422,10 @@ def on_prem():
     return encrypted_source_embedding
 
 def cloud(encrypted_source_embedding):
-    # build the cryptosystem in cloud with only public key
+    # restore the built cryptosystem in cloud with only public key
     cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
     
-    # find l2 normalized vector embeddings - VGG-Face already does
+    # find l2 normalized and all positive vector embeddings - VGG-Face already does
     target_embedding = DeepFace.represent("target.jpg")[0]["embedding"]
     
     # find dot product of encrypted embedding and plain embedding
@@ -434,16 +434,14 @@ def cloud(encrypted_source_embedding):
     # confirm that cloud cannot decrypt it even though it is calculated by cloud
     with pytest.raises(ValueError, match="must have private key"):
         cloud_cs.decrypt(encrypted_cosine_similarity)
-    
     return encrypted_cosine_similarity
 
-def proof_of_work(encrypted_cosine_similarity, threshold = 0.68):
-    # build the cryptosystem on-prem with secret key
+def verify(encrypted_cosine_similarity, threshold = 0.68):
+    # restore the built cryptosystem on-prem with secret key
     cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "secret.txt")
     
     # restore cosine similarity
     cosine_similarity = onprem_cs.decrypt(encrypted_cosine_similarity)[0]
-
     print("same person" if cosine_similarity >= 1 - threshold else "different persons")
 ```
 
