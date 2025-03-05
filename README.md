@@ -302,7 +302,7 @@ The performance of RetinaFace is very satisfactory even in the crowd as seen in 
 
 You can find out more about RetinaFace on this [repo](https://github.com/serengil/retinaface).
 
-**Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
+**Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI), [`React Demo part-i`](https://youtu.be/IXoah6rhxac), [`React Demo part-ii`](https://youtu.be/_waBA-cH2D4)
 
 You can run deepface for real time videos as well. Stream function will access your webcam and apply both face recognition and facial attribute analysis. The function starts to analyze a frame if it can focus a face sequentially 5 frames. Then, it shows results 5 seconds.
 
@@ -324,11 +324,7 @@ user
 │   │   ├── Bob.jpg
 ```
 
-**React UI** - [`Demo part-i`](https://youtu.be/IXoah6rhxac), [`Demo part-ii`](https://youtu.be/_waBA-cH2D4)
-
-If you intend to perform face verification tasks directly from your browser, [deepface-react-ui](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-and-react.jpg" width="90%" height="90%"></p>
+If you intend to perform face verification or analysis tasks directly from your browser, [`deepface-react-ui`](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
 
 **Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
