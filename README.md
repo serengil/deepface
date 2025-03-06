@@ -4,6 +4,7 @@
 
 [![Downloads](https://static.pepy.tech/personalized-badge/deepface?period=total&units=international_system&left_color=grey&right_color=blue&left_text=downloads)](https://pepy.tech/project/deepface)
 [![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow&style=flat&label=%E2%AD%90%20stars)](https://github.com/serengil/deepface/stargazers)
+[![Docker Pulls](https://img.shields.io/docker/pulls/serengil/deepface?logo=docker)](https://hub.docker.com/r/serengil/deepface)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
 [![DOI](http://img.shields.io/:DOI-10.17671/gazibtd.1399077-blue.svg?style=flat)](https://doi.org/10.17671/gazibtd.1399077)
@@ -301,7 +302,7 @@ The performance of RetinaFace is very satisfactory even in the crowd as seen in 
 
 You can find out more about RetinaFace on this [repo](https://github.com/serengil/retinaface).
 
-**Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI)
+**Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI), [`React Demo part-i`](https://youtu.be/IXoah6rhxac), [`React Demo part-ii`](https://youtu.be/_waBA-cH2D4)
 
 You can run deepface for real time videos as well. Stream function will access your webcam and apply both face recognition and facial attribute analysis. The function starts to analyze a frame if it can focus a face sequentially 5 frames. Then, it shows results 5 seconds.
 
@@ -323,11 +324,7 @@ user
 │   │   ├── Bob.jpg
 ```
 
-**React UI** - [`Demo part-i`](https://youtu.be/IXoah6rhxac), [`Demo part-ii`](https://youtu.be/_waBA-cH2D4)
-
-If you intend to perform face verification tasks directly from your browser, [deepface-react-ui](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-and-react.jpg" width="90%" height="90%"></p>
+If you intend to perform face verification or analysis tasks directly from your browser, [`deepface-react-ui`](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
 
 **Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
@@ -350,46 +347,23 @@ DeepFace.stream(
 )
 ```
 
-**API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI)
+**API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI), [`Docker Demo`](https://youtu.be/9Tk9lRQareA)
 
 DeepFace serves an API as well - see [`api folder`](https://github.com/serengil/deepface/tree/master/deepface/api/src) for more details. You can clone deepface source code and run the api with the following command. It will use gunicorn server to get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
 
 ```shell
-cd scripts
+cd script
+
+# run the service directly
 ./service.sh
+
+# run the service via docker
+./dockerize.sh
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
 
 Face recognition, facial attribute analysis and vector representation functions are covered in the API. You are expected to call these functions as http post methods. Default service endpoints will be `http://localhost:5005/verify` for face recognition, `http://localhost:5005/analyze` for facial attribute analysis, and `http://localhost:5005/represent` for vector representation. The API accepts images as file uploads (via form data), or as exact image paths, URLs, or base64-encoded strings (via either JSON or form data), providing versatile options for different client requirements. [Here](https://github.com/serengil/deepface/tree/master/deepface/api/postman), you can find a postman project to find out how these methods should be called.
-
-**Dockerized Service** - [`Demo`](https://youtu.be/9Tk9lRQareA)
-
-[![Docker Pulls](https://img.shields.io/docker/pulls/serengil/deepface?logo=docker)](https://hub.docker.com/r/serengil/deepface)
-
-The following command set will serve deepface on `localhost:5005` via docker. Then, you will be able to consume deepface services such as verify, analyze and represent. Also, if you want to build the image by your own instead of pre-built image from docker hub, [Dockerfile](https://github.com/serengil/deepface/blob/master/Dockerfile) is available in the root folder of the project.
-
-```shell
-# docker build -t serengil/deepface . # build docker image from Dockerfile
-docker pull serengil/deepface # use pre-built docker image from docker hub
-docker run -p 5005:5000 serengil/deepface
-```
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-dockerized-v2.jpg" width="50%" height="50%"></p>
-
-**Command Line Interface** - [`Demo`](https://youtu.be/PKKTAr3ts2s)
-
-DeepFace comes with a command line interface as well. You are able to access its functions in command line as shown below. The command deepface expects the function name as 1st argument and function arguments thereafter.
-
-```shell
-#face verification
-$ deepface verify -img1_path tests/dataset/img1.jpg -img2_path tests/dataset/img2.jpg
-
-#facial analysis
-$ deepface analyze -img_path tests/dataset/img1.jpg
-```
-
-You can also run these commands if you are running deepface with docker. Please follow the instructions in the [shell script](https://github.com/serengil/deepface/blob/master/scripts/dockerize.sh#L17).
 
 **Large Scale Facial Recognition** - [`Playlist`](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm)
 
@@ -401,41 +375,51 @@ Conversely, if your task involves facial recognition on small to moderate-sized 
 
 **Encrypt Embeddings** - `Demo with PHE`, [`Demo with FHE`](https://youtu.be/njjw0PEhH00), [`Tutorial for PHE`](https://sefiks.com/2025/03/04/vector-similarity-search-with-partially-homomorphic-encryption-in-python/), [`Tutorial for FHE`](https://sefiks.com/2021/12/01/homomorphic-facial-recognition-with-tenseal/)
 
-Even though vector embeddings are not reversible to original images, they still contain sensitive information such as fingerprints, making their security critical. Encrypting embeddings is essential for higher security applications to prevent adversarial attacks that could manipulate or extract sensitive information. Traditional encryption methods like AES are very safe but limited in securely utilizing cloud computational power for distance calculations. Herein, [homomorphic encryption](https://youtu.be/3ejI0zNPMEQ), allowing calculations on encrypted data, offers a robust alternative. In summary, we are able to compute similarity between encrypted embeddings with homomorphic encryption.
+Even though vector embeddings are not reversible to original images, they still contain sensitive information such as fingerprints, making their security critical. Encrypting embeddings is essential for higher security applications to prevent adversarial attacks that could manipulate or extract sensitive information. Traditional encryption methods like AES are very safe but limited in securely utilizing cloud computational power for distance calculations. Herein, [homomorphic encryption](https://youtu.be/3ejI0zNPMEQ), allowing calculations on encrypted data, offers a robust alternative. In summary, we are able to compute encrypted similarity between encrypted embeddings with homomorphic encryption.
 
 ```python
 from lightphe import LightPHE
 
-# build an additively homomorhic encryption cryptosystem
-onprem_cs = LightPHE(algorithm_name = "Paillier", precision = 19)
+def on_prem():
+    # build an additively homomorhic encryption cryptosystem
+    onprem_cs = LightPHE(algorithm_name = "Paillier", precision = 19)
+    
+    # export keys
+    onprem_cs.export_keys("secret.txt")
+    onprem_cs.export_keys("public.txt", public=True)
+    
+    # find l2 normalized and all positive vector embeddings - VGG-Face already does
+    source_embedding = DeepFace.represent("img1.jpg")[0]["embedding"]
+    
+    # encrypt source embedding
+    encrypted_source_embedding = onprem_cs.encrypt(source_embedding)
+    return encrypted_source_embedding
 
-# export public key
-onprem_cs.export_keys("public.txt", public=True)
+def cloud(encrypted_source_embedding):
+    # restore the built cryptosystem in cloud with only public key
+    cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
+    
+    # find l2 normalized and all positive vector embeddings - VGG-Face already does
+    target_embedding = DeepFace.represent("target.jpg")[0]["embedding"]
+    
+    # find dot product of encrypted embedding and plain embedding
+    encrypted_cosine_similarity = encrypted_source_embedding @ target_embedding
 
-# build cryptosystem in cloud with only public key
-cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
+    # confirm that cloud cannot decrypt it even though it is calculated by cloud
+    with pytest.raises(ValueError, match="must have private key"):
+        cloud_cs.decrypt(encrypted_cosine_similarity)
+    return encrypted_cosine_similarity
 
-# find l2 normalized vector embeddings - VGG-Face already does
-source_embedding = DeepFace.represent("img1.jpg")[0]["embedding"]
-target_embedding = DeepFace.represent("target.jpg")[0]["embedding"]
-
-# encrypt source embedding on-prem
-encrypted_source_embedding = onprem_cs.encrypt(source_embedding)
-
-# find dot product of encrypted embedding and plain embedding in cloud
-encrypted_cosine_similarity = encrypted_source_embedding @ target_embedding
-
-# confirm that cloud cannot decrypt it even though it is calculated by cloud
-with pytest.raises(ValueError, match="You must have private key"):
-	cloud_cs.decrypt(encrypted_source_embedding)
-
-# restore cosine similarity on prem
-cosine_similarity = onprem_cs.decrypt(encrypted_cosine_similarity)[0]
-
-# proof of work
-expected_similarity = sum(x * y for x, y in zip(source_embedding, target_embedding))
-assert abs(cosine_similarity - expected_similarity) < 1e-2
+def verify(encrypted_cosine_similarity, threshold = 0.68):
+    # restore the built cryptosystem on-prem with secret key
+    onprem_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "secret.txt")
+    
+    # restore cosine similarity
+    cosine_similarity = onprem_cs.decrypt(encrypted_cosine_similarity)[0]
+    print("same person" if cosine_similarity >= 1 - threshold else "different persons")
 ```
+
+In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals.
 
 Check out [`LightPHE`](https://github.com/serengil/LightPHE) library to find out more about partially homomorphic encryption.
 
@@ -457,6 +441,7 @@ If you do like this work, then you can support it financially on [Patreon](https
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/patreon.png" width="30%" height="30%">
 </a>
 
+<!--
 <a href="https://github.com/sponsors/serengil">
 <img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/github_sponsor_button.png" width="37%" height="37%">
 </a>
@@ -464,6 +449,7 @@ If you do like this work, then you can support it financially on [Patreon](https
 <a href="https://buymeacoffee.com/serengil">
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/bmc-button.png" width="25%" height="25%">
 </a>
+-->
 
 <!--
 Additionally, you can help us reach a wider audience by upvoting our posts on Hacker News and Product Hunt.
