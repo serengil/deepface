@@ -353,10 +353,12 @@ DeepFace serves an API as well - see [`api folder`](https://github.com/serengil/
 
 ```shell
 cd script
+
+# run the service directly
 ./service.sh
 
-# or run the service via docker
-# ./dockerize.sh
+# run the service via docker
+./dockerize.sh
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%" height="90%"></p>
