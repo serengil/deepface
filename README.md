@@ -383,7 +383,6 @@ from lightphe import LightPHE
 # define a plain vectors for source and target
 alpha = DeepFace.represent("img1.jpg")[0]["embedding"]  # user tower
 beta = DeepFace.represent("target.jpg")[0]["embedding"]  # item tower
-expected_similarity = sum(x * y for x, y in zip(alpha, beta))
 
 # build an additively homomorphic cryptosystem (e.g. Paillier) on-prem
 cs = LightPHE(algorithm_name = "Paillier", precision = 19)
@@ -416,9 +415,6 @@ calculated_similarity = cs.decrypt(encrypted_cosine_similarity)[0]
 # verification
 threshold = 0.68 # cosine distance threshold for VGG-Face and cosine
 print("same person" if calculated_similarity >= 1 - threshold else "different persons")
-
-# proof of work
-assert abs(calculated_similarity - expected_similarity) < 1e-2
 ```
 
 In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals.
