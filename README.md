@@ -380,43 +380,45 @@ Even though vector embeddings are not reversible to original images, they still 
 ```python
 from lightphe import LightPHE
 
-def on_prem():
-    # build an additively homomorhic encryption cryptosystem
-    onprem_cs = LightPHE(algorithm_name = "Paillier", precision = 19)
-    
-    # export keys
-    onprem_cs.export_keys("secret.txt")
-    onprem_cs.export_keys("public.txt", public=True)
-    
-    # find l2 normalized and all positive vector embeddings - VGG-Face already does
-    source_embedding = DeepFace.represent("img1.jpg")[0]["embedding"]
-    
-    # encrypt source embedding
-    encrypted_source_embedding = onprem_cs.encrypt(source_embedding)
-    return encrypted_source_embedding
+# define a plain vectors for source and target
+alpha = DeepFace.represent("img1.jpg")[0]["embedding"]  # user tower
+beta = DeepFace.represent("target.jpg")[0]["embedding"]  # item tower
+expected_similarity = sum(x * y for x, y in zip(alpha, beta))
 
-def cloud(encrypted_source_embedding):
-    # restore the built cryptosystem in cloud with only public key
-    cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
-    
-    # find l2 normalized and all positive vector embeddings - VGG-Face already does
-    target_embedding = DeepFace.represent("target.jpg")[0]["embedding"]
-    
-    # find dot product of encrypted embedding and plain embedding
-    encrypted_cosine_similarity = encrypted_source_embedding @ target_embedding
+# build an additively homomorphic cryptosystem (e.g. Paillier) on-prem
+cs = LightPHE(algorithm_name = "Paillier", precision = 19)
 
-    # confirm that cloud cannot decrypt it even though it is calculated by cloud
-    with pytest.raises(ValueError, match="must have private key"):
-        cloud_cs.decrypt(encrypted_cosine_similarity)
-    return encrypted_cosine_similarity
+# export keys
+cs.export_keys("secret.txt"); cs.export_keys("public.txt", public=True)
 
-def verify(encrypted_cosine_similarity, threshold = 0.68):
-    # restore the built cryptosystem on-prem with secret key
-    onprem_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "secret.txt")
-    
-    # restore cosine similarity
-    cosine_similarity = onprem_cs.decrypt(encrypted_cosine_similarity)[0]
-    print("same person" if cosine_similarity >= 1 - threshold else "different persons")
+# encrypt source embedding
+encrypted_alpha = cs.encrypt(alpha)
+
+# remove cryptosystem and plain alpha not to be leaked in cloud
+del cs, alpha
+
+# restore the cryptosystem in cloud with only public key
+cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
+
+# dot product of encrypted and plain embedding pair
+encrypted_cosine_similarity = encrypted_alpha @ beta
+
+# computed by the cloud but cloud cannot decrypt it
+with pytest.raises(ValueError, match="must have private key"):
+    cloud_cs.decrypt(encrypted_cosine_similarity)
+
+# restore the cryptosystem on-prem with secret key
+cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "secret.txt")
+
+# decrypt similarity
+calculated_similarity = cs.decrypt(encrypted_cosine_similarity)[0]
+
+# verification
+threshold = 0.68 # cosine distance threshold for VGG-Face and cosine
+print("same person" if calculated_similarity >= 1 - threshold else "different persons")
+
+# proof of work
+assert abs(calculated_similarity - expected_similarity) < 1e-2
 ```
 
 In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals.
