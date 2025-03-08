@@ -78,8 +78,7 @@ class YoloDetectorClient(Detector):
             A list of lists of FacialAreaRegion objects 
             for each image or a list of FacialAreaRegion objects
         """
-        is_batched_input = isinstance(img, list)
-        if not is_batched_input:
+        if not isinstance(img, list):
             img = [img]
 
         all_results = []
@@ -143,7 +142,7 @@ class YoloDetectorClient(Detector):
 
             all_results.append(resp)
 
-        if not is_batched_input:
+        if len(all_results) == 1:
             return all_results[0]
         return all_results
 

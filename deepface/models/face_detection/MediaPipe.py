@@ -1,6 +1,6 @@
 # built-in dependencies
 import os
-from typing import Any, List
+from typing import Any, List, Union
 
 # 3rd party dependencies
 import numpy as np
@@ -42,6 +42,29 @@ class MediaPipeClient(Detector):
             model_selection=model_selection
         )
         return face_detection
+
+    def detect_faces(
+        self,
+        img: Union[np.ndarray, List[np.ndarray]],
+    ) -> Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]:
+        """
+        Detect and align face with mediapipe
+
+        Args:
+            img (Union[np.ndarray, List[np.ndarray]]): 
+            pre-loaded image as numpy array or a list of those
+
+        Returns:
+            results (Union[List[FacialAreaRegion], List[List[FacialAreaRegion]]]): 
+            A list or a list of lists of FacialAreaRegion objects
+        """
+        is_batched_input = isinstance(img, list)
+        if not is_batched_input:
+            img = [img]
+        results = [self._process_single_image(single_img) for single_img in img]
+        if not is_batched_input:
+            return results[0]
+        return results
 
     def _process_single_image(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
