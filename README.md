@@ -374,7 +374,7 @@ If your task requires facial recognition on large datasets, you should combine D
 
 Conversely, if your task involves facial recognition on small to moderate-sized databases, you can adopt use relational databases such as [Postgres](https://youtu.be/f41sLxn1c0k) or [SQLite](https://youtu.be/_1ShBeWToPg), or NoSQL databases like [Mongo](https://youtu.be/dmprgum9Xu8), [Redis](https://youtu.be/X7DSpUMVTsw) or [Cassandra](https://youtu.be/J_yXpc3Y8Ec) to perform exact nearest neighbor search.
 
-**Encrypt Embeddings** - `Demo with PHE`, [`Demo with FHE`](https://youtu.be/njjw0PEhH00), [`Tutorial for PHE`](https://sefiks.com/2025/03/04/vector-similarity-search-with-partially-homomorphic-encryption-in-python/), [`Tutorial for FHE`](https://sefiks.com/2021/12/01/homomorphic-facial-recognition-with-tenseal/)
+**Encrypt Embeddings** - [`Demo with PHE`](https://youtu.be/8VCu39jFZ7k), [`Demo with FHE`](https://youtu.be/njjw0PEhH00), [`Tutorial for PHE`](https://sefiks.com/2025/03/04/vector-similarity-search-with-partially-homomorphic-encryption-in-python/), [`Tutorial for FHE`](https://sefiks.com/2021/12/01/homomorphic-facial-recognition-with-tenseal/)
 
 Even though vector embeddings are not reversible to original images, they still contain sensitive information such as fingerprints, making their security critical. Encrypting embeddings is essential for higher security applications to prevent adversarial attacks that could manipulate or extract sensitive information. Traditional encryption methods like AES are very safe but limited in securely utilizing cloud computational power for distance calculations. Herein, [homomorphic encryption](https://youtu.be/3ejI0zNPMEQ), allowing calculations on encrypted data, offers a robust alternative. In summary, we are able to compute encrypted similarity between encrypted embeddings with homomorphic encryption.
 
@@ -403,7 +403,7 @@ cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "pub
 # dot product of encrypted and plain embedding pair
 encrypted_cosine_similarity = encrypted_alpha @ beta
 
-# computed by the cloud but cloud cannot decrypt it
+# computed by the cloud but cloud cannot decrypt it - magic of homomorphic encryption!
 with pytest.raises(ValueError, match="must have private key"):
     cloud_cs.decrypt(encrypted_cosine_similarity)
 
