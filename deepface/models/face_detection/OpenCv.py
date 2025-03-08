@@ -33,17 +33,11 @@ class OpenCvClient(Detector):
         return detector
 
     def _supports_batch_detection(self) -> bool:
-        supports_batch_detection = os.getenv(
-            "ENABLE_OPENCV_BATCH_DETECTION", "false"
-        ).lower() == "true"
-        if not supports_batch_detection:
-            logger.warning(
-                "Batch detection is disabled for opencv by default "
-                "since the results are not consistent with single image detection. "
-                "You can force enable it by setting the environment variable "
-                "ENABLE_OPENCV_BATCH_DETECTION to true."
-            )
-        return supports_batch_detection
+        logger.warning(
+            "Batch detection is disabled for opencv by default "
+            "since the results are not consistent with single image detection. "
+        )
+        return False
 
     def detect_faces(
         self,

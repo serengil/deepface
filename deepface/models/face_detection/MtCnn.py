@@ -82,32 +82,8 @@ class MtCnnClient(Detector):
         return resp
 
     def _supports_batch_detection(self) -> bool:
-        import mtcnn
-        import os
-        supports_batch_detection = os.getenv(
-            "ENABLE_MTCNN_BATCH_DETECTION", "false"
-        ).lower() == "true"
-        if not supports_batch_detection:
-            logger.warning(
-                "Batch detection is disabled for mtcnn by default "
-                "since the results are not consistent with single image detection. "
-                "You can force enable it by setting the environment variable "
-                "ENABLE_MTCNN_BATCH_DETECTION to true."
-            )
-            return False
-        try:
-            mtcnn_version = mtcnn.__version__
-            supports_batch_detection = mtcnn_version >= "1.0.0"
-        except AttributeError:
-            try:
-                import mtcnn.metadata
-                mtcnn_version = mtcnn.metadata.__version__
-            except AttributeError:
-                logger.warning("Failed to determine mtcnn version")
-                logger.warning("Fallback to single image detection")
-                return False
-        supports_batch_detection = mtcnn_version >= "1.0.0"
-        if not supports_batch_detection:
-            logger.warning("MtCnn version is less than 1.0.0, batch detection is not supported")
-            logger.warning("Fallback to single image detection")
-        return supports_batch_detection
+        logger.warning(
+            "Batch detection is disabled for mtcnn by default "
+            "since the results are not consistent with single image detection. "
+        )
+        return False
