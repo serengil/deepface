@@ -381,12 +381,11 @@ Even though vector embeddings are not reversible to original images, they still 
 ```python
 from lightphe import LightPHE
 
-# define a plain vectors for source and target
-alpha = DeepFace.represent("img1.jpg")[0]["embedding"]  # user tower
-beta = DeepFace.represent("target.jpg")[0]["embedding"]  # item tower
-
 # build an additively homomorphic cryptosystem (e.g. Paillier) on-prem
 cs = LightPHE(algorithm_name = "Paillier", precision = 19)
+
+# define a plain vector for source
+alpha = DeepFace.represent("img1.jpg")[0]["embedding"]  # user tower
 
 # export keys
 cs.export_keys("secret.txt"); cs.export_keys("public.txt", public=True)
@@ -399,6 +398,9 @@ del cs, alpha
 
 # restore the cryptosystem in cloud with only public key
 cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
+
+# define a plain vector for target
+beta = DeepFace.represent("target.jpg")[0]["embedding"]  # item tower
 
 # dot product of encrypted and plain embedding pair
 encrypted_cosine_similarity = encrypted_alpha @ beta
