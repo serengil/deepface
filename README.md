@@ -384,11 +384,11 @@ from lightphe import LightPHE
 # build an additively homomorphic cryptosystem (e.g. Paillier) on-prem
 cs = LightPHE(algorithm_name = "Paillier", precision = 19)
 
-# define a plain vector for source
-alpha = DeepFace.represent("img1.jpg")[0]["embedding"]  # user tower
-
 # export keys
 cs.export_keys("secret.txt"); cs.export_keys("public.txt", public=True)
+
+# define a plain vector for source
+alpha = DeepFace.represent("img1.jpg")[0]["embedding"]  # user tower
 
 # encrypt source embedding
 encrypted_alpha = cs.encrypt(alpha)
