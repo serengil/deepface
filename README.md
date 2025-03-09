@@ -393,9 +393,6 @@ alpha = DeepFace.represent("img1.jpg")[0]["embedding"]  # user tower
 # encrypt source embedding
 encrypted_alpha = cs.encrypt(alpha)
 
-# remove cryptosystem and plain alpha not to be leaked in cloud
-del cs, alpha
-
 # restore the cryptosystem in cloud with only public key
 cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
 
@@ -409,14 +406,10 @@ encrypted_cosine_similarity = encrypted_alpha @ beta
 with pytest.raises(ValueError, match="must have private key"):
     cloud_cs.decrypt(encrypted_cosine_similarity)
 
-# restore the cryptosystem on-prem with secret key
-cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "secret.txt")
-
 # decrypt similarity
 calculated_similarity = cs.decrypt(encrypted_cosine_similarity)[0]
 
 # verification
-threshold = 0.68 # cosine distance threshold for VGG-Face and cosine
 print("same person" if calculated_similarity >= 1 - threshold else "different persons")
 ```
 
