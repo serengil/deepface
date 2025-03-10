@@ -385,10 +385,10 @@ from lightphe import LightPHE
 cs = LightPHE(algorithm_name = "Paillier", precision = 19)
 
 # export keys
-cs.export_keys("secret.txt"); cs.export_keys("public.txt", public=True)
+cs.export_keys("public.txt", public=True)
 
-# define a plain vector for source
-alpha = DeepFace.represent("img1.jpg")[0]["embedding"]  # user tower
+# define a plain vector for source (user tower)
+alpha = DeepFace.represent("img1.jpg")[0]["embedding"]
 
 # encrypt source embedding
 encrypted_alpha = cs.encrypt(alpha)
@@ -396,10 +396,10 @@ encrypted_alpha = cs.encrypt(alpha)
 # restore the cryptosystem in cloud with only public key
 cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
 
-# define a plain vector for target
-beta = DeepFace.represent("target.jpg")[0]["embedding"]  # item tower
+# define a plain vector for target (item tower)
+beta = DeepFace.represent("target.jpg")[0]["embedding"]
 
-# dot product of encrypted and plain embedding pair
+# dot product of encrypted and plain embedding pair in cloud
 encrypted_cosine_similarity = encrypted_alpha @ beta
 
 # computed by the cloud but cloud cannot decrypt it - magic of homomorphic encryption!
