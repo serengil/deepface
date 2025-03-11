@@ -509,6 +509,20 @@ Please cite deepface in your publications if it helps your research.
 </details>
 
 <details>
+  <summary>S. Serengil and A. Ozpinar, <b>"Encrypted Vector Similarity Computations Using Partially Homomorphic Encryption: Applications and Performance Analysis"</b>, arXiv preprint arXiv: 2503.05850, 2025.</summary>
+  
+  ```BibTeX
+  @article{serengil2025cipherfacelite,
+    title={Encrypted Vector Similarity Computations Using Partially Homomorphic Encryption: Applications and Performance Analysis},
+    author={Serengil, Sefik and Ozpinar, Alper},
+    journal={arXiv preprint arXiv:2503.05850},
+    note={doi: 10.48550/arXiv.2503.05850. [Online]. Available: \url{https://arxiv.org/abs/2503.05850}},
+    year={2025}
+  }
+  ```
+</details>
+
+<details>
   <summary>S. Serengil and A. Ozpinar, <b>"CipherFace: A Fully Homomorphic Encryption-Driven Framework for Secure Cloud-Based Facial Recognition"</b>, arXiv preprint arXiv: 2502.18154, 2025.</summary>
   
   ```BibTeX
