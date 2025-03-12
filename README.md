@@ -107,19 +107,10 @@ DeepFace is a **hybrid** face recognition package. It currently wraps many **sta
 
 ```python
 models = [
-  "VGG-Face", 
-  "Facenet", 
-  "Facenet512", 
-  "OpenFace", 
-  "DeepFace", 
-  "DeepID", 
-  "ArcFace", 
-  "Dlib", 
-  "SFace",
-  "GhostFaceNet",
-  "Buffalo_L" 
+    "VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace",
+    "DeepID", "ArcFace", "Dlib", "SFace", "GhostFaceNet",
+    "Buffalo_L",
 ]
-
 
 #face verification
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", model_name = models[0])
@@ -193,19 +184,9 @@ All deepface functions accept optional detector backend and align input argument
 
 ```python
 backends = [
-  'opencv', 
-  'ssd', 
-  'dlib', 
-  'mtcnn', 
-  'fastmtcnn',
-  'retinaface', 
-  'mediapipe',
-  'yolov8',
-  'yolov11s',
-  'yolov11n',
-  'yolov11m',
-  'yunet',
-  'centerface',
+    'opencv', 'ssd', 'dlib', 'mtcnn', 'fastmtcnn',
+    'retinaface', 'mediapipe', 'yolov8', 'yolov11s',
+    'yolov11n', 'yolov11m', 'yunet', 'centerface',
 ]
 
 detector = backends[3]
