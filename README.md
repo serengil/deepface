@@ -367,7 +367,7 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
 
 Please cite deepface in your publications if it helps your research.
 
-<details open>
+<details>
   <summary>S. Serengil and A. Ozpinar, <b>"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"</b>, <i>Journal of Information Technologies</i>, vol. 17, no. 2, pp. 95-107, 2024.</summary>
   
   ```BibTeX
@@ -421,7 +421,7 @@ Please cite deepface in your publications if it helps your research.
 </details>
 
 <details>
-  <summary>S. Serengil and A. Ozpinar, <b>"Encrypted Vector Similarity Computations Using Partially Homomorphic Encryption: Applications and Performance Analysis"</b>, arXiv preprint arXiv: 2503.05850, 2025.</summary>
+  <summary>S. Serengil and A. Ozpinar, <b>"Encrypted Vector Similarity Computations Using Partially Homomorphic Encryption: Applications and Performance Analysis"</b>, <i>arXiv preprint arXiv: 2503.05850</i>, 2025.</summary>
   
   ```BibTeX
   @article{serengil2025cipherfacelite,
@@ -435,7 +435,7 @@ Please cite deepface in your publications if it helps your research.
 </details>
 
 <details>
-  <summary>S. Serengil and A. Ozpinar, <b>"CipherFace: A Fully Homomorphic Encryption-Driven Framework for Secure Cloud-Based Facial Recognition"</b>, arXiv preprint arXiv: 2502.18154, 2025.</summary>
+  <summary>S. Serengil and A. Ozpinar, <b>"CipherFace: A Fully Homomorphic Encryption-Driven Framework for Secure Cloud-Based Facial Recognition"</b>, <i>arXiv preprint arXiv: 2502.18154</i>, 2025.</summary>
   
   ```BibTeX
   @article{serengil2025cipherface,
