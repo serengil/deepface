@@ -149,12 +149,10 @@ Similarity could be calculated by different metrics such as [Cosine Similarity](
 ```python
 metrics = ["cosine", "euclidean", "euclidean_l2"]
 
-#face verification
 result = DeepFace.verify(
   img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1]
 )
 
-#face recognition
 dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db", distance_metric = metrics[2])
 ```
 
@@ -185,7 +183,6 @@ backends = [
     'retinaface', 'mediapipe', 'yolov8', 'yolov11s',
     'yolov11n', 'yolov11m', 'yunet', 'centerface',
 ]
-
 detector = backends[3]
 align = True
 
