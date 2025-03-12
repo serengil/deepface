@@ -162,7 +162,9 @@ Similarity could be calculated by different metrics such as [Cosine Similarity](
 metrics = ["cosine", "euclidean", "euclidean_l2"]
 
 #face verification
-result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1])
+result = DeepFace.verify(
+  img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1]
+)
 
 #face recognition
 dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db", distance_metric = metrics[2])
@@ -210,19 +212,29 @@ detector = backends[3]
 align = True
 
 #face verification
-obj = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", detector_backend = detector, align = align)
+obj = DeepFace.verify(
+  img1_path = "img1.jpg", img2_path = "img2.jpg", detector_backend = detector, align = align
+)
 
 #face recognition
-dfs = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = detector, align = align)
+dfs = DeepFace.find(
+  img_path = "img.jpg", db_path = "my_db", detector_backend = detector, align = align
+)
 
 #embeddings
-embedding_objs = DeepFace.represent(img_path = "img.jpg", detector_backend = detector, align = align)
+embedding_objs = DeepFace.represent(
+  img_path = "img.jpg", detector_backend = detector, align = align
+)
 
 #facial analysis
-demographies = DeepFace.analyze(img_path = "img4.jpg", detector_backend = detector, align = align)
+demographies = DeepFace.analyze(
+  img_path = "img4.jpg", detector_backend = detector, align = align
+)
 
 #face detection and alignment
-face_objs = DeepFace.extract_faces(img_path = "img.jpg", detector_backend = detector, align = align)
+face_objs = DeepFace.extract_faces(
+  img_path = "img.jpg", detector_backend = detector, align = align
+)
 ```
 
 Face recognition models are actually CNN models and they expect standard sized inputs. So, resizing is required before representation. To avoid deformation, deepface adds black padding pixels according to the target size argument after detection and alignment.
