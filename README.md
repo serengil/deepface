@@ -165,7 +165,7 @@ metrics = ["cosine", "euclidean", "euclidean_l2"]
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1])
 
 #face recognition
-dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", distance_metric = metrics[2])
+dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db", distance_metric = metrics[2])
 ```
 
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
@@ -244,7 +244,7 @@ You can find out more about RetinaFace on this [repo](https://github.com/serengi
 You can run deepface for real time videos as well. Stream function will access your webcam and apply both face recognition and facial attribute analysis. The function starts to analyze a frame if it can focus a face sequentially 5 frames. Then, it shows results 5 seconds.
 
 ```python
-DeepFace.stream(db_path = "C:/User/Sefik/Desktop/database")
+DeepFace.stream(db_path = "C:/database")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-3.jpg" width="90%" height="90%"></p>
@@ -275,7 +275,7 @@ face_objs = DeepFace.extract_faces(img_path="dataset/img1.jpg", anti_spoofing = 
 assert all(face_obj["is_real"] is True for face_obj in face_objs)
 
 # anti spoofing test in real time analysis
-DeepFace.stream(db_path = "C:/User/Sefik/Desktop/database", anti_spoofing = True)
+DeepFace.stream(db_path = "C:/database", anti_spoofing = True)
 ```
 
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI), [`Docker Demo`](https://youtu.be/9Tk9lRQareA)
