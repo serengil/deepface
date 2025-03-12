@@ -112,13 +112,10 @@ models = [
     "Buffalo_L",
 ]
 
-#face verification
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", model_name = models[0])
 
-#face recognition
 dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db", model_name = models[1])
 
-#embeddings
 embeddings = DeepFace.represent(img_path = "img.jpg", model_name = models[2])
 ```
 
@@ -192,27 +189,22 @@ backends = [
 detector = backends[3]
 align = True
 
-#face verification
 obj = DeepFace.verify(
   img1_path = "img1.jpg", img2_path = "img2.jpg", detector_backend = detector, align = align
 )
 
-#face recognition
 dfs = DeepFace.find(
   img_path = "img.jpg", db_path = "my_db", detector_backend = detector, align = align
 )
 
-#embeddings
 embedding_objs = DeepFace.represent(
   img_path = "img.jpg", detector_backend = detector, align = align
 )
 
-#facial analysis
 demographies = DeepFace.analyze(
   img_path = "img4.jpg", detector_backend = detector, align = align
 )
 
-#face detection and alignment
 face_objs = DeepFace.extract_faces(
   img_path = "img.jpg", detector_backend = detector, align = align
 )
