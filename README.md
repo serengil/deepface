@@ -73,10 +73,7 @@ A modern [**face recognition pipeline**](https://sefiks.com/2020/05/01/a-gentle-
 This function verifies face pairs as same person or different persons. It expects exact image paths as inputs. Passing numpy or base64 encoded images is also welcome. Then, it is going to return a dictionary and you should check just its verified key.
 
 ```python
-result = DeepFace.verify(
-  img1_path = "img1.jpg",
-  img2_path = "img2.jpg",
-)
+result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-1.jpg" width="95%" height="95%"></p>
@@ -87,10 +84,7 @@ result = DeepFace.verify(
 
 
 ```python
-dfs = DeepFace.find(
-  img_path = "img1.jpg",
-  db_path = "C:/workspace/my_db",
-)
+dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%" height="95%"></p>
@@ -100,24 +94,10 @@ dfs = DeepFace.find(
 Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function. Represent function returns a list of embeddings. Result is going to be the size of faces appearing in the image path.
 
 ```python
-embedding_objs = DeepFace.represent(
-  img_path = "img.jpg"
-)
+embedding_objs = DeepFace.represent(img_path = "img.jpg")
 ```
 
-This function returns an array as embedding. The size of the embedding array would be different based on the model name. For instance, VGG-Face is the default model and it represents facial images as 4096 dimensional vectors.
-
-```python
-for embedding_obj in embedding_objs:
-  embedding = embedding_obj["embedding"]
-  assert isinstance(embedding, list)
-  assert (
-    model_name == "VGG-Face"
-    and len(embedding) == 4096
-  )
-```
-
-Here, embedding is also [plotted](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) with 4096 slots horizontally. Each slot is corresponding to a dimension value in the embedding vector and dimension value is explained in the colorbar on the right. Similar to 2D barcodes, vertical dimension stores no information in the illustration.
+Embeddings can be [plotted](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) as below. Each slot is corresponding to a dimension value and dimension value is emphasized with colors. Similar to 2D barcodes, vertical dimension stores no information in the illustration.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/embedding.jpg" width="95%" height="95%"></p>
 
@@ -142,26 +122,14 @@ models = [
 
 
 #face verification
-result = DeepFace.verify(
-  img1_path = "img1.jpg",
-  img2_path = "img2.jpg",
-  model_name = models[0],
-)
+result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", model_name = models[0])
 
 #face recognition
-dfs = DeepFace.find(
-  img_path = "img1.jpg",
-  db_path = "C:/workspace/my_db", 
-  model_name = models[1],
-)
+dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", model_name = models[1])
 
 #embeddings
-embedding_objs = DeepFace.represent(
-  img_path = "img.jpg",
-  model_name = models[2],
-)
+embeddings = DeepFace.represent(img_path = "img.jpg", model_name = models[2])
 ```
-
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/model-portfolio-20240316.jpg" width="95%" height="95%"></p>
 
@@ -194,18 +162,10 @@ Similarity could be calculated by different metrics such as [Cosine Similarity](
 metrics = ["cosine", "euclidean", "euclidean_l2"]
 
 #face verification
-result = DeepFace.verify(
-  img1_path = "img1.jpg", 
-  img2_path = "img2.jpg", 
-  distance_metric = metrics[1],
-)
+result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1])
 
 #face recognition
-dfs = DeepFace.find(
-  img_path = "img1.jpg", 
-  db_path = "C:/workspace/my_db", 
-  distance_metric = metrics[2],
-)
+dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", distance_metric = metrics[2])
 ```
 
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
@@ -213,10 +173,7 @@ dfs = DeepFace.find(
 DeepFace also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Result is going to be the size of faces appearing in the source image.
 
 ```python
-objs = DeepFace.analyze(
-  img_path = "img4.jpg", 
-  actions = ['age', 'gender', 'race', 'emotion'],
-)
+objs = DeepFace.analyze(img_path = "img4.jpg", actions = ['age', 'gender', 'race', 'emotion'])
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
@@ -249,44 +206,23 @@ backends = [
   'centerface',
 ]
 
-alignment_modes = [True, False]
+detector = backends[3]
+align = True
 
 #face verification
-obj = DeepFace.verify(
-  img1_path = "img1.jpg", 
-  img2_path = "img2.jpg", 
-  detector_backend = backends[0],
-  align = alignment_modes[0],
-)
+obj = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", detector_backend = detector, align = align)
 
 #face recognition
-dfs = DeepFace.find(
-  img_path = "img.jpg", 
-  db_path = "my_db", 
-  detector_backend = backends[1],
-  align = alignment_modes[0],
-)
+dfs = DeepFace.find(img_path = "img.jpg", db_path = "my_db", detector_backend = detector, align = align)
 
 #embeddings
-embedding_objs = DeepFace.represent(
-  img_path = "img.jpg", 
-  detector_backend = backends[2],
-  align = alignment_modes[0],
-)
+embedding_objs = DeepFace.represent(img_path = "img.jpg", detector_backend = detector, align = align)
 
 #facial analysis
-demographies = DeepFace.analyze(
-  img_path = "img4.jpg", 
-  detector_backend = backends[3],
-  align = alignment_modes[0],
-)
+demographies = DeepFace.analyze(img_path = "img4.jpg", detector_backend = detector, align = align)
 
 #face detection and alignment
-face_objs = DeepFace.extract_faces(
-  img_path = "img.jpg", 
-  detector_backend = backends[4],
-  align = alignment_modes[0],
-)
+face_objs = DeepFace.extract_faces(img_path = "img.jpg", detector_backend = detector, align = align)
 ```
 
 Face recognition models are actually CNN models and they expect standard sized inputs. So, resizing is required before representation. To avoid deformation, deepface adds black padding pixels according to the target size argument after detection and alignment.
@@ -335,17 +271,11 @@ DeepFace also includes an anti-spoofing analysis module to understand given imag
 
 ```python
 # anti spoofing test in face detection
-face_objs = DeepFace.extract_faces(
-  img_path="dataset/img1.jpg",
-  anti_spoofing = True
-)
+face_objs = DeepFace.extract_faces(img_path="dataset/img1.jpg", anti_spoofing = True)
 assert all(face_obj["is_real"] is True for face_obj in face_objs)
 
 # anti spoofing test in real time analysis
-DeepFace.stream(
-  db_path = "C:/User/Sefik/Desktop/database",
-  anti_spoofing = True
-)
+DeepFace.stream(db_path = "C:/User/Sefik/Desktop/database", anti_spoofing = True)
 ```
 
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI), [`Docker Demo`](https://youtu.be/9Tk9lRQareA)
