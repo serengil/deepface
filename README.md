@@ -84,7 +84,7 @@ result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 
 
 ```python
-dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db")
+dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%" height="95%"></p>
@@ -125,7 +125,7 @@ models = [
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", model_name = models[0])
 
 #face recognition
-dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/workspace/my_db", model_name = models[1])
+dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db", model_name = models[1])
 
 #embeddings
 embeddings = DeepFace.represent(img_path = "img.jpg", model_name = models[2])
