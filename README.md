@@ -112,11 +112,17 @@ models = [
     "Buffalo_L",
 ]
 
-result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg", model_name = models[0])
+result = DeepFace.verify(
+  img1_path = "img1.jpg", img2_path = "img2.jpg", model_name = models[0]
+)
 
-dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db", model_name = models[1])
+dfs = DeepFace.find(
+  img_path = "img1.jpg", db_path = "C:/my_db", model_name = models[1]
+)
 
-embeddings = DeepFace.represent(img_path = "img.jpg", model_name = models[2])
+embeddings = DeepFace.represent(
+  img_path = "img.jpg", model_name = models[2]
+)
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/model-portfolio-20240316.jpg" width="95%" height="95%"></p>
@@ -153,7 +159,9 @@ result = DeepFace.verify(
   img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1]
 )
 
-dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db", distance_metric = metrics[2])
+dfs = DeepFace.find(
+  img_path = "img1.jpg", db_path = "C:/my_db", distance_metric = metrics[2]
+)
 ```
 
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
@@ -161,7 +169,9 @@ dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db", distance_metric
 DeepFace also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Result is going to be the size of faces appearing in the source image.
 
 ```python
-objs = DeepFace.analyze(img_path = "img4.jpg", actions = ['age', 'gender', 'race', 'emotion'])
+objs = DeepFace.analyze(
+  img_path = "img4.jpg", actions = ['age', 'gender', 'race', 'emotion']
+)
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
