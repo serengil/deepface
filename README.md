@@ -303,14 +303,14 @@ Even though vector embeddings are not reversible to original images, they still 
 ```python
 from lightphe import LightPHE
 
+# build an additively homomorphic cryptosystem (e.g. Paillier) on-prem
+cs = LightPHE(algorithm_name = "Paillier", precision = 19)
+
 # define plain vectors for source and target
 alpha = DeepFace.represent("img1.jpg")[0]["embedding"]
 beta = DeepFace.represent("target.jpg")[0]["embedding"]
 
-# build an additively homomorphic cryptosystem (e.g. Paillier) on-prem
-cs = LightPHE(algorithm_name = "Paillier", precision = 19)
-
-# encrypt source embedding on-prem
+# encrypt source embedding on-prem - private key not required
 encrypted_alpha = cs.encrypt(alpha)
 
 # dot product of encrypted & plain embedding in cloud - private key not required
@@ -321,6 +321,9 @@ calculated_similarity = cs.decrypt(encrypted_cosine_similarity)[0]
 
 # verification
 print("same person" if calculated_similarity >= 1 - threshold else "different persons")
+
+# proof of work
+assert abs(calculated_similarity - sum(x * y for x, y in zip(alpha, beta))) < 1e-2
 ```
 
 In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. That's the **magic** of homomorphic encryption! Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals. Check out [`LightPHE`](https://github.com/serengil/LightPHE) library to find out more about partially homomorphic encryption.
