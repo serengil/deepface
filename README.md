@@ -303,7 +303,7 @@ Even though vector embeddings are not reversible to original images, they still 
 ```python
 from lightphe import LightPHE
 
-# define a plain vectors for source and target
+# define plain vectors for source and target
 alpha = DeepFace.represent("img1.jpg")[0]["embedding"]
 beta = DeepFace.represent("target.jpg")[0]["embedding"]
 
@@ -323,7 +323,7 @@ calculated_similarity = cs.decrypt(encrypted_cosine_similarity)[0]
 print("same person" if calculated_similarity >= 1 - threshold else "different persons")
 ```
 
-In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. That's the magic of homomorphic encryption! Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals. Check out [`LightPHE`](https://github.com/serengil/LightPHE) library to find out more about partially homomorphic encryption.
+In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. That's the **magic** of homomorphic encryption! Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals. Check out [`LightPHE`](https://github.com/serengil/LightPHE) library to find out more about partially homomorphic encryption.
 
 ## Contribution
 
