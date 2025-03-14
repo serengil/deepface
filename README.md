@@ -309,22 +309,14 @@ beta = DeepFace.represent("target.jpg")[0]["embedding"]
 
 # build an additively homomorphic cryptosystem (e.g. Paillier) on-prem
 cs = LightPHE(algorithm_name = "Paillier", precision = 19)
-cs.export_keys("public.txt", public=True)
 
-# encrypt source embedding
+# encrypt source embedding on-prem
 encrypted_alpha = cs.encrypt(alpha)
 
-# restore the cryptosystem in cloud with only public key
-cloud_cs = LightPHE(algorithm_name = "Paillier", precision = 19, key_file = "public.txt")
-
-# dot product of encrypted and plain embedding pair in cloud
+# dot product of encrypted & plain embedding in cloud - private key not required
 encrypted_cosine_similarity = encrypted_alpha @ beta
 
-# computed by the cloud but cloud cannot decrypt it - magic of homomorphic encryption!
-with pytest.raises(ValueError, match="must have private key"):
-    cloud_cs.decrypt(encrypted_cosine_similarity)
-
-# decrypt similarity
+# decrypt similarity on-prem - private key required
 calculated_similarity = cs.decrypt(encrypted_cosine_similarity)[0]
 
 # verification
