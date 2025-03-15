@@ -85,10 +85,24 @@ def represent():
         img_path=img,
         model_name=input_args.get("model_name", "VGG-Face"),
         detector_backend=input_args.get("detector_backend", "opencv"),
-        enforce_detection=input_args.get("enforce_detection", True),
-        align=input_args.get("align", True),
-        anti_spoofing=input_args.get("anti_spoofing", False),
-        max_faces=input_args.get("max_faces"),
+        enforce_detection=
+            bool(input_args.get("enforce_detection", True))
+            if isinstance((input_args.get("enforce_detection", True)), bool)
+            else input_args.get("enforce_detection") == "true",
+        align=
+            bool(input_args.get("align", True))
+            if isinstance((input_args.get("align", True)), bool)
+            else input_args.get("align") == "true",
+        expand_percentage=int(input_args.get("expand_percentage", 0)),
+        normalization=input_args.get("normalization", "base"),
+        anti_spoofing=
+            bool(input_args.get("anti_spoofing", False))
+            if isinstance((input_args.get("anti_spoofing", False)), bool)
+            else input_args.get("anti_spoofing") == "true",
+        max_faces=
+            None
+            if input_args.get("max_faces", None) is None
+            else int(input_args.get("max_faces", 0)),
     )
 
     logger.debug(obj)
@@ -118,9 +132,28 @@ def verify():
         model_name=input_args.get("model_name", "VGG-Face"),
         detector_backend=input_args.get("detector_backend", "opencv"),
         distance_metric=input_args.get("distance_metric", "cosine"),
-        align=input_args.get("align", True),
-        enforce_detection=input_args.get("enforce_detection", True),
-        anti_spoofing=input_args.get("anti_spoofing", False),
+        enforce_detection=
+            bool(input_args.get("enforce_detection", True))
+            if isinstance((input_args.get("enforce_detection", True)), bool)
+            else input_args.get("enforce_detection") == "true",
+        align=
+            bool(input_args.get("align", True))
+            if isinstance((input_args.get("align", True)), bool)
+            else input_args.get("align") == "true",
+        expand_percentage=int(input_args.get("expand_percentage", 0)),
+        normalization=input_args.get("normalization", "base"),
+        silent=
+            bool(input_args.get("silent", False))
+            if isinstance((input_args.get("silent", False)), bool)
+            else input_args.get("silent") == "true",
+        threshold=
+            None
+            if input_args.get("threshold", None) is None
+            else float(input_args.get("threshold", 0)),
+        anti_spoofing=
+            bool(input_args.get("anti_spoofing", False))
+            if isinstance((input_args.get("anti_spoofing", False)), bool)
+            else input_args.get("anti_spoofing") == "true",
     )
 
     logger.debug(verification)
@@ -158,9 +191,23 @@ def analyze():
         img_path=img,
         actions=actions,
         detector_backend=input_args.get("detector_backend", "opencv"),
-        enforce_detection=input_args.get("enforce_detection", True),
-        align=input_args.get("align", True),
-        anti_spoofing=input_args.get("anti_spoofing", False),
+        enforce_detection=
+            bool(input_args.get("enforce_detection", True))
+            if isinstance((input_args.get("enforce_detection", True)), bool)
+            else input_args.get("enforce_detection") == "true",
+        align=
+            bool(input_args.get("align", True))
+            if isinstance((input_args.get("align", True)), bool)
+            else input_args.get("align") == "true",
+        expand_percentage=int(input_args.get("expand_percentage", 0)),
+        silent=
+            bool(input_args.get("silent", False))
+            if isinstance((input_args.get("silent", False)), bool)
+            else input_args.get("silent") == "true",
+        anti_spoofing=
+            bool(input_args.get("anti_spoofing", False))
+            if isinstance((input_args.get("anti_spoofing", False)), bool)
+            else input_args.get("anti_spoofing") == "true",
     )
 
     logger.debug(demographies)
