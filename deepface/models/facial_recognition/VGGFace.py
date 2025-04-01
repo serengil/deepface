@@ -161,6 +161,6 @@ def load_model(
     # base_model_output = Lambda(lambda x: K.l2_normalize(x, axis=1), name="norm_layer")(
     #     base_model_output
     # )
-    vgg_face_descriptor = Model(inputs=model.input, outputs=base_model_output)
+    vgg_face_descriptor = Model(inputs=model.layers[0].input, outputs=base_model_output)
 
     return vgg_face_descriptor
