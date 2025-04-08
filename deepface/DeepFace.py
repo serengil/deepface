@@ -102,7 +102,7 @@ def verify(
             'centerface' or 'skip' (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2' (default is cosine).
+            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Set to False to avoid the exception for low-resolution images (default is True).
@@ -194,7 +194,7 @@ def analyze(
             'centerface' or 'skip' (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2' (default is cosine).
+            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
 
@@ -299,7 +299,7 @@ def find(
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2' (default is cosine).
+            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Set to False to avoid the exception for low-resolution images (default is True).
@@ -479,7 +479,7 @@ def stream(
             'centerface' or 'skip' (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2' (default is cosine).
+            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
 
         enable_face_analysis (bool): Flag to enable face analysis (default is True).
 

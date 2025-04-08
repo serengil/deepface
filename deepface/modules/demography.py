@@ -39,7 +39,7 @@ def analyze(
             'centerface' or 'skip' (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2' (default is cosine).
+            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
 

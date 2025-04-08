@@ -150,10 +150,10 @@ Conducting experiments with those models within DeepFace may reveal disparities 
 
 Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent faces as vectors. We expect that a face pair of same person should be [more similar](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/) than a face pair of different persons.
 
-Similarity could be calculated by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Euclidean Distance or L2 normalized Euclidean. The default configuration uses cosine similarity. According to [experiments](https://github.com/serengil/deepface/tree/master/benchmarks), no distance metric is overperforming than other.
+Similarity could be calculated by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Angular Distance, Euclidean Distance or L2 normalized Euclidean. The default configuration uses cosine similarity. According to [experiments](https://github.com/serengil/deepface/tree/master/benchmarks), no distance metric is overperforming than other.
 
 ```python
-metrics = ["cosine", "euclidean", "euclidean_l2"]
+metrics = ["cosine", "euclidean", "euclidean_l2", "angular"]
 
 result = DeepFace.verify(
   img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1]
