@@ -51,7 +51,7 @@ def verify(
             'centerface' or 'skip' (default is opencv)
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2', angular (default is cosine).
+            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Set to False to avoid the exception for low-resolution images (default is True).
