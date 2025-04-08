@@ -449,7 +449,13 @@ def find_threshold(model_name: str, distance_metric: str) -> float:
     base_threshold = {"cosine": 0.40, "euclidean": 0.55, "euclidean_l2": 0.75, "angular": 0.37}
 
     thresholds = {
-        # "VGG-Face": {"cosine": 0.40, "euclidean": 0.60, "euclidean_l2": 0.86, "angular": 0.37}, # 2622d
+        # "VGG-Face": {
+        # "cosine": 0.40, 
+        # "euclidean": 0.60, 
+        # "euclidean_l2": 0.86,
+        #  "angular": 0.37
+        # }, # 2622d
+
         "VGG-Face": {
             "cosine": 0.68,
             "euclidean": 1.17,
