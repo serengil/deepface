@@ -153,7 +153,7 @@ Face recognition models are regular [convolutional neural networks](https://sefi
 Similarity could be calculated by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Angular Distance, Euclidean Distance or L2 normalized Euclidean. The default configuration uses cosine similarity. According to [experiments](https://github.com/serengil/deepface/tree/master/benchmarks), no distance metric is overperforming than other.
 
 ```python
-metrics = ["cosine", "euclidean", "euclidean_l2", 'angular']
+metrics = ["cosine", "euclidean", "euclidean_l2", "angular"]
 
 result = DeepFace.verify(
   img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1]
