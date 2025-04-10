@@ -29,7 +29,7 @@ class Fasnet:
             import torch
         except Exception as err:
             raise ValueError(
-                "You must install torch with `pip install pytorch` command to use face anti spoofing module"
+                "You must install torch with `pip install torch` command to use face anti spoofing module"
             ) from err
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
