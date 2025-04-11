@@ -321,12 +321,25 @@ calculated_similarity = cs.decrypt(encrypted_cosine_similarity)[0]
 
 # verification
 print("same person" if calculated_similarity >= 1 - threshold else "different persons")
-
-# proof of work
-assert abs(calculated_similarity - sum(x * y for x, y in zip(alpha, beta))) < 1e-2
 ```
 
 In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. That's the **magic** of homomorphic encryption! Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals. Check out [`LightPHE`](https://github.com/serengil/LightPHE) library to find out more about partially homomorphic encryption.
+
+### Extended Applications
+
+DeepFace can also be used for fun and insightful applications such as
+
+**Find Your Celebrity Look-Alike** - [`Demo`](https://youtu.be/jaxkEn-Kieo), [`Real-Time Demo`](https://youtu.be/RMgIKU1H8DY), [`Tutorial`](https://sefiks.com/2019/05/05/celebrity-look-alike-face-recognition-with-deep-learning-in-keras/)
+
+DeepFace can analyze your facial features and match them with celebrities, letting you discover which famous personality you resemble the most.
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/celebrity-look-alike.jpg" width="55%" height="55%"></p>
+
+**Find Which Parent a Child Look More** - [`Demo`](https://youtu.be/nza4tmi9vhE), [`Tutorial`](https://sefiks.com/2022/12/22/decide-whom-your-child-looks-like-with-facial-recognition-mommy-or-daddy/)
+
+DeepFace can also be used to compare a child's face to their parents' or relatives' faces to determine which one the child resembles more.
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-scaled.jpg" width="90%" height="90%"></p>
 
 ## Contribution
 
