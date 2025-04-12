@@ -150,7 +150,7 @@ def analysis(
                 )
                 # facial recogntion analysis
                 img = perform_facial_recognition(
-                    img=img,
+                    img=raw_img,
                     faces_coordinates=faces_coordinates,
                     detected_faces=detected_faces,
                     db_path=db_path,
