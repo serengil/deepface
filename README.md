@@ -255,16 +255,19 @@ user
 
 If you intend to perform face verification or analysis tasks directly from your browser, [`deepface-react-ui`](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
 
-Here, you can also find real time demos for various facial recognition models:
+Here, you can also find some real time demos for various facial recognition models:
 
 <p align="center"><img src="https://sefiks.com/wp-content/uploads/2020/02/deepface-cover.jpg" width="90%" height="90%"></p>
 
-| Model | Demo |
-| ---  | --- |
-| VGG-Face | [`Video`](https://www.youtube.com/watch?v=tSU_lNi0gQQ) |
-| FaceNet | [`Video`](https://youtu.be/vB1I5vWgTQg) |
-| DeepFace | [`Video`](https://youtu.be/YjYIMs5ZOfc) |
-| OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
+| Task               | Model    | Demo                                    |
+| ---                | ---      | ---                                     |
+| Facial Recognition | VGG-Face | [`Video`](https://youtu.be/tSU_lNi0gQQ) |
+| Facial Recognition | FaceNet  | [`Video`](https://youtu.be/vB1I5vWgTQg) |
+| Facial Recognition | DeepFace | [`Video`](https://youtu.be/YjYIMs5ZOfc) |
+| Facial Recognition | OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
+| Age & Gender       | -        | [`Video`](https://youtu.be/tFI7vZn3P7E) |
+| Race & Ethnicity   | -        | [`Video`](https://youtu.be/-ztiy5eJha8) |
+| Emotion            | -        | [`Video`](https://youtu.be/Dm5ptTiIpkk) |
 
 **Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
