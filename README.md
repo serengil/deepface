@@ -255,6 +255,17 @@ user
 
 If you intend to perform face verification or analysis tasks directly from your browser, [`deepface-react-ui`](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
 
+Here, you can also find real time demos for various facial recognition models:
+
+<p align="center"><img src="https://sefiks.com/wp-content/uploads/2020/02/deepface-cover.jpg" width="90%" height="90%"></p>
+
+| Model | Demo |
+| ---  | --- |
+| VGG-Face | [`Video`](https://www.youtube.com/watch?v=tSU_lNi0gQQ) |
+| FaceNet | [`Video`](https://youtu.be/vB1I5vWgTQg) |
+| DeepFace | [`Video`](https://youtu.be/YjYIMs5ZOfc) |
+| OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
+
 **Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
 DeepFace also includes an anti-spoofing analysis module to understand given image is real or fake. To activate this feature, set the `anti_spoofing` argument to True in any DeepFace tasks.
