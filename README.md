@@ -337,7 +337,7 @@ calculated_similarity = cs.decrypt(encrypted_cosine_similarity)[0]
 print("same person" if calculated_similarity >= 1 - threshold else "different persons")
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/encrypt-embeddings.jpg" width="80%" height="80%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/encrypt-embeddings.jpg" width="60%" height="60%"></p>
 
 In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. That's the **magic** of homomorphic encryption! Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals. Check out [`LightPHE`](https://github.com/serengil/LightPHE) library to find out more about partially homomorphic encryption.
 
