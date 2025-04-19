@@ -35,6 +35,7 @@ def analysis(
     frame_threshold=5,
     anti_spoofing: bool = False,
     output_path: Optional[str] = None,
+    debug: bool = False,
 ):
     """
     Run real time face recognition and facial attribute analysis
@@ -105,15 +106,15 @@ def analysis(
     freeze = False
     num_frames_with_faces = 0
     tic = time.time()
+    frame = 0
 
     while True:
         has_frame, img = cap.read()
+        raw_img = img.copy()
+
         if not has_frame:
             break
 
-        # we are adding some figures into img such as identified facial image, age, gender
-        # that is why, we need raw image itself to make analysis
-        raw_img = img.copy()
         faces_coordinates = []
 
         if not freeze:
@@ -121,10 +122,12 @@ def analysis(
                 img=img, detector_backend=detector_backend, anti_spoofing=anti_spoofing
             )
 
-            # we will pass img to analyze modules (identity, demography) and add some illustrations
-            # that is why, we will not be able to extract detected face from img clearly
-            detected_faces = extract_facial_areas(img=img, faces_coordinates=faces_coordinates)
+            # use raw_img otherwise countdown number will appear in the middle of the face
+            detected_faces = extract_facial_areas(img=raw_img, faces_coordinates=faces_coordinates)
+
             img = highlight_facial_areas(img=img, faces_coordinates=faces_coordinates)
+
+            # highlight how many seconds required to freeze in the middle of detected face
             img = countdown_to_freeze(
                 img=img,
                 faces_coordinates=faces_coordinates,
@@ -133,21 +136,39 @@ def analysis(
             )
 
             num_frames_with_faces = num_frames_with_faces + 1 if len(faces_coordinates) else 0
+
             freeze = num_frames_with_faces > 0 and num_frames_with_faces % frame_threshold == 0
 
             if freeze:
-                # add analyze results into img - derive from raw_img
+                frame += 1
+
+                # restore raw image to get rid of countdown informtion
+                img = raw_img.copy()
+
+                # add analyze results into img
                 img = highlight_facial_areas(
-                    img=raw_img, faces_coordinates=faces_coordinates, anti_spoofing=anti_spoofing
+                    img=img, faces_coordinates=faces_coordinates, anti_spoofing=anti_spoofing
                 )
+
+                if debug is True:
+                    cv2.imwrite(f"freezed_{frame}_0.jpg", detected_faces[0])
+                    cv2.imwrite(f"freezed_{frame}_1.jpg", img)
+
+                # note: faces already detected from img (original one) in grab_facial_areas()
+                # perform_demography_analysis and perform_facial_recognition are using
+                # pre-detected faces, not using anything from img
 
                 # age, gender and emotion analysis
                 img = perform_demography_analysis(
                     enable_face_analysis=enable_face_analysis,
-                    img=raw_img,
+                    img=img,
                     faces_coordinates=faces_coordinates,
                     detected_faces=detected_faces,
                 )
+
+                if debug is True:
+                    cv2.imwrite(f"freezed_{frame}_2.jpg", img)
+
                 # facial recogntion analysis
                 img = perform_facial_recognition(
                     img=img,
@@ -158,6 +179,9 @@ def analysis(
                     distance_metric=distance_metric,
                     model_name=model_name,
                 )
+
+                if debug is True:
+                    cv2.imwrite(f"freezed_{frame}_3.jpg", img)
 
                 # freeze the img after analysis
                 freezed_img = img.copy()
@@ -173,6 +197,7 @@ def analysis(
             tic = time.time()
             logger.info("Freeze released")
 
+        # count how many seconds required to relased freezed image in the left up area
         freezed_img = countdown_to_release(img=freezed_img, tic=tic, time_threshold=time_threshold)
         display_img = img if freezed_img is None else freezed_img
 
