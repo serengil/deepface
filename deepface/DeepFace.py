@@ -463,6 +463,7 @@ def stream(
     frame_threshold: int = 5,
     anti_spoofing: bool = False,
     output_path: Optional[str] = None,
+    debug: bool = False,
 ) -> None:
     """
     Run real time face recognition and facial attribute analysis
@@ -495,6 +496,8 @@ def stream(
         output_path (str): Path to save the output video. (default is None
             If None, no video is saved).
 
+        debug (bool): set this to True to save frame outcomes
+
     Returns:
         None
     """
@@ -513,6 +516,7 @@ def stream(
         frame_threshold=frame_threshold,
         anti_spoofing=anti_spoofing,
         output_path=output_path,
+        debug=debug,
     )
 
 
