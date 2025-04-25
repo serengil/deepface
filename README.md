@@ -261,9 +261,9 @@ Here, you can also find some real time demos for various facial recognition mode
 
 | Task               | Model    | Demo                                    |
 | ---                | ---      | ---                                     |
-| Facial Recognition | VGG-Face | [`Video`](https://youtu.be/tSU_lNi0gQQ) |
-| Facial Recognition | FaceNet  | [`Video`](https://youtu.be/vB1I5vWgTQg) |
 | Facial Recognition | DeepFace | [`Video`](https://youtu.be/YjYIMs5ZOfc) |
+| Facial Recognition | FaceNet  | [`Video`](https://youtu.be/vB1I5vWgTQg) |
+| Facial Recognition | VGG-Face | [`Video`](https://youtu.be/tSU_lNi0gQQ) |
 | Facial Recognition | OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
 | Age & Gender       | -        | [`Video`](https://youtu.be/tFI7vZn3P7E) |
 | Race & Ethnicity   | -        | [`Video`](https://youtu.be/-ztiy5eJha8) |
@@ -456,6 +456,18 @@ Please cite deepface in your publications if it helps your research.
   ```
 </details>
 
+<details>
+  <summary>S. Serengil and A. Ozpinar, <b>"Encrypted Vector Similarity Computations Using Partially Homomorphic Encryption: Applications and Performance Analysis"</b>, <i>arXiv preprint arXiv:2503.05850</i>, 2025.</summary>
+  
+  ```BibTeX
+  @article{serengil2025vectorsimilarity,
+    title={Encrypted Vector Similarity Computations Using Partially Homomorphic Encryption: Applications and Performance Analysis},
+    author={Serengil, Sefik and Ozpinar, Alper},
+    journal={arXiv preprint arXiv:2503.05850},
+    note={doi: 10.48550/arXiv.2503.05850. [Online]. Available: \url{https://arxiv.org/abs/2503.05850}},
+    year={2025}
+  }
+  ```
 </details>
 
 Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
