@@ -267,7 +267,7 @@ Here, you can also find some real time demos for various facial recognition mode
 | Facial Recognition | OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
 | Age & Gender       | -        | [`Video`](https://youtu.be/tFI7vZn3P7E) |
 | Race & Ethnicity   | -        | [`Video`](https://youtu.be/-ztiy5eJha8) |
-| Emotion            | -        | [`Video`](https://youtu.be/Dm5ptTiIpkk) |
+| Emotion            | -        | [`Video`](https://youtu.be/Y7DfLvLKScs) |
 
 **Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
