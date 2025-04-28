@@ -259,15 +259,16 @@ Here, you can also find some real time demos for various facial recognition mode
 
 <p align="center"><img src="https://sefiks.com/wp-content/uploads/2020/02/deepface-cover.jpg" width="90%" height="90%"></p>
 
-| Task               | Model    | Demo                                    |
-| ---                | ---      | ---                                     |
-| Facial Recognition | DeepFace | [`Video`](https://youtu.be/YjYIMs5ZOfc) |
-| Facial Recognition | FaceNet  | [`Video`](https://youtu.be/vB1I5vWgTQg) |
-| Facial Recognition | VGG-Face | [`Video`](https://youtu.be/tSU_lNi0gQQ) |
-| Facial Recognition | OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
-| Age & Gender       | -        | [`Video`](https://youtu.be/tFI7vZn3P7E) |
-| Race & Ethnicity   | -        | [`Video`](https://youtu.be/-ztiy5eJha8) |
-| Emotion            | -        | [`Video`](https://youtu.be/Y7DfLvLKScs) |
+| Task                 | Model    | Demo                                    |
+| ---                  | ---      | ---                                     |
+| Facial Recognition   | DeepFace | [`Video`](https://youtu.be/YjYIMs5ZOfc) |
+| Facial Recognition   | FaceNet  | [`Video`](https://youtu.be/vB1I5vWgTQg) |
+| Facial Recognition   | VGG-Face | [`Video`](https://youtu.be/tSU_lNi0gQQ) |
+| Facial Recognition   | OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
+| Age & Gender         | -        | [`Video`](https://youtu.be/tFI7vZn3P7E) |
+| Race & Ethnicity     | -        | [`Video`](https://youtu.be/-ztiy5eJha8) |
+| Emotion              | -        | [`Video`](https://youtu.be/Y7DfLvLKScs) |
+| Celebrity Look-Alike | -        | [`Video`](https://youtu.be/RMgIKU1H8DY) |
 
 **Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
