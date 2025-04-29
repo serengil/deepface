@@ -89,6 +89,59 @@ dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%" height="95%"></p>
 
+**Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
+
+DeepFace also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Result is going to be the size of faces appearing in the source image.
+
+```python
+objs = DeepFace.analyze(
+  img_path = "img4.jpg", actions = ['age', 'gender', 'race', 'emotion']
+)
+```
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
+
+Age model got ± 4.65 MAE; gender model got 97.44% accuracy, 96.29% precision and 95.05% recall as mentioned in its [tutorial](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/).
+
+**Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI), [`React Demo part-i`](https://youtu.be/IXoah6rhxac), [`React Demo part-ii`](https://youtu.be/_waBA-cH2D4)
+
+You can run deepface for real time videos as well. Stream function will access your webcam and apply both face recognition and facial attribute analysis. The function starts to analyze a frame if it can focus a face sequentially 5 frames. Then, it shows results 5 seconds.
+
+```python
+DeepFace.stream(db_path = "C:/database")
+```
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-3.jpg" width="90%" height="90%"></p>
+
+Even though face recognition is based on one-shot learning, you can use multiple face pictures of a person as well. You should rearrange your directory structure as illustrated below.
+
+```bash
+user
+├── database
+│   ├── Alice
+│   │   ├── Alice1.jpg
+│   │   ├── Alice2.jpg
+│   ├── Bob
+│   │   ├── Bob.jpg
+```
+
+If you intend to perform face verification or analysis tasks directly from your browser, [`deepface-react-ui`](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
+
+Here, you can also find some real time demos for various facial recognition models:
+
+<p align="center"><img src="https://sefiks.com/wp-content/uploads/2020/02/deepface-cover.jpg" width="90%" height="90%"></p>
+
+| Task                 | Model    | Demo                                    |
+| ---                  | ---      | ---                                     |
+| Facial Recognition   | DeepFace | [`Video`](https://youtu.be/YjYIMs5ZOfc) |
+| Facial Recognition   | FaceNet  | [`Video`](https://youtu.be/vB1I5vWgTQg) |
+| Facial Recognition   | VGG-Face | [`Video`](https://youtu.be/tSU_lNi0gQQ) |
+| Facial Recognition   | OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
+| Age & Gender         | -        | [`Video`](https://youtu.be/tFI7vZn3P7E) |
+| Race & Ethnicity     | -        | [`Video`](https://youtu.be/-ztiy5eJha8) |
+| Emotion              | -        | [`Video`](https://youtu.be/Y7DfLvLKScs) |
+| Celebrity Look-Alike | -        | [`Video`](https://youtu.be/RMgIKU1H8DY) |
+
 **Embeddings** - [`Demo`](https://youtu.be/OYialFo7Qo4)
 
 Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function. Represent function returns a list of embeddings. Result is going to be the size of faces appearing in the image path.
@@ -129,7 +182,6 @@ embeddings = DeepFace.represent(
 
 FaceNet, VGG-Face, ArcFace and Dlib are overperforming ones based on experiments - see [`BENCHMARKS`](https://github.com/serengil/deepface/tree/master/benchmarks) for more details. You can find the measured scores of various models in DeepFace and the reported scores from their original studies in the following table.
 
-
 | Model          | Measured Score | Declared Score     |
 | -------------- | -------------- | ------------------ |
 | Facenet512     | 98.4%          | 99.6%              |
@@ -145,39 +197,6 @@ FaceNet, VGG-Face, ArcFace and Dlib are overperforming ones based on experiments
 | DeepID         | 66.5%          | 97.4%              |
 
 Conducting experiments with those models within DeepFace may reveal disparities compared to the original studies, owing to the adoption of distinct detection or normalization techniques. Furthermore, some models have been released solely with their backbones, lacking pre-trained weights. Thus, we are utilizing their re-implementations instead of the original pre-trained weights.
-
-**Similarity** - [`Demo`](https://youtu.be/1EPoS69fHOc)
-
-Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent faces as vectors. We expect that a face pair of same person should be [more similar](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/) than a face pair of different persons.
-
-Similarity could be calculated by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Angular Distance, Euclidean Distance or L2 normalized Euclidean. The default configuration uses cosine similarity. According to [experiments](https://github.com/serengil/deepface/tree/master/benchmarks), no distance metric is overperforming than other.
-
-```python
-metrics = ["cosine", "euclidean", "euclidean_l2", "angular"]
-
-result = DeepFace.verify(
-  img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1]
-)
-
-dfs = DeepFace.find(
-  img_path = "img1.jpg", db_path = "C:/my_db", distance_metric = metrics[2]
-)
-```
-
-**Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
-
-DeepFace also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Result is going to be the size of faces appearing in the source image.
-
-```python
-objs = DeepFace.analyze(
-  img_path = "img4.jpg", actions = ['age', 'gender', 'race', 'emotion']
-)
-```
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-2.jpg" width="95%" height="95%"></p>
-
-Age model got ± 4.65 MAE; gender model got 97.44% accuracy, 96.29% precision and 95.05% recall as mentioned in its [tutorial](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/).
-
 
 **Face Detection and Alignment** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
 
@@ -231,45 +250,6 @@ The performance of RetinaFace is very satisfactory even in the crowd as seen in 
 
 You can find out more about RetinaFace on this [repo](https://github.com/serengil/retinaface).
 
-**Real Time Analysis** - [`Demo`](https://youtu.be/-c9sSJcx6wI), [`React Demo part-i`](https://youtu.be/IXoah6rhxac), [`React Demo part-ii`](https://youtu.be/_waBA-cH2D4)
-
-You can run deepface for real time videos as well. Stream function will access your webcam and apply both face recognition and facial attribute analysis. The function starts to analyze a frame if it can focus a face sequentially 5 frames. Then, it shows results 5 seconds.
-
-```python
-DeepFace.stream(db_path = "C:/database")
-```
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-3.jpg" width="90%" height="90%"></p>
-
-Even though face recognition is based on one-shot learning, you can use multiple face pictures of a person as well. You should rearrange your directory structure as illustrated below.
-
-```bash
-user
-├── database
-│   ├── Alice
-│   │   ├── Alice1.jpg
-│   │   ├── Alice2.jpg
-│   ├── Bob
-│   │   ├── Bob.jpg
-```
-
-If you intend to perform face verification or analysis tasks directly from your browser, [`deepface-react-ui`](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
-
-Here, you can also find some real time demos for various facial recognition models:
-
-<p align="center"><img src="https://sefiks.com/wp-content/uploads/2020/02/deepface-cover.jpg" width="90%" height="90%"></p>
-
-| Task                 | Model    | Demo                                    |
-| ---                  | ---      | ---                                     |
-| Facial Recognition   | DeepFace | [`Video`](https://youtu.be/YjYIMs5ZOfc) |
-| Facial Recognition   | FaceNet  | [`Video`](https://youtu.be/vB1I5vWgTQg) |
-| Facial Recognition   | VGG-Face | [`Video`](https://youtu.be/tSU_lNi0gQQ) |
-| Facial Recognition   | OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
-| Age & Gender         | -        | [`Video`](https://youtu.be/tFI7vZn3P7E) |
-| Race & Ethnicity     | -        | [`Video`](https://youtu.be/-ztiy5eJha8) |
-| Emotion              | -        | [`Video`](https://youtu.be/Y7DfLvLKScs) |
-| Celebrity Look-Alike | -        | [`Video`](https://youtu.be/RMgIKU1H8DY) |
-
 **Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
 DeepFace also includes an anti-spoofing analysis module to understand given image is real or fake. To activate this feature, set the `anti_spoofing` argument to True in any DeepFace tasks.
@@ -283,6 +263,24 @@ assert all(face_obj["is_real"] is True for face_obj in face_objs)
 
 # anti spoofing test in real time analysis
 DeepFace.stream(db_path = "C:/database", anti_spoofing = True)
+```
+
+**Similarity** - [`Demo`](https://youtu.be/1EPoS69fHOc)
+
+Face recognition models are regular [convolutional neural networks](https://sefiks.com/2018/03/23/convolutional-autoencoder-clustering-images-with-neural-networks/) and they are responsible to represent faces as vectors. We expect that a face pair of same person should be [more similar](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/) than a face pair of different persons.
+
+Similarity could be calculated by different metrics such as [Cosine Similarity](https://sefiks.com/2018/08/13/cosine-similarity-in-machine-learning/), Angular Distance, Euclidean Distance or L2 normalized Euclidean. The default configuration uses cosine similarity. According to [experiments](https://github.com/serengil/deepface/tree/master/benchmarks), no distance metric is overperforming than other.
+
+```python
+metrics = ["cosine", "euclidean", "euclidean_l2", "angular"]
+
+result = DeepFace.verify(
+  img1_path = "img1.jpg", img2_path = "img2.jpg", distance_metric = metrics[1]
+)
+
+dfs = DeepFace.find(
+  img_path = "img1.jpg", db_path = "C:/my_db", distance_metric = metrics[2]
+)
 ```
 
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI), [`Docker Demo`](https://youtu.be/9Tk9lRQareA)
