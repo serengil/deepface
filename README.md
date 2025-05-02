@@ -288,7 +288,7 @@ dfs = DeepFace.find(
 DeepFace serves an API as well - see [`api folder`](https://github.com/serengil/deepface/tree/master/deepface/api/src) for more details. You can clone deepface source code and run the api with the following command. It will use gunicorn server to get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
 
 ```shell
-cd script
+cd scripts
 
 # run the service directly
 ./service.sh
