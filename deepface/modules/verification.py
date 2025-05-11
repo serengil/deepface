@@ -149,7 +149,7 @@ def verify(
                 )
 
             if silent is False:
-                logger.warn(
+                logger.warning(
                     f"You passed {index}-th image as pre-calculated embeddings."
                     "Please ensure that embeddings have been calculated"
                     f" for the {model_name} model."

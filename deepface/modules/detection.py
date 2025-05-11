@@ -128,7 +128,7 @@ def extract_faces(
             continue
 
         if grayscale is True:
-            logger.warn("Parameter grayscale is deprecated. Use color_face instead.")
+            logger.warning("Parameter grayscale is deprecated. Use color_face instead.")
             current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
         else:
             if color_face == "rgb":
@@ -226,7 +226,7 @@ def detect_faces(
 
     # validate expand percentage score
     if expand_percentage < 0:
-        logger.warn(
+        logger.warning(
             f"Expand percentage cannot be negative but you set it to {expand_percentage}."
             "Overwritten it to 0."
         )
@@ -304,7 +304,7 @@ def extract_face(
     if align is True:  # and left_eye is not None and right_eye is not None:
         # we were aligning the original image before, but this comes with an extra cost
         # instead we now focus on the facial area with a margin
-        # and align it instead of original image to decrese the cost
+        # and align it instead of original image to decrease the cost
         sub_img, relative_x, relative_y = extract_sub_image(img=img, facial_area=(x, y, w, h))
 
         aligned_sub_img, angle = align_img_wrt_eyes(
@@ -419,7 +419,7 @@ def align_img_wrt_eyes(
     right_eye: Optional[Union[list, tuple]],
 ) -> Tuple[np.ndarray, float]:
     """
-    Align a given image horizantally with respect to their left and right eye locations
+    Align a given image horizontally with respect to their left and right eye locations
     Args:
         img (np.ndarray): pre-loaded image with detected face
         left_eye (list or tuple): coordinates of left eye with respect to the person itself
@@ -453,7 +453,7 @@ def project_facial_area(
     """
     Update pre-calculated facial area coordinates after image itself
         rotated with respect to the eyes.
-    Inspried from the work of @UmutDeniz26 - github.com/serengil/retinaface/pull/80
+    Inspired from the work of @UmutDeniz26 - github.com/serengil/retinaface/pull/80
 
     Args:
         facial_area (tuple of int): Representing the (x1, y1, x2, y2) of the facial area.
@@ -467,7 +467,7 @@ def project_facial_area(
             (x1, y1, x2, y2) or (x1, y1, x1+w1, y1+h1) of the rotated facial area.
     """
 
-    # Normalize the witdh of the angle so we don't have to
+    # Normalize the width of the angle so we don't have to
     # worry about rotations greater than 360 degrees.
     # We workaround the quirky behavior of the modulo operator
     # for negative angle values.

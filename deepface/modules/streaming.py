@@ -142,7 +142,7 @@ def analysis(
             if freeze:
                 frame += 1
 
-                # restore raw image to get rid of countdown informtion
+                # restore raw image to get rid of countdown information
                 img = raw_img.copy()
 
                 # add analyze results into img
@@ -197,7 +197,7 @@ def analysis(
             tic = time.time()
             logger.info("Freeze released")
 
-        # count how many seconds required to relased freezed image in the left up area
+        # count how many seconds required to released freezed image in the left up area
         freezed_img = countdown_to_release(img=freezed_img, tic=tic, time_threshold=time_threshold)
         display_img = img if freezed_img is None else freezed_img
 
@@ -267,7 +267,7 @@ def search_identity(
         )
     except ValueError as err:
         if f"No item found in {db_path}" in str(err):
-            logger.warn(
+            logger.warning(
                 f"No item is found in {db_path}."
                 "So, no facial recognition analysis will be performed."
             )
@@ -371,8 +371,8 @@ def countdown_to_freeze(
     Args:
         img (np.ndarray): image itself
         faces_coordinates (list): list of face coordinates as tuple with x, y, w and h
-        frame_threshold (int): how many sequantial frames required with face(s) to freeze
-        num_frames_with_faces (int): how many sequantial frames do we have with face(s)
+        frame_threshold (int): how many sequential frames required with face(s) to freeze
+        num_frames_with_faces (int): how many sequential frames do we have with face(s)
     Returns:
         img (np.ndarray): image with counter values
     """
@@ -503,7 +503,7 @@ def perform_facial_recognition(
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
     Returns:
-        img (np.ndarray): image with identified face informations
+        img (np.ndarray): image with identified face information
     """
     for idx, (x, y, w, h, is_real, antispoof_score) in enumerate(faces_coordinates):
         detected_face = detected_faces[idx]
@@ -598,7 +598,7 @@ def overlay_identified_face(
         w (int): w coordinate of the face on the given image
         h (int): h coordinate of the face on the given image
     Returns:
-        img (np.ndarray): image with overlayed identity
+        img (np.ndarray): image with overlaid identity
     """
     try:
         if y - IDENTIFIED_IMG_SIZE > 0 and x + w + IDENTIFIED_IMG_SIZE < img.shape[1]:
@@ -767,7 +767,7 @@ def overlay_identified_face(
             x + w + IDENTIFIED_IMG_SIZE < img.shape[1]
             and y + h + IDENTIFIED_IMG_SIZE < img.shape[0]
         ):
-            # bottom righ
+            # bottom right
             img[
                 y + h : y + h + IDENTIFIED_IMG_SIZE,
                 x + w : x + w + IDENTIFIED_IMG_SIZE,

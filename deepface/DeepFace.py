@@ -635,7 +635,7 @@ def detectFace(
     Returns:
         img (np.ndarray): detected (and aligned) facial area image as numpy array
     """
-    logger.warn("Function detectFace is deprecated. Use extract_faces instead.")
+    logger.warning("Function detectFace is deprecated. Use extract_faces instead.")
     face_objs = extract_faces(
         img_path=img_path,
         detector_backend=detector_backend,
