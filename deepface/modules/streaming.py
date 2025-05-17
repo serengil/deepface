@@ -110,10 +110,10 @@ def analysis(
 
     while True:
         has_frame, img = cap.read()
-        raw_img = img.copy()
-
         if not has_frame:
             break
+
+        raw_img = img.copy()
 
         faces_coordinates = []
 
