@@ -164,19 +164,16 @@ def verify(
             img_embeddings = [img_path]
             img_facial_areas = [no_facial_area]
         else:
-            try:
-                img_embeddings, img_facial_areas = __extract_faces_and_embeddings(
-                    img_path=img_path,
-                    model_name=model_name,
-                    detector_backend=detector_backend,
-                    enforce_detection=enforce_detection,
-                    align=align,
-                    expand_percentage=expand_percentage,
-                    normalization=normalization,
-                    anti_spoofing=anti_spoofing,
-                )
-            except ValueError as err:
-                raise ValueError(f"Exception while processing img{index}_path") from err
+            img_embeddings, img_facial_areas = __extract_faces_and_embeddings(
+                img_path=img_path,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                enforce_detection=enforce_detection,
+                align=align,
+                expand_percentage=expand_percentage,
+                normalization=normalization,
+                anti_spoofing=anti_spoofing,
+            )
         return img_embeddings, img_facial_areas
 
     img1_embeddings, img1_facial_areas = extract_embeddings_and_facial_areas(img1_path, 1)
