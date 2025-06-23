@@ -1,4 +1,4 @@
-name: Update Documentation
+name: Update Codeboarding Documentation
 
 on:
   workflow_dispatch:
@@ -60,13 +60,14 @@ jobs:
 
       - name: Fetch CodeBoarding Documentation
         id: codeboarding
-        uses: ./
-        with:
-          repository_url: ${{ github.event.inputs.repository_url }}
-          source_branch: ${{ steps.set-branches.outputs.source_branch }}
-          target_branch: ${{ steps.set-branches.outputs.target_branch }}
-          output_directory: '.codeboarding'
-          output_format: ${{ github.event.inputs.output_format || '.md' }}
+        run: |
+          pip install .
+          codeboarding \
+            --repository-url "${{ github.event.inputs.repository_url }}" \
+            --source-branch "${{ steps.set-branches.outputs.source_branch }}" \
+            --target-branch "${{ steps.set-branches.outputs.target_branch }}" \
+            --output-directory ".codeboarding" \
+            --output-format "${{ github.event.inputs.output_format || '.md' }}"
 
       - name: Display Action Results
         run: |
