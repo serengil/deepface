@@ -60,14 +60,13 @@ jobs:
 
       - name: Fetch CodeBoarding Documentation
         id: codeboarding
-        run: |
-          pip install .
-          codeboarding \
-            --repository-url "${{ github.event.inputs.repository_url }}" \
-            --source-branch "${{ steps.set-branches.outputs.source_branch }}" \
-            --target-branch "${{ steps.set-branches.outputs.target_branch }}" \
-            --output-directory ".codeboarding" \
-            --output-format "${{ github.event.inputs.output_format || '.md' }}"
+        uses: CodeBoarding/CodeBoarding-GHAction@v0.0.2
+        with:
+          repository_url: ${{ github.event.inputs.repository_url }}
+          source_branch: ${{ steps.set-branches.outputs.source_branch }}
+          target_branch: ${{ steps.set-branches.outputs.target_branch }}
+          output_directory: '.codeboarding'
+          output_format: ${{ github.event.inputs.output_format || '.md' }}
 
       - name: Display Action Results
         run: |
