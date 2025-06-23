@@ -1,0 +1,229 @@
+{
+  "description": "This section provides a detailed overview of the `Model & Weight Management` component within the DeepFace library, along with its closely related components. These components are fundamental to the library's operation, enabling the dynamic loading, management, and application of various deep learning models for facial analysis tasks.",
+  "components": [
+    {
+      "name": "Model & Weight Management",
+      "description": "This component is the central factory and manager for all deep learning models within DeepFace. It is responsible for dynamically loading, building, caching, and ensuring the availability of various pre-trained models and their associated weights. It abstracts the complexities of model instantiation and weight handling, providing a unified interface for accessing different model types (demography, face detection, facial recognition, anti-spoofing).",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.modeling",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/modeling.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.commons.weight_utils",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/commons/weight_utils.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        }
+      ]
+    },
+    {
+      "name": "Demography Models",
+      "description": "This component encapsulates the logic and models for analyzing demographic attributes (age, emotion, gender, race) from detected faces. It provides specialized client classes for each attribute, all inheriting from a common `Demography` base class, ensuring a consistent interface for demographic analysis.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.models.Demography.Demography",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/Demography.py",
+          "reference_start_line": 15,
+          "reference_end_line": 67
+        },
+        {
+          "qualified_name": "deepface.models.demography.Age.ApparentAgeClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/demography/Age.py",
+          "reference_start_line": 32,
+          "reference_end_line": 62
+        },
+        {
+          "qualified_name": "deepface.models.demography.Emotion.EmotionClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/demography/Emotion.py",
+          "reference_start_line": 39,
+          "reference_end_line": 79
+        },
+        {
+          "qualified_name": "deepface.models.demography.Gender.GenderClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/demography/Gender.py",
+          "reference_start_line": 34,
+          "reference_end_line": 59
+        },
+        {
+          "qualified_name": "deepface.models.demography.Race.RaceClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/demography/Race.py",
+          "reference_start_line": 33,
+          "reference_end_line": 59
+        }
+      ]
+    },
+    {
+      "name": "Face Detection Models",
+      "description": "This component provides a collection of algorithms and models specifically designed for detecting human faces within images. Each detection model is implemented as a client class inheriting from a `Detector` base class, offering a standardized way to perform face detection and return structured `FacialAreaRegion` data.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.models.Detector.Detector",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/Detector.py",
+          "reference_start_line": 9,
+          "reference_end_line": 27
+        },
+        {
+          "qualified_name": "deepface.models.face_detection.CenterFace.CenterFaceClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/face_detection/CenterFace.py",
+          "reference_start_line": 20,
+          "reference_end_line": 85
+        },
+        {
+          "qualified_name": "deepface.models.face_detection.Dlib.DlibClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/face_detection/Dlib.py",
+          "reference_start_line": 15,
+          "reference_end_line": 104
+        },
+        {
+          "qualified_name": "deepface.models.face_detection.MediaPipe.MediaPipeClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/face_detection/MediaPipe.py",
+          "reference_start_line": 11,
+          "reference_end_line": 96
+        },
+        {
+          "qualified_name": "deepface.models.face_detection.OpenCv.OpenCvClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/face_detection/OpenCv.py",
+          "reference_start_line": 12,
+          "reference_end_line": 175
+        },
+        {
+          "qualified_name": "deepface.models.face_detection.Yolo.YoloDetectorClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/face_detection/Yolo.py",
+          "reference_start_line": 36,
+          "reference_end_line": 121
+        }
+      ]
+    },
+    {
+      "name": "Facial Recognition Models",
+      "description": "This component houses various pre-trained models for facial recognition, enabling the generation of high-dimensional embeddings from face images. These embeddings are crucial for tasks like face verification and identification. Each model is represented by a client class inheriting from the `FacialRecognition` base class.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.models.FacialRecognition.FacialRecognition",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/FacialRecognition.py",
+          "reference_start_line": 15,
+          "reference_end_line": 47
+        },
+        {
+          "qualified_name": "deepface.models.facial_recognition.ArcFace.ArcFaceClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/facial_recognition/ArcFace.py",
+          "reference_start_line": 47,
+          "reference_end_line": 56
+        },
+        {
+          "qualified_name": "deepface.models.facial_recognition.Facenet.FaceNet128dClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/facial_recognition/Facenet.py",
+          "reference_start_line": 52,
+          "reference_end_line": 61
+        },
+        {
+          "qualified_name": "deepface.models.facial_recognition.VGGFace.VggFaceClient",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/facial_recognition/VGGFace.py",
+          "reference_start_line": 46,
+          "reference_end_line": 77
+        }
+      ]
+    },
+    {
+      "name": "Anti-Spoofing Model (FasNet)",
+      "description": "This component is dedicated to detecting presentation attacks (spoofing) by analyzing facial images to determine if a real person is present or if it's a fake (e.g., photo, video replay). It includes the core `FasNet` model and its associated backbone architectures.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.models.spoofing.FasNet.FasNet",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/spoofing/FasNet.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.models.spoofing.FasNetBackbone.MiniFASNetV2",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/spoofing/FasNetBackbone.py",
+          "reference_start_line": 127,
+          "reference_end_line": 130
+        },
+        {
+          "qualified_name": "deepface.models.spoofing.FasNetBackbone.MiniFASNetV1SE",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/spoofing/FasNetBackbone.py",
+          "reference_start_line": 133,
+          "reference_end_line": 138
+        }
+      ]
+    },
+    {
+      "name": "Facial Area Region Data Structure",
+      "description": "This component defines a standardized data structure (`FacialAreaRegion`) used across the face detection and other related modules to encapsulate the results of face detection, including bounding box coordinates and potentially facial landmarks. It ensures consistent data exchange between components.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.models.Detector.FacialAreaRegion",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/Detector.py",
+          "reference_start_line": 31,
+          "reference_end_line": 57
+        }
+      ]
+    }
+  ],
+  "components_relations": [
+    {
+      "relation": "provides model instances for",
+      "src_name": "Model & Weight Management",
+      "dst_name": "Demography Models"
+    },
+    {
+      "relation": "provides model instances for",
+      "src_name": "Model & Weight Management",
+      "dst_name": "Face Detection Models"
+    },
+    {
+      "relation": "provides model instances for",
+      "src_name": "Model & Weight Management",
+      "dst_name": "Facial Recognition Models"
+    },
+    {
+      "relation": "provides model instances for",
+      "src_name": "Model & Weight Management",
+      "dst_name": "Anti-Spoofing Model (FasNet)"
+    },
+    {
+      "relation": "relies on",
+      "src_name": "Demography Models",
+      "dst_name": "Model & Weight Management"
+    },
+    {
+      "relation": "processes",
+      "src_name": "Demography Models",
+      "dst_name": "Facial Area Region Data Structure"
+    },
+    {
+      "relation": "relies on",
+      "src_name": "Face Detection Models",
+      "dst_name": "Model & Weight Management"
+    },
+    {
+      "relation": "produces",
+      "src_name": "Face Detection Models",
+      "dst_name": "Facial Area Region Data Structure"
+    },
+    {
+      "relation": "relies on",
+      "src_name": "Facial Recognition Models",
+      "dst_name": "Model & Weight Management"
+    },
+    {
+      "relation": "processes",
+      "src_name": "Facial Recognition Models",
+      "dst_name": "Facial Area Region Data Structure"
+    },
+    {
+      "relation": "relies on",
+      "src_name": "Anti-Spoofing Model (FasNet)",
+      "dst_name": "Model & Weight Management"
+    },
+    {
+      "relation": "processes",
+      "src_name": "Anti-Spoofing Model (FasNet)",
+      "dst_name": "Facial Area Region Data Structure"
+    }
+  ]
+}

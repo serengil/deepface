@@ -1,0 +1,298 @@
+{
+  "description": "Overview of the DeepFace library's abstract components, focusing on the Core Processing Engine and its interactions with fundamental modules for facial analysis.",
+  "components": [
+    {
+      "name": "Core Processing Engine",
+      "description": "The central orchestrator of the DeepFace library, responsible for coordinating and executing all high-level face-related tasks. It integrates and manages the execution flow between specialized modules for face detection, facial representation, verification, recognition, demography analysis, and real-time streaming, ensuring a cohesive and efficient facial analysis pipeline. It acts as the \"brain\" that ties together the various deep learning functionalities.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.detection",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/detection.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.modules.representation",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/representation.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.modules.verification",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/verification.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.modules.demography",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/demography.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.modules.recognition",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/recognition.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.modules.streaming",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/streaming.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        }
+      ]
+    },
+    {
+      "name": "Model Management Component",
+      "description": "Responsible for building, loading, and managing the various deep learning models (detectors, recognizers, demography models) required for face analysis. It ensures models are initialized and available.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.modeling",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/modeling.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.models.Detector",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/Detector.py",
+          "reference_start_line": 9,
+          "reference_end_line": 27
+        },
+        {
+          "qualified_name": "deepface.models.FacialRecognition",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/FacialRecognition.py",
+          "reference_start_line": 15,
+          "reference_end_line": 47
+        },
+        {
+          "qualified_name": "deepface.models.Demography",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/models/Demography.py",
+          "reference_start_line": 15,
+          "reference_end_line": 67
+        }
+      ]
+    },
+    {
+      "name": "Face Detection Component",
+      "description": "Identifies and extracts facial regions from input images or video frames, providing normalized and aligned face images for subsequent processing. It's a prerequisite for most other tasks.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.detection",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/detection.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.models.face_detection",
+          "reference_file": "deepface/models/face_detection.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        }
+      ]
+    },
+    {
+      "name": "Facial Representation Component",
+      "description": "Converts detected facial images into numerical embeddings (vectors) that capture unique facial features, enabling quantitative comparisons between faces.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.representation",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/representation.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.models.facial_recognition",
+          "reference_file": "deepface/models/facial_recognition.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        }
+      ]
+    },
+    {
+      "name": "Verification Component",
+      "description": "Compares two facial embeddings to determine if they belong to the same individual, calculating distances and applying thresholds for identity confirmation.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.verification",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/verification.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        }
+      ]
+    },
+    {
+      "name": "Recognition Component",
+      "description": "Searches for a given face within a database of known faces, identifying potential matches based on facial embeddings and verification logic.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.recognition",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/recognition.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        }
+      ]
+    },
+    {
+      "name": "Demography Analysis Component",
+      "description": "Analyzes detected faces to predict demographic attributes such as age, gender, emotion, and race using specialized deep learning models.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.demography",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/demography.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        },
+        {
+          "qualified_name": "deepface.models.demography",
+          "reference_file": "deepface/models/demography.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        }
+      ]
+    },
+    {
+      "name": "Streaming Analysis Component",
+      "description": "Manages the real-time processing of video streams for continuous face detection, recognition, and demographic analysis, applying other DeepFace functionalities in a live context.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.streaming",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/streaming.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        }
+      ]
+    },
+    {
+      "name": "Image Utilities Component",
+      "description": "Provides common utility functions for image loading, resizing, alignment, and basic manipulation, serving as a foundational support for all image-processing tasks.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.commons.image_utils",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/commons/image_utils.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        }
+      ]
+    },
+    {
+      "name": "Logging Component",
+      "description": "Handles the logging of information, warnings, and errors throughout the DeepFace system, providing crucial insights for debugging and monitoring.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.commons.logger",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/commons/logger.py",
+          "reference_start_line": 0,
+          "reference_end_line": 0
+        }
+      ]
+    }
+  ],
+  "components_relations": [
+    {
+      "relation": "Orchestrates",
+      "src_name": "Core Processing Engine",
+      "dst_name": "Face Detection Component"
+    },
+    {
+      "relation": "Orchestrates",
+      "src_name": "Core Processing Engine",
+      "dst_name": "Facial Representation Component"
+    },
+    {
+      "relation": "Orchestrates",
+      "src_name": "Core Processing Engine",
+      "dst_name": "Verification Component"
+    },
+    {
+      "relation": "Orchestrates",
+      "src_name": "Core Processing Engine",
+      "dst_name": "Recognition Component"
+    },
+    {
+      "relation": "Orchestrates",
+      "src_name": "Core Processing Engine",
+      "dst_name": "Demography Analysis Component"
+    },
+    {
+      "relation": "Orchestrates",
+      "src_name": "Core Processing Engine",
+      "dst_name": "Streaming Analysis Component"
+    },
+    {
+      "relation": "Utilizes",
+      "src_name": "Face Detection Component",
+      "dst_name": "Model Management Component"
+    },
+    {
+      "relation": "Uses",
+      "src_name": "Face Detection Component",
+      "dst_name": "Image Utilities Component"
+    },
+    {
+      "relation": "Utilizes",
+      "src_name": "Facial Representation Component",
+      "dst_name": "Model Management Component"
+    },
+    {
+      "relation": "Uses",
+      "src_name": "Facial Representation Component",
+      "dst_name": "Image Utilities Component"
+    },
+    {
+      "relation": "Relies on",
+      "src_name": "Verification Component",
+      "dst_name": "Facial Representation Component"
+    },
+    {
+      "relation": "Utilizes",
+      "src_name": "Verification Component",
+      "dst_name": "Model Management Component"
+    },
+    {
+      "relation": "Uses",
+      "src_name": "Recognition Component",
+      "dst_name": "Facial Representation Component"
+    },
+    {
+      "relation": "Uses",
+      "src_name": "Recognition Component",
+      "dst_name": "Face Detection Component"
+    },
+    {
+      "relation": "Leverages",
+      "src_name": "Recognition Component",
+      "dst_name": "Verification Component"
+    },
+    {
+      "relation": "Utilizes",
+      "src_name": "Demography Analysis Component",
+      "dst_name": "Model Management Component"
+    },
+    {
+      "relation": "Uses",
+      "src_name": "Demography Analysis Component",
+      "dst_name": "Image Utilities Component"
+    },
+    {
+      "relation": "Leverages",
+      "src_name": "Streaming Analysis Component",
+      "dst_name": "Core Processing Engine"
+    },
+    {
+      "relation": "Reports to",
+      "src_name": "Core Processing Engine",
+      "dst_name": "Logging Component"
+    },
+    {
+      "relation": "Reports to",
+      "src_name": "Model Management Component",
+      "dst_name": "Logging Component"
+    },
+    {
+      "relation": "Reports to",
+      "src_name": "Face Detection Component",
+      "dst_name": "Logging Component"
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "description": "High-level data flow overview of the `deepface` project, identifying its central modules, their responsibilities, and their interactions.",
+  "components": [
+    {
+      "name": "DeepFace API & Entry Points",
+      "description": "This component serves as the primary interface for users to interact with the DeepFace library. It encompasses both the direct Python API (`deepface.DeepFace`) for programmatic access and the web API (`deepface.api.src.app`, `deepface.api.src.modules.core.routes`, `deepface.api.src.modules.core.service`) for web-based requests. It handles initial user requests and delegates them for core processing.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.DeepFace",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/DeepFace.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.api.src.app",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/api/src/app.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.api.src.modules.core.routes",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/api/src/modules/core/routes.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.api.src.modules.core.service",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/api/src/modules/core/service.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        }
+      ]
+    },
+    {
+      "name": "Core Processing Engine",
+      "description": "The heart of the DeepFace library, this component implements the core logic for all face-related tasks such as detection, representation, verification, demography analysis, recognition, and streaming. It orchestrates the execution flow by calling specific deep learning models and utility functions.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.detection",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/detection.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.modules.representation",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/representation.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.modules.verification",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/verification.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.modules.demography",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/demography.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.modules.recognition",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/recognition.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.modules.streaming",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/streaming.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        }
+      ]
+    },
+    {
+      "name": "Model & Weight Management",
+      "description": "This component is responsible for the dynamic loading, building, caching, and management of various pre-trained deep learning models and their associated weights. It ensures that the necessary models and their parameters are available to the Core Processing Engine when required.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.modules.modeling",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/modeling.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.commons.weight_utils",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/commons/weight_utils.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        }
+      ]
+    },
+    {
+      "name": "Deep Learning Models",
+      "description": "This component comprises the actual implementations of specialized deep learning models used for different facial analysis tasks. This includes models for face detection, facial recognition (embedding generation), demography prediction (age, gender, emotion, race), and presentation attack detection (spoofing).",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.models.demography",
+          "reference_file": "deepface/models/demography.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.models.face_detection",
+          "reference_file": "deepface/models/face_detection.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.models.facial_recognition",
+          "reference_file": "deepface/models/facial_recognition.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.models.spoofing",
+          "reference_file": "deepface/models/spoofing.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        }
+      ]
+    },
+    {
+      "name": "Image & Preprocessing Utilities",
+      "description": "A collection of essential helper functions for handling image data. This includes functionalities for loading, resizing, aligning, normalizing, and general manipulation of images, which are crucial steps before feeding images into deep learning models.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface.commons.image_utils",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/commons/image_utils.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        },
+        {
+          "qualified_name": "deepface.modules.preprocessing",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/preprocessing.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        }
+      ]
+    }
+  ],
+  "components_relations": [
+    {
+      "relation": "interacts with",
+      "src_name": "DeepFace API & Entry Points",
+      "dst_name": "Core Processing Engine"
+    },
+    {
+      "relation": "uses",
+      "src_name": "DeepFace API & Entry Points",
+      "dst_name": "Image & Preprocessing Utilities"
+    },
+    {
+      "relation": "orchestrates",
+      "src_name": "Core Processing Engine",
+      "dst_name": "Deep Learning Models"
+    },
+    {
+      "relation": "relies on",
+      "src_name": "Core Processing Engine",
+      "dst_name": "Model & Weight Management"
+    },
+    {
+      "relation": "processes with",
+      "src_name": "Core Processing Engine",
+      "dst_name": "Image & Preprocessing Utilities"
+    },
+    {
+      "relation": "manages",
+      "src_name": "Model & Weight Management",
+      "dst_name": "Deep Learning Models"
+    }
+  ]
+}

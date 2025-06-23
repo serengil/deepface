@@ -1,4 +1,4 @@
-name: Update Documentation
+name: CodeBoarding Documentation update workflow
 
 on:
   workflow_dispatch:
@@ -6,15 +6,15 @@ on:
       repository_url:
         description: 'Repository URL to test with'
         required: false
-        default: 'https://github.com/${{ github.repository }}'
+        default: 'https://github.com/serengil/deepface'
         type: string
       source_branch:
-        description: 'Source branch for comparison'
+        description: 'Source branch for generation'
         required: false
         default: 'master'
         type: string
       target_branch:
-        description: 'Target branch for comparison'
+        description: 'Target branch for pull request'
         required: false
         default: 'master'
         type: string
@@ -26,13 +26,16 @@ on:
         options:
           - '.md'
           - '.rst'
-  schedule:
-    # Runs every Monday at 09:00 UTC
-    - cron: '0 9 * * 1'
+      output_directory:
+        description: 'Output directory for documentation files'
+        required: false
+        default: '.codeboarding'
+        type: string
 
 jobs:
   update-docs-action-usage:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: write
       pull-requests: write
@@ -59,13 +62,14 @@ jobs:
           fi
 
       - name: Fetch CodeBoarding Documentation
+        timeout-minutes: 30
         id: codeboarding
-        uses: ./
+        uses: CodeBoarding/CodeBoarding-GHAction@v0.1.0
         with:
           repository_url: ${{ github.event.inputs.repository_url }}
           source_branch: ${{ steps.set-branches.outputs.source_branch }}
           target_branch: ${{ steps.set-branches.outputs.target_branch }}
-          output_directory: '.codeboarding'
+          output_directory: ${{ github.event.inputs.output_directory || '.codeboarding' }}
           output_format: ${{ github.event.inputs.output_format || '.md' }}
 
       - name: Display Action Results
@@ -90,7 +94,7 @@ jobs:
         if: steps.git-changes.outputs.has_git_changes == 'true' && steps.codeboarding.outputs.has_changes == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
           commit-message: "docs: update codeboarding documentation"
           title: "📚 CodeBoarding Documentation Update"
           body: |
