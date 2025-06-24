@@ -6,7 +6,7 @@ on:
       repository_url:
         description: 'Repository URL to test with'
         required: false
-        default: ''
+        default: 'https://github.com/serengil/deepface'
         type: string
       source_branch:
         description: 'Source branch for comparison'
