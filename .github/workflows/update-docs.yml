@@ -33,6 +33,7 @@ on:
 jobs:
   update-docs-action-usage:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: write
       pull-requests: write
