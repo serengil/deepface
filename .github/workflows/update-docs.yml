@@ -62,7 +62,7 @@ jobs:
       - name: Fetch CodeBoarding Documentation
         timeout-minutes: 30
         id: codeboarding
-        uses: CodeBoarding/CodeBoarding-GHAction@0.0.7
+        uses: CodeBoarding/CodeBoarding-GHAction@main
         with:
           repository_url: ${{ github.event.inputs.repository_url }}
           source_branch: ${{ steps.set-branches.outputs.source_branch }}
