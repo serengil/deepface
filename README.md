@@ -142,7 +142,7 @@ Here, you can also find some real time demos for various facial recognition mode
 | Emotion              | -        | [`Video`](https://youtu.be/Y7DfLvLKScs) |
 | Celebrity Look-Alike | -        | [`Video`](https://youtu.be/RMgIKU1H8DY) |
 
-**Embeddings** - [`Demo`](https://youtu.be/OYialFo7Qo4)
+**Embeddings** - [`Tutorial`](https://sefiks.com/2025/06/28/what-are-vector-embeddings-and-why-they-matter-in-ai/), [`Demo`](https://youtu.be/OYialFo7Qo4)
 
 Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function. Represent function returns a list of embeddings. Result is going to be the size of faces appearing in the image path.
 
