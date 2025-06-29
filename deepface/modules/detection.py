@@ -80,6 +80,30 @@ def extract_faces(
             just available in the result only if anti_spoofing is set to True in input arguments.
     """
 
+    def is_valid_landmark(coord, width, height):
+        """
+        Check if a landmark coordinate is within valid image bounds
+
+        Args: 
+            coord: (x, y) tuple or None; width; height: image dimensions
+            Returns True if coord is a valid (x, y) inside the image, else False
+
+        Returns: 
+            bool: True if coordinate is valid and within bounds, False otherwise
+        """
+        if coord is None:
+            return False
+
+        # handle case where coord might not be a tuple/list
+        try: 
+            x, y = coord
+        except (TypeError, ValueError):
+            return False
+
+        # check if coordinates are within image bounds
+        return 0 <= x < width and 0 <= y < height
+
+
     resp_objs = []
 
     # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
@@ -149,22 +173,37 @@ def extract_faces(
         w = min(width - x - 1, int(current_region.w))
         h = min(height - y - 1, int(current_region.h))
 
+        # landmark vaildation
+        landmarks = {
+            "left_eye":current_region.left_eye,
+            "right_eye":current_region.right_eye,
+            "nose":current_region.nose,
+            "mouth_left":current_region.mouth_left,
+            "mouth_right":current_region.mouth_right
+        }
+
+        # Sanitize landmarks - set invalid ones to None
+        for key, value in landmarks.items():
+            if not is_valid_landmark(value, width, height):
+                landmarks[key] = None
+
+
         facial_area = {
             "x": x,
             "y": y,
             "w": w,
             "h": h,
-            "left_eye": current_region.left_eye,
-            "right_eye": current_region.right_eye,
+            "left_eye": landmarks["left_eye"],
+            "right_eye": landmarks["right_eye"],
         }
 
         # optional nose, mouth_left and mouth_right fields are coming just for retinaface
         if current_region.nose is not None:
-            facial_area["nose"] = current_region.nose
+            facial_area["nose"] = landmarks["nose"]
         if current_region.mouth_left is not None:
-            facial_area["mouth_left"] = current_region.mouth_left
+            facial_area["mouth_left"] = landmarks["mouth_left"]
         if current_region.mouth_right is not None:
-            facial_area["mouth_right"] = current_region.mouth_right
+            facial_area["mouth_right"] = landmarks["mouth_right"]
 
         resp_obj = {
             "face": current_img,
