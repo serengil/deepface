@@ -1,17 +1,9 @@
 import numpy as np
 import pytest
-from deepface.modules.detection import extract_faces, DetectedFace, FacialAreaRegion
+from deepface.modules.detection import extract_faces, DetectedFace, FacialAreaRegion, is_valid_landmark
 from deepface.commons.logger import Logger
 
 logger = Logger()
-
-def is_valid_landmark(coord, width, height):
-    if coord is None:
-        return False
-    if not (isinstance(coord, (tuple, list)) and len(coord) == 2):
-        return False
-    x, y = coord
-    return 0 <= x < width and 0 <= y < height
 
 def sanitize_landmarks(region, width, height):
     landmarks = {
