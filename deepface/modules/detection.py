@@ -80,30 +80,6 @@ def extract_faces(
             just available in the result only if anti_spoofing is set to True in input arguments.
     """
 
-    def is_valid_landmark(coord, width, height):
-        """
-        Check if a landmark coordinate is within valid image bounds
-
-        Args: 
-            coord: (x, y) tuple or None; width; height: image dimensions
-            Returns True if coord is a valid (x, y) inside the image, else False
-
-        Returns: 
-            bool: True if coordinate is valid and within bounds, False otherwise
-        """
-        if coord is None:
-            return False
-
-        # handle case where coord might not be a tuple/list
-        try: 
-            x, y = coord
-        except (TypeError, ValueError):
-            return False
-
-        # check if coordinates are within image bounds
-        return 0 <= x < width and 0 <= y < height
-
-
     resp_objs = []
 
     # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
@@ -113,6 +89,22 @@ def extract_faces(
         raise ValueError(f"Exception while loading {img_name}")
 
     height, width, _ = img.shape
+
+    def is_valid_landmark(coord: Optional[Union[tuple, list]]) -> bool:
+        """
+        Check if a landmark coordinate is within valid image bounds.
+
+        Args:
+            coord (tuple or list or None): (x, y) coordinate to check.
+        Returns:
+            bool: True if coordinate is valid and within bounds, False otherwise.
+        """
+        if coord is None:
+            return False
+        if not (isinstance(coord, (tuple, list)) and len(coord) == 2):
+            return False
+        x, y = coord
+        return 0 <= x < width and 0 <= y < height
 
     base_region = FacialAreaRegion(x=0, y=0, w=width, h=height, confidence=0)
 
@@ -173,7 +165,6 @@ def extract_faces(
         w = min(width - x - 1, int(current_region.w))
         h = min(height - y - 1, int(current_region.h))
 
-        # landmark vaildation
         landmarks = {
             "left_eye":current_region.left_eye,
             "right_eye":current_region.right_eye,
@@ -184,7 +175,7 @@ def extract_faces(
 
         # Sanitize landmarks - set invalid ones to None
         for key, value in landmarks.items():
-            if not is_valid_landmark(value, width, height):
+            if not is_valid_landmark(value):
                 landmarks[key] = None
 
 

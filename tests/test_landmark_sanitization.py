@@ -1,17 +1,19 @@
 import numpy as np
 import pytest
 from deepface.modules.detection import extract_faces, DetectedFace, FacialAreaRegion
+from deepface.commons.logger import Logger
+
+logger = Logger()
+
+def is_valid_landmark(coord, width, height):
+    if coord is None:
+        return False
+    if not (isinstance(coord, (tuple, list)) and len(coord) == 2):
+        return False
+    x, y = coord
+    return 0 <= x < width and 0 <= y < height
 
 def sanitize_landmarks(region, width, height):
-    def is_valid_landmark(coord, width, height):
-        if coord is None:
-            return False
-        try:
-            x, y = coord
-        except (TypeError, ValueError):
-            return False
-        return 0 <= x < width and 0 <= y < height
-
     landmarks = {
         "left_eye": region.left_eye,
         "right_eye": region.right_eye,
@@ -20,11 +22,13 @@ def sanitize_landmarks(region, width, height):
         "mouth_right": region.mouth_right,
     }
     for key, value in landmarks.items():
-        if not is_valid_landmark(value, 100, 100):
+        if not is_valid_landmark(value, width, height):
             landmarks[key] = None
     return landmarks
 
 def test_sanitize_landmarks():
+    img = np.zeros((100, 100, 3), dtype=np.uint8)
+    height, width = img.shape[:2]
     region = FacialAreaRegion(
         x=10, y=10, w=50, h=50,
         left_eye=(-5, 20),  # invalid
@@ -34,20 +38,17 @@ def test_sanitize_landmarks():
         mouth_right=(20, -10),  # invalid
         confidence=0.9
     )
-    landmarks = sanitize_landmarks(region, 100, 100)
-    print("Sanitized landmarks:", landmarks)
+    landmarks = sanitize_landmarks(region, width, height)
+    logger.info(f"Sanitized landmarks: {landmarks}")
     assert landmarks["left_eye"] is None
     assert landmarks["right_eye"] is None
     assert landmarks["nose"] == (30, 30)
     assert landmarks["mouth_left"] is None
     assert landmarks["mouth_right"] is None
-    print("Test passed: Invalid landmarks are sanitized to None.")
+    logger.info("Test passed: Invalid landmarks are sanitized to None.")
 
 def test_extract_faces_sanitizes_landmarks(monkeypatch):
-    # Create a dummy image
     img = np.zeros((100, 100, 3), dtype=np.uint8)
-    
-    # Create a DetectedFace with off-image landmarks
     facial_area = FacialAreaRegion(
         x=10, y=10, w=50, h=50,
         left_eye=(-5, 20),  # invalid
@@ -58,21 +59,12 @@ def test_extract_faces_sanitizes_landmarks(monkeypatch):
         confidence=0.9
     )
     detected_face = DetectedFace(img=img, facial_area=facial_area, confidence=0.9)
-    
-    # Patch detect_faces to return our test face
-    monkeypatch.setattr("f_deepface.deepface.modules.detection.detect_faces", lambda *args, **kwargs: [detected_face])
-    
-    # Use a different backend that will call detect_faces
+    monkeypatch.setattr("deepface.modules.detection.detect_faces", lambda *args, **kwargs: [detected_face])
     result = extract_faces(img, detector_backend="opencv", enforce_detection=False)
     facial_area_out = result[0]["facial_area"]
-    
-    print("Output facial_area:", facial_area_out)  # Debug print
-    
+    logger.info(f"Output facial_area: {facial_area_out}")
     assert facial_area_out["left_eye"] is None
     assert facial_area_out["right_eye"] is None
     assert facial_area_out.get("nose") == (30, 30)
     assert facial_area_out.get("mouth_left") is None
-    assert facial_area_out.get("mouth_right") is None
-
-if __name__ == "__main__":
-    test_sanitize_landmarks() 
+    assert facial_area_out.get("mouth_right") is None 
