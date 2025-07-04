@@ -1,6 +1,7 @@
 # built-in dependencies
 import os
 from unittest import mock
+from unittest.mock import MagicMock
 import pytest
 
 # project dependencies
@@ -62,13 +63,13 @@ def test_loading_broken_weights():
 class TestDownloadWeightFeature:
     def test_download_weights_for_available_file(
         self,
-        mock_open,
-        mock_zipfile,
-        mock_bz2file,
-        mock_makedirs,
-        mock_isfile,
-        mock_gdown,
-        mock_get_deepface_home,
+        mock_open: MagicMock,
+        mock_zipfile: MagicMock,
+        mock_bz2file: MagicMock,
+        mock_makedir: MagicMock,
+        mock_isfile: MagicMock,
+        mock_gdown: MagicMock,
+        mock_get_deepface_home: MagicMock,
     ):
         mock_isfile.return_value = True
         mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
@@ -78,7 +79,9 @@ class TestDownloadWeightFeature:
 
         result = weight_utils.download_weights_if_necessary(file_name, source_url)
 
-        assert os.path.normpath(result) == os.path.normpath(os.path.join("/mock/home", ".deepface/weights", file_name))
+        assert os.path.normpath(result) == os.path.normpath(
+            os.path.join("/mock/home", ".deepface/weights", file_name)
+        )
 
         mock_gdown.assert_not_called()
         mock_zipfile.assert_not_called()
@@ -87,13 +90,13 @@ class TestDownloadWeightFeature:
 
     def test_download_weights_if_necessary_gdown_failure(
         self,
-        mock_open,
-        mock_zipfile,
-        mock_bz2file,
-        mock_makedirs,
-        mock_isfile,
-        mock_gdown,
-        mock_get_deepface_home,
+        mock_open: MagicMock,
+        mock_zipfile: MagicMock,
+        mock_bz2file: MagicMock,
+        mock_makedirs: MagicMock,
+        mock_isfile: MagicMock,
+        mock_gdown: MagicMock,
+        mock_get_deepface_home: MagicMock,
     ):
         # Setting up the mock return values
         mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
@@ -116,13 +119,13 @@ class TestDownloadWeightFeature:
 
     def test_download_weights_if_necessary_no_compression(
         self,
-        mock_open,
-        mock_zipfile,
-        mock_bz2file,
-        mock_makedirs,
-        mock_isfile,
-        mock_gdown,
-        mock_get_deepface_home,
+        mock_open: MagicMock,
+        mock_zipfile: MagicMock,
+        mock_bz2file: MagicMock,
+        mock_makedir: MagicMock,
+        mock_isfile: MagicMock,
+        mock_gdown: MagicMock,
+        mock_get_deepface_home: MagicMock,
     ):
         # Setting up the mock return values
         mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
@@ -138,9 +141,7 @@ class TestDownloadWeightFeature:
         expected_path = os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
 
         # Assert that gdown.download was called with the correct parameters
-        mock_gdown.assert_called_once_with(
-            source_url, expected_path, quiet=False
-        )
+        mock_gdown.assert_called_once_with(source_url, expected_path, quiet=False)
 
         # Assert that the return value is correct
         assert result == expected_path
@@ -153,13 +154,13 @@ class TestDownloadWeightFeature:
 
     def test_download_weights_if_necessary_zip(
         self,
-        mock_open,
-        mock_zipfile,
-        mock_bz2file,
-        mock_makedirs,
-        mock_isfile,
-        mock_gdown,
-        mock_get_deepface_home,
+        mock_open: MagicMock,
+        mock_zipfile: MagicMock,
+        mock_bz2file: MagicMock,
+        mock_makedirs: MagicMock,
+        mock_isfile: MagicMock,
+        mock_gdown: MagicMock,
+        mock_get_deepface_home: MagicMock,
     ):
         # Setting up the mock return values
         mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
@@ -174,7 +175,9 @@ class TestDownloadWeightFeature:
 
         # Assert that gdown.download was called with the correct parameters
         mock_gdown.assert_called_once_with(
-            source_url, os.path.normpath("/mock/home/.deepface/weights/model_weights.h5.zip"), quiet=False
+            source_url,
+            os.path.normpath("/mock/home/.deepface/weights/model_weights.h5.zip"),
+            quiet=False,
         )
 
         # Simulate the unzipping behavior
@@ -194,13 +197,13 @@ class TestDownloadWeightFeature:
 
     def test_download_weights_if_necessary_bz2(
         self,
-        mock_open,
-        mock_zipfile,
-        mock_bz2file,
-        mock_makedirs,
-        mock_isfile,
-        mock_gdown,
-        mock_get_deepface_home,
+        mock_open: MagicMock,
+        mock_zipfile: MagicMock,
+        mock_bz2file: MagicMock,
+        mock_makedirs: MagicMock,
+        mock_isfile: MagicMock,
+        mock_gdown: MagicMock,
+        mock_get_deepface_home: MagicMock,
     ):
 
         # Setting up the mock return values
@@ -222,11 +225,15 @@ class TestDownloadWeightFeature:
 
         # Assert that gdown.download was called with the correct parameters
         mock_gdown.assert_called_once_with(
-            source_url, os.path.normpath("/mock/home/.deepface/weights/model_weights.h5.bz2"), quiet=False
+            source_url,
+            os.path.normpath("/mock/home/.deepface/weights/model_weights.h5.bz2"),
+            quiet=False,
         )
 
         # Ensure open() is called once for writing the decompressed data
-        mock_open.assert_called_once_with(os.path.normpath("/mock/home/.deepface/weights/model_weights.h5"), "wb")
+        mock_open.assert_called_once_with(
+            os.path.normpath("/mock/home/.deepface/weights/model_weights.h5"), "wb"
+        )
 
         # TODO: find a way to check write is called
 
@@ -237,13 +244,13 @@ class TestDownloadWeightFeature:
 
     def test_download_weights_for_non_supported_compress_type(
         self,
-        mock_open,
-        mock_zipfile,
-        mock_bz2file,
-        mock_makedirs,
-        mock_isfile,
-        mock_gdown,
-        mock_get_deepface_home,
+        mock_open: MagicMock,
+        mock_zipfile: MagicMock,
+        mock_bz2file: MagicMock,
+        mock_makedirs: MagicMock,
+        mock_isfile: MagicMock,
+        mock_gdown: MagicMock,
+        mock_get_deepface_home: MagicMock,
     ):
         mock_isfile.return_value = False
 
