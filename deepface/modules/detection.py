@@ -17,6 +17,23 @@ logger = Logger()
 
 # pylint: disable=no-else-raise
 
+def is_valid_landmark(coord: Optional[Union[tuple, list]], width: int, height: int) -> bool:
+    """
+    Check if a landmark coordinate is within valid image bounds.
+
+    Args:
+        coord (tuple or list or None): (x, y) coordinate to check.
+        width (int): Image width.
+        height (int): Image height.
+    Returns:
+        bool: True if coordinate is valid and within bounds, False otherwise.
+    """
+    if coord is None:
+        return False
+    if not (isinstance(coord, (tuple, list)) and len(coord) == 2):
+        return False
+    x, y = coord
+    return 0 <= x < width and 0 <= y < height
 
 def extract_faces(
     img_path: Union[str, np.ndarray, IO[bytes]],
@@ -149,22 +166,36 @@ def extract_faces(
         w = min(width - x - 1, int(current_region.w))
         h = min(height - y - 1, int(current_region.h))
 
+        landmarks = {
+            "left_eye":current_region.left_eye,
+            "right_eye":current_region.right_eye,
+            "nose":current_region.nose,
+            "mouth_left":current_region.mouth_left,
+            "mouth_right":current_region.mouth_right
+        }
+
+        # Sanitize landmarks - set invalid ones to None
+        for key, value in landmarks.items():
+            if not is_valid_landmark(value, width, height):
+                landmarks[key] = None
+
+
         facial_area = {
             "x": x,
             "y": y,
             "w": w,
             "h": h,
-            "left_eye": current_region.left_eye,
-            "right_eye": current_region.right_eye,
+            "left_eye": landmarks["left_eye"],
+            "right_eye": landmarks["right_eye"],
         }
 
         # optional nose, mouth_left and mouth_right fields are coming just for retinaface
         if current_region.nose is not None:
-            facial_area["nose"] = current_region.nose
+            facial_area["nose"] = landmarks["nose"]
         if current_region.mouth_left is not None:
-            facial_area["mouth_left"] = current_region.mouth_left
+            facial_area["mouth_left"] = landmarks["mouth_left"]
         if current_region.mouth_right is not None:
-            facial_area["mouth_right"] = current_region.mouth_right
+            facial_area["mouth_right"] = landmarks["mouth_right"]
 
         resp_obj = {
             "face": current_img,
