@@ -137,10 +137,10 @@ Here, you can also find some real time demos for various facial recognition mode
 | Facial Recognition   | FaceNet  | [`Video`](https://youtu.be/vB1I5vWgTQg) |
 | Facial Recognition   | VGG-Face | [`Video`](https://youtu.be/tSU_lNi0gQQ) |
 | Facial Recognition   | OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
-| Age & Gender         | -        | [`Video`](https://youtu.be/tFI7vZn3P7E) |
-| Race & Ethnicity     | -        | [`Video`](https://youtu.be/-ztiy5eJha8) |
-| Emotion              | -        | [`Video`](https://youtu.be/Y7DfLvLKScs) |
-| Celebrity Look-Alike | -        | [`Video`](https://youtu.be/RMgIKU1H8DY) |
+| Age & Gender         | Default  | [`Video`](https://youtu.be/tFI7vZn3P7E) |
+| Race & Ethnicity     | Default  | [`Video`](https://youtu.be/-ztiy5eJha8) |
+| Emotion              | Default  | [`Video`](https://youtu.be/Y7DfLvLKScs) |
+| Celebrity Look-Alike | Default  | [`Video`](https://youtu.be/RMgIKU1H8DY) |
 
 **Embeddings** - [`Tutorial`](https://sefiks.com/2025/06/28/what-are-vector-embeddings-and-why-they-matter-in-ai/), [`Demo`](https://youtu.be/OYialFo7Qo4)
 
