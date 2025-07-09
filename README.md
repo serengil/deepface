@@ -154,6 +154,10 @@ Embeddings can be [plotted](https://sefiks.com/2020/05/01/a-gentle-introduction-
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/embedding.jpg" width="95%"></p>
 
+In summary, the distance between vector embeddings of the same person should be smaller than that between embeddings of different people. When reduced to two-dimensional space, the clusters become clearly distinguishable.
+
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/facenet-pca.png" width="95%"></p>
+
 **Face recognition models** - [`Demo`](https://youtu.be/eKOZawGR3y0)
 
 DeepFace is a **hybrid** face recognition package. It currently wraps many **state-of-the-art** face recognition models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) , [`FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/), [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/), [`ArcFace`](https://sefiks.com/2020/12/14/deep-face-recognition-with-arcface-in-keras-and-python/), [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/), `SFace`, `GhostFaceNet` and `Buffalo_L`. The default configuration uses VGG-Face model.
