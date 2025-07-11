@@ -315,7 +315,7 @@ Conversely, if your task involves facial recognition on small to moderate-sized 
 
 **Encrypt Embeddings** - [`Demo with PHE`](https://youtu.be/8VCu39jFZ7k), [`Tutorial for PHE`](https://sefiks.com/2025/03/04/vector-similarity-search-with-partially-homomorphic-encryption-in-python/), [`Demo with FHE`](https://youtu.be/njjw0PEhH00), [`Tutorial for FHE`](https://sefiks.com/2021/12/01/homomorphic-facial-recognition-with-tenseal/)
 
-Even though vector embeddings are not reversible to original images, they still contain sensitive information similar to fingerprints, making their security critical. Encrypting embeddings is essential for higher security applications to prevent adversarial attacks that could manipulate or extract sensitive information. Traditional encryption methods like AES are very safe but limited in securely utilizing cloud computational power for distance calculations. Herein, [homomorphic encryption](https://youtu.be/3ejI0zNPMEQ), allowing calculations on encrypted data without private key, offers a robust alternative for cloud.
+Vector embeddings, though not reversible, carry sensitive information like fingerprints, making their security crucial. Encrypting them prevents adversarial misuse. Traditional encryption (e.g., AES) is secure but unsuitable for cloud-based distance calculations. [Homomorphic encryption](https://youtu.be/3ejI0zNPMEQ) allows computations on encrypted data without revealing content—ideal for secure cloud processing. For example, the cloud can compute encrypted similarity without knowing the data, while only the key holder can decrypt the result. See the  [`LightPHE`](https://github.com/serengil/LightPHE) library for partially homomorphic encryption (PHE).
 
 ```python
 from lightphe import LightPHE
@@ -342,9 +342,7 @@ print("same person" if calculated_similarity >= 1 - threshold else "different pe
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/encrypt-embeddings.jpg" width="60%"></p>
 
-In this scheme, we leverage the computational power of the cloud to compute encrypted cosine similarity. However, the cloud has no knowledge of the actual calculations it performs. That's the **magic** of homomorphic encryption! Only the secret key holder on the on-premises side can decrypt the encrypted cosine similarity and determine whether the pair represents the same person or different individuals. Check out [`LightPHE`](https://github.com/serengil/LightPHE) library to find out more about partially homomorphic encryption.
-
-As an alternative to partially homomorphic encryption, you can also choose to use fully homomorphic encryption. In this case, you'll compute the dot product between encrypted embeddings, rather than between encrypted and plain embeddings. To learn more about fully homomorphic encryption, check out the [`CipherFace`](https://github.com/serengil/cipherface) library. However, keep in mind that FHE is significantly more computationally expensive than PHE.
+For stronger privacy, fully homomorphic encryption enables dot product computations between encrypted embeddings, but it's far more computationally intensive. Explore [`CipherFace`](https://github.com/serengil/cipherface) for FHE-based approaches.
 
 ### Extended Applications
 
