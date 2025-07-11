@@ -315,7 +315,9 @@ Conversely, if your task involves facial recognition on small to moderate-sized 
 
 **Encrypt Embeddings** - [`Demo with PHE`](https://youtu.be/8VCu39jFZ7k), [`Tutorial for PHE`](https://sefiks.com/2025/03/04/vector-similarity-search-with-partially-homomorphic-encryption-in-python/), [`Demo with FHE`](https://youtu.be/njjw0PEhH00), [`Tutorial for FHE`](https://sefiks.com/2021/12/01/homomorphic-facial-recognition-with-tenseal/)
 
-Vector embeddings, though not reversible, carry sensitive information like fingerprints, making their security crucial. Encrypting them prevents adversarial misuse. Traditional encryption (e.g., AES) is secure but unsuitable for cloud-based distance calculations. [Homomorphic encryption](https://youtu.be/3ejI0zNPMEQ) allows computations on encrypted data without revealing content—ideal for secure cloud processing. For example, the cloud can compute encrypted similarity without knowing the data, while only the key holder can decrypt the result. See the  [`LightPHE`](https://github.com/serengil/LightPHE) library for partially homomorphic encryption (PHE).
+Vector embeddings, though not reversible, carry sensitive information like fingerprints, making their security crucial. Encrypting them prevents adversarial misuse. Traditional encryption (e.g., AES) is secure but unsuitable for cloud-based distance calculations.
+
+[Homomorphic encryption](https://youtu.be/3ejI0zNPMEQ) allows computations on encrypted data without revealing content—ideal for secure cloud processing. For example, the cloud can compute encrypted similarity without knowing the data, while only the key holder can decrypt the result. See the  [`LightPHE`](https://github.com/serengil/LightPHE) library for partially homomorphic encryption.
 
 ```python
 from lightphe import LightPHE
