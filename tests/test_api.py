@@ -238,8 +238,7 @@ class TestVerifyEndpoint(unittest.TestCase):
 
     def test_invalid_verify(self):
         data = {
-            "img1": "dataset/invalid_1.jpg",
-            "img2": "dataset/invalid_2.jpg",
+            "img": "invalid.jpg",
         }
         response = self.app.post("/verify", json=data)
         assert response.status_code == 400
@@ -247,7 +246,7 @@ class TestVerifyEndpoint(unittest.TestCase):
 
     def test_invalid_represent(self):
         data = {
-            "img": "dataset/invalid_1.jpg",
+            "img": "invalid.jpg",
         }
         response = self.app.post("/represent", json=data)
         assert response.status_code == 400
@@ -255,7 +254,7 @@ class TestVerifyEndpoint(unittest.TestCase):
 
     def test_invalid_analyze(self):
         data = {
-            "img": "dataset/invalid.jpg",
+            "img": "invalid.jpg",
         }
         response = self.app.post("/analyze", json=data)
         assert response.status_code == 400
