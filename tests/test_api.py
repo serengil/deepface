@@ -1,19 +1,19 @@
 # built-in dependencies
-import os
 import base64
+import os
 import shutil
 import unittest
-from unittest.mock import patch, MagicMock
-from packaging import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import MagicMock, patch
 
 # 3rd party dependencies
+import flask
 import gdown
 import numpy as np
-import flask
-from flask import Flask
 import werkzeug
+from flask import Flask
+from packaging import version
 
 # project dependencies
 from deepface.api.src.app import create_app
