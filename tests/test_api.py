@@ -1,9 +1,12 @@
 # built-in dependencies
 import os
 import base64
+import shutil
 import unittest
 from unittest.mock import patch, MagicMock
 from packaging import version
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 # 3rd party dependencies
 import gdown
@@ -36,6 +39,13 @@ class TestVerifyEndpoint(unittest.TestCase):
         app.config["DEBUG"] = True
         app.config["TESTING"] = True
         self.app = app.test_client()
+
+    def setup_invalid_image(self):
+        """Create a file with invalid image data in a temporary directory."""
+        self.tempdir = TemporaryDirectory(prefix="test-", dir=".")
+        self.addCleanup(shutil.rmtree, self.tempdir.name)
+        self.invalid_image_path = Path(self.tempdir.name) / "invalid.jpg"
+        self.invalid_image_path.write_text("Not JPEG data")
 
     def test_tp_verify(self):
         data = {
@@ -246,16 +256,18 @@ class TestVerifyEndpoint(unittest.TestCase):
         logger.info("✅ invalid verification request api test is done")
 
     def test_invalid_represent(self):
+        self.setup_invalid_image()
         data = {
-            "img": "invalid.jpg",
+            "img": str(self.invalid_image_path),
         }
         response = self.app.post("/represent", json=data)
         assert response.status_code == 400
         logger.info("✅ invalid represent request api test is done")
 
     def test_invalid_analyze(self):
+        self.setup_invalid_image()
         data = {
-            "img": "invalid.jpg",
+            "img": str(self.invalid_image_path),
         }
         response = self.app.post("/analyze", json=data)
         assert response.status_code == 400
