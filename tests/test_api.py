@@ -238,7 +238,8 @@ class TestVerifyEndpoint(unittest.TestCase):
 
     def test_invalid_verify(self):
         data = {
-            "img": "invalid.jpg",
+            "img1": "dataset/invalid_1.jpg",
+            "img2": "dataset/invalid_2.jpg",
         }
         response = self.app.post("/verify", json=data)
         assert response.status_code == 400
