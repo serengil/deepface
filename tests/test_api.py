@@ -1,16 +1,19 @@
 # built-in dependencies
-import os
 import base64
+import os
+import shutil
 import unittest
-from unittest.mock import patch, MagicMock
-from packaging import version
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import MagicMock, patch
 
 # 3rd party dependencies
+import flask
 import gdown
 import numpy as np
-import flask
-from flask import Flask
 import werkzeug
+from flask import Flask
+from packaging import version
 
 # project dependencies
 from deepface.api.src.app import create_app
@@ -36,6 +39,13 @@ class TestVerifyEndpoint(unittest.TestCase):
         app.config["DEBUG"] = True
         app.config["TESTING"] = True
         self.app = app.test_client()
+
+    def setup_invalid_image(self):
+        """Create a file with invalid image data in a temporary directory."""
+        self.tempdir = TemporaryDirectory(prefix="test-", dir=".")
+        self.addCleanup(shutil.rmtree, self.tempdir.name)
+        self.invalid_image_path = Path(self.tempdir.name) / "invalid.jpg"
+        self.invalid_image_path.write_text("Not JPEG data")
 
     def test_tp_verify(self):
         data = {
@@ -246,16 +256,36 @@ class TestVerifyEndpoint(unittest.TestCase):
         logger.info("✅ invalid verification request api test is done")
 
     def test_invalid_represent(self):
+        """/represent fails with status 400  for invalid image data"""
+        self.setup_invalid_image()
         data = {
-            "img": "dataset/invalid_1.jpg",
+            "img": str(self.invalid_image_path),
         }
         response = self.app.post("/represent", json=data)
         assert response.status_code == 400
         logger.info("✅ invalid represent request api test is done")
 
-    def test_invalid_analyze(self):
+    def test_no_file_represent(self):
+        """/represent fails with status 400  for missing image file"""
         data = {
-            "img": "dataset/invalid.jpg",
+            "img": "no_such_file.jpg",
+        }
+        response = self.app.post("/represent", json=data)
+        assert response.status_code == 400
+
+    def test_invalid_analyze(self):
+        """/analyze fails with status 400  for invalid image data"""
+        self.setup_invalid_image()
+        data = {
+            "img": str(self.invalid_image_path),
+        }
+        response = self.app.post("/analyze", json=data)
+        assert response.status_code == 400
+
+    def test_no_file_analyze(self):
+        """/analyze fails with status 400  for missing image file"""
+        data = {
+            "img": "no_such_file.jpg",
         }
         response = self.app.post("/analyze", json=data)
         assert response.status_code == 400
