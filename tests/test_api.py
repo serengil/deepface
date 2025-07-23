@@ -256,6 +256,7 @@ class TestVerifyEndpoint(unittest.TestCase):
         logger.info("✅ invalid verification request api test is done")
 
     def test_invalid_represent(self):
+        """/represent fails with status 400  for invalid image data"""
         self.setup_invalid_image()
         data = {
             "img": str(self.invalid_image_path),
@@ -264,10 +265,27 @@ class TestVerifyEndpoint(unittest.TestCase):
         assert response.status_code == 400
         logger.info("✅ invalid represent request api test is done")
 
+    def test_no_file_represent(self):
+        """/represent fails with status 400  for missing image file"""
+        data = {
+            "img": "no_such_file.jpg",
+        }
+        response = self.app.post("/represent", json=data)
+        assert response.status_code == 400
+
     def test_invalid_analyze(self):
+        """/analyze fails with status 400  for invalid image data"""
         self.setup_invalid_image()
         data = {
             "img": str(self.invalid_image_path),
+        }
+        response = self.app.post("/analyze", json=data)
+        assert response.status_code == 400
+
+    def test_no_file_analyze(self):
+        """/analyze fails with status 400  for missing image file"""
+        data = {
+            "img": "no_such_file.jpg",
         }
         response = self.app.post("/analyze", json=data)
         assert response.status_code == 400
