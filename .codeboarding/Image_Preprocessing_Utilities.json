@@ -1,0 +1,61 @@
+{
+  "description": "The Image & Preprocessing Utilities component serves as the foundational layer for all image-related operations within the system. It encompasses a crucial set of helper functions and modules dedicated to handling image data from its raw input state through various transformations, ensuring it is optimally prepared for subsequent deep learning model consumption. This includes functionalities for loading images from diverse sources, resizing them to required dimensions, and applying normalization techniques.",
+  "components": [
+    {
+      "name": "Image Loading Utilities",
+      "description": "This sub-component is solely responsible for abstracting the process of loading image data. It supports various input formats, including local file paths, web URLs, base64 encoded strings, and in-memory IO objects, converting them into a standardized NumPy array format. It also offers utilities for listing and hashing image files, facilitating efficient data management.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface/commons/image_utils.py",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/commons/image_utils.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        }
+      ]
+    },
+    {
+      "name": "Image Preprocessing Utilities",
+      "description": "This sub-component focuses on preparing image data for deep learning models. Its primary functions include resizing images to a target resolution and applying various normalization techniques to pixel values. These steps are critical to ensure consistency and optimal scale for model input.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "deepface/modules/preprocessing.py",
+          "reference_file": "/mnt/e/StartUp/deepface/deepface/modules/preprocessing.py",
+          "reference_start_line": 1,
+          "reference_end_line": 1
+        }
+      ]
+    }
+  ],
+  "components_relations": [
+    {
+      "relation": "Provides raw image data",
+      "src_name": "Image Loading Utilities",
+      "dst_name": "Image Preprocessing Utilities"
+    },
+    {
+      "relation": "Supplies raw image data",
+      "src_name": "Image Loading Utilities",
+      "dst_name": "Face Detector"
+    },
+    {
+      "relation": "Provides preprocessed images",
+      "src_name": "Image Preprocessing Utilities",
+      "dst_name": "Face Detector"
+    },
+    {
+      "relation": "Delivers preprocessed and aligned face images",
+      "src_name": "Image Preprocessing Utilities",
+      "dst_name": "Facial Recognizer"
+    },
+    {
+      "relation": "Supplies preprocessed and aligned face images",
+      "src_name": "Image Preprocessing Utilities",
+      "dst_name": "Demography Analyzer"
+    },
+    {
+      "relation": "Provides preprocessed and aligned face images",
+      "src_name": "Image Preprocessing Utilities",
+      "dst_name": "Spoofing Detector"
+    }
+  ]
+}
