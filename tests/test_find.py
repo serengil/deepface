@@ -29,11 +29,20 @@ def test_find_with_exact_path():
         assert identity_df.shape[0] > 0
 
         # validate reproducability
-        assert identity_df["distance"].values[0] < threshold
+        assert identity_df["distance"].values[0] <= threshold
 
         df = df[df["identity"] != img_path]
         logger.debug(df.head())
         assert df.shape[0] > 0
+
+        assert "confidence" in df.columns
+        # confidence is between 0 and 100
+        assert df["confidence"].max() <= 100
+        assert df["confidence"].min() >= 0
+        # also we just show verified ones in results
+        assert df["confidence"].max() <= 100
+        assert df["confidence"].min() >= 51
+
     logger.info("✅ test find for exact path done")
 
 

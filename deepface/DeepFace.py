@@ -136,6 +136,10 @@ def verify(
         - 'threshold' (float): The maximum threshold used for verification.
             If the distance is below this threshold, the images are considered a match.
 
+        - 'confidence' (float): Confidence score indicating the likelihood that the images
+            represent the same person. The score is between 0 and 100, where higher values
+            indicate greater confidence in the verification result.
+
         - 'model' (str): The chosen face recognition model.
 
         - 'distance_metric' (str): The chosen similarity metric for measuring distances.
@@ -356,6 +360,10 @@ def find(
 
             - 'distance': Similarity score between the faces based on the
                     specified model and distance metric
+
+            - 'confidence': Confidence score indicating the likelihood that the images
+                    represent the same person. The score is between 0 and 100, where higher values
+                    indicate greater confidence in the verification result.
     """
     return recognition.find(
         img_path=img_path,

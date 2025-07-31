@@ -235,7 +235,7 @@ def search_identity(
     model_name: str,
     detector_backend: str,
     distance_metric: str,
-) -> Tuple[Optional[str], Optional[np.ndarray]]:
+) -> Tuple[Optional[str], Optional[np.ndarray], float]:
     """
     Search an identity in facial database.
     Args:
@@ -255,6 +255,8 @@ def search_identity(
             identified image itself (np.ndarray)
     """
     target_path = None
+    target_img = None
+    confidence = 0
     try:
         dfs = DeepFace.find(
             img_path=detected_face,
@@ -276,17 +278,18 @@ def search_identity(
             raise err
     if len(dfs) == 0:
         # you may consider to return unknown person's image here
-        return None, None
+        return target_path, target_img, confidence
 
     # detected face is coming from parent, safe to access 1st index
     df = dfs[0]
 
     if df.shape[0] == 0:
-        return None, None
+        return target_path, target_img, confidence
 
     candidate = df.iloc[0]
     target_path = candidate["identity"]
-    logger.info(f"Hello, {target_path}")
+    confidence = candidate["confidence"]
+    logger.info(f"Hello, {target_path} (confidence: {confidence}%)")
 
     # load found identity image - extracted if possible
     target_objs = DeepFace.extract_faces(
@@ -310,7 +313,11 @@ def search_identity(
     # resize anyway
     target_img = cv2.resize(target_img, (IDENTIFIED_IMG_SIZE, IDENTIFIED_IMG_SIZE))
 
-    return target_path.split("/")[-1], target_img
+    return (
+        target_path.split("/")[-1],
+        target_img,
+        confidence,
+    )
 
 
 def build_demography_models(enable_face_analysis: bool) -> None:
@@ -507,7 +514,7 @@ def perform_facial_recognition(
     """
     for idx, (x, y, w, h, is_real, antispoof_score) in enumerate(faces_coordinates):
         detected_face = detected_faces[idx]
-        target_label, target_img = search_identity(
+        target_label, target_img, confidence = search_identity(
             detected_face=detected_face,
             db_path=db_path,
             detector_backend=detector_backend,
@@ -525,6 +532,7 @@ def perform_facial_recognition(
             y=y,
             w=w,
             h=h,
+            confidence=confidence,
         )
 
     return img
@@ -586,6 +594,7 @@ def overlay_identified_face(
     y: int,
     w: int,
     h: int,
+    confidence: float,
 ) -> np.ndarray:
     """
     Overlay the identified face onto image itself
@@ -597,9 +606,13 @@ def overlay_identified_face(
         y (int): y coordinate of the face on the given image
         w (int): w coordinate of the face on the given image
         h (int): h coordinate of the face on the given image
+        confidence (float): confidence score of the identified face
     Returns:
         img (np.ndarray): image with overlayed identity
     """
+
+    # show classification label with confidence
+    label = f"{label} ({confidence}%)"
     try:
         if y - IDENTIFIED_IMG_SIZE > 0 and x + w + IDENTIFIED_IMG_SIZE < img.shape[1]:
             # top right

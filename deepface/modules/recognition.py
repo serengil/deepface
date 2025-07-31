@@ -105,6 +105,9 @@ def find(
 
             - 'distance': Similarity score between the faces based on the
                     specified model and distance metric
+
+            - 'confidence': Confidence score indicating the likelihood that the faces belong to
+                    the same individual. This is calculated based on the distance and the threshold.
     """
 
     tic = time.time()
@@ -184,9 +187,7 @@ def find(
     # Enforce data consistency amongst on disk images and pickle file
     if refresh_database:
         # embedded images
-        pickled_images = {
-            representation["identity"] for representation in representations
-        }
+        pickled_images = {representation["identity"] for representation in representations}
 
         new_images = storage_images - pickled_images  # images added to storage
         old_images = pickled_images - storage_images  # images removed from storage
@@ -296,12 +297,18 @@ def find(
         target_representation = target_embedding_obj[0]["embedding"]
 
         result_df = df.copy()  # df will be filtered in each img
+
+        pretuned_threshold = verification.find_threshold(model_name, distance_metric)
+        target_threshold = threshold or pretuned_threshold
+
+        result_df["threshold"] = target_threshold
         result_df["source_x"] = source_region["x"]
         result_df["source_y"] = source_region["y"]
         result_df["source_w"] = source_region["w"]
         result_df["source_h"] = source_region["h"]
 
         distances = []
+        confidences = []
         for _, instance in df.iterrows():
             source_representation = instance["embedding"]
             if source_representation is None:
@@ -321,17 +328,24 @@ def find(
                 source_representation, target_representation, distance_metric
             )
 
+            confidence = verification.find_confidence(
+                distance=distance,
+                model_name=model_name,
+                distance_metric=distance_metric,
+                verified=distance <= pretuned_threshold,
+            )
+
             distances.append(distance)
+            confidences.append(confidence)
 
             # ---------------------------
-        target_threshold = threshold or verification.find_threshold(model_name, distance_metric)
 
-        result_df["threshold"] = target_threshold
         result_df["distance"] = distances
+        result_df["confidence"] = confidences
 
         result_df = result_df.drop(columns=["embedding"])
         # pylint: disable=unsubscriptable-object
-        result_df = result_df[result_df["distance"] <= target_threshold]
+        result_df = result_df[result_df["distance"] <= result_df["threshold"]]
         result_df = result_df.sort_values(by=["distance"], ascending=True).reset_index(drop=True)
 
         resp_obj.append(result_df)
@@ -398,7 +412,7 @@ def __find_bulk_embeddings(
                 enforce_detection=enforce_detection,
                 align=align,
                 expand_percentage=expand_percentage,
-                color_face='bgr'  # `represent` expects images in bgr format.
+                color_face="bgr",  # `represent` expects images in bgr format.
             )
 
         except ValueError as err:
