@@ -855,6 +855,44 @@ def find_confidence(
                 "denorm_min_false": 1.951974654804089,
             },
         },
+        "DeepFace": {
+            "cosine": {
+                "w": -5.415666808301125,
+                "b": 1.4142777745857174,
+                "normalizer": 0.379428,
+                "denorm_max_true": 74.38935817923884,
+                "denorm_min_true": 54.25111593547536,
+                "denorm_max_false": 54.16884369236297,
+                "denorm_min_false": 34.51159270342188,
+            },
+            "euclidean": {
+                "w": -7.001068623335827,
+                "b": 5.229677082777916,
+                "normalizer": 85.997482,
+                "denorm_max_true": 90.45531547409938,
+                "denorm_min_true": 50.79114821321717,
+                "denorm_max_false": 50.4218117539695,
+                "denorm_min_false": 14.53693626301508,
+            },
+            "euclidean_l2": {
+                "w": -6.520866920809606,
+                "b": 3.750706572243227,
+                "normalizer": 0.871123,
+                "denorm_max_true": 80.42595166943502,
+                "denorm_min_true": 39.6419822387709,
+                "denorm_max_false": 39.578029519563,
+                "denorm_min_false": 12.677597535252195,
+            },
+            "angular": {
+                "w": -0.20178503977417342,
+                "b": -4.960267621006636,
+                "normalizer": 0.2869,
+                "denorm_max_true": 0.6803996880922583,
+                "denorm_min_true": 0.6801854995078236,
+                "denorm_max_false": 0.6759509854967268,
+                "denorm_min_false": 0.6573199053945571,
+            },
+        },
     }
 
     if configs.get(model_name) is None:
