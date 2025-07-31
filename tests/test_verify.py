@@ -4,6 +4,7 @@ import cv2
 
 # project dependencies
 from deepface import DeepFace
+from deepface.modules.verification import find_distance
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -94,6 +95,17 @@ def test_different_face_detectors():
         assert "y" in res["facial_areas"]["img2"].keys()
         assert "w" in res["facial_areas"]["img2"].keys()
         assert "h" in res["facial_areas"]["img2"].keys()
+        assert "confidence" in res.keys()
+        assert isinstance(res["confidence"], (float, int))
+        assert 0 <= res["confidence"] <= 100, "Confidence should be between 0 and 100"
+        if res["verified"]:
+            assert (
+                51 <= res["confidence"] <= 100
+            ), "Confidence for same person should be between 51 and 100"
+        else:
+            assert (
+                0 <= res["confidence"] <= 49
+            ), "Confidence for different persons should be between 0 and 49"
         logger.info(f"✅ test verify for {detector} backend done")
 
 
@@ -188,3 +200,60 @@ def test_verify_for_nested_embeddings():
         _ = DeepFace.verify(img1_path=img1_embeddings, img2_path=img2_path)
 
     logger.info("✅ test verify for nested embeddings is done")
+
+
+def test_compability_of_verify_and_represent():
+    """
+    verify and represent should be compatible
+        because of rgb bgr conversion, this is confusing
+    """
+    img1 = "dataset/img1.jpg"
+    img2 = "dataset/img2.jpg"
+
+    resp_obj = DeepFace.verify(
+        img1, img2, model_name="Facenet", detector_backend="mtcnn", distance_metric="cosine"
+    )
+    alpha = resp_obj["distance"]
+
+    img1_repr = DeepFace.represent(img1, model_name="Facenet", detector_backend="mtcnn")[0][
+        "embedding"
+    ]
+    img2_repr = DeepFace.represent(img2, model_name="Facenet", detector_backend="mtcnn")[0][
+        "embedding"
+    ]
+
+    beta = find_distance(
+        alpha_embedding=img1_repr,
+        beta_embedding=img2_repr,
+        distance_metric="cosine",
+    )
+
+    assert abs(alpha - beta) < 1e-6, f"Distance mismatch: {alpha} (verify) vs {beta} (represent)"
+
+    logger.info("✅ test compatibility of verify and represent is done")
+
+
+def test_confidence():
+    for distance_metric in metrics:
+        result = DeepFace.verify(
+            "dataset/img1.jpg",
+            "dataset/img2.jpg",
+            model_name="Facenet",
+            detector_backend="mtcnn",
+            distance_metric=distance_metric,
+        )
+        assert (
+            result["confidence"] >= 51
+        ), f"Confidence should be >= 51 for same person, got {result['confidence']}"
+
+        result = DeepFace.verify(
+            "dataset/img1.jpg",
+            "dataset/img8.jpg",
+            model_name="Facenet",
+            detector_backend="mtcnn",
+            distance_metric=distance_metric,
+        )
+        assert (
+            result["confidence"] <= 49
+        ), f"Confidence should be <= 49 for different persons, got {result['confidence']}"
+        logger.info(f"✅ test confidence for {distance_metric} metric is done")
