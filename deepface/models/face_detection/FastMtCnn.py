@@ -30,6 +30,7 @@ class FastMtCnnClient(Detector):
         resp = []
 
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # mtcnn expects RGB but OpenCV read BGR
+        img_rgb = img_rgb.astype("uint8") # Fix facenet-pytorch dtype
         detections = self.model.detect(
             img_rgb, landmarks=True
         )  # returns boundingbox, prob, landmark
