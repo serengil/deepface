@@ -68,7 +68,7 @@ from deepface import DeepFace
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
-This function verifies face pairs as same person or different persons. It expects exact image paths as inputs. Passing numpy or base64 encoded images is also welcome. Then, it is going to return a dictionary and you should check just its verified key.
+This function determines whether two facial images belong to the same person or to different individuals. It accepts exact image file paths as input, but also supports NumPy arrays, base64-encoded images, and URLs. The function returns a dictionary, where the key of interest is `verified`: True indicates the images are of the same person, while False means they are of different people. In addition to this binary classification, the function also provides a confidence score that reflects the likelihood that the two images represent the same person.
 
 ```python
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
@@ -79,7 +79,6 @@ result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 **Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
 [Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. Herein, deepface has an out-of-the-box find function to handle this action. It's going to look for the identity of input image in the database path and it will return list of pandas data frame as output. Meanwhile, facial embeddings of the facial database are stored in a pickle file to be searched faster in next time. Result is going to be the size of faces appearing in the source image. Besides, target images in the database can have many faces as well.
-
 
 ```python
 dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")
