@@ -74,7 +74,7 @@ This function determines whether two facial images belong to the same person or 
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/verify-credit.jpg" width="95%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/verify-credit.jpg" width="99%"></p>
 
 **Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
