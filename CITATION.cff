@@ -4,10 +4,8 @@ title: "DeepFace: A Lightweight Face Recognition Framework for Python"
 authors:
   - family-names: Serengil
     given-names: Sefik
-  - family-names: Ozpinar
-    given-names: Alper
 version: 1.0.0
-date-released: 2024-08-01
+date-released: 2020-02-09
 doi: 10.17671/gazibtd.1399077
 url: https://github.com/serengil/deepface
 type: software
