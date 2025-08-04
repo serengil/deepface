@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "Please cite deepface in your publications if it helps your research."
+title: "A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"
+authors:
+  - family-names: Serengil
+    given-names: Sefik
+  - family-names: Ozpinar
+    given-names: Alper
+year: 2024
+journal: "Journal of Information Technologies"
+volume: 17
+issue: 2
+start: 95
+end: 107
+doi: 10.17671/gazibtd.1399077
+url: "https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077"
+publisher: "Gazi University"
+type: article
