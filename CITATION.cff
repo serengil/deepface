@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "Please cite DeepFace if it helps your research."
-title: "DeepFace: A Lightweight Face Recognition Framework for Python"
+title: "A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"
 authors:
   - family-names: Serengil
     given-names: Sefik
@@ -9,7 +9,7 @@ authors:
 version: 1.0.0
 date-released: 2024-08-01
 doi: 10.17671/gazibtd.1399077
-url: https://github.com/serengil/deepface
+url: https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077
 type: software
 references:
   - type: article
