@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "Please cite DeepFace if it helps your research."
-title: "A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"
+message: "Please cite the following publication if DeepFace helps your research."
+title: "DeepFace: A Lightweight Face Recognition Framework for Python"
 authors:
   - family-names: Serengil
     given-names: Sefik
@@ -9,22 +9,22 @@ authors:
 version: 1.0.0
 date-released: 2024-08-01
 doi: 10.17671/gazibtd.1399077
-url: https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077
+url: https://github.com/serengil/deepface
 type: software
-references:
-  - type: article
-    authors:
-      - family-names: Serengil
-        given-names: Sefik
-      - family-names: Ozpinar
-        given-names: Alper
-    title: "A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"
-    journal: "Journal of Information Technologies"
-    volume: "17"
-    issue: "2"
-    start: "95"
-    end: "107"
-    year: "2024"
-    doi: 10.17671/gazibtd.1399077
-    url: https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077
-    publisher: "Gazi University"
+preferred-citation:
+  type: article
+  title: "A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"
+  authors:
+    - family-names: Serengil
+      given-names: Sefik
+    - family-names: Ozpinar
+      given-names: Alper
+  year: 2024
+  doi: 10.17671/gazibtd.1399077
+  url: https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077
+  journal: "Journal of Information Technologies"
+  volume: "17"
+  issue: "2"
+  start: "95"
+  end: "107"
+  publisher: "Gazi University"
