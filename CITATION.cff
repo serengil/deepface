@@ -10,7 +10,7 @@ version: 1.0.0
 date-released: 2024-08-01
 doi: 10.17671/gazibtd.1399077
 url: https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077
-type: article
+type: software
 references:
   - type: article
     authors:
