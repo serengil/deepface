@@ -7,8 +7,7 @@ Pillow>=5.2.0
 opencv-python>=4.5.5.64
 tensorflow>=1.9.0
 keras>=2.2.0
-Flask>=1.1.2,<=2.0.2
-werkzeug<=2.0.2
+Flask>=1.1.2
 flask_cors>=4.0.1
 mtcnn>=0.1.0
 retina-face>=0.0.14
