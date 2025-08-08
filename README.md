@@ -68,7 +68,7 @@ from deepface import DeepFace
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
-This function determines whether two facial images belong to the same person or to different individuals. It accepts exact image file paths as input, but also supports NumPy arrays, base64-encoded images, and URLs. The function returns a dictionary, where the key of interest is `verified`: True indicates the images are of the same person, while False means they are of different people. In addition to this binary classification, the function also provides a confidence score that reflects the likelihood that the two images represent the same person.
+This function determines whether two facial images belong to the same person or to different individuals. It accepts exact image file paths as input, but also supports NumPy arrays, base64-encoded images, and URLs. The function returns a dictionary, where the key of interest is `verified`: True indicates the images are of the same person, while False means they are of different people. In addition to this binary classification, the function also provides a [`confidence`](https://youtu.be/QQ4vO6UOsFo) score that reflects the likelihood that the two images represent the same person.
 
 ```python
 result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
