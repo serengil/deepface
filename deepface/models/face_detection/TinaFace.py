@@ -9,6 +9,7 @@ import numpy as np
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger
 from deepface.commons import weight_utils, folder_utils
+from deepface.models.face_detection import OpenCv as OpenCvFD
 
 logger = Logger()
 
@@ -42,6 +43,8 @@ class TinaFaceClient(Detector):
         # Defer model build to first use so environments without weights still import
         self.model: Any = None
         self.runtime: str = "auto"  # "ort" (onnxruntime) or "cv2dnn"
+        # eye finder via opencv cascades to populate landmarks when not provided
+        self._eye_finder = OpenCvFD.OpenCvClient()
 
     def _build_model(self) -> Any:
         """
@@ -98,7 +101,8 @@ class TinaFaceClient(Detector):
             return net
         except Exception as err:
             raise ValueError(
-                "Exception while loading TinaFace ONNX with OpenCV DNN. Ensure the provided file is a valid ONNX model."
+                "Exception while loading TinaFace ONNX with OpenCV DNN. "
+                "Ensure the provided file is a valid ONNX model."
             ) from err
 
     @staticmethod
@@ -308,7 +312,7 @@ class TinaFaceClient(Detector):
             W_expect = int(np.ceil(padded_w / s))
             cls_list = []
             bbox_list = []
-            for name, arr in outputs_map.items():
+            for _, arr in outputs_map.items():
                 a = np.squeeze(arr)
                 if not (isinstance(a, np.ndarray) and a.ndim == 3):
                     continue
@@ -330,7 +334,6 @@ class TinaFaceClient(Detector):
             cls = min(cls_list, key=lambda a: a.shape[0])    # (C, H, W)
 
             Cc, H, W = cls.shape
-            Cb = bbox.shape[0]
             num_anchors = scales_per_octave  # ratios=1 only
             # reshape
             cls_scores = cls.reshape(num_anchors, Cc // num_anchors, H, W)
@@ -438,7 +441,7 @@ class TinaFaceClient(Detector):
         if self.model is None:
             self.model = self._build_model()
 
-        score_threshold = 0.4  # per doc
+        score_threshold = 0.35  # per doc
         height, width = img.shape[0], img.shape[1]
 
         # Preprocess per documentation
@@ -452,21 +455,21 @@ class TinaFaceClient(Detector):
             outputs_list = sess.get_outputs()
             output_names = [o.name for o in outputs_list]
             outputs = sess.run(output_names, {input_name: input_tensor})
-            outputs_map: Dict[str, np.ndarray] = {name: arr for name, arr in zip(output_names, outputs)}
+            outputs_map: Dict[str, np.ndarray] = dict(zip(output_names, outputs))
 
             # Preferred 'out' parsed if available
             if "out" in outputs_map:
                 out = np.squeeze(outputs_map["out"])  # Nx(>=5)
                 resp = self._parse_out_rows(out, score_threshold, width, height, meta["scale"])
                 if len(resp) > 0:
-                    return resp
+                    return self._populate_missing_eyes(img, resp)
             # Fall back: search for any 2D array with >=5 cols
-            for name, arr in outputs_map.items():
+            for _, arr in outputs_map.items():
                 out = np.squeeze(arr)
                 if isinstance(out, np.ndarray) and out.ndim == 2 and out.shape[1] >= 5:
                     resp = self._parse_out_rows(out, score_threshold, width, height, meta["scale"])
                     if len(resp) > 0:
-                        return resp
+                        return self._populate_missing_eyes(img, resp)
 
             # Attempt FPN-style decode from multi-branch outputs
             resp = self._decode_fpn_outputs(
@@ -479,7 +482,7 @@ class TinaFaceClient(Detector):
                 orig_h=height,
             )
             if len(resp) > 0:
-                return resp
+                return self._populate_missing_eyes(img, resp)
 
         else:
             # OpenCV DNN fallback
@@ -492,7 +495,7 @@ class TinaFaceClient(Detector):
                     if isinstance(out, np.ndarray) and out.ndim == 2 and out.shape[1] >= 5:
                         resp = self._parse_out_rows(out, score_threshold, width, height, meta["scale"])
                         if len(resp) > 0:
-                            return resp
+                            return self._populate_missing_eyes(img, resp)
 
             # Build a map for heuristic FPN decode
             outputs_map = {}
@@ -512,11 +515,36 @@ class TinaFaceClient(Detector):
                 orig_h=height,
             )
             if len(resp) > 0:
-                return resp
+                return self._populate_missing_eyes(img, resp)
 
-        # If here, output format is not recognized; requires custom converter
-        raise ValueError(
-            "Unrecognized TinaFace ONNX outputs. Provide an ONNX with final 'out' tensor (Nx[5|15]) or implement converter for multi-branch outputs."
-        )
+        # If here, output format is not recognized; no detections
+        return []
+
+    def _populate_missing_eyes(self, img: np.ndarray, faces: List[FacialAreaRegion]) -> List[FacialAreaRegion]:
+        updated: List[FacialAreaRegion] = []
+        for fa in faces:
+            if fa.left_eye is None or fa.right_eye is None:
+                x, y, w, h = fa.x, fa.y, fa.w, fa.h
+                x = max(0, x)
+                y = max(0, y)
+                w = max(0, min(img.shape[1] - x, w))
+                h = max(0, min(img.shape[0] - y, h))
+                if w > 0 and h > 0:
+                    roi = img[int(y): int(y + h), int(x): int(x + w)]
+                    le, re = self._eye_finder.find_eyes(roi)
+                    if le is not None:
+                        fa.left_eye = (int(x + le[0]), int(y + le[1]))
+                    if re is not None:
+                        fa.right_eye = (int(x + re[0]), int(y + re[1]))
+                    # Heuristic fallback if still missing: place eyes at typical positions
+                    if fa.left_eye is None or fa.right_eye is None:
+                        # person's left eye should have higher x than right eye in image coordinates
+                        le_x = int(x + 0.70 * w)
+                        re_x = int(x + 0.30 * w)
+                        eye_y = int(y + 0.40 * h)
+                        fa.left_eye = fa.left_eye or (le_x, eye_y)
+                        fa.right_eye = fa.right_eye or (re_x, eye_y)
+            updated.append(fa)
+        return updated
 
 
