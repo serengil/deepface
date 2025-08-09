@@ -262,7 +262,13 @@ class TinaFaceClient(Detector):
                                 width: int,
                                 scales_per_octave: int,
                                 octave_base_scale: float,
-                                ratio: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: ## pylint: disable=no-self-use
+                                ratio: float
+                                ) -> Tuple[
+                                    np.ndarray,
+                                    np.ndarray,
+                                    np.ndarray,
+                                    np.ndarray
+                                ]:
         # Compute sizes: stride * (octave_base_scale * 2**(i/scales_per_octave))
         scale_factors = [
             octave_base_scale * (2 ** (i / scales_per_octave))
