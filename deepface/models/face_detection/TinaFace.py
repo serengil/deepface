@@ -272,7 +272,7 @@ class TinaFaceClient(Detector):
         shift_x = (np.arange(0, width) + 0.5) * stride
         shift_y = (np.arange(0, height) + 0.5) * stride
         shift_xx, shift_yy = np.meshgrid(shift_x, shift_y)
-        centers = np.stack([shift_xx, shift_yy], axis=-1).reshape(-1, 2)  # (H*W, 2)
+        centers = np.stack([shift_xx, shift_yy], axis=-1).reshape(-1, 2)
         anchors = []
         for s in scale_factors:
             size = stride * s
@@ -496,8 +496,14 @@ class TinaFaceClient(Detector):
             if isinstance(outs, (list, tuple)):
                 for out in outs:
                     out = np.squeeze(out)
-                    if isinstance(out, np.ndarray) and out.ndim == 2 and out.shape[1] >= 5:
-                        resp = self._parse_out_rows(out, score_threshold, width, height, meta["scale"])
+                    if (
+                        isinstance(out, np.ndarray)
+                        and out.ndim == 2
+                        and out.shape[1] >= 5
+                    ):
+                        resp = self._parse_out_rows(
+                            out, score_threshold, width, height, meta["scale"]
+                        )
                         if len(resp) > 0:
                             return self._populate_missing_eyes(img, resp)
             # Build a map for heuristic FPN decode
@@ -539,9 +545,8 @@ class TinaFaceClient(Detector):
                         fa.left_eye = (int(x + le[0]), int(y + le[1]))
                     if re is not None:
                         fa.right_eye = (int(x + re[0]), int(y + re[1]))
-                    # Heuristic fallback if still missing: place eyes at typical positions
+                    # Heuristic fallback: place eyes at typical positions
                     if fa.left_eye is None or fa.right_eye is None:
-                        # person's left eye should have higher x than right eye in image coordinates
                         le_x = int(x + 0.70 * w)
                         re_x = int(x + 0.30 * w)
                         eye_y = int(y + 0.40 * h)
@@ -549,5 +554,4 @@ class TinaFaceClient(Detector):
                         fa.right_eye = fa.right_eye or (re_x, eye_y)
             updated.append(fa)
         return updated
-
-
+        
