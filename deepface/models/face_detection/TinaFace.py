@@ -14,11 +14,15 @@ from deepface.models.face_detection import OpenCv as OpenCvFD
 logger = Logger()
 
 
-WEIGHTS_URL = "https://drive.google.com/uc?id=1VkMKWPJM0oaS8eyIVZ5flcJH70Pbi-_g"
+WEIGHTS_URL = (
+    "https://drive.google.com/uc?"
+    "id=1VkMKWPJM0oaS8eyIVZ5flcJH70Pbi-_g"
+)
 SUB_DIR = "tinaface"
 WEIGHT_FILENAME = "tinaface.onnx"
 
 
+# pylint: disable=too-few-public-methods
 class TinaFaceClient(Detector):
     """
     TinaFace detector backend (scaffold).
@@ -74,7 +78,6 @@ class TinaFaceClient(Detector):
             file_name=os.path.join(SUB_DIR, WEIGHT_FILENAME),
             source_url=WEIGHTS_URL,
         )
-        
         # Try to initialize ONNX Runtime session
         if ort is not None:
             try:
@@ -261,9 +264,11 @@ class TinaFaceClient(Detector):
                                 octave_base_scale: float,
                                 ratio: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         # Compute sizes: stride * (octave_base_scale * 2**(i/scales_per_octave))
-        scale_factors = [octave_base_scale * (2 ** (i / scales_per_octave)) for i in range(scales_per_octave)]
+        scale_factors = [
+            octave_base_scale * (2 ** (i / scales_per_octave))
+            for i in range(scales_per_octave)
+        ]
         sqrt_r = np.sqrt(ratio)
-        # Centers grid
         shift_x = (np.arange(0, width) + 0.5) * stride
         shift_y = (np.arange(0, height) + 0.5) * stride
         shift_xx, shift_yy = np.meshgrid(shift_x, shift_y)
@@ -486,7 +491,6 @@ class TinaFaceClient(Detector):
 
         else:
             # OpenCV DNN fallback
-            import cv2  # type: ignore
             self.model.setInput(input_tensor)
             outs = self.model.forward(self.model.getUnconnectedOutLayersNames())
             if isinstance(outs, (list, tuple)):
@@ -496,7 +500,6 @@ class TinaFaceClient(Detector):
                         resp = self._parse_out_rows(out, score_threshold, width, height, meta["scale"])
                         if len(resp) > 0:
                             return self._populate_missing_eyes(img, resp)
-
             # Build a map for heuristic FPN decode
             outputs_map = {}
             if isinstance(outs, (list, tuple)):
