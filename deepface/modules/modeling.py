@@ -25,6 +25,7 @@ from deepface.models.face_detection import (
     Yolo as YoloFaceDetector,
     YuNet,
     CenterFace,
+    TinaFace,
 )
 from deepface.models.demography import Age, Gender, Race, Emotion
 from deepface.models.spoofing import FasNet
@@ -86,6 +87,7 @@ def build_model(task: str, model_name: str) -> Any:
             "yunet": YuNet.YuNetClient,
             "fastmtcnn": FastMtCnn.FastMtCnnClient,
             "centerface": CenterFace.CenterFaceClient,
+            "tinaface": TinaFace.TinaFaceClient,
         },
     }
 
