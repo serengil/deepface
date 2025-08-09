@@ -262,7 +262,7 @@ class TinaFaceClient(Detector):
                                 width: int,
                                 scales_per_octave: int,
                                 octave_base_scale: float,
-                                ratio: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+                                ratio: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: ## pylint: disable=no-self-use
         # Compute sizes: stride * (octave_base_scale * 2**(i/scales_per_octave))
         scale_factors = [
             octave_base_scale * (2 ** (i / scales_per_octave))
@@ -272,7 +272,8 @@ class TinaFaceClient(Detector):
         shift_x = (np.arange(0, width) + 0.5) * stride
         shift_y = (np.arange(0, height) + 0.5) * stride
         shift_xx, shift_yy = np.meshgrid(shift_x, shift_y)
-        centers = np.stack([shift_xx, shift_yy], axis=-1).reshape(-1, 2)
+        centers = np.stack([shift_xx, shift_yy], axis=-1)
+        centers = centers.reshape(-1, 2)
         anchors = []
         for s in scale_factors:
             size = stride * s
@@ -529,7 +530,9 @@ class TinaFaceClient(Detector):
         # If here, output format is not recognized; no detections
         return []
 
-    def _populate_missing_eyes(self, img: np.ndarray, faces: List[FacialAreaRegion]) -> List[FacialAreaRegion]:
+    def _populate_missing_eyes(
+        self, img: np.ndarray, faces: List[FacialAreaRegion]
+    ) -> List[FacialAreaRegion]:
         updated: List[FacialAreaRegion] = []
         for fa in faces:
             if fa.left_eye is None or fa.right_eye is None:
