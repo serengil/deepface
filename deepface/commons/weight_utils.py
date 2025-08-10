@@ -135,7 +135,6 @@ def download_all_models_in_one_shot() -> None:
     from deepface.models.face_detection.YuNet import WEIGHTS_URL as YUNET_WEIGHTS
     from deepface.models.face_detection.Dlib import WEIGHTS_URL as DLIB_FD_WEIGHTS
     from deepface.models.face_detection.CenterFace import WEIGHTS_URL as CENTERFACE_WEIGHTS
-    # TinaFace: add to bulk download
     from deepface.models.face_detection.TinaFace import WEIGHTS_URL as TINAFACE_ONNX_URL
     from deepface.models.face_detection.TinaFace import SUB_DIR as TINAFACE_SUB_DIR
     from deepface.models.face_detection.TinaFace import WEIGHT_FILENAME as TINAFACE_ONNX_FILENAME
@@ -185,12 +184,11 @@ def download_all_models_in_one_shot() -> None:
         YUNET_WEIGHTS,
         DLIB_FD_WEIGHTS,
         CENTERFACE_WEIGHTS,
+        {
+            "filename": f"{TINAFACE_SUB_DIR}/{TINAFACE_ONNX_FILENAME}",
+            "url": TINAFACE_ONNX_URL,
+        },
     ]
-
-    WEIGHTS.append({
-        "filename": f"{TINAFACE_SUB_DIR}/{TINAFACE_ONNX_FILENAME}",
-        "url": TINAFACE_ONNX_URL,
-    })
 
     for i in WEIGHTS:
         if isinstance(i, str):

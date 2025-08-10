@@ -4,6 +4,7 @@ import os
 
 # 3rd party dependencies
 import numpy as np
+import cv2
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
@@ -30,17 +31,8 @@ class TinaFaceClient(Detector):
     Notes
     - This is a lightweight integration scaffold so DeepFace can select
       `detector_backend="tinaface"`.
-    - Actual inference implementation depends on which format you provide
-      the model in (e.g., ONNX via OpenCV DNN, or PyTorch via a 3rd-party repo).
-    - To keep dependencies optional and consistent with other backends
-      (e.g., `YuNet`, `CenterFace`), we recommend ONNX + OpenCV DNN.
-
-    Implementation TODO
-    - Implement `self._forward(img)` to run the ONNX and decode outputs into
-      bounding boxes, landmarks and confidence scores. Output must be a list of
-      FacialAreaRegion objects like other detectors.
-    - Different TinaFace ONNX exports may have different output tensor names
-      and formats; adjust post-processing accordingly.
+    - Uses ONNX format with OpenCV DNN backend for inference.
+    - Provides fallback mechanisms for eye landmark detection.
     """
 
     def __init__(self):
@@ -83,20 +75,12 @@ class TinaFaceClient(Detector):
             try:
                 ort_sess = ort.InferenceSession(weight_file, providers=providers)
                 self.runtime = "ort"
-                logger.info(f"TinaFace model loaded with ONNX Runtime from {weight_file}")
+                logger.debug(f"TinaFace model loaded with ONNX Runtime from {weight_file}")
                 return ort_sess
             except Exception:
                 ort_sess = None
 
         # Fallback to OpenCV DNN if ORT is not available/failed
-        try:
-            import cv2  # noqa: F401
-        except Exception as err:
-            raise ImportError(
-                "Neither onnxruntime nor OpenCV DNN could be initialized. Install one of them."
-            ) from err
-
-        import cv2
         try:
             net = cv2.dnn.readNetFromONNX(weight_file)
             self.runtime = "cv2dnn"
@@ -105,7 +89,7 @@ class TinaFaceClient(Detector):
         except Exception as err:
             raise ValueError(
                 "Exception while loading TinaFace ONNX with OpenCV DNN. "
-                "Ensure the provided file is a valid ONNX model."
+                "Check if the model file is corrupted or not a valid ONNX format."
             ) from err
 
     @staticmethod
@@ -114,7 +98,6 @@ class TinaFaceClient(Detector):
                                dst_w: int,
                                size_divisor: int,
                                pad_value_bgr: List[float]) -> Dict[str, Any]:
-        import cv2
         h, w = img.shape[:2]
         scale = min(dst_h / h, dst_w / w)
         new_w, new_h = int(round(w * scale)), int(round(h * scale))
@@ -453,7 +436,7 @@ class TinaFaceClient(Detector):
         if self.model is None:
             self.model = self._build_model()
 
-        score_threshold = 0.35  # per doc
+        score_threshold = float(os.getenv("TINAFACE_THRESHOLD", "0.35"))
         height, width = img.shape[0], img.shape[1]
 
         # Preprocess per documentation
@@ -539,6 +522,17 @@ class TinaFaceClient(Detector):
     def _populate_missing_eyes(
         self, img: np.ndarray, faces: List[FacialAreaRegion]
     ) -> List[FacialAreaRegion]:
+        """
+        Populate missing eye landmarks for detected faces.
+        
+        Args:
+            img: Input image array
+            faces: List of detected faces with potentially missing eye coordinates
+            
+        Returns:
+            List of faces with eye landmarks populated (either from model output,
+            OpenCV cascade detection, or heuristic positioning)
+        """
         updated: List[FacialAreaRegion] = []
         for fa in faces:
             if fa.left_eye is None or fa.right_eye is None:
