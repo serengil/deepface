@@ -19,8 +19,7 @@ WEIGHTS_URL = (
     "https://drive.google.com/uc?"
     "id=1VkMKWPJM0oaS8eyIVZ5flcJH70Pbi-_g"
 )
-SUB_DIR = "tinaface"
-WEIGHT_FILENAME = "tinaface.onnx"
+WEIGHT_FILENAME = "tinaface_r50_fpn_bn.onnx"
 
 
 # pylint: disable=too-few-public-methods
@@ -38,7 +37,7 @@ class TinaFaceClient(Detector):
     def __init__(self):
         # Defer model build to first use so environments without weights still import
         self.model: Any = None
-        self.runtime: str = "auto"  # "ort" (onnxruntime) or "cv2dnn"
+        self.runtime: str = "ort"  # ONNX Runtime only
         # eye finder via opencv cascades to populate landmarks when not provided
         self._eye_finder = OpenCvFD.OpenCvClient()
 
@@ -50,45 +49,33 @@ class TinaFaceClient(Detector):
             model (Any): backend-specific handle (e.g., cv2.dnn_Net)
         """
         # Try ONNX Runtime first for best compatibility with dynamic shapes
-        ort_sess = None
         try:
             import onnxruntime as ort  # type: ignore
             providers = (['CUDAExecutionProvider', 'CPUExecutionProvider']
                          if 'CUDAExecutionProvider' in ort.get_available_providers()
                          else ['CPUExecutionProvider'])
-        except Exception:
-            ort = None  # type: ignore
-            providers = None
+        except ImportError:
+            raise ValueError(
+                "onnxruntime is required for TinaFace. Please install it with: pip install onnxruntime"
+            )
 
-        # Ensure subdir exists and download the ONNX weights
+        # Download the ONNX weights directly to weights directory
         home = folder_utils.get_deepface_home()
         weights_dir = os.path.join(home, ".deepface", "weights")
-        tinaface_dir = os.path.join(weights_dir, SUB_DIR)
-        os.makedirs(tinaface_dir, exist_ok=True)
 
         weight_file = weight_utils.download_weights_if_necessary(
-            file_name=os.path.join(SUB_DIR, WEIGHT_FILENAME),
+            file_name=WEIGHT_FILENAME,
             source_url=WEIGHTS_URL,
         )
-        # Try to initialize ONNX Runtime session
-        if ort is not None:
-            try:
-                ort_sess = ort.InferenceSession(weight_file, providers=providers)
-                self.runtime = "ort"
-                logger.debug(f"TinaFace model loaded with ONNX Runtime from {weight_file}")
-                return ort_sess
-            except Exception:
-                ort_sess = None
-
-        # Fallback to OpenCV DNN if ORT is not available/failed
+        # Initialize ONNX Runtime session
         try:
-            net = cv2.dnn.readNetFromONNX(weight_file)
-            self.runtime = "cv2dnn"
-            logger.info(f"TinaFace model loaded with OpenCV DNN from {weight_file}")
-            return net
+            ort_sess = ort.InferenceSession(weight_file, providers=providers)
+            self.runtime = "ort"
+            logger.debug(f"TinaFace model loaded with ONNX Runtime from {weight_file}")
+            return ort_sess
         except Exception as err:
             raise ValueError(
-                "Exception while loading TinaFace ONNX with OpenCV DNN. "
+                f"Failed to load TinaFace ONNX model with ONNX Runtime: {err}. "
                 "Check if the model file is corrupted or not a valid ONNX format."
             ) from err
 
@@ -444,77 +431,40 @@ class TinaFaceClient(Detector):
         input_tensor = pp["input"]
         meta = pp["meta"]
 
-        if self.runtime == "ort":
-            sess = self.model
-            input_name = sess.get_inputs()[0].name
-            outputs_list = sess.get_outputs()
-            output_names = [o.name for o in outputs_list]
-            outputs = sess.run(output_names, {input_name: input_tensor})
-            outputs_map: Dict[str, np.ndarray] = dict(zip(output_names, outputs))
+        # Run inference with ONNX Runtime
+        sess = self.model
+        input_name = sess.get_inputs()[0].name
+        outputs_list = sess.get_outputs()
+        output_names = [o.name for o in outputs_list]
+        outputs = sess.run(output_names, {input_name: input_tensor})
+        outputs_map: Dict[str, np.ndarray] = dict(zip(output_names, outputs))
 
-            # Preferred 'out' parsed if available
-            if "out" in outputs_map:
-                out = np.squeeze(outputs_map["out"])  # Nx(>=5)
+        # Preferred 'out' parsed if available
+        if "out" in outputs_map:
+            out = np.squeeze(outputs_map["out"])  # Nx(>=5)
+            resp = self._parse_out_rows(out, score_threshold, width, height, meta["scale"])
+            if len(resp) > 0:
+                return self._populate_missing_eyes(img, resp)
+        # Fall back: search for any 2D array with >=5 cols
+        for _, arr in outputs_map.items():
+            out = np.squeeze(arr)
+            if isinstance(out, np.ndarray) and out.ndim == 2 and out.shape[1] >= 5:
                 resp = self._parse_out_rows(out, score_threshold, width, height, meta["scale"])
                 if len(resp) > 0:
                     return self._populate_missing_eyes(img, resp)
-            # Fall back: search for any 2D array with >=5 cols
-            for _, arr in outputs_map.items():
-                out = np.squeeze(arr)
-                if isinstance(out, np.ndarray) and out.ndim == 2 and out.shape[1] >= 5:
-                    resp = self._parse_out_rows(out, score_threshold, width, height, meta["scale"])
-                    if len(resp) > 0:
-                        return self._populate_missing_eyes(img, resp)
 
-            # Attempt FPN-style decode from multi-branch outputs
-            resp = self._decode_fpn_outputs(
-                outputs_map=outputs_map,
-                meta=meta,
-                score_thr=score_threshold,
-                nms_iou_thr=0.45,
-                max_per_img=300,
-                orig_w=width,
-                orig_h=height,
-            )
-            if len(resp) > 0:
-                return self._populate_missing_eyes(img, resp)
-
-        else:
-            # OpenCV DNN fallback
-            self.model.setInput(input_tensor)
-            outs = self.model.forward(self.model.getUnconnectedOutLayersNames())
-            if isinstance(outs, (list, tuple)):
-                for out in outs:
-                    out = np.squeeze(out)
-                    if (
-                        isinstance(out, np.ndarray)
-                        and out.ndim == 2
-                        and out.shape[1] >= 5
-                    ):
-                        resp = self._parse_out_rows(
-                            out, score_threshold, width, height, meta["scale"]
-                        )
-                        if len(resp) > 0:
-                            return self._populate_missing_eyes(img, resp)
-            # Build a map for heuristic FPN decode
-            outputs_map = {}
-            if isinstance(outs, (list, tuple)):
-                for idx, arr in enumerate(outs):
-                    outputs_map[f"out_{idx}"] = arr
-            else:
-                outputs_map["out"] = outs
-
-            resp = self._decode_fpn_outputs(
-                outputs_map={k: np.squeeze(v) for k, v in outputs_map.items()},
-                meta=meta,
-                score_thr=score_threshold,
-                nms_iou_thr=0.45,
-                max_per_img=300,
-                orig_w=width,
-                orig_h=height,
-            )
-            if len(resp) > 0:
-                return self._populate_missing_eyes(img, resp)
+        # Attempt FPN-style decode from multi-branch outputs
+        resp = self._decode_fpn_outputs(
+            outputs_map=outputs_map,
+            meta=meta,
+            score_thr=score_threshold,
+            nms_iou_thr=0.45,
+            max_per_img=300,
+            orig_w=width,
+            orig_h=height,
+        )
+        if len(resp) > 0:
+            return self._populate_missing_eyes(img, resp)
 
         # If here, output format is not recognized; no detections
         return []
@@ -548,13 +498,13 @@ class TinaFaceClient(Detector):
                         fa.left_eye = (int(x + le[0]), int(y + le[1]))
                     if re is not None:
                         fa.right_eye = (int(x + re[0]), int(y + re[1]))
-                    # Heuristic fallback: place eyes at typical positions
-                    if fa.left_eye is None or fa.right_eye is None:
-                        le_x = int(x + 0.70 * w)
-                        re_x = int(x + 0.30 * w)
-                        eye_y = int(y + 0.40 * h)
-                        fa.left_eye = fa.left_eye or (le_x, eye_y)
-                        fa.right_eye = fa.right_eye or (re_x, eye_y)
+                # Heuristic fallback: place eyes at typical positions
+                if fa.left_eye is None or fa.right_eye is None:
+                    le_x = int(x + 0.70 * w)
+                    re_x = int(x + 0.30 * w)
+                    eye_y = int(y + 0.40 * h)
+                    fa.left_eye = fa.left_eye or (le_x, eye_y)
+                    fa.right_eye = fa.right_eye or (re_x, eye_y)
             updated.append(fa)
         return updated
         

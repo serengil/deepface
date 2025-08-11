@@ -136,7 +136,6 @@ def download_all_models_in_one_shot() -> None:
     from deepface.models.face_detection.Dlib import WEIGHTS_URL as DLIB_FD_WEIGHTS
     from deepface.models.face_detection.CenterFace import WEIGHTS_URL as CENTERFACE_WEIGHTS
     from deepface.models.face_detection.TinaFace import WEIGHTS_URL as TINAFACE_ONNX_URL
-    from deepface.models.face_detection.TinaFace import SUB_DIR as TINAFACE_SUB_DIR
     from deepface.models.face_detection.TinaFace import WEIGHT_FILENAME as TINAFACE_ONNX_FILENAME
 
     WEIGHTS = [
@@ -185,7 +184,7 @@ def download_all_models_in_one_shot() -> None:
         DLIB_FD_WEIGHTS,
         CENTERFACE_WEIGHTS,
         {
-            "filename": f"{TINAFACE_SUB_DIR}/{TINAFACE_ONNX_FILENAME}",
+            "filename": TINAFACE_ONNX_FILENAME,
             "url": TINAFACE_ONNX_URL,
         },
     ]
