@@ -52,15 +52,15 @@ class TinaFaceClient(Detector):
         try:
             import onnxruntime as ort  # type: ignore
             providers = (['CUDAExecutionProvider', 'CPUExecutionProvider']
-                         if 'CUDAExecutionProvider' in ort.get_available_providers()
-                         else ['CPUExecutionProvider'])
+                        if 'CUDAExecutionProvider' in ort.get_available_providers()
+                        else ['CPUExecutionProvider'])
         except ImportError as exc:
             raise ValueError(
-                "onnxruntime is required for TinaFace. Please install it with: pip install onnxruntime"
+                "onnxruntime is required for TinaFace. Please install it with: "
+                "pip install onnxruntime"
             ) from exc
 
         # Download the ONNX weights directly to weights directory
-        home = folder_utils.get_deepface_home()
 
         weight_file = weight_utils.download_weights_if_necessary(
             file_name=WEIGHT_FILENAME,
