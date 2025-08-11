@@ -9,7 +9,7 @@ import cv2
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger
-from deepface.commons import weight_utils, folder_utils
+from deepface.commons import weight_utils
 from deepface.models.face_detection import OpenCv as OpenCvFD
 
 logger = Logger()
