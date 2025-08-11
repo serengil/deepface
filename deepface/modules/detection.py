@@ -59,7 +59,7 @@ def extract_faces(
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
-            'centerface' or 'skip' (default is opencv)
+            'yunet', 'fastmtcnn', 'centerface', 'tinaface' or 'skip' (default is opencv)
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Default is True. Set to False to avoid the exception for low-resolution images.
