@@ -27,7 +27,9 @@ from deepface.modules import (
     streaming,
     preprocessing,
 )
-from deepface import __version__
+
+# Define version directly to avoid circular import
+__version__ = "0.0.96"
 
 logger = Logger()
 
