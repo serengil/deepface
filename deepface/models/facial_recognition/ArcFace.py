@@ -15,7 +15,6 @@ tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
     from keras.models import Model
-    from keras.engine import training
     from keras.layers import (
         ZeroPadding2D,
         Input,
@@ -29,7 +28,6 @@ if tf_version == 1:
     )
 else:
     from tensorflow.keras.models import Model
-    from tensorflow.python.keras.engine import training
     from tensorflow.keras.layers import (
         ZeroPadding2D,
         Input,
@@ -106,7 +104,7 @@ def ResNet34() -> Model:
     x = PReLU(shared_axes=[1, 2], name="conv1_prelu")(x)
     x = stack_fn(x)
 
-    model = training.Model(img_input, x, name="ResNet34")
+    model = Model(img_input, x, name="ResNet34")
 
     return model
 
