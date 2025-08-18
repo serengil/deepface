@@ -178,10 +178,7 @@ def load_image_from_base64(uri: str) -> np.ndarray:
         if file_type not in {"jpeg", "png"}:
             raise ValueError(f"Input image can be jpg or png, but it is {file_type}")
 
-    nparr = np.frombuffer(decoded_bytes, np.uint8)
-    img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    return img_bgr
+    return load_image_from_io_object(io.BytesIO(decoded_bytes))
 
 
 def load_image_from_file_storage(file: FileStorage) -> np.ndarray:
@@ -192,11 +189,7 @@ def load_image_from_file_storage(file: FileStorage) -> np.ndarray:
     Returns:
         img (np.ndarray): The decoded image as a numpy array (OpenCV format).
     """
-    file_bytes = np.frombuffer(file.read(), np.uint8)
-    image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-    if image is None:
-        raise ValueError("Failed to decode image")
-    return image
+    return load_image_from_io_object(file.read())
 
 
 def load_image_from_web(url: str) -> np.ndarray:
@@ -209,6 +202,4 @@ def load_image_from_web(url: str) -> np.ndarray:
     """
     response = requests.get(url, stream=True, timeout=60)
     response.raise_for_status()
-    image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
-    img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-    return img
+    return load_image_from_io_object(io.BytesIO(response.content))

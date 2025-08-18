@@ -1,0 +1,186 @@
+syntax = "proto3";
+
+package deepface.api.proto;
+
+option go_package = "github.com/serengil/deepface/api/proto";
+
+// ----------------
+// Common enums for models, detectors, and distance metrics
+// ----------------
+enum Models {
+    VGG_FACE = 0;
+    FACENET = 1;
+    FACENET512 = 2;
+    OPENFACE = 3;
+    DEEPFACE = 4;
+    DEEPID = 5;
+    ARCFACE = 6;
+    DLIB_MODEL = 7;
+    SFACE = 8;
+    GHOSTFACENET = 9;
+    BUFFALO_L = 10;
+}
+
+enum Detectors {
+    OPENCV = 0;
+    SSD = 1;
+    DLIB = 2;
+    MTCNN = 3;
+    FASTMTCNN = 4;
+    RETINAFACE = 5;
+    MEDIAPIPE = 6;
+    YOLOV8 = 7;
+    YOLOV11S = 8;
+    YOLOV11N = 9;
+    YOLOV11M = 10;
+    YUNET = 11;
+    CENTERFACE = 12;
+}
+
+enum DistanceMetrics {
+    COSINE = 0;
+    EUCLIDEAN = 1;
+    EUCLIDEAN_L2 = 2;
+    ANGULAR = 3;
+}
+
+message FacialArea {
+    repeated uint32 left_eye = 1;
+    repeated uint32 right_eye = 2;
+    repeated uint32 mouth_left = 3;
+    repeated uint32 mouth_right = 4;
+    repeated uint32 nose = 5;
+    uint32 h = 6;
+    uint32 w = 7;
+    uint32 x = 8;
+    uint32 y = 9;
+}
+
+// ----------------
+// Messages for the Analy method
+// ----------------
+
+message AnalyzeRequest {
+    enum Action {
+        AGE = 0;
+        GENDER = 1;
+        EMOTION = 2;
+        RACE = 3;
+    }
+
+    string image_url = 1;
+    repeated Action actions = 2; // Actions to perform, e.g., "age", "gender", "emotion", "race"
+    optional Detectors detector_backend = 3;
+    optional bool enforce_detection = 4;
+    optional bool align = 5;
+    optional bool anti_spoofing = 6;
+    optional uint32 max_faces = 7;
+}
+
+message AnalyzeResponse {
+
+    message Emotion {
+        double angry = 1;
+        double disgust = 2;
+        double fear = 3;
+        double happy = 4;
+        double neutral = 5;
+        double sad = 6;
+        double surprise = 7;
+    }
+
+    message Gender {
+        double man = 1;
+        double woman = 2;
+    }
+
+    message Race {
+        double asian = 1;
+        double black = 2;
+        double indian = 3;
+        double latino_hispanic = 4;
+        double middle_eastern = 5;
+        double white = 6;
+    }
+
+    message Result {
+        uint32 age = 1;
+        string dominant_emotion = 2;
+        string dominant_gender = 3;
+        string dominant_race = 4;
+        double face_confidence = 5;
+        Emotion emotion = 6;
+        Gender gender = 7;
+        Race race = 8;
+        FacialArea facial_area = 9;
+    }
+
+    repeated Result results = 1;
+}
+
+// ----------------
+// Messages for the Represent method
+// ----------------
+
+message RepresentRequest {
+  string image_url = 1;
+  optional Models model_name = 2;
+  optional Detectors detector_backend = 3;
+  optional bool enforce_detection = 4;
+  optional bool align = 5;
+  optional bool anti_spoofing = 6;
+  optional uint32 max_faces = 7;
+}
+
+message RepresentResponse {
+
+    message Results {
+        repeated double embedding = 1;
+        double face_confidence = 2;
+        FacialArea facial_area = 3;
+    }
+
+    repeated Results results = 1;
+}
+
+// ----------------
+// Messages for the Verify method
+// ----------------
+
+message VerifyRequest {
+    string image1_url = 1;
+    string image2_url = 2;
+    optional Models model_name = 3;
+    optional Detectors detector_backend = 4;
+    optional DistanceMetrics distance_metric = 5;
+    optional bool enforce_detection = 6;
+    optional bool align = 7;
+    optional bool anti_spoofing = 8;
+}
+
+message VerifyResponse {
+
+    message FacialAreas {
+        FacialArea img1 = 1;
+        FacialArea img2 = 2;
+    }
+
+    bool verified = 1;
+    Detectors detector_backend = 2;
+    Models model = 3;
+    DistanceMetrics similarity_metric = 4;
+    FacialAreas facial_areas = 5;
+    double distance = 6;
+    double threshold = 7;
+    double time = 8;
+}
+
+// ----------------
+// DeepFace Service
+// ----------------
+
+service DeepFaceService {
+    rpc Analyze(AnalyzeRequest) returns (AnalyzeResponse);
+    rpc Represent(RepresentRequest) returns (RepresentResponse);
+    rpc Verify(VerifyRequest) returns (VerifyResponse);
+}

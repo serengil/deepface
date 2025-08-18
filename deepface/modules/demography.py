@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union, IO
+from typing import Any, Dict, List, Optional, Union, IO
 
 # 3rd party dependencies
 import numpy as np
@@ -19,6 +19,7 @@ def analyze(
     expand_percentage: int = 0,
     silent: bool = False,
     anti_spoofing: bool = False,
+    max_faces: Optional[int] = None,
 ) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
@@ -151,6 +152,7 @@ def analyze(
         align=align,
         expand_percentage=expand_percentage,
         anti_spoofing=anti_spoofing,
+        max_faces=max_faces,
     )
 
     for img_obj in img_objs:

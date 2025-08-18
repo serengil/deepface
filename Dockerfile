@@ -1,17 +1,6 @@
 # base image
-FROM python:3.8.12
-LABEL org.opencontainers.image.source https://github.com/serengil/deepface
-
-# -----------------------------------
-# create required folder
-RUN mkdir -p /app && chown -R 1001:0 /app
-RUN mkdir /app/deepface
-
-
-
-# -----------------------------------
-# switch to application directory
-WORKDIR /app
+FROM tensorflow/tensorflow:2.17.0-gpu
+LABEL org.opencontainers.image.source=https://github.com/Dal-Papa/deepface
 
 # -----------------------------------
 # update image os
@@ -23,31 +12,37 @@ RUN apt-get update && apt-get install -y \
     libhdf5-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Update PIP (Python's package manager)
+RUN pip install --upgrade pip
+
+# -----------------------------------
+# create required folder
+RUN mkdir -p /app && chown -R 1001:0 /app
+RUN mkdir /app/deepface
+
+# -----------------------------------
+# switch to application directory
+WORKDIR /app
+
 # -----------------------------------
 # Copy required files from repo into image
 COPY ./deepface /app/deepface
 # even though we will use local requirements, this one is required to perform install deepface from source code
 COPY ./requirements.txt /app/requirements.txt
-COPY ./requirements_local /app/requirements_local.txt
 COPY ./package_info.json /app/
 COPY ./setup.py /app/
 COPY ./README.md /app/
 COPY ./entrypoint.sh /app/deepface/api/src/entrypoint.sh
-
-# -----------------------------------
-# if you plan to use a GPU, you should install the 'tensorflow-gpu' package
-# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org tensorflow-gpu
+COPY ./generate_protos.sh /app/generate_protos.sh
 
 # if you plan to use face anti-spoofing, then activate this line
-# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org torch==2.1.2
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org torch==2.1.2
 # -----------------------------------
 # install deepface from pypi release (might be out-of-date)
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
 # -----------------------------------
-# install dependencies - deepface with these dependency versions is working
-RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local.txt
 # install deepface from source code (always up-to-date)
-RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org --ignore-installed blinker -e .
 
 # -----------------------------------
 # some packages are optional in deepface. activate if your task depends on one.
@@ -56,12 +51,15 @@ RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org lightgbm==2.3.1
 
 # -----------------------------------
+# Generate protos
+RUN cd /app && bash ./generate_protos.sh && cd -
+
+# -----------------------------------
 # environment variables
 ENV PYTHONUNBUFFERED=1
 
 # -----------------------------------
 # run the app (re-configure port if necessary)
 WORKDIR /app/deepface/api/src
-EXPOSE 5000
-# CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]
-ENTRYPOINT [ "sh", "entrypoint.sh" ]
+
+ENTRYPOINT [ "bash", "entrypoint.sh"]

@@ -18,3 +18,4 @@ benchmarks/outputs
 benchmarks/dataset
 benchmarks/lfwe
 venv
+.venv
