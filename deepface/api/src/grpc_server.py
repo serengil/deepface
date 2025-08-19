@@ -2,6 +2,9 @@ import argparse
 from concurrent import futures
 
 import grpc
+from grpc_health.v1 import health
+from grpc_health.v1 import health_pb2
+from grpc_health.v1 import health_pb2_grpc
 
 from deepface import DeepFace
 from deepface.commons.logger import Logger
@@ -20,9 +23,17 @@ if __name__ == "__main__":
     parser.add_argument("-w", "--workers", type=int, default=10, help="Maximum worker threads")
     args = parser.parse_args()
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=args.workers))
+    threadPool = futures.ThreadPoolExecutor(max_workers=args.workers)
+    server = grpc.server(threadPool)
     # Register the unified DeepFaceService
     deepface_grpc.add_DeepFaceServiceServicer_to_server(DeepFaceService(), server)
+    # Register health checking service
+    health_servicer = health.HealthServicer(
+        experimental_non_blocking=True,
+        experimental_thread_pool=threadPool,
+    )
+    health_servicer.set("", health_pb2.HealthCheckResponse.SERVING)
+    health_pb2_grpc.add_HealthServicer_to_server(health_servicer, server)
     server.add_insecure_port(f"[::]:{args.port}")
     server.start()
 

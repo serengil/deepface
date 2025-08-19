@@ -16,3 +16,4 @@ fire>=0.4.0
 gunicorn>=20.1.0
 grpcio-tools>=1.59.5
 grpcio>=1.59.5
+grpcio-health-checking>=1.59.5
