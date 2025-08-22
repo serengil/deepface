@@ -1,0 +1,5152 @@
+{
+  "timestamp": "2025-08-22 22:33:52",
+  "test_images_dir": "test_images",
+  "models_tested": [
+    "VGG-Face",
+    "Facenet",
+    "Facenet512",
+    "OpenFace",
+    "DeepID",
+    "ArcFace",
+    "SFace"
+  ],
+  "distance_metrics_tested": [
+    "cosine",
+    "euclidean",
+    "euclidean_l2"
+  ],
+  "thresholds_tested": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9
+  ],
+  "all_results": [
+    {
+      "model": "VGG-Face",
+      "distance_metric": "cosine",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.21426170125655442,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.5421159662865822,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 1.8158291578292847,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "cosine",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.620341617625825,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.5421159662865822,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.573783278465271,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "cosine",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.620341617625825,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.5421159662865822,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.5830522775650024,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "cosine",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.21426170125655442,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.5421159662865822,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.6277072429656982,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "cosine",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.620341617625825,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.5421159662865822,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.5713332891464233,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "cosine",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.620341617625825,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.5421159662865822,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.5692813396453857,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "cosine",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.21426170125655442,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.5421159662865822,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.5884811878204346,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "cosine",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.21426170125655442,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.5421159662865822,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.6306370496749878,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "cosine",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.620341617625825,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.5421159662865822,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.5726842880249023,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4717059076688086,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": true,
+        "expected": false,
+        "distance": 0.5894330095614604,
+        "correct": false
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.6021279096603394,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4717059076688086,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": true,
+        "expected": false,
+        "distance": 0.5894330095614604,
+        "correct": false
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.6009272336959839,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.6152685641957856,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": true,
+        "expected": false,
+        "distance": 0.5894330095614604,
+        "correct": false
+      },
+      "accuracy": 0.0,
+      "avg_time": 0.5635291337966919,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.6152685641957856,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": true,
+        "expected": false,
+        "distance": 0.5894330095614604,
+        "correct": false
+      },
+      "accuracy": 0.0,
+      "avg_time": 0.567959189414978,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4717059076688086,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": true,
+        "expected": false,
+        "distance": 0.5894330095614604,
+        "correct": false
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.5970644950866699,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4717059076688086,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": true,
+        "expected": false,
+        "distance": 0.5894330095614604,
+        "correct": false
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.597084641456604,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4717059076688086,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": true,
+        "expected": false,
+        "distance": 0.5894330095614604,
+        "correct": false
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.614020586013794,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.6152685641957856,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": true,
+        "expected": false,
+        "distance": 0.5894330095614604,
+        "correct": false
+      },
+      "accuracy": 0.0,
+      "avg_time": 0.559191107749939,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4717059076688086,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": true,
+        "expected": false,
+        "distance": 0.5894330095614604,
+        "correct": false
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.5965628623962402,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.6546169891723778,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.0412645833663816,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.5931615829467773,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.113859612003079,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.0412645833663816,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.5679963827133179,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.113859612003079,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.0412645833663816,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.5659201145172119,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.6546169891723778,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.0412645833663816,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.5893572568893433,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.6546169891723778,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.0412645833663816,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.6145490407943726,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.6546169891723778,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.0412645833663816,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.5830367803573608,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.6546169891723778,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.0412645833663816,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.5817067623138428,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.113859612003079,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.0412645833663816,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.5708490610122681,
+      "errors": []
+    },
+    {
+      "model": "VGG-Face",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.6546169891723778,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.0412645833663816,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.6291302442550659,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "cosine",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.20121514284076547,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.166475813649998,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 2.715812563896179,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "cosine",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.20121514284076547,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.166475813649998,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4491537809371948,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "cosine",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.975367529320233,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.166475813649998,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.43423569202423096,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "cosine",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.20121514284076547,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.166475813649998,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4345647096633911,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "cosine",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.20121514284076547,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.166475813649998,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4238617420196533,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "cosine",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.975367529320233,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.166475813649998,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.42075085639953613,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "cosine",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.20121514284076547,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.166475813649998,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.42256247997283936,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "cosine",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.20121514284076547,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.166475813649998,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4462578296661377,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "cosine",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.20121514284076547,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.166475813649998,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.42148327827453613,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 13.106017846366129,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 19.153596753291442,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.426220178604126,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 7.876349156613887,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 19.153596753291442,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4429287910461426,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 7.876349156613887,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 19.153596753291442,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.49485719203948975,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 7.876349156613887,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 19.153596753291442,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4225151538848877,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 7.876349156613887,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 19.153596753291442,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4372955560684204,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 13.106017846366129,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 19.153596753291442,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4106389284133911,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 13.106017846366129,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 19.153596753291442,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4117470979690552,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 7.876349156613887,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 19.153596753291442,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.42239952087402344,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 13.106017846366129,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 19.153596753291442,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4167137145996094,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3966871727915544,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.5274002839138128,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4087940454483032,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3966871727915544,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.5274002839138128,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.41554319858551025,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3966871727915544,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.5274002839138128,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4232039451599121,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3966871727915544,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.5274002839138128,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.40836310386657715,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.6343739320633618,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.5274002839138128,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.42999136447906494,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3966871727915544,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.5274002839138128,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.424879789352417,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.6343739320633618,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.5274002839138128,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.5540294647216797,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3966871727915544,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.5274002839138128,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4554619789123535,
+      "errors": []
+    },
+    {
+      "model": "Facenet",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3966871727915544,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.5274002839138128,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.41496741771698,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "cosine",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.27013510714252975,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.067882812691041,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 6.690465927124023,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "cosine",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.27013510714252975,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.067882812691041,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.5257841348648071,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "cosine",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.27013510714252975,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.067882812691041,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4416419267654419,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "cosine",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.27013510714252975,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.067882812691041,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.436321496963501,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "cosine",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.27013510714252975,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.067882812691041,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.43979203701019287,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "cosine",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.27013510714252975,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.067882812691041,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4430403709411621,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "cosine",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.978792834503479,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.067882812691041,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4203670024871826,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "cosine",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.978792834503479,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.067882812691041,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4188913106918335,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "cosine",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.27013510714252975,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.067882812691041,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.42927777767181396,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 25.493327547840554,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 35.003620467540415,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.43287503719329834,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 25.493327547840554,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 35.003620467540415,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.43935585021972656,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 25.493327547840554,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 35.003620467540415,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4198901653289795,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 16.16855454007162,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 35.003620467540415,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4473472833633423,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 25.493327547840554,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 35.003620467540415,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4525948762893677,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 25.493327547840554,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 35.003620467540415,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4250243902206421,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 16.16855454007162,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 35.003620467540415,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4189234972000122,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 25.493327547840554,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 35.003620467540415,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4168168306350708,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 25.493327547840554,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 35.003620467540415,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.42095184326171875,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3991374732337627,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.461425887748702,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.40668392181396484,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3991374732337627,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.461425887748702,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.40999412536621094,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3991374732337627,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.461425887748702,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4280121326446533,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3991374732337627,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.461425887748702,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4112919569015503,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3991374732337627,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.461425887748702,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.42434632778167725,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3991374732337627,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.461425887748702,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4100891351699829,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.7350307573734992,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.461425887748702,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.42685961723327637,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.7350307573734992,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.461425887748702,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4772080183029175,
+      "errors": []
+    },
+    {
+      "model": "Facenet512",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.3991374732337627,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.461425887748702,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.42922401428222656,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "cosine",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.11136885014606113,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.18391478535615025,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 1.3210821151733398,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "cosine",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.11136885014606113,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.18391478535615025,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3556406497955322,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "cosine",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.11136885014606113,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.18391478535615025,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.35711610317230225,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "cosine",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.4394383550786455,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.18391478535615025,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3424943685531616,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "cosine",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.4394383550786455,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.18391478535615025,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3572869300842285,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "cosine",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.11136885014606113,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.18391478535615025,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.35235917568206787,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "cosine",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.11136885014606113,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.18391478535615025,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.35283172130584717,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "cosine",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.11136885014606113,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.18391478535615025,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3560597896575928,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "cosine",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.11136885014606113,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.18391478535615025,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3675175905227661,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.9374842669869715,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895710372961,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3554420471191406,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4719509650907797,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895710372961,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.3560231924057007,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4719509650907797,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895710372961,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.3638066053390503,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4719509650907797,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895710372961,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.36074578762054443,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4719509650907797,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895710372961,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.35405898094177246,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4719509650907797,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895710372961,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.3564556837081909,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.9374842669869715,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895710372961,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.34351205825805664,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.9374842669869715,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895710372961,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.342507004737854,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.9374842669869715,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895710372961,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3664062023162842,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.47195095115077595,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.3646935224533081,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.47195095115077595,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.36480605602264404,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.47195095115077595,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.35583221912384033,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.47195095115077595,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.35787153244018555,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.47195095115077595,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.3551163673400879,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.9374842452848424,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.34030580520629883,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.47195095115077595,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.35385382175445557,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.47195095115077595,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.35004448890686035,
+      "errors": []
+    },
+    {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.47195095115077595,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.34837234020233154,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "cosine",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.05589469493687249,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.15027396212673028,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 2.400277614593506,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "cosine",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.05589469493687249,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.15027396212673028,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.32818925380706787,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "cosine",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.09142541899390999,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.15027396212673028,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.337192177772522,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "cosine",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.09142541899390999,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.15027396212673028,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.32356584072113037,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "cosine",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.05589469493687249,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.15027396212673028,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3633650541305542,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "cosine",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.09142541899390999,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.15027396212673028,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3203238248825073,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "cosine",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.05589469493687249,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.15027396212673028,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.33192217350006104,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "cosine",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.05589469493687249,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.15027396212673028,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.34742915630340576,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "cosine",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.09142541899390999,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.15027396212673028,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.33471739292144775,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 106.7652998064308,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 137.14954518303324,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3226670026779175,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 106.7652998064308,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 137.14954518303324,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.32067394256591797,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 106.7652998064308,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 137.14954518303324,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3273094892501831,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 89.98942856891195,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 137.14954518303324,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.33152472972869873,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 89.98942856891195,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 137.14954518303324,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.33535778522491455,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 106.7652998064308,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 137.14954518303324,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.32058393955230713,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 106.7652998064308,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 137.14954518303324,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3414250612258911,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 106.7652998064308,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 137.14954518303324,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.32999324798583984,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 89.98942856891195,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 137.14954518303324,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.33496010303497314,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.3343492034890241,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.548222513450023,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3280395269393921,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.3343492034890241,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.548222513450023,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3293461799621582,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.3343492034890241,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.548222513450023,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.32413434982299805,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.42761061491480784,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.548222513450023,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.31905221939086914,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.3343492034890241,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.548222513450023,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.34115076065063477,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.3343492034890241,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.548222513450023,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3301403522491455,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.3343492034890241,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.548222513450023,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3275679349899292,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.3343492034890241,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.548222513450023,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.3333747386932373,
+      "errors": []
+    },
+    {
+      "model": "DeepID",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.42761061491480784,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.548222513450023,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.32388627529144287,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "cosine",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4984867341388566,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.9704578333960582,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 1.7388560771942139,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "cosine",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.7652221724384582,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.9704578333960582,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.47771406173706055,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "cosine",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.7652221724384582,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.9704578333960582,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.49249839782714844,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "cosine",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4984867341388566,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.9704578333960582,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.48829734325408936,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "cosine",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.7652221724384582,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.9704578333960582,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.49864816665649414,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "cosine",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.4984867341388566,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.9704578333960582,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4803861379623413,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "cosine",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.7652221724384582,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.9704578333960582,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4718109369277954,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "cosine",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.7652221724384582,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.9704578333960582,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4969371557235718,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "cosine",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 0.7652221724384582,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.9704578333960582,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4894009828567505,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 2.973877330285574,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 5.125910022262155,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.47558271884918213,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 2.973877330285574,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 5.125910022262155,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4924203157424927,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 2.973877330285574,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 5.125910022262155,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4792323112487793,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 2.973877330285574,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 5.125910022262155,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4827691316604614,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 15.485549444071852,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 5.125910022262155,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4718327522277832,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 2.973877330285574,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 5.125910022262155,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4937225580215454,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 2.973877330285574,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 5.125910022262155,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.47504639625549316,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 2.973877330285574,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 5.125910022262155,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4754081964492798,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 15.485549444071852,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 5.125910022262155,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4704488515853882,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.1,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.9984855874161197,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.3931674941628938,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4736744165420532,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.2,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.2371112904168793,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.3931674941628938,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.46358025074005127,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.3,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.2371112904168793,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.3931674941628938,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.4688757658004761,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.4,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.9984855874161197,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.3931674941628938,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4871253967285156,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.5,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.9984855874161197,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.3931674941628938,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.5144970417022705,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.6,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.9984855874161197,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.3931674941628938,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4662214517593384,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.7,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.9984855874161197,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.3931674941628938,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.48398637771606445,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.8,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.9984855874161197,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.3931674941628938,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.4704819917678833,
+      "errors": []
+    },
+    {
+      "model": "ArcFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": false,
+        "expected": true,
+        "distance": 1.2371112904168793,
+        "correct": false
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 1.3931674941628938,
+        "correct": true
+      },
+      "accuracy": 50.0,
+      "avg_time": 0.46494877338409424,
+      "errors": []
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "cosine",
+      "threshold": 0.1,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "cosine",
+      "threshold": 0.2,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "cosine",
+      "threshold": 0.3,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "cosine",
+      "threshold": 0.4,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "cosine",
+      "threshold": 0.5,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "cosine",
+      "threshold": 0.6,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "cosine",
+      "threshold": 0.7,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "cosine",
+      "threshold": 0.8,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "cosine",
+      "threshold": 0.9,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.1,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.2,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.3,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.4,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.5,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.6,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.7,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.8,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean",
+      "threshold": 0.9,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.1,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.2,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.3,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.4,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.5,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.6,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.7,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.8,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    },
+    {
+      "model": "SFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.9,
+      "same_person_test": null,
+      "different_person_test": null,
+      "accuracy": 0.0,
+      "avg_time": 0.0,
+      "errors": [
+        "same_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n",
+        "different_person: OpenCV(4.11.0) D:\\a\\opencv-python\\opencv-python\\opencv\\modules\\dnn\\src\\onnx\\onnx_importer.cpp:283: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: C:\\Users\\ARNAV/.deepface/weights/face_recognition_sface_2021dec.onnx in function 'cv::dnn::dnn4_v20241223::ONNXImporter::ONNXImporter'\n"
+      ]
+    }
+  ],
+  "analysis": {
+    "total_tests": 189,
+    "valid_tests": 162,
+    "perfect_matches": 64,
+    "good_matches": 159,
+    "best_combinations": [
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.9,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.34837234020233154,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.8,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.35004448890686035,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.7,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.35385382175445557,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.5,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4719509650907797,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895710372961,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.35405898094177246,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.5,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.3551163673400879,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.3,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.35583221912384033,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.2,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4719509650907797,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895710372961,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.3560231924057007,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.6,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4719509650907797,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895710372961,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.3564556837081909,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.35787153244018555,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4719509650907797,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895710372961,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.36074578762054443,
+        "errors": []
+      }
+    ],
+    "perfect_combinations": [
+      {
+        "model": "VGG-Face",
+        "distance_metric": "cosine",
+        "threshold": 0.1,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.21426170125655442,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.5421159662865822,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 1.8158291578292847,
+        "errors": []
+      },
+      {
+        "model": "VGG-Face",
+        "distance_metric": "cosine",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.21426170125655442,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.5421159662865822,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.6277072429656982,
+        "errors": []
+      },
+      {
+        "model": "VGG-Face",
+        "distance_metric": "cosine",
+        "threshold": 0.7,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.21426170125655442,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.5421159662865822,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.5884811878204346,
+        "errors": []
+      },
+      {
+        "model": "VGG-Face",
+        "distance_metric": "cosine",
+        "threshold": 0.8,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.21426170125655442,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.5421159662865822,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.6306370496749878,
+        "errors": []
+      },
+      {
+        "model": "VGG-Face",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.1,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.6546169891723778,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.0412645833663816,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.5931615829467773,
+        "errors": []
+      },
+      {
+        "model": "VGG-Face",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.6546169891723778,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.0412645833663816,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.5893572568893433,
+        "errors": []
+      },
+      {
+        "model": "VGG-Face",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.5,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.6546169891723778,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.0412645833663816,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.6145490407943726,
+        "errors": []
+      },
+      {
+        "model": "VGG-Face",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.6,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.6546169891723778,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.0412645833663816,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.5830367803573608,
+        "errors": []
+      },
+      {
+        "model": "VGG-Face",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.7,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.6546169891723778,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.0412645833663816,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.5817067623138428,
+        "errors": []
+      },
+      {
+        "model": "VGG-Face",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.9,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.6546169891723778,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.0412645833663816,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.6291302442550659,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "cosine",
+        "threshold": 0.1,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.20121514284076547,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.166475813649998,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 2.715812563896179,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "cosine",
+        "threshold": 0.2,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.20121514284076547,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.166475813649998,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4491537809371948,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "cosine",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.20121514284076547,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.166475813649998,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4345647096633911,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "cosine",
+        "threshold": 0.5,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.20121514284076547,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.166475813649998,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4238617420196533,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "cosine",
+        "threshold": 0.7,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.20121514284076547,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.166475813649998,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.42256247997283936,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "cosine",
+        "threshold": 0.8,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.20121514284076547,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.166475813649998,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4462578296661377,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "cosine",
+        "threshold": 0.9,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.20121514284076547,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.166475813649998,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.42148327827453613,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "euclidean",
+        "threshold": 0.2,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 7.876349156613887,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 19.153596753291442,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4429287910461426,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "euclidean",
+        "threshold": 0.3,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 7.876349156613887,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 19.153596753291442,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.49485719203948975,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "euclidean",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 7.876349156613887,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 19.153596753291442,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4225151538848877,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "euclidean",
+        "threshold": 0.5,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 7.876349156613887,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 19.153596753291442,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4372955560684204,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "euclidean",
+        "threshold": 0.8,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 7.876349156613887,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 19.153596753291442,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.42239952087402344,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.5,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.6343739320633618,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.5274002839138128,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.42999136447906494,
+        "errors": []
+      },
+      {
+        "model": "Facenet",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.7,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.6343739320633618,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.5274002839138128,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.5540294647216797,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "cosine",
+        "threshold": 0.1,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.27013510714252975,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.067882812691041,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 6.690465927124023,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "cosine",
+        "threshold": 0.2,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.27013510714252975,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.067882812691041,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.5257841348648071,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "cosine",
+        "threshold": 0.3,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.27013510714252975,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.067882812691041,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4416419267654419,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "cosine",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.27013510714252975,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.067882812691041,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.436321496963501,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "cosine",
+        "threshold": 0.5,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.27013510714252975,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.067882812691041,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.43979203701019287,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "cosine",
+        "threshold": 0.6,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.27013510714252975,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.067882812691041,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4430403709411621,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "cosine",
+        "threshold": 0.9,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.27013510714252975,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.067882812691041,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.42927777767181396,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "euclidean",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 16.16855454007162,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 35.003620467540415,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4473472833633423,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "euclidean",
+        "threshold": 0.7,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 16.16855454007162,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 35.003620467540415,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4189234972000122,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.7,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.7350307573734992,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.461425887748702,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.42685961723327637,
+        "errors": []
+      },
+      {
+        "model": "Facenet512",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.8,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.7350307573734992,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.461425887748702,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4772080183029175,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.2,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4719509650907797,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895710372961,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.3560231924057007,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.3,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4719509650907797,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895710372961,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.3638066053390503,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4719509650907797,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895710372961,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.36074578762054443,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.5,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4719509650907797,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895710372961,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.35405898094177246,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.6,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4719509650907797,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895710372961,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.3564556837081909,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.1,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.3646935224533081,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.2,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.36480605602264404,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.3,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.35583221912384033,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.35787153244018555,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.5,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.3551163673400879,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.7,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.35385382175445557,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.8,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.35004448890686035,
+        "errors": []
+      },
+      {
+        "model": "OpenFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.9,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.47195095115077595,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.6064895470758758,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.34837234020233154,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "cosine",
+        "threshold": 0.1,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4984867341388566,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.9704578333960582,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 1.7388560771942139,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "cosine",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4984867341388566,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.9704578333960582,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.48829734325408936,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "cosine",
+        "threshold": 0.6,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.4984867341388566,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 0.9704578333960582,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4803861379623413,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.1,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 2.973877330285574,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 5.125910022262155,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.47558271884918213,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.2,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 2.973877330285574,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 5.125910022262155,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4924203157424927,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.3,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 2.973877330285574,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 5.125910022262155,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4792323112487793,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 2.973877330285574,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 5.125910022262155,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4827691316604614,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.6,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 2.973877330285574,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 5.125910022262155,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4937225580215454,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.7,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 2.973877330285574,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 5.125910022262155,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.47504639625549316,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean",
+        "threshold": 0.8,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 2.973877330285574,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 5.125910022262155,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4754081964492798,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.1,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.9984855874161197,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.3931674941628938,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4736744165420532,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.4,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.9984855874161197,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.3931674941628938,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4871253967285156,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.5,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.9984855874161197,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.3931674941628938,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.5144970417022705,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.6,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.9984855874161197,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.3931674941628938,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4662214517593384,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.7,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.9984855874161197,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.3931674941628938,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.48398637771606445,
+        "errors": []
+      },
+      {
+        "model": "ArcFace",
+        "distance_metric": "euclidean_l2",
+        "threshold": 0.8,
+        "same_person_test": {
+          "verified": true,
+          "expected": true,
+          "distance": 0.9984855874161197,
+          "correct": true
+        },
+        "different_person_test": {
+          "verified": false,
+          "expected": false,
+          "distance": 1.3931674941628938,
+          "correct": true
+        },
+        "accuracy": 100.0,
+        "avg_time": 0.4704819917678833,
+        "errors": []
+      }
+    ],
+    "fastest_perfect": {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.47195095115077595,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.34837234020233154,
+      "errors": []
+    },
+    "most_accurate": {
+      "model": "OpenFace",
+      "distance_metric": "euclidean_l2",
+      "threshold": 0.9,
+      "same_person_test": {
+        "verified": true,
+        "expected": true,
+        "distance": 0.47195095115077595,
+        "correct": true
+      },
+      "different_person_test": {
+        "verified": false,
+        "expected": false,
+        "distance": 0.6064895470758758,
+        "correct": true
+      },
+      "accuracy": 100.0,
+      "avg_time": 0.34837234020233154,
+      "errors": []
+    }
+  }
+}

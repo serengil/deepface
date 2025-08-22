@@ -58,3 +58,9 @@ def get_response(user_input: str, conversation_history=None) -> str:
         return resp.choices[0].message.content.strip()
     except Exception as e:
         return f"Error: {str(e)}"
+
+def response(user_input: str, conversation_history=None) -> str:
+    """
+    Alias for get_response to match the working editor.py expectations.
+    """
+    return get_response(user_input, conversation_history)
