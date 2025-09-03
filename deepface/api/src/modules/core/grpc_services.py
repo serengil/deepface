@@ -83,6 +83,8 @@ class DeepFaceService(DeepFaceServiceServicer):
                 result.emotion.sad = emotion.get("sad", 0.0)
                 result.emotion.surprise = emotion.get("surprise", 0.0)
                 result.emotion.neutral = emotion.get("neutral", 0.0)
+            if "antispoof_score" in demography:
+                result.anti_spoofing_score = float(demography.get("antispoof_score", 0.0))
 
         return response
 
@@ -120,6 +122,8 @@ class DeepFaceService(DeepFaceServiceServicer):
                 rep.face_confidence = float(result["face_confidence"])
             if "facial_area" in result:
                 fill_facial_area(rep.facial_area, result["facial_area"])
+            if "antispoof_score" in result:
+                rep.anti_spoofing_score = float(result.get("antispoof_score", 0.0))
 
         logger.debug(results)
 
@@ -177,6 +181,14 @@ class DeepFaceService(DeepFaceServiceServicer):
                     response.model = getattr(Models, model_str)
                 else:
                     response.model = Models.VGG_FACE
+            if "img1" in results and "antispoof_score" in results["img1"]:
+                response.img1_anti_spoofing_score = float(
+                    results["img1"].get("antispoof_score", 0.0)
+                )
+            if "img2" in results and "antispoof_score" in results["img2"]:
+                response.img2_anti_spoofing_score = float(
+                    results["img2"].get("antispoof_score", 0.0)
+                )
 
         except Exception as err:
             context.set_details(f"Exception while representing: {str(err)}")

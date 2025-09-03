@@ -147,6 +147,9 @@ def verify(
                     Region of interest for the second image.
 
         - 'time' (float): Time taken for the verification process in seconds.
+
+        - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+            just available in the result only if anti_spoofing is set to True in input arguments.
     """
 
     return verification.verify(
@@ -256,6 +259,9 @@ def analyze(
             - 'black': Confidence score for Black ethnicity.
             - 'middle eastern': Confidence score for Middle Eastern ethnicity.
             - 'white': Confidence score for White ethnicity.
+
+        - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+            just available in the result only if anti_spoofing is set to True in input arguments.
     """
     return demography.analyze(
         img_path=img_path,
@@ -358,6 +364,9 @@ def find(
 
             - 'distance': Similarity score between the faces based on the
                     specified model and distance metric
+
+            - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+                just available in the result only if anti_spoofing is set to True in input arguments.
     """
     return recognition.find(
         img_path=img_path,
@@ -440,6 +449,9 @@ def represent(
 
         - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
             to 'skip', the confidence will be 0 and is nonsensical.
+
+        - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+            just available in the result only if anti_spoofing is set to True in input arguments.
     """
     return representation.represent(
         img_path=img_path,

@@ -164,7 +164,7 @@ class AnalyzeResponse(_message.Message):
         white: float
         def __init__(self, asian: _Optional[float] = ..., black: _Optional[float] = ..., indian: _Optional[float] = ..., latino_hispanic: _Optional[float] = ..., middle_eastern: _Optional[float] = ..., white: _Optional[float] = ...) -> None: ...
     class Result(_message.Message):
-        __slots__ = ("age", "dominant_emotion", "dominant_gender", "dominant_race", "face_confidence", "emotion", "gender", "race", "facial_area")
+        __slots__ = ("age", "dominant_emotion", "dominant_gender", "dominant_race", "face_confidence", "emotion", "gender", "race", "facial_area", "anti_spoofing_score")
         AGE_FIELD_NUMBER: _ClassVar[int]
         DOMINANT_EMOTION_FIELD_NUMBER: _ClassVar[int]
         DOMINANT_GENDER_FIELD_NUMBER: _ClassVar[int]
@@ -174,6 +174,7 @@ class AnalyzeResponse(_message.Message):
         GENDER_FIELD_NUMBER: _ClassVar[int]
         RACE_FIELD_NUMBER: _ClassVar[int]
         FACIAL_AREA_FIELD_NUMBER: _ClassVar[int]
+        ANTI_SPOOFING_SCORE_FIELD_NUMBER: _ClassVar[int]
         age: int
         dominant_emotion: str
         dominant_gender: str
@@ -183,7 +184,8 @@ class AnalyzeResponse(_message.Message):
         gender: AnalyzeResponse.Gender
         race: AnalyzeResponse.Race
         facial_area: FacialArea
-        def __init__(self, age: _Optional[int] = ..., dominant_emotion: _Optional[str] = ..., dominant_gender: _Optional[str] = ..., dominant_race: _Optional[str] = ..., face_confidence: _Optional[float] = ..., emotion: _Optional[_Union[AnalyzeResponse.Emotion, _Mapping]] = ..., gender: _Optional[_Union[AnalyzeResponse.Gender, _Mapping]] = ..., race: _Optional[_Union[AnalyzeResponse.Race, _Mapping]] = ..., facial_area: _Optional[_Union[FacialArea, _Mapping]] = ...) -> None: ...
+        anti_spoofing_score: float
+        def __init__(self, age: _Optional[int] = ..., dominant_emotion: _Optional[str] = ..., dominant_gender: _Optional[str] = ..., dominant_race: _Optional[str] = ..., face_confidence: _Optional[float] = ..., emotion: _Optional[_Union[AnalyzeResponse.Emotion, _Mapping]] = ..., gender: _Optional[_Union[AnalyzeResponse.Gender, _Mapping]] = ..., race: _Optional[_Union[AnalyzeResponse.Race, _Mapping]] = ..., facial_area: _Optional[_Union[FacialArea, _Mapping]] = ..., anti_spoofing_score: _Optional[float] = ...) -> None: ...
     RESULTS_FIELD_NUMBER: _ClassVar[int]
     results: _containers.RepeatedCompositeFieldContainer[AnalyzeResponse.Result]
     def __init__(self, results: _Optional[_Iterable[_Union[AnalyzeResponse.Result, _Mapping]]] = ...) -> None: ...
@@ -209,14 +211,16 @@ class RepresentRequest(_message.Message):
 class RepresentResponse(_message.Message):
     __slots__ = ("results",)
     class Results(_message.Message):
-        __slots__ = ("embedding", "face_confidence", "facial_area")
+        __slots__ = ("embedding", "face_confidence", "facial_area", "anti_spoofing_score")
         EMBEDDING_FIELD_NUMBER: _ClassVar[int]
         FACE_CONFIDENCE_FIELD_NUMBER: _ClassVar[int]
         FACIAL_AREA_FIELD_NUMBER: _ClassVar[int]
+        ANTI_SPOOFING_SCORE_FIELD_NUMBER: _ClassVar[int]
         embedding: _containers.RepeatedScalarFieldContainer[float]
         face_confidence: float
         facial_area: FacialArea
-        def __init__(self, embedding: _Optional[_Iterable[float]] = ..., face_confidence: _Optional[float] = ..., facial_area: _Optional[_Union[FacialArea, _Mapping]] = ...) -> None: ...
+        anti_spoofing_score: float
+        def __init__(self, embedding: _Optional[_Iterable[float]] = ..., face_confidence: _Optional[float] = ..., facial_area: _Optional[_Union[FacialArea, _Mapping]] = ..., anti_spoofing_score: _Optional[float] = ...) -> None: ...
     RESULTS_FIELD_NUMBER: _ClassVar[int]
     results: _containers.RepeatedCompositeFieldContainer[RepresentResponse.Results]
     def __init__(self, results: _Optional[_Iterable[_Union[RepresentResponse.Results, _Mapping]]] = ...) -> None: ...
@@ -242,7 +246,7 @@ class VerifyRequest(_message.Message):
     def __init__(self, image1_url: _Optional[str] = ..., image2_url: _Optional[str] = ..., model_name: _Optional[_Union[Models, str]] = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., distance_metric: _Optional[_Union[DistanceMetrics, str]] = ..., enforce_detection: bool = ..., align: bool = ..., anti_spoofing: bool = ...) -> None: ...
 
 class VerifyResponse(_message.Message):
-    __slots__ = ("verified", "detector_backend", "model", "similarity_metric", "facial_areas", "distance", "threshold", "time")
+    __slots__ = ("verified", "detector_backend", "model", "similarity_metric", "facial_areas", "distance", "threshold", "time", "img1_anti_spoofing_score", "img2_anti_spoofing_score")
     class FacialAreas(_message.Message):
         __slots__ = ("img1", "img2")
         IMG1_FIELD_NUMBER: _ClassVar[int]
@@ -258,6 +262,8 @@ class VerifyResponse(_message.Message):
     DISTANCE_FIELD_NUMBER: _ClassVar[int]
     THRESHOLD_FIELD_NUMBER: _ClassVar[int]
     TIME_FIELD_NUMBER: _ClassVar[int]
+    IMG1_ANTI_SPOOFING_SCORE_FIELD_NUMBER: _ClassVar[int]
+    IMG2_ANTI_SPOOFING_SCORE_FIELD_NUMBER: _ClassVar[int]
     verified: bool
     detector_backend: Detectors
     model: Models
@@ -266,4 +272,6 @@ class VerifyResponse(_message.Message):
     distance: float
     threshold: float
     time: float
-    def __init__(self, verified: bool = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., model: _Optional[_Union[Models, str]] = ..., similarity_metric: _Optional[_Union[DistanceMetrics, str]] = ..., facial_areas: _Optional[_Union[VerifyResponse.FacialAreas, _Mapping]] = ..., distance: _Optional[float] = ..., threshold: _Optional[float] = ..., time: _Optional[float] = ...) -> None: ...
+    img1_anti_spoofing_score: float
+    img2_anti_spoofing_score: float
+    def __init__(self, verified: bool = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., model: _Optional[_Union[Models, str]] = ..., similarity_metric: _Optional[_Union[DistanceMetrics, str]] = ..., facial_areas: _Optional[_Union[VerifyResponse.FacialAreas, _Mapping]] = ..., distance: _Optional[float] = ..., threshold: _Optional[float] = ..., time: _Optional[float] = ..., img1_anti_spoofing_score: _Optional[float] = ..., img2_anti_spoofing_score: _Optional[float] = ...) -> None: ...

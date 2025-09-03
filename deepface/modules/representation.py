@@ -67,6 +67,8 @@ def represent(
             the full image area and is nonsensical.
         - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
             to 'skip', the confidence will be 0 and is nonsensical.
+        - antispoof_score (float): score of antispoofing analyze result. this key is
+            just available in the result only if anti_spoofing is set to True in input arguments.
     """
     resp_objs = []
 
@@ -82,7 +84,13 @@ def represent(
     else:
         images = [img_path]
 
-    batch_images, batch_regions, batch_confidences, batch_indexes = [], [], [], []
+    batch_images, batch_regions, batch_confidences, batch_indexes, batch_spoof_checks = (
+        [],
+        [],
+        [],
+        [],
+        [],
+    )
 
     for idx, single_img_path in enumerate(images):
         # we have run pre-process in verification. so, skip if it is coming from verify.
@@ -130,8 +138,8 @@ def represent(
             img_objs = img_objs[0:max_faces]
 
         for img_obj in img_objs:
-            if anti_spoofing is True and img_obj.get("is_real", True) is False:
-                raise ValueError("Spoof detected in the given image.")
+            is_real = img_obj.get("is_real", True)
+            antispoof_score = img_obj.get("antispoof_score", 0.0)
 
             img = img_obj["face"]
 
@@ -155,6 +163,7 @@ def represent(
             batch_regions.append(region)
             batch_confidences.append(confidence)
             batch_indexes.append(idx)
+            batch_spoof_checks.append(antispoof_score)
 
     # Convert list of images to a numpy array for batch processing
     batch_images = np.concatenate(batch_images, axis=0)
@@ -164,13 +173,15 @@ def represent(
 
     resp_objs_dict = defaultdict(list)
     for idy, batch_index in enumerate(batch_indexes):
-        resp_objs_dict[batch_index].append(
-            {
-                "embedding": embeddings if len(batch_images) == 1 else embeddings[idy],
-                "facial_area": batch_regions[idy],
-                "face_confidence": batch_confidences[idy],
-            }
-        )
+        resp_obj = {
+            "embedding": embeddings if len(batch_images) == 1 else embeddings[idy],
+            "facial_area": batch_regions[idy],
+            "face_confidence": batch_confidences[idy],
+        }
+        if anti_spoofing is True:
+            resp_obj["antispoof_score"] = batch_spoof_checks[idy]
+
+        resp_objs_dict[batch_index].append(resp_obj)
 
     resp_objs = [resp_objs_dict[idx] for idx in range(len(images))]
 

@@ -99,6 +99,9 @@ def analyze(
                - 'black': Confidence score for Black ethnicity.
                - 'middle eastern': Confidence score for Middle Eastern ethnicity.
                - 'white': Confidence score for White ethnicity.
+
+           - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+                just available in the result only if anti_spoofing is set to True in input arguments.
     """
 
     # batch input
@@ -156,12 +159,17 @@ def analyze(
     )
 
     for img_obj in img_objs:
-        if anti_spoofing is True and img_obj.get("is_real", True) is False:
-            raise ValueError("Spoof detected in the given image.")
-
         img_content = img_obj["face"]
         img_region = img_obj["facial_area"]
         img_confidence = img_obj["confidence"]
+        obj = {
+            "region": img_region,
+            "face_confidence": img_confidence,
+        }
+
+        if anti_spoofing is True:
+            obj["antispoof_score"] = img_obj.get("antispoof_score", 0.0)
+
         if img_content.shape[0] == 0 or img_content.shape[1] == 0:
             continue
 
@@ -171,7 +179,6 @@ def analyze(
         # resize input image
         img_content = preprocessing.resize_image(img=img_content, target_size=(224, 224))
 
-        obj = {}
         # facial attribute analysis
         pbar = tqdm(
             range(0, len(actions)),
@@ -225,12 +232,6 @@ def analyze(
                     obj["race"][race_label] = race_prediction
 
                 obj["dominant_race"] = Race.labels[np.argmax(race_predictions)]
-
-            # -----------------------------
-            # mention facial areas
-            obj["region"] = img_region
-            # include image confidence
-            obj["face_confidence"] = img_confidence
 
         resp_objects.append(obj)
 

@@ -105,6 +105,9 @@ def find(
 
             - 'distance': Similarity score between the faces based on the
                     specified model and distance metric
+
+            - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+                just available in the result only if anti_spoofing is set to True in input arguments.
     """
 
     tic = time.time()
@@ -280,8 +283,29 @@ def find(
     resp_obj = []
 
     for source_obj in source_objs:
-        if anti_spoofing is True and source_obj.get("is_real", True) is False:
-            raise ValueError("Spoof detected in the given image.")
+        is_real = source_obj.get("is_real", True)
+        antispoof_score = source_obj.get("antispoof_score", 0.0)
+
+        if anti_spoofing is True and is_real is False:
+            df_ = pd.DataFrame(
+                {
+                    "identity": ["spoof"],
+                    "target_x": [0],
+                    "target_y": [0],
+                    "target_w": [0],
+                    "target_h": [0],
+                    "source_x": [0],
+                    "source_y": [0],
+                    "source_w": [0],
+                    "source_h": [0],
+                    "threshold": [0],
+                    "distance": [0],
+                    "antispoof_score": [antispoof_score],
+                }
+            )
+            resp_obj.append(df_)
+            continue
+
         source_img = source_obj["face"]
         source_region = source_obj["facial_area"]
         target_embedding_obj = representation.represent(
@@ -508,6 +532,9 @@ def find_batched(
         List[List[Dict[str, Any]]]:
             A list where each element corresponds to a source face and
             contains a list of dictionaries with matching faces.
+
+            - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+                just available in the result only if anti_spoofing is set to True in input arguments.
     """
     embeddings_list = []
     valid_mask = []
@@ -536,10 +563,20 @@ def find_batched(
     target_embeddings = []
     source_regions = []
     target_thresholds = []
+    spoof_checks = []
 
     for source_obj in source_objs:
-        if anti_spoofing and not source_obj.get("is_real", True):
-            raise ValueError("Spoof detected in the given image.")
+        is_real = source_obj.get("is_real", True)
+        antispoof_score = source_obj.get("antispoof_score", 0.0)
+
+        if anti_spoofing is True and is_real is False:
+            spoof_checks.append((is_real, antispoof_score))
+            target_embeddings.append(np.zeros(embeddings.shape[1]))
+            source_regions.append(source_obj["facial_area"])
+            target_thresholds.append(
+                threshold or verification.find_threshold(model_name, distance_metric)
+            )
+            continue
 
         source_img = source_obj["face"]
         source_region = source_obj["facial_area"]
@@ -560,6 +597,7 @@ def find_batched(
 
         target_threshold = threshold or verification.find_threshold(model_name, distance_metric)
         target_thresholds.append(target_threshold)
+        spoof_checks.append((is_real, antispoof_score))
 
     target_embeddings = np.array(target_embeddings)  # (M, D)
     target_thresholds = np.array(target_thresholds)  # (M,)
@@ -576,6 +614,28 @@ def find_batched(
     resp_obj = []
 
     for i in range(len(target_embeddings)):
+        is_real, antispoof_score = spoof_checks[i]
+        if anti_spoofing is True and is_real is False:
+            resp_obj.append(
+                [
+                    {
+                        "identity": "spoof",
+                        "target_x": 0,
+                        "target_y": 0,
+                        "target_w": 0,
+                        "target_h": 0,
+                        "source_x": 0,
+                        "source_y": 0,
+                        "source_w": 0,
+                        "source_h": 0,
+                        "threshold": 0,
+                        "distance": 0,
+                        "antispoof_score": antispoof_score,
+                    }
+                ]
+            )
+            continue
+
         target_distances = distances[i]  # (N,)
         target_threshold = target_thresholds[i]
 

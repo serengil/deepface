@@ -96,6 +96,12 @@ def verify(
                     Region of interest for the second image.
 
         - 'time' (float): Time taken for the verification process in seconds.
+
+        - 'img1' (dict): Spoofing analysis results for the first image.
+            - 'antispoof_score' (float): The anti-spoofing score.
+
+        - 'img2' (dict): Spoofing analysis results for the second image.
+            - 'antispoof_score' (float): The anti-spoofing score.
     """
 
     tic = time.time()
@@ -116,7 +122,7 @@ def verify(
 
     def extract_embeddings_and_facial_areas(
         img_path: Union[str, np.ndarray, List[float]], index: int
-    ) -> Tuple[List[List[float]], List[dict]]:
+    ) -> Tuple[List[List[float]], List[dict], List[Tuple[bool, float]]]:
         """
         Extracts facial embeddings and corresponding facial areas from an
         image or returns pre-calculated embeddings.
@@ -135,9 +141,10 @@ def verify(
             to identify the number of the image.
 
         Returns:
-            Tuple[List[List[float]], List[dict]]:
+            Tuple[List[List[float]], List[dict], List[float]]:
                 - A list containing lists of facial embeddings for each detected face.
                 - A list of dictionaries where each dictionary contains facial area information.
+                - A list of floats where each float is the antispoofing score.
         """
         if isinstance(img_path, list):
             # given image is already pre-calculated embedding
@@ -163,9 +170,14 @@ def verify(
 
             img_embeddings = [img_path]
             img_facial_areas = [no_facial_area]
+            spoof_infos = [0.0]
         else:
             try:
-                img_embeddings, img_facial_areas = __extract_faces_and_embeddings(
+                (
+                    img_embeddings,
+                    img_facial_areas,
+                    spoof_infos,
+                ) = __extract_faces_and_embeddings(
                     img_path=img_path,
                     model_name=model_name,
                     detector_backend=detector_backend,
@@ -177,14 +189,20 @@ def verify(
                 )
             except ValueError as err:
                 raise ValueError(f"Exception while processing img{index}_path") from err
-        return img_embeddings, img_facial_areas
+        return img_embeddings, img_facial_areas, spoof_infos
 
-    img1_embeddings, img1_facial_areas = extract_embeddings_and_facial_areas(img1_path, 1)
-    img2_embeddings, img2_facial_areas = extract_embeddings_and_facial_areas(img2_path, 2)
+    img1_embeddings, img1_facial_areas, img1_spoof_infos = extract_embeddings_and_facial_areas(
+        img1_path, 1
+    )
+    img2_embeddings, img2_facial_areas, img2_spoof_infos = extract_embeddings_and_facial_areas(
+        img2_path, 2
+    )
 
-    min_distance, min_idx, min_idy = float("inf"), None, None
+    min_distance, min_idx, min_idy = float("inf"), -1, -1
     for idx, img1_embedding in enumerate(img1_embeddings):
         for idy, img2_embedding in enumerate(img2_embeddings):
+            if img1_embedding is None or img2_embedding is None:
+                continue
             distance = find_distance(img1_embedding, img2_embedding, distance_metric)
             if distance < min_distance:
                 min_distance, min_idx, min_idy = distance, idx, idy
@@ -193,8 +211,8 @@ def verify(
     threshold = threshold or find_threshold(model_name, distance_metric)
     distance = float(min_distance)
     facial_areas = (
-        no_facial_area if min_idx is None else img1_facial_areas[min_idx],
-        no_facial_area if min_idy is None else img2_facial_areas[min_idy],
+        no_facial_area if min_idx == -1 else img1_facial_areas[min_idx],
+        no_facial_area if min_idy == -1 else img2_facial_areas[min_idy],
     )
 
     toc = time.time()
@@ -210,6 +228,14 @@ def verify(
         "time": round(toc - tic, 2),
     }
 
+    if anti_spoofing is True:
+        resp_obj["img1"] = {
+            "antispoof_score": img1_spoof_infos[min_idx] if min_idx != -1 else None,
+        }
+        resp_obj["img2"] = {
+            "antispoof_score": img2_spoof_infos[min_idy] if min_idy != -1 else None,
+        }
+
     return resp_obj
 
 
@@ -222,15 +248,17 @@ def __extract_faces_and_embeddings(
     expand_percentage: int = 0,
     normalization: str = "base",
     anti_spoofing: bool = False,
-) -> Tuple[List[List[float]], List[dict]]:
+) -> Tuple[List[List[float]], List[dict], List[Tuple[bool, float]]]:
     """
     Extract facial areas and find corresponding embeddings for given image
     Returns:
         embeddings (List[float])
         facial areas (List[dict])
+        spoof_scores (List[float])
     """
     embeddings = []
     facial_areas = []
+    spoof_infos = []
 
     img_objs = detection.extract_faces(
         img_path=img_path,
@@ -244,8 +272,15 @@ def __extract_faces_and_embeddings(
 
     # find embeddings for each face
     for img_obj in img_objs:
-        if anti_spoofing is True and img_obj.get("is_real", True) is False:
-            raise ValueError("Spoof detected in given image.")
+        is_real = img_obj.get("is_real", True)
+        antispoof_score = img_obj.get("antispoof_score", 0.0)
+        spoof_infos.append(antispoof_score)
+
+        if is_real is False:
+            embeddings.append(None)
+            facial_areas.append(img_obj["facial_area"])
+            continue
+
         img_embedding_obj = representation.represent(
             img_path=img_obj["face"],
             model_name=model_name,
@@ -259,7 +294,7 @@ def __extract_faces_and_embeddings(
         embeddings.append(img_embedding)
         facial_areas.append(img_obj["facial_area"])
 
-    return embeddings, facial_areas
+    return embeddings, facial_areas, spoof_infos
 
 
 def find_cosine_distance(
