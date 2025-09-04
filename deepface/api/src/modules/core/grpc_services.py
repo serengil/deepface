@@ -84,7 +84,9 @@ class DeepFaceService(DeepFaceServiceServicer):
                 result.emotion.surprise = emotion.get("surprise", 0.0)
                 result.emotion.neutral = emotion.get("neutral", 0.0)
             if "antispoof_score" in demography:
-                result.anti_spoofing_score = float(demography.get("antispoof_score", 0.0))
+                score = demography.get("antispoof_score")
+                if score is not None:
+                    result.anti_spoofing_score = float(score)
 
         return response
 
@@ -123,7 +125,9 @@ class DeepFaceService(DeepFaceServiceServicer):
             if "facial_area" in result:
                 fill_facial_area(rep.facial_area, result["facial_area"])
             if "antispoof_score" in result:
-                rep.anti_spoofing_score = float(result.get("antispoof_score", 0.0))
+                score = result.get("antispoof_score")
+                if score is not None:
+                    rep.anti_spoofing_score = float(score)
 
         logger.debug(results)
 
@@ -182,13 +186,13 @@ class DeepFaceService(DeepFaceServiceServicer):
                 else:
                     response.model = Models.VGG_FACE
             if "img1" in results and "antispoof_score" in results["img1"]:
-                response.img1_anti_spoofing_score = float(
-                    results["img1"].get("antispoof_score", 0.0)
-                )
+                score = results["img1"].get("antispoof_score")
+                if score is not None:
+                    response.img1_anti_spoofing_score = float(score)
             if "img2" in results and "antispoof_score" in results["img2"]:
-                response.img2_anti_spoofing_score = float(
-                    results["img2"].get("antispoof_score", 0.0)
-                )
+                score = results["img2"].get("antispoof_score")
+                if score is not None:
+                    response.img2_anti_spoofing_score = float(score)
 
         except Exception as err:
             context.set_details(f"Exception while representing: {str(err)}")

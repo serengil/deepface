@@ -113,7 +113,7 @@ message AnalyzeResponse {
         Gender gender = 7;
         Race race = 8;
         FacialArea facial_area = 9;
-        float anti_spoofing_score = 10;
+        optional float anti_spoofing_score = 10;
     }
 
     repeated Result results = 1;
@@ -139,7 +139,7 @@ message RepresentResponse {
         repeated double embedding = 1;
         double face_confidence = 2;
         FacialArea facial_area = 3;
-        float anti_spoofing_score = 4;
+        optional float anti_spoofing_score = 4;
     }
 
     repeated Results results = 1;
@@ -175,8 +175,8 @@ message VerifyResponse {
     double distance = 6;
     double threshold = 7;
     double time = 8;
-    float img1_anti_spoofing_score = 9;
-    float img2_anti_spoofing_score = 10;
+    optional float img1_anti_spoofing_score = 9;
+    optional float img2_anti_spoofing_score = 10;
 }
 
 // ----------------
