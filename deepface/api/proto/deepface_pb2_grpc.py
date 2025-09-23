@@ -2,28 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 import grpc.experimental
-import warnings
 
 from . import deepface_pb2 as deepface__pb2
-
-GRPC_GENERATED_VERSION = '1.73.1'
-GRPC_VERSION = grpc.__version__
-_version_not_supported = False
-
-try:
-    from grpc._utilities import first_version_is_lower
-    _version_not_supported = first_version_is_lower(GRPC_VERSION, GRPC_GENERATED_VERSION)
-except ImportError:
-    _version_not_supported = True
-
-if _version_not_supported:
-    raise RuntimeError(
-        f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in deepface_pb2_grpc.py depends on'
-        + f' grpcio>={GRPC_GENERATED_VERSION}.'
-        + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
-        + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
-    )
 
 
 class DeepFaceServiceStub(object):
@@ -43,17 +23,17 @@ class DeepFaceServiceStub(object):
                 '/deepface.api.proto.DeepFaceService/Analyze',
                 request_serializer=deepface__pb2.AnalyzeRequest.SerializeToString,
                 response_deserializer=deepface__pb2.AnalyzeResponse.FromString,
-                _registered_method=True)
+                )
         self.Represent = channel.unary_unary(
                 '/deepface.api.proto.DeepFaceService/Represent',
                 request_serializer=deepface__pb2.RepresentRequest.SerializeToString,
                 response_deserializer=deepface__pb2.RepresentResponse.FromString,
-                _registered_method=True)
+                )
         self.Verify = channel.unary_unary(
                 '/deepface.api.proto.DeepFaceService/Verify',
                 request_serializer=deepface__pb2.VerifyRequest.SerializeToString,
                 response_deserializer=deepface__pb2.VerifyResponse.FromString,
-                _registered_method=True)
+                )
 
 
 class DeepFaceServiceServicer(object):
@@ -103,7 +83,6 @@ def add_DeepFaceServiceServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'deepface.api.proto.DeepFaceService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('deepface.api.proto.DeepFaceService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -125,21 +104,11 @@ class DeepFaceService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/deepface.api.proto.DeepFaceService/Analyze',
+        return grpc.experimental.unary_unary(request, target, '/deepface.api.proto.DeepFaceService/Analyze',
             deepface__pb2.AnalyzeRequest.SerializeToString,
             deepface__pb2.AnalyzeResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def Represent(request,
@@ -152,21 +121,11 @@ class DeepFaceService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/deepface.api.proto.DeepFaceService/Represent',
+        return grpc.experimental.unary_unary(request, target, '/deepface.api.proto.DeepFaceService/Represent',
             deepface__pb2.RepresentRequest.SerializeToString,
             deepface__pb2.RepresentResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def Verify(request,
@@ -179,18 +138,8 @@ class DeepFaceService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/deepface.api.proto.DeepFaceService/Verify',
+        return grpc.experimental.unary_unary(request, target, '/deepface.api.proto.DeepFaceService/Verify',
             deepface__pb2.VerifyRequest.SerializeToString,
             deepface__pb2.VerifyResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

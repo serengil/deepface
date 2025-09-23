@@ -103,11 +103,12 @@ def find(
 
             - 'threshold': threshold to determine a pair whether same person or different persons
 
-            - 'distance': Similarity score between the faces based on the
-                    specified model and distance metric
-
-            - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+            - 'antispoof_scores' (dict): antispoofing analyze result. This key is
                 just available in the result only if anti_spoofing is set to True in input arguments.
+                It contains:
+                - "spoof_confidence" (float): Confidence score for spoofing.
+                - "real_confidence" (float): Confidence score for real face.
+                - "uncertainty" (float): Uncertainty score.
     """
 
     tic = time.time()
@@ -284,7 +285,7 @@ def find(
 
     for source_obj in source_objs:
         is_real = source_obj.get("is_real", True)
-        antispoof_score = source_obj.get("antispoof_score", 0.0)
+        antispoof_scores = source_obj.get("antispoof_scores", None)
 
         if anti_spoofing is True and is_real is False:
             df_ = pd.DataFrame(
@@ -300,7 +301,7 @@ def find(
                     "source_h": [0],
                     "threshold": [0],
                     "distance": [0],
-                    "antispoof_score": [antispoof_score],
+                    "antispoof_scores": antispoof_scores,
                 }
             )
             resp_obj.append(df_)
@@ -533,8 +534,12 @@ def find_batched(
             A list where each element corresponds to a source face and
             contains a list of dictionaries with matching faces.
 
-            - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+            - 'antispoof_scores' (dict): antispoofing analyze result. This key is
                 just available in the result only if anti_spoofing is set to True in input arguments.
+                It contains:
+                - "spoof_confidence" (float): Confidence score for spoofing.
+                - "real_confidence" (float): Confidence score for real face.
+                - "uncertainty" (float): Uncertainty score.
     """
     embeddings_list = []
     valid_mask = []
@@ -567,10 +572,10 @@ def find_batched(
 
     for source_obj in source_objs:
         is_real = source_obj.get("is_real", True)
-        antispoof_score = source_obj.get("antispoof_score", 0.0)
+        antispoof_scores = source_obj.get("antispoof_scores", None)
 
         if anti_spoofing is True and is_real is False:
-            spoof_checks.append((is_real, antispoof_score))
+            spoof_checks.append((is_real, antispoof_scores))
             target_embeddings.append(np.zeros(embeddings.shape[1]))
             source_regions.append(source_obj["facial_area"])
             target_thresholds.append(
@@ -597,7 +602,7 @@ def find_batched(
 
         target_threshold = threshold or verification.find_threshold(model_name, distance_metric)
         target_thresholds.append(target_threshold)
-        spoof_checks.append((is_real, antispoof_score))
+        spoof_checks.append((is_real, antispoof_scores))
 
     target_embeddings = np.array(target_embeddings)  # (M, D)
     target_thresholds = np.array(target_thresholds)  # (M,)
@@ -614,7 +619,7 @@ def find_batched(
     resp_obj = []
 
     for i in range(len(target_embeddings)):
-        is_real, antispoof_score = spoof_checks[i]
+        is_real, antispoof_scores = spoof_checks[i]
         if anti_spoofing is True and is_real is False:
             resp_obj.append(
                 [
@@ -630,7 +635,7 @@ def find_batched(
                         "source_h": 0,
                         "threshold": 0,
                         "distance": 0,
-                        "antispoof_score": antispoof_score,
+                        "antispoof_scores": antispoof_scores,
                     }
                 ]
             )

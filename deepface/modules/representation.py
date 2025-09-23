@@ -67,8 +67,12 @@ def represent(
             the full image area and is nonsensical.
         - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
             to 'skip', the confidence will be 0 and is nonsensical.
-        - antispoof_score (float): score of antispoofing analyze result. this key is
+        - antispoof_scores (dict): antispoofing analyze result. This key is
             just available in the result only if anti_spoofing is set to True in input arguments.
+            It contains:
+            - "spoof_confidence" (float): Confidence score for spoofing.
+            - "real_confidence" (float): Confidence score for real face.
+            - "uncertainty" (float): Uncertainty score.
     """
     resp_objs = []
 
@@ -139,7 +143,7 @@ def represent(
 
         for img_obj in img_objs:
             is_real = img_obj.get("is_real", True)
-            antispoof_score = img_obj.get("antispoof_score", 0.0)
+            antispoof_scores = img_obj.get("antispoof_scores", None)
 
             img = img_obj["face"]
 
@@ -163,7 +167,7 @@ def represent(
             batch_regions.append(region)
             batch_confidences.append(confidence)
             batch_indexes.append(idx)
-            batch_spoof_checks.append(antispoof_score)
+            batch_spoof_checks.append(antispoof_scores)
 
     # Convert list of images to a numpy array for batch processing
     batch_images = np.concatenate(batch_images, axis=0)
@@ -179,7 +183,7 @@ def represent(
             "face_confidence": batch_confidences[idy],
         }
         if anti_spoofing is True:
-            resp_obj["antispoof_score"] = batch_spoof_checks[idy]
+            resp_obj["antispoof_scores"] = batch_spoof_checks[idy]
 
         resp_objs_dict[batch_index].append(resp_obj)
 

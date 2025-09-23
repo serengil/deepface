@@ -100,8 +100,12 @@ def analyze(
                - 'middle eastern': Confidence score for Middle Eastern ethnicity.
                - 'white': Confidence score for White ethnicity.
 
-           - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+           - 'antispoof_scores' (dict): antispoofing analyze result. This key is
                 just available in the result only if anti_spoofing is set to True in input arguments.
+                It contains:
+                - "spoof_confidence" (float): Confidence score for spoofing.
+                - "real_confidence" (float): Confidence score for real face.
+                - "uncertainty" (float): Uncertainty score.
     """
 
     # batch input
@@ -168,7 +172,7 @@ def analyze(
         }
 
         if anti_spoofing is True:
-            obj["antispoof_score"] = img_obj.get("antispoof_score", 0.0)
+            obj["antispoof_scores"] = img_obj.get("antispoof_scores", None)
 
         if img_content.shape[0] == 0 or img_content.shape[1] == 0:
             continue

@@ -83,10 +83,12 @@ class DeepFaceService(DeepFaceServiceServicer):
                 result.emotion.sad = emotion.get("sad", 0.0)
                 result.emotion.surprise = emotion.get("surprise", 0.0)
                 result.emotion.neutral = emotion.get("neutral", 0.0)
-            if "antispoof_score" in demography:
-                score = demography.get("antispoof_score")
-                if score is not None:
-                    result.anti_spoofing_score = float(score)
+            if "antispoof_scores" in demography:
+                spoofing_scores = demography.get("antispoof_scores")
+                if spoofing_scores is not None:
+                    result.spoofing_scores.spoof_confidence = float(spoofing_scores.get("spoof_confidence", 0.0))
+                    result.spoofing_scores.real_confidence = float(spoofing_scores.get("real_confidence", 0.0))
+                    result.spoofing_scores.uncertainty = float(spoofing_scores.get("uncertainty", 0.0))
 
         return response
 
@@ -124,10 +126,12 @@ class DeepFaceService(DeepFaceServiceServicer):
                 rep.face_confidence = float(result["face_confidence"])
             if "facial_area" in result:
                 fill_facial_area(rep.facial_area, result["facial_area"])
-            if "antispoof_score" in result:
-                score = result.get("antispoof_score")
-                if score is not None:
-                    rep.anti_spoofing_score = float(score)
+            if "antispoof_scores" in result:
+                spoofing_scores = result.get("antispoof_scores")
+                if spoofing_scores is not None:
+                    rep.spoofing_scores.spoof_confidence = float(spoofing_scores.get("spoof_confidence", 0.0))
+                    rep.spoofing_scores.real_confidence = float(spoofing_scores.get("real_confidence", 0.0))
+                    rep.spoofing_scores.uncertainty = float(spoofing_scores.get("uncertainty", 0.0))
 
         logger.debug(results)
 
@@ -185,14 +189,18 @@ class DeepFaceService(DeepFaceServiceServicer):
                     response.model = getattr(Models, model_str)
                 else:
                     response.model = Models.VGG_FACE
-            if "img1" in results and "antispoof_score" in results["img1"]:
-                score = results["img1"].get("antispoof_score")
-                if score is not None:
-                    response.img1_anti_spoofing_score = float(score)
-            if "img2" in results and "antispoof_score" in results["img2"]:
-                score = results["img2"].get("antispoof_score")
-                if score is not None:
-                    response.img2_anti_spoofing_score = float(score)
+            if "img1" in results and "antispoof_scores" in results["img1"]:
+                spoofing_scores = results["img1"].get("antispoof_scores")
+                if spoofing_scores is not None:
+                    response.img1_spoofing_scores.spoof_confidence = float(spoofing_scores.get("spoof_confidence", 0.0))
+                    response.img1_spoofing_scores.real_confidence = float(spoofing_scores.get("real_confidence", 0.0))
+                    response.img1_spoofing_scores.uncertainty = float(spoofing_scores.get("uncertainty", 0.0))
+            if "img2" in results and "antispoof_scores" in results["img2"]:
+                spoofing_scores = results["img2"].get("antispoof_scores")
+                if spoofing_scores is not None:
+                    response.img2_spoofing_scores.spoof_confidence = float(spoofing_scores.get("spoof_confidence", 0.0))
+                    response.img2_spoofing_scores.real_confidence = float(spoofing_scores.get("real_confidence", 0.0))
+                    response.img2_spoofing_scores.uncertainty = float(spoofing_scores.get("uncertainty", 0.0))
 
         except Exception as err:
             context.set_details(f"Exception while representing: {str(err)}")

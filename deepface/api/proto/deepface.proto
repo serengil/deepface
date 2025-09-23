@@ -5,7 +5,7 @@ package deepface.api.proto;
 option go_package = "github.com/serengil/deepface/api/proto";
 
 // ----------------
-// Common enums for models, detectors, and distance metrics
+// Common enums for models, detectors, distance metrics and spoofing scores
 // ----------------
 enum Models {
     VGG_FACE = 0;
@@ -54,6 +54,12 @@ message FacialArea {
     uint32 w = 7;
     uint32 x = 8;
     uint32 y = 9;
+}
+
+message SpoofingScores {
+    float spoof_confidence = 1;
+    float real_confidence = 2;
+    float uncertainty = 3;
 }
 
 // ----------------
@@ -113,7 +119,7 @@ message AnalyzeResponse {
         Gender gender = 7;
         Race race = 8;
         FacialArea facial_area = 9;
-        optional float anti_spoofing_score = 10;
+        optional SpoofingScores spoofing_scores = 10;
     }
 
     repeated Result results = 1;
@@ -139,7 +145,7 @@ message RepresentResponse {
         repeated double embedding = 1;
         double face_confidence = 2;
         FacialArea facial_area = 3;
-        optional float anti_spoofing_score = 4;
+        optional SpoofingScores spoofing_scores = 4;
     }
 
     repeated Results results = 1;
@@ -175,8 +181,8 @@ message VerifyResponse {
     double distance = 6;
     double threshold = 7;
     double time = 8;
-    optional float img1_anti_spoofing_score = 9;
-    optional float img2_anti_spoofing_score = 10;
+    optional SpoofingScores img1_spoofing_scores = 9;
+    optional SpoofingScores img2_spoofing_scores = 10;
 }
 
 // ----------------

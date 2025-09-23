@@ -90,11 +90,11 @@ def extract_faces(
 
         - "confidence" (float): The confidence score associated with the detected face.
 
-        - "is_real" (boolean): antispoofing analyze result. this key is just available in the
-            result only if anti_spoofing is set to True in input arguments.
-
-        - "antispoof_score" (float): score of antispoofing analyze result. this key is
-            just available in the result only if anti_spoofing is set to True in input arguments.
+        - "antispoof_scores" (dict): antispoofing analyze result. This key is just available in the
+            result only if anti_spoofing is set to True in input arguments. It contains:
+            - "spoof_confidence" (float): Confidence score for spoofing.
+            - "real_confidence" (float): Confidence score for real face.
+            - "uncertainty" (float): Uncertainty score.
     """
 
     resp_objs = []
@@ -205,9 +205,12 @@ def extract_faces(
 
         if anti_spoofing is True:
             antispoof_model = modeling.build_model(task="spoofing", model_name="Fasnet")
-            is_real, antispoof_score = antispoof_model.analyze(img=img, facial_area=(x, y, w, h))
-            resp_obj["is_real"] = is_real
-            resp_obj["antispoof_score"] = antispoof_score
+            spoof_confidence, real_confidence, uncertainty = antispoof_model.analyze(img=img, facial_area=(x, y, w, h))
+            resp_obj["antispoof_scores"] = {
+                "spoof_confidence": float(spoof_confidence),
+                "real_confidence": float(real_confidence),
+                "uncertainty": float(uncertainty),
+            }
 
         resp_objs.append(resp_obj)
 

@@ -146,10 +146,12 @@ def verify(
             - 'img2': {'x': int, 'y': int, 'w': int, 'h': int}
                     Region of interest for the second image.
 
-        - 'time' (float): Time taken for the verification process in seconds.
-
-        - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+        - 'antispoof_scores' (dict): antispoofing analyze result. This key is
             just available in the result only if anti_spoofing is set to True in input arguments.
+            It contains:
+            - "spoof_confidence" (float): Confidence score for spoofing.
+            - "real_confidence" (float): Confidence score for real face.
+            - "uncertainty" (float): Uncertainty score.
     """
 
     return verification.verify(
@@ -258,10 +260,12 @@ def analyze(
             - 'latino hispanic': Confidence score for Latino/Hispanic ethnicity.
             - 'black': Confidence score for Black ethnicity.
             - 'middle eastern': Confidence score for Middle Eastern ethnicity.
-            - 'white': Confidence score for White ethnicity.
-
-        - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+        - 'antispoof_scores' (dict): antispoofing analyze result. This key is
             just available in the result only if anti_spoofing is set to True in input arguments.
+            It contains:
+            - "spoof_confidence" (float): Confidence score for spoofing.
+            - "real_confidence" (float): Confidence score for real face.
+            - "uncertainty" (float): Uncertainty score.
     """
     return demography.analyze(
         img_path=img_path,
@@ -365,8 +369,12 @@ def find(
             - 'distance': Similarity score between the faces based on the
                     specified model and distance metric
 
-            - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+            - 'antispoof_scores' (dict): antispoofing analyze result. This key is
                 just available in the result only if anti_spoofing is set to True in input arguments.
+                It contains:
+                - "spoof_confidence" (float): Confidence score for spoofing.
+                - "real_confidence" (float): Confidence score for real face.
+                - "uncertainty" (float): Uncertainty score.
     """
     return recognition.find(
         img_path=img_path,
@@ -450,8 +458,12 @@ def represent(
         - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
             to 'skip', the confidence will be 0 and is nonsensical.
 
-        - 'antispoof_score' (float): score of antispoofing analyze result. this key is
+        - 'antispoof_scores' (dict): antispoofing analyze result. This key is
             just available in the result only if anti_spoofing is set to True in input arguments.
+            It contains:
+            - "spoof_confidence" (float): Confidence score for spoofing.
+            - "real_confidence" (float): Confidence score for real face.
+            - "uncertainty" (float): Uncertainty score.
     """
     return representation.represent(
         img_path=img_path,
@@ -588,11 +600,12 @@ def extract_faces(
 
         - "confidence" (float): The confidence score associated with the detected face.
 
-        - "is_real" (boolean): antispoofing analyze result. this key is just available in the
-            result only if anti_spoofing is set to True in input arguments.
-
-        - "antispoof_score" (float): score of antispoofing analyze result. this key is
+        - "antispoof_scores" (dict): antispoofing analyze result. This key is
             just available in the result only if anti_spoofing is set to True in input arguments.
+            It contains:
+            - "spoof_confidence" (float): Confidence score for spoofing.
+            - "real_confidence" (float): Confidence score for real face.
+            - "uncertainty" (float): Uncertainty score.
     """
 
     return detection.extract_faces(

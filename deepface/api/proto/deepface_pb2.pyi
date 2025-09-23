@@ -2,8 +2,7 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -94,6 +93,16 @@ class FacialArea(_message.Message):
     y: int
     def __init__(self, left_eye: _Optional[_Iterable[int]] = ..., right_eye: _Optional[_Iterable[int]] = ..., mouth_left: _Optional[_Iterable[int]] = ..., mouth_right: _Optional[_Iterable[int]] = ..., nose: _Optional[_Iterable[int]] = ..., h: _Optional[int] = ..., w: _Optional[int] = ..., x: _Optional[int] = ..., y: _Optional[int] = ...) -> None: ...
 
+class SpoofingScores(_message.Message):
+    __slots__ = ("spoof_confidence", "real_confidence", "uncertainty")
+    SPOOF_CONFIDENCE_FIELD_NUMBER: _ClassVar[int]
+    REAL_CONFIDENCE_FIELD_NUMBER: _ClassVar[int]
+    UNCERTAINTY_FIELD_NUMBER: _ClassVar[int]
+    spoof_confidence: float
+    real_confidence: float
+    uncertainty: float
+    def __init__(self, spoof_confidence: _Optional[float] = ..., real_confidence: _Optional[float] = ..., uncertainty: _Optional[float] = ...) -> None: ...
+
 class AnalyzeRequest(_message.Message):
     __slots__ = ("image_url", "actions", "detector_backend", "enforce_detection", "align", "anti_spoofing", "max_faces")
     class Action(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -164,7 +173,7 @@ class AnalyzeResponse(_message.Message):
         white: float
         def __init__(self, asian: _Optional[float] = ..., black: _Optional[float] = ..., indian: _Optional[float] = ..., latino_hispanic: _Optional[float] = ..., middle_eastern: _Optional[float] = ..., white: _Optional[float] = ...) -> None: ...
     class Result(_message.Message):
-        __slots__ = ("age", "dominant_emotion", "dominant_gender", "dominant_race", "face_confidence", "emotion", "gender", "race", "facial_area", "anti_spoofing_score")
+        __slots__ = ("age", "dominant_emotion", "dominant_gender", "dominant_race", "face_confidence", "emotion", "gender", "race", "facial_area", "spoofing_scores")
         AGE_FIELD_NUMBER: _ClassVar[int]
         DOMINANT_EMOTION_FIELD_NUMBER: _ClassVar[int]
         DOMINANT_GENDER_FIELD_NUMBER: _ClassVar[int]
@@ -174,7 +183,7 @@ class AnalyzeResponse(_message.Message):
         GENDER_FIELD_NUMBER: _ClassVar[int]
         RACE_FIELD_NUMBER: _ClassVar[int]
         FACIAL_AREA_FIELD_NUMBER: _ClassVar[int]
-        ANTI_SPOOFING_SCORE_FIELD_NUMBER: _ClassVar[int]
+        SPOOFING_SCORES_FIELD_NUMBER: _ClassVar[int]
         age: int
         dominant_emotion: str
         dominant_gender: str
@@ -184,8 +193,8 @@ class AnalyzeResponse(_message.Message):
         gender: AnalyzeResponse.Gender
         race: AnalyzeResponse.Race
         facial_area: FacialArea
-        anti_spoofing_score: float
-        def __init__(self, age: _Optional[int] = ..., dominant_emotion: _Optional[str] = ..., dominant_gender: _Optional[str] = ..., dominant_race: _Optional[str] = ..., face_confidence: _Optional[float] = ..., emotion: _Optional[_Union[AnalyzeResponse.Emotion, _Mapping]] = ..., gender: _Optional[_Union[AnalyzeResponse.Gender, _Mapping]] = ..., race: _Optional[_Union[AnalyzeResponse.Race, _Mapping]] = ..., facial_area: _Optional[_Union[FacialArea, _Mapping]] = ..., anti_spoofing_score: _Optional[float] = ...) -> None: ...
+        spoofing_scores: SpoofingScores
+        def __init__(self, age: _Optional[int] = ..., dominant_emotion: _Optional[str] = ..., dominant_gender: _Optional[str] = ..., dominant_race: _Optional[str] = ..., face_confidence: _Optional[float] = ..., emotion: _Optional[_Union[AnalyzeResponse.Emotion, _Mapping]] = ..., gender: _Optional[_Union[AnalyzeResponse.Gender, _Mapping]] = ..., race: _Optional[_Union[AnalyzeResponse.Race, _Mapping]] = ..., facial_area: _Optional[_Union[FacialArea, _Mapping]] = ..., spoofing_scores: _Optional[_Union[SpoofingScores, _Mapping]] = ...) -> None: ...
     RESULTS_FIELD_NUMBER: _ClassVar[int]
     results: _containers.RepeatedCompositeFieldContainer[AnalyzeResponse.Result]
     def __init__(self, results: _Optional[_Iterable[_Union[AnalyzeResponse.Result, _Mapping]]] = ...) -> None: ...
@@ -211,16 +220,16 @@ class RepresentRequest(_message.Message):
 class RepresentResponse(_message.Message):
     __slots__ = ("results",)
     class Results(_message.Message):
-        __slots__ = ("embedding", "face_confidence", "facial_area", "anti_spoofing_score")
+        __slots__ = ("embedding", "face_confidence", "facial_area", "spoofing_scores")
         EMBEDDING_FIELD_NUMBER: _ClassVar[int]
         FACE_CONFIDENCE_FIELD_NUMBER: _ClassVar[int]
         FACIAL_AREA_FIELD_NUMBER: _ClassVar[int]
-        ANTI_SPOOFING_SCORE_FIELD_NUMBER: _ClassVar[int]
+        SPOOFING_SCORES_FIELD_NUMBER: _ClassVar[int]
         embedding: _containers.RepeatedScalarFieldContainer[float]
         face_confidence: float
         facial_area: FacialArea
-        anti_spoofing_score: float
-        def __init__(self, embedding: _Optional[_Iterable[float]] = ..., face_confidence: _Optional[float] = ..., facial_area: _Optional[_Union[FacialArea, _Mapping]] = ..., anti_spoofing_score: _Optional[float] = ...) -> None: ...
+        spoofing_scores: SpoofingScores
+        def __init__(self, embedding: _Optional[_Iterable[float]] = ..., face_confidence: _Optional[float] = ..., facial_area: _Optional[_Union[FacialArea, _Mapping]] = ..., spoofing_scores: _Optional[_Union[SpoofingScores, _Mapping]] = ...) -> None: ...
     RESULTS_FIELD_NUMBER: _ClassVar[int]
     results: _containers.RepeatedCompositeFieldContainer[RepresentResponse.Results]
     def __init__(self, results: _Optional[_Iterable[_Union[RepresentResponse.Results, _Mapping]]] = ...) -> None: ...
@@ -246,7 +255,7 @@ class VerifyRequest(_message.Message):
     def __init__(self, image1_url: _Optional[str] = ..., image2_url: _Optional[str] = ..., model_name: _Optional[_Union[Models, str]] = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., distance_metric: _Optional[_Union[DistanceMetrics, str]] = ..., enforce_detection: bool = ..., align: bool = ..., anti_spoofing: bool = ...) -> None: ...
 
 class VerifyResponse(_message.Message):
-    __slots__ = ("verified", "detector_backend", "model", "similarity_metric", "facial_areas", "distance", "threshold", "time", "img1_anti_spoofing_score", "img2_anti_spoofing_score")
+    __slots__ = ("verified", "detector_backend", "model", "similarity_metric", "facial_areas", "distance", "threshold", "time", "img1_spoofing_scores", "img2_spoofing_scores")
     class FacialAreas(_message.Message):
         __slots__ = ("img1", "img2")
         IMG1_FIELD_NUMBER: _ClassVar[int]
@@ -262,8 +271,8 @@ class VerifyResponse(_message.Message):
     DISTANCE_FIELD_NUMBER: _ClassVar[int]
     THRESHOLD_FIELD_NUMBER: _ClassVar[int]
     TIME_FIELD_NUMBER: _ClassVar[int]
-    IMG1_ANTI_SPOOFING_SCORE_FIELD_NUMBER: _ClassVar[int]
-    IMG2_ANTI_SPOOFING_SCORE_FIELD_NUMBER: _ClassVar[int]
+    IMG1_SPOOFING_SCORES_FIELD_NUMBER: _ClassVar[int]
+    IMG2_SPOOFING_SCORES_FIELD_NUMBER: _ClassVar[int]
     verified: bool
     detector_backend: Detectors
     model: Models
@@ -272,6 +281,6 @@ class VerifyResponse(_message.Message):
     distance: float
     threshold: float
     time: float
-    img1_anti_spoofing_score: float
-    img2_anti_spoofing_score: float
-    def __init__(self, verified: bool = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., model: _Optional[_Union[Models, str]] = ..., similarity_metric: _Optional[_Union[DistanceMetrics, str]] = ..., facial_areas: _Optional[_Union[VerifyResponse.FacialAreas, _Mapping]] = ..., distance: _Optional[float] = ..., threshold: _Optional[float] = ..., time: _Optional[float] = ..., img1_anti_spoofing_score: _Optional[float] = ..., img2_anti_spoofing_score: _Optional[float] = ...) -> None: ...
+    img1_spoofing_scores: SpoofingScores
+    img2_spoofing_scores: SpoofingScores
+    def __init__(self, verified: bool = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., model: _Optional[_Union[Models, str]] = ..., similarity_metric: _Optional[_Union[DistanceMetrics, str]] = ..., facial_areas: _Optional[_Union[VerifyResponse.FacialAreas, _Mapping]] = ..., distance: _Optional[float] = ..., threshold: _Optional[float] = ..., time: _Optional[float] = ..., img1_spoofing_scores: _Optional[_Union[SpoofingScores, _Mapping]] = ..., img2_spoofing_scores: _Optional[_Union[SpoofingScores, _Mapping]] = ...) -> None: ...

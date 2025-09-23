@@ -1,7 +1,7 @@
 # built-in dependencies
 import os
 import time
-from typing import List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional
 import traceback
 
 # 3rd party dependencies
@@ -341,12 +341,13 @@ def highlight_facial_areas(
     Args:
         img (np.ndarray): image itself
         faces_coordinates (list): list of face coordinates as tuple with x, y, w and h
-            also is_real and antispoof_score keys
+            also antispoof_scores dictionary
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
     Returns:
         img (np.ndarray): image with highlighted facial areas
     """
-    for x, y, w, h, is_real, antispoof_score in faces_coordinates:
+    for x, y, w, h, antispoof_scores in faces_coordinates:
+        is_real = antispoof_scores.get("real_confidence", 0.0) > antispoof_scores.get("spoof_confidence", 0.0)
         # highlight facial area with rectangle
 
         if anti_spoofing is False:
@@ -371,12 +372,13 @@ def countdown_to_freeze(
     Args:
         img (np.ndarray): image itself
         faces_coordinates (list): list of face coordinates as tuple with x, y, w and h
+            also antispoof_scores dictionary
         frame_threshold (int): how many sequantial frames required with face(s) to freeze
         num_frames_with_faces (int): how many sequantial frames do we have with face(s)
     Returns:
         img (np.ndarray): image with counter values
     """
-    for x, y, w, h, is_real, antispoof_score in faces_coordinates:
+    for x, y, w, h, antispoof_scores in faces_coordinates:
         cv2.putText(
             img,
             str(frame_threshold - (num_frames_with_faces % frame_threshold)),
@@ -421,17 +423,17 @@ def countdown_to_release(
 
 def grab_facial_areas(
     img: np.ndarray, detector_backend: str, threshold: int = 130, anti_spoofing: bool = False
-) -> List[Tuple[int, int, int, int, bool, float]]:
+) -> List[Tuple[int, int, int, int, Dict[str, float]]]:
     """
     Find facial area coordinates in the given image
     Args:
         img (np.ndarray): image itself
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
-            'centerface' or 'skip' (default is opencv).
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s',
+            'yolov11m', 'centerface' or 'skip' (default is opencv).
         threshold (int): threshold for facial area, discard smaller ones
     Returns
-        result (list): list of tuple with x, y, w and h coordinates
+        result (list): list of tuple with x, y, w and h coordinates, and antispoof_scores dictionary
     """
     try:
         face_objs = DeepFace.extract_faces(
@@ -448,7 +450,7 @@ def grab_facial_areas(
                 face_obj["facial_area"]["w"],
                 face_obj["facial_area"]["h"],
                 face_obj.get("is_real", True),
-                face_obj.get("antispoof_score", 0),
+                face_obj.get("antispoof_scores", None),
             )
             for face_obj in face_objs
             if face_obj["facial_area"]["w"] > threshold
@@ -466,12 +468,10 @@ def extract_facial_areas(
     Args:
         img (np.ndarray): image itself
         faces_coordinates (list): list of facial area coordinates as tuple with
-            x, y, w and h values also is_real and antispoof_score keys
-    Returns:
-        detected_faces (list): list of detected facial area images
+            x, y, w and h values also antispoof_scores dictionary
     """
     detected_faces = []
-    for x, y, w, h, is_real, antispoof_score in faces_coordinates:
+    for x, y, w, h, antispoof_scores in faces_coordinates:
         detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
         detected_faces.append(detected_face)
     return detected_faces
@@ -492,7 +492,7 @@ def perform_facial_recognition(
         img (np.ndarray): image itself
         detected_faces (list): list of extracted detected face images as numpy
         faces_coordinates (list): list of facial area coordinates as tuple with
-            x, y, w and h values also is_real and antispoof_score keys
+            x, y, w and h values also antispoof_scores dictionary
         db_path (string): Path to the folder containing image files. All detected faces
             in the database will be considered in the decision-making process.
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
@@ -505,7 +505,7 @@ def perform_facial_recognition(
     Returns:
         img (np.ndarray): image with identified face informations
     """
-    for idx, (x, y, w, h, is_real, antispoof_score) in enumerate(faces_coordinates):
+    for idx, (x, y, w, h, antispoof_scores) in enumerate(faces_coordinates):
         detected_face = detected_faces[idx]
         target_label, target_img = search_identity(
             detected_face=detected_face,
@@ -542,14 +542,14 @@ def perform_demography_analysis(
         enable_face_analysis (bool): Flag to enable face analysis.
         img (np.ndarray): image itself
         faces_coordinates (list): list of face coordinates as tuple with
-            x, y, w and h values also is_real and antispoof_score keys
+            x, y, w and h values also antispoof_scores dictionary
         detected_faces (list): list of extracted detected face images as numpy
     Returns:
         img (np.ndarray): image with analyzed demography information
     """
     if enable_face_analysis is False:
         return img
-    for idx, (x, y, w, h, is_real, antispoof_score) in enumerate(faces_coordinates):
+    for idx, (x, y, w, h, antispoof_scores) in enumerate(faces_coordinates):
         detected_face = detected_faces[idx]
         demographies = DeepFace.analyze(
             img_path=detected_face,

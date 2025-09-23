@@ -98,10 +98,18 @@ def verify(
         - 'time' (float): Time taken for the verification process in seconds.
 
         - 'img1' (dict): Spoofing analysis results for the first image.
-            - 'antispoof_score' (float): The anti-spoofing score.
+            - 'antispoof_scores' (dict): The anti-spoofing scores.
+                It contains:
+                - "spoof_confidence" (float): Confidence score for spoofing.
+                - "real_confidence" (float): Confidence score for real face.
+                - "uncertainty" (float): Uncertainty score.
 
         - 'img2' (dict): Spoofing analysis results for the second image.
-            - 'antispoof_score' (float): The anti-spoofing score.
+            - 'antispoof_scores' (dict): The anti-spoofing scores.
+                It contains:
+                - "spoof_confidence" (float): Confidence score for spoofing.
+                - "real_confidence" (float): Confidence score for real face.
+                - "uncertainty" (float): Uncertainty score.
     """
 
     tic = time.time()
@@ -170,7 +178,7 @@ def verify(
 
             img_embeddings = [img_path]
             img_facial_areas = [no_facial_area]
-            spoof_infos = [0.0]
+            spoof_infos = [None]
         else:
             try:
                 (
@@ -254,7 +262,7 @@ def __extract_faces_and_embeddings(
     Returns:
         embeddings (List[float])
         facial areas (List[dict])
-        spoof_scores (List[float])
+        spoof_scores (List[Dict[str, float]])
     """
     embeddings = []
     facial_areas = []
@@ -273,8 +281,8 @@ def __extract_faces_and_embeddings(
     # find embeddings for each face
     for img_obj in img_objs:
         is_real = img_obj.get("is_real", True)
-        antispoof_score = img_obj.get("antispoof_score", 0.0)
-        spoof_infos.append(antispoof_score)
+        antispoof_scores = img_obj.get("antispoof_scores", None)
+        spoof_infos.append(antispoof_scores)
 
         if is_real is False:
             embeddings.append(None)
