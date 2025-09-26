@@ -15,23 +15,52 @@ logger = Logger()
 
 
 class YoloModel(Enum):
-    V8N = 0
-    V11N = 1
-    V11S = 2
-    V11M = 3
+    # ref repo for v8n is https://github.com/derronqi/yolov8-face
+    V8N = ("yolov8n-face.pt", "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb")
+    V8M = (
+        "yolov8m-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov8m-face.pt",
+    )
+    V8L = (
+        "yolov8l-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov8l-face.pt",
+    )
+    V11N = (
+        "yolov11n-face.pt",
+        "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11n-face.pt",
+    )
+    V11S = (
+        "yolov11s-face.pt",
+        "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11s-face.pt",
+    )
+    V11M = (
+        "yolov11m-face.pt",
+        "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11m-face.pt",
+    )
+    V11L = (
+        "yolov11l-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov11l-face.pt",
+    )
+    V12N = (
+        "yolov12n-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov12n-face.pt",
+    )
+    V12S = (
+        "yolov12s-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov12s-face.pt",
+    )
+    V12M = (
+        "yolov12m-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov12m-face.pt",
+    )
+    V12L = (
+        "yolov12l-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov12l-face.pt",
+    )
 
-
-# Model's weights paths
-WEIGHT_NAMES = ["yolov8n-face.pt",
-                "yolov11n-face.pt",
-                "yolov11s-face.pt",
-                "yolov11m-face.pt"]
-
-# Google Drive URL from repo (https://github.com/derronqi/yolov8-face) ~6MB
-WEIGHT_URLS = ["https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb",
-               "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11n-face.pt",
-               "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11s-face.pt",
-               "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11m-face.pt"]
+    def __init__(self, file_name: str, url: str):
+        self.file_name = file_name
+        self.url = url
 
 
 class YoloDetectorClient(Detector):
@@ -48,6 +77,7 @@ class YoloDetectorClient(Detector):
 
         # Import the optional Ultralytics YOLO model
         try:
+            import ultralytics
             from ultralytics import YOLO
         except ModuleNotFoundError as e:
             raise ImportError(
@@ -55,8 +85,16 @@ class YoloDetectorClient(Detector):
                 "Please install using 'pip install ultralytics'"
             ) from e
 
+        current_version = tuple(map(int, ultralytics.__version__.split(".")[:3]))
+
+        if model.name == "V8N" and current_version < (8, 1, 6):
+            raise ValueError("Yolov8n-face model requires ultralytics version 8.1.6 or higher.")
+        if model.name in ["V11N", "V11S", "V11M"] and current_version < (8, 3, 203):
+            raise ValueError("Yolov11 models require ultralytics version 8.3.203 or higher.")
+
+        file_name, weight_url = model.value
         weight_file = weight_utils.download_weights_if_necessary(
-            file_name=WEIGHT_NAMES[model.value], source_url=WEIGHT_URLS[model.value]
+            file_name=file_name, source_url=weight_url
         )
 
         # Return face_detector
@@ -127,6 +165,16 @@ class YoloDetectorClientV8n(YoloDetectorClient):
         super().__init__(YoloModel.V8N)
 
 
+class YoloDetectorClientV8m(YoloDetectorClient):
+    def __init__(self):
+        super().__init__(YoloModel.V8M)
+
+
+class YoloDetectorClientV8l(YoloDetectorClient):
+    def __init__(self):
+        super().__init__(YoloModel.V8L)
+
+
 class YoloDetectorClientV11n(YoloDetectorClient):
     def __init__(self):
         super().__init__(YoloModel.V11N)
@@ -140,3 +188,28 @@ class YoloDetectorClientV11s(YoloDetectorClient):
 class YoloDetectorClientV11m(YoloDetectorClient):
     def __init__(self):
         super().__init__(YoloModel.V11M)
+
+
+class YoloDetectorClientV11l(YoloDetectorClient):
+    def __init__(self):
+        super().__init__(YoloModel.V11L)
+
+
+class YoloDetectorClientV12n(YoloDetectorClient):
+    def __init__(self):
+        super().__init__(YoloModel.V12N)
+
+
+class YoloDetectorClientV12s(YoloDetectorClient):
+    def __init__(self):
+        super().__init__(YoloModel.V12S)
+
+
+class YoloDetectorClientV12m(YoloDetectorClient):
+    def __init__(self):
+        super().__init__(YoloModel.V12M)
+
+
+class YoloDetectorClientV12l(YoloDetectorClient):
+    def __init__(self):
+        super().__init__(YoloModel.V12L)
