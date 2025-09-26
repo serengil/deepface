@@ -7,7 +7,6 @@ import cv2
 import numpy as np
 
 # project dependencies
-from deepface.models.face_detection import OpenCv
 from deepface.commons import weight_utils
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger

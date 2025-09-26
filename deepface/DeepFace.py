@@ -56,8 +56,10 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
             - VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
                 ArcFace, SFace GhostFaceNet and Buffalo_L for face recognition
             - Age, Gender, Emotion, Race for facial attributes
-            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, yolov11n,
-              yolov11s, yolov11m, yunet, fastmtcnn or centerface for face detectors
+            - opencv, mtcnn, ssd, dlib, retinaface, mediapipe,
+                yolov8n, yolov8m, yolov8l, yolov11n, yolov11s, yolov11m,
+                yolov11l, yolov12n, yolov12s, yolov12m, yolov12l,
+                yunet, fastmtcnn or centerface for face detectors
             - Fasnet for spoofing
         task (str): facial_recognition, facial_attribute, face_detector, spoofing
             default is facial_recognition
@@ -98,7 +100,8 @@ def verify(
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
             'centerface' or 'skip' (default is opencv).
 
         distance_metric (string): Metric for measuring similarity. Options: 'cosine',

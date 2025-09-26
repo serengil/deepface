@@ -21,7 +21,7 @@ model_names = [
     "Dlib",
     "ArcFace",
     "SFace",
-    "GhostFaceNet"
+    "GhostFaceNet",
 ]
 
 detector_backends = [
@@ -33,7 +33,17 @@ detector_backends = [
     # "mediapipe", # crashed in mac
     "retinaface",
     "yunet",
-    "yolov8",
+    "yolov8n",
+    "yolov8m",
+    "yolov8l",
+    "yolov11n",
+    "yolov11s",
+    "yolov11m",
+    "yolov11l",
+    "yolov12n",
+    "yolov12s",
+    "yolov12m",
+    "yolov12l",
     "yolov11n",
     "yolov11s",
     "yolov11m",

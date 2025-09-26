@@ -6,7 +6,7 @@ from typing import Any, List
 import cv2
 import numpy as np
 
-#project dependencies
+# project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
 
 
@@ -104,8 +104,9 @@ class OpenCvClient(Detector):
 
         # opencv eye detection module is not strong. it might find more than 2 eyes!
         # besides, it returns eyes with different order in each call (issue 435)
-        # this is an important issue because opencv is the default detector and ssd also uses this
-        # find the largest 2 eye. Thanks to @thelostpeace
+        # this is an important issue because opencv is the default detector,
+        # and ssd, some yolo models don't return eye coordinates, uses this function
+        # this is finding the largest 2 eye. Thanks to @thelostpeace
 
         eyes = sorted(eyes, key=lambda v: abs(v[2] * v[3]), reverse=True)
 
