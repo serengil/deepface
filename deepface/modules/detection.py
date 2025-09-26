@@ -10,6 +10,7 @@ import cv2
 from deepface.modules import modeling
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.commons import image_utils
+from deepface.models.face_detection import OpenCv
 
 from deepface.commons.logger import Logger
 
@@ -58,7 +59,8 @@ def extract_faces(
             opened in binary mode, or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m','yolov12l'
             'centerface' or 'skip' (default is opencv)
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
@@ -295,6 +297,7 @@ def detect_faces(
             expand_percentage=expand_percentage,
             width_border=width_border,
             height_border=height_border,
+            detector_backend=detector_backend,
         )
         for facial_area in facial_areas
     ]
@@ -307,6 +310,7 @@ def extract_face(
     expand_percentage: int,
     width_border: int,
     height_border: int,
+    detector_backend: str,
 ) -> DetectedFace:
     x = facial_area.x
     y = facial_area.y
@@ -332,6 +336,24 @@ def extract_face(
 
     # extract detected face unaligned
     detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+
+    # use opencv if eyes aren't provided by the detector (e.g. ssd, yolo)
+    if detector_backend != "opencv" and (left_eye is None or right_eye is None):
+        default_detector: OpenCv.OpenCvClient = modeling.build_model(
+            task="face_detector", model_name="opencv"
+        )
+        left_eye_new, right_eye_new = default_detector.find_eyes(detected_face)
+        if left_eye is None and left_eye_new is not None:
+            left_eye = (int(left_eye_new[0]) + x, int(left_eye_new[1]) + y)
+            logger.debug(
+                f"left eye wasn't detected by {detector_backend}, overwritten by cv2 - {left_eye}"
+            )
+        if right_eye is None and right_eye_new is not None:
+            right_eye = (int(right_eye_new[0]) + x, int(right_eye_new[1]) + y)
+            logger.debug(
+                f"right eye wasn't detected by {detector_backend}, overwritten by cv2 - {right_eye}"
+            )
+
     # align original image, then find projection of detected face area after alignment
     if align is True:  # and left_eye is not None and right_eye is not None:
         # we were aligning the original image before, but this comes with an extra cost

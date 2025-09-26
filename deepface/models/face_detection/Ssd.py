@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import List
+from typing import List, Any
 from enum import IntEnum
 
 # 3rd party dependencies
@@ -24,11 +24,11 @@ class SsdClient(Detector):
     def __init__(self):
         self.model = self.build_model()
 
-    def build_model(self) -> dict:
+    def build_model(self) -> Any:
         """
         Build a ssd detector model
         Returns:
-            model (dict)
+            model (Any): ssd model
         """
 
         # model structure
@@ -52,7 +52,7 @@ class SsdClient(Detector):
                 + "You can install it as pip install opencv-contrib-python."
             ) from err
 
-        return {"face_detector": face_detector, "opencv_module": OpenCv.OpenCvClient()}
+        return face_detector
 
     def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
         """
@@ -69,8 +69,6 @@ class SsdClient(Detector):
         if img.dtype != np.uint8:
             img = img.astype(np.uint8)
 
-        opencv_module: OpenCv.OpenCvClient = self.model["opencv_module"]
-
         target_size = (300, 300)
 
         original_size = img.shape
@@ -82,7 +80,7 @@ class SsdClient(Detector):
 
         imageBlob = cv2.dnn.blobFromImage(image=current_img)
 
-        face_detector = self.model["face_detector"]
+        face_detector = self.model
         face_detector.setInput(imageBlob)
         detections = face_detector.forward()
 
@@ -112,24 +110,14 @@ class SsdClient(Detector):
         for face in faces:
             confidence = float(face[ssd_labels.confidence])
             x, y, w, h = map(int, face[margins])
-            detected_face = img[y : y + h, x : x + w]
-
-            left_eye, right_eye = opencv_module.find_eyes(detected_face)
-
-            # eyes found in the detected face instead image itself
-            # detected face's coordinates should be added
-            if left_eye is not None:
-                left_eye = x + int(left_eye[0]), y + int(left_eye[1])
-            if right_eye is not None:
-                right_eye = x + int(right_eye[0]), y + int(right_eye[1])
 
             facial_area = FacialAreaRegion(
                 x=x,
                 y=y,
                 w=w,
                 h=h,
-                left_eye=left_eye,
-                right_eye=right_eye,
+                left_eye=None,
+                right_eye=None,
                 confidence=confidence,
             )
             resp.append(facial_area)
