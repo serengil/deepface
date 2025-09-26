@@ -74,7 +74,6 @@ AVAILABLE_MODELS: Final[AvailableModels] = {
         "dlib": DlibDetector.DlibClient,
         "retinaface": RetinaFace.RetinaFaceClient,
         "mediapipe": MediaPipe.MediaPipeClient,
-        "yolov8": YoloFaceDetector.YoloDetectorClientV8n,
         "yolov8n": YoloFaceDetector.YoloDetectorClientV8n,
         "yolov8m": YoloFaceDetector.YoloDetectorClientV8m,
         "yolov8l": YoloFaceDetector.YoloDetectorClientV8l,
