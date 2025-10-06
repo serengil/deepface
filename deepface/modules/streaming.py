@@ -15,9 +15,6 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-# dependency configuration
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
 
 IDENTIFIED_IMG_SIZE = 112
 TEXT_COLOR = (255, 255, 255)

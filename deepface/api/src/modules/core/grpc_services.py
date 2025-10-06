@@ -24,7 +24,7 @@ class DeepFaceService(DeepFaceServiceServicer):
     def Analyze(self, request, context) -> AnalyzeResponse:
         response = AnalyzeResponse()
 
-        logger.info(f"Received Analyze request: {request}")
+        logger.info(f"Received Analyze request: {request.image_url}")
 
         try:
             demographies = DeepFace.analyze(
@@ -95,6 +95,8 @@ class DeepFaceService(DeepFaceServiceServicer):
     def Represent(self, request, context) -> RepresentResponse:
         response = RepresentResponse()
 
+        logger.info(f"Received Represent request: {request.image_url}")
+
         try:
             results = DeepFace.represent(
                 img_path=image_utils.load_image_from_web(request.image_url),
@@ -139,6 +141,8 @@ class DeepFaceService(DeepFaceServiceServicer):
 
     def Verify(self, request, context) -> VerifyResponse:
         response = VerifyResponse()
+
+        logger.info(f"Received Verify request: {request.image1_url} vs {request.image2_url}")
 
         try:
 

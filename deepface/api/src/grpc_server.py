@@ -38,7 +38,7 @@ if __name__ == "__main__":
     server.start()
 
     # Start the gRPC server
-    logger.info(f"gRPC server running on port {args.port}")
+    logger.info(f"gRPC server running on port {args.port} with {args.workers} workers")
     logger.info(f"Welcome to DeepFace API v{DeepFace.__version__}!")
 
     # Check if TensorFlow is using the GPU
