@@ -88,6 +88,12 @@ dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")
 
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
+> For Real Time Emotion Detection from Web-Cam you can directly run `rlt-inference.py` file. It will open your webcam and start to analyze your emotions.
+
+```shell
+$ python rlt-inference.py
+```
+
 DeepFace also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Result is going to be the size of faces appearing in the source image.
 
 ```python
@@ -129,7 +135,7 @@ Here, you can also find some real time demos for various facial recognition mode
 <p align="center"><img src="https://sefiks.com/wp-content/uploads/2020/02/deepface-cover.jpg" width="90%"></p>
 
 | Task                 | Model    | Demo                                    |
-| ---                  | ---      | ---                                     |
+| -------------------- | -------- | --------------------------------------- |
 | Facial Recognition   | DeepFace | [`Video`](https://youtu.be/YjYIMs5ZOfc) |
 | Facial Recognition   | FaceNet  | [`Video`](https://youtu.be/vB1I5vWgTQg) |
 | Facial Recognition   | VGG-Face | [`Video`](https://youtu.be/tSU_lNi0gQQ) |
@@ -183,25 +189,25 @@ embeddings = DeepFace.represent(
 
 FaceNet, VGG-Face, ArcFace and Dlib are overperforming ones based on experiments - see [`BENCHMARKS`](https://github.com/serengil/deepface/tree/master/benchmarks) for more details. You can find the measured scores of various models in DeepFace and the reported scores from their original studies in the following table.
 
-| Model          | Measured Score | Declared Score     |
-| -------------- | -------------- | ------------------ |
-| Facenet512     | 98.4%          | 99.6%              |
-| Human-beings   | 97.5%          | 97.5%              |
-| Facenet        | 97.4%          | 99.2%              |
-| Dlib           | 96.8%          | 99.3 %             |
-| VGG-Face       | 96.7%          | 98.9%              |
-| ArcFace        | 96.7%          | 99.5%              |
-| GhostFaceNet   | 93.3%          | 99.7%              |
-| SFace          | 93.0%          | 99.5%              |
-| OpenFace       | 78.7%          | 92.9%              |
-| DeepFace       | 69.0%          | 97.3%              |
-| DeepID         | 66.5%          | 97.4%              |
+| Model        | Measured Score | Declared Score |
+| ------------ | -------------- | -------------- |
+| Facenet512   | 98.4%          | 99.6%          |
+| Human-beings | 97.5%          | 97.5%          |
+| Facenet      | 97.4%          | 99.2%          |
+| Dlib         | 96.8%          | 99.3 %         |
+| VGG-Face     | 96.7%          | 98.9%          |
+| ArcFace      | 96.7%          | 99.5%          |
+| GhostFaceNet | 93.3%          | 99.7%          |
+| SFace        | 93.0%          | 99.5%          |
+| OpenFace     | 78.7%          | 92.9%          |
+| DeepFace     | 69.0%          | 97.3%          |
+| DeepID       | 66.5%          | 97.4%          |
 
 Conducting experiments with those models within DeepFace may reveal disparities compared to the original studies, owing to the adoption of distinct detection or normalization techniques. Furthermore, some models have been released solely with their backbones, lacking pre-trained weights. Thus, we are utilizing their re-implementations instead of the original pre-trained weights.
 
 **Face Detection and Alignment** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
 
-Face detection and alignment are important early stages of a modern face recognition pipeline. [Experiments](https://github.com/serengil/deepface/tree/master/benchmarks) show that detection increases the face recognition accuracy up to 42%, while alignment increases it up to 6%. [`OpenCV`](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [`Ssd`](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/),  [`MtCnn`](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/), `Faster MtCnn`, [`RetinaFace`](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/), [`MediaPipe`](https://sefiks.com/2022/01/14/deep-face-detection-with-mediapipe/), `Yolo`, `YuNet` and `CenterFace` detectors are wrapped in deepface.
+Face detection and alignment are important early stages of a modern face recognition pipeline. [Experiments](https://github.com/serengil/deepface/tree/master/benchmarks) show that detection increases the face recognition accuracy up to 42%, while alignment increases it up to 6%. [`OpenCV`](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [`Ssd`](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/), [`MtCnn`](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/), `Faster MtCnn`, [`RetinaFace`](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/), [`MediaPipe`](https://sefiks.com/2022/01/14/deep-face-detection-with-mediapipe/), `Yolo`, `YuNet` and `CenterFace` detectors are wrapped in deepface.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/detector-portfolio-v6.jpg" width="95%"></p>
 
@@ -210,7 +216,7 @@ All deepface functions accept optional detector backend and align input argument
 ```python
 backends = [
     'opencv', 'ssd', 'dlib', 'mtcnn', 'fastmtcnn',
-    'retinaface', 'mediapipe', 'yolov8n', 'yolov8m', 
+    'retinaface', 'mediapipe', 'yolov8n', 'yolov8m',
     'yolov8l', 'yolov11n', 'yolov11s', 'yolov11m',
     'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m',
     'yolov12l', 'yunet', 'centerface',
@@ -316,7 +322,7 @@ Conversely, if your task involves facial recognition on small to moderate-sized 
 
 Vector embeddings, though not reversible, carry sensitive information like fingerprints, making their security crucial. Encrypting them prevents adversarial misuse. Traditional encryption (e.g., AES) is secure but unsuitable for cloud-based distance calculations.
 
-[Homomorphic encryption](https://youtu.be/3ejI0zNPMEQ) allows computations on encrypted data without revealing content—ideal for secure cloud processing. For example, the cloud can compute encrypted similarity without knowing the data, while only the key holder can decrypt the result. See the  [`LightPHE`](https://github.com/serengil/LightPHE) library for partially homomorphic encryption.
+[Homomorphic encryption](https://youtu.be/3ejI0zNPMEQ) allows computations on encrypted data without revealing content—ideal for secure cloud processing. For example, the cloud can compute encrypted similarity without knowing the data, while only the key holder can decrypt the result. See the [`LightPHE`](https://github.com/serengil/LightPHE) library for partially homomorphic encryption.
 
 ```python
 from lightphe import LightPHE
@@ -394,7 +400,7 @@ Additionally, you can help us reach a wider audience by upvoting our posts on Ha
   <a href="https://news.ycombinator.com/item?id=42584896">
     <img src="https://hackerbadge.vercel.app/api?id=42584896&type=orange" style="width: 250px; height: 54px;" width="250" alt="Featured on Hacker News">
   </a>
-  
+
   <a href="https://www.producthunt.com/posts/deepface?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-deepface" target="_blank">
     <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=753599&theme=light" alt="DeepFace - A Lightweight Deep Face Recognition Library for Python | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" />
   </a>

@@ -10,6 +10,7 @@ while True:
     try:
         result = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
         emotion = result[0]['dominant_emotion'] # type: ignore
+        print(emotion)
         cv2.putText(frame, f'Emotion: {emotion}', (10, 30), 
                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     except Exception as e:
