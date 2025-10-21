@@ -126,7 +126,7 @@ If you intend to perform face verification or analysis tasks directly from your 
 
 Here, you can also find some real time demos for various facial recognition models:
 
-<p align="center"><img src="https://sefiks.com/wp-content/uploads/2020/02/deepface-cover.jpg" width="90%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/deepface-realtime.jpg" width="90%"></p>
 
 | Task                 | Model    | Demo                                    |
 | ---                  | ---      | ---                                     |
