@@ -15,6 +15,7 @@ from deepface.api.src.modules.core.common import (
     default_max_faces,
     default_model_name,
     default_distance_metric,
+    default_normalization,
 )
 
 logger = Logger()
@@ -112,6 +113,8 @@ class DeepFaceService(DeepFaceServiceServicer):
                 request.HasField("anti_spoofing") else default_anti_spoofing,
                 max_faces=request.max_faces
                 if request.HasField("max_faces") else default_max_faces,
+                normalization=request.normalization
+                if request.HasField("normalization") else default_normalization,
             )
         except Exception as err:
             context.set_details(f"Exception while representing: {str(err)}")
@@ -162,6 +165,8 @@ class DeepFaceService(DeepFaceServiceServicer):
                 default_enforce_detection,
                 anti_spoofing=request.anti_spoofing
                 if request.HasField("anti_spoofing") else default_anti_spoofing,
+                normalization=request.normalization
+                if request.HasField("normalization") else default_normalization,
             )
             if "verified" in results:
                 response.verified = bool(results["verified"])
@@ -205,6 +210,10 @@ class DeepFaceService(DeepFaceServiceServicer):
                     response.img2_spoofing_scores.spoof_confidence = float(spoofing_scores.get("spoof_confidence", 0.0))
                     response.img2_spoofing_scores.real_confidence = float(spoofing_scores.get("real_confidence", 0.0))
                     response.img2_spoofing_scores.uncertainty = float(spoofing_scores.get("uncertainty", 0.0))
+            if "img1" in results and "embedding" in results["img1"]:
+                response.img1_embedding.extend(results["img1"]["embedding"])
+            if "img2" in results and "embedding" in results["img2"]:
+                response.img2_embedding.extend(results["img2"]["embedding"])
 
         except Exception as err:
             context.set_details(f"Exception while representing: {str(err)}")

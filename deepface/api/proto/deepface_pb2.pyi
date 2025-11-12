@@ -200,7 +200,7 @@ class AnalyzeResponse(_message.Message):
     def __init__(self, results: _Optional[_Iterable[_Union[AnalyzeResponse.Result, _Mapping]]] = ...) -> None: ...
 
 class RepresentRequest(_message.Message):
-    __slots__ = ("image_url", "model_name", "detector_backend", "enforce_detection", "align", "anti_spoofing", "max_faces")
+    __slots__ = ("image_url", "model_name", "detector_backend", "enforce_detection", "align", "anti_spoofing", "max_faces", "normalization")
     IMAGE_URL_FIELD_NUMBER: _ClassVar[int]
     MODEL_NAME_FIELD_NUMBER: _ClassVar[int]
     DETECTOR_BACKEND_FIELD_NUMBER: _ClassVar[int]
@@ -208,6 +208,7 @@ class RepresentRequest(_message.Message):
     ALIGN_FIELD_NUMBER: _ClassVar[int]
     ANTI_SPOOFING_FIELD_NUMBER: _ClassVar[int]
     MAX_FACES_FIELD_NUMBER: _ClassVar[int]
+    NORMALIZATION_FIELD_NUMBER: _ClassVar[int]
     image_url: str
     model_name: Models
     detector_backend: Detectors
@@ -215,7 +216,8 @@ class RepresentRequest(_message.Message):
     align: bool
     anti_spoofing: bool
     max_faces: int
-    def __init__(self, image_url: _Optional[str] = ..., model_name: _Optional[_Union[Models, str]] = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., enforce_detection: bool = ..., align: bool = ..., anti_spoofing: bool = ..., max_faces: _Optional[int] = ...) -> None: ...
+    normalization: str
+    def __init__(self, image_url: _Optional[str] = ..., model_name: _Optional[_Union[Models, str]] = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., enforce_detection: bool = ..., align: bool = ..., anti_spoofing: bool = ..., max_faces: _Optional[int] = ..., normalization: _Optional[str] = ...) -> None: ...
 
 class RepresentResponse(_message.Message):
     __slots__ = ("results",)
@@ -235,7 +237,7 @@ class RepresentResponse(_message.Message):
     def __init__(self, results: _Optional[_Iterable[_Union[RepresentResponse.Results, _Mapping]]] = ...) -> None: ...
 
 class VerifyRequest(_message.Message):
-    __slots__ = ("image1_url", "image2_url", "model_name", "detector_backend", "distance_metric", "enforce_detection", "align", "anti_spoofing")
+    __slots__ = ("image1_url", "image2_url", "model_name", "detector_backend", "distance_metric", "enforce_detection", "align", "anti_spoofing", "normalization")
     IMAGE1_URL_FIELD_NUMBER: _ClassVar[int]
     IMAGE2_URL_FIELD_NUMBER: _ClassVar[int]
     MODEL_NAME_FIELD_NUMBER: _ClassVar[int]
@@ -244,6 +246,7 @@ class VerifyRequest(_message.Message):
     ENFORCE_DETECTION_FIELD_NUMBER: _ClassVar[int]
     ALIGN_FIELD_NUMBER: _ClassVar[int]
     ANTI_SPOOFING_FIELD_NUMBER: _ClassVar[int]
+    NORMALIZATION_FIELD_NUMBER: _ClassVar[int]
     image1_url: str
     image2_url: str
     model_name: Models
@@ -252,10 +255,11 @@ class VerifyRequest(_message.Message):
     enforce_detection: bool
     align: bool
     anti_spoofing: bool
-    def __init__(self, image1_url: _Optional[str] = ..., image2_url: _Optional[str] = ..., model_name: _Optional[_Union[Models, str]] = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., distance_metric: _Optional[_Union[DistanceMetrics, str]] = ..., enforce_detection: bool = ..., align: bool = ..., anti_spoofing: bool = ...) -> None: ...
+    normalization: str
+    def __init__(self, image1_url: _Optional[str] = ..., image2_url: _Optional[str] = ..., model_name: _Optional[_Union[Models, str]] = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., distance_metric: _Optional[_Union[DistanceMetrics, str]] = ..., enforce_detection: bool = ..., align: bool = ..., anti_spoofing: bool = ..., normalization: _Optional[str] = ...) -> None: ...
 
 class VerifyResponse(_message.Message):
-    __slots__ = ("verified", "detector_backend", "model", "similarity_metric", "facial_areas", "distance", "threshold", "time", "img1_spoofing_scores", "img2_spoofing_scores")
+    __slots__ = ("verified", "detector_backend", "model", "similarity_metric", "facial_areas", "distance", "threshold", "time", "img1_spoofing_scores", "img2_spoofing_scores", "img1_embedding", "img2_embedding")
     class FacialAreas(_message.Message):
         __slots__ = ("img1", "img2")
         IMG1_FIELD_NUMBER: _ClassVar[int]
@@ -273,6 +277,8 @@ class VerifyResponse(_message.Message):
     TIME_FIELD_NUMBER: _ClassVar[int]
     IMG1_SPOOFING_SCORES_FIELD_NUMBER: _ClassVar[int]
     IMG2_SPOOFING_SCORES_FIELD_NUMBER: _ClassVar[int]
+    IMG1_EMBEDDING_FIELD_NUMBER: _ClassVar[int]
+    IMG2_EMBEDDING_FIELD_NUMBER: _ClassVar[int]
     verified: bool
     detector_backend: Detectors
     model: Models
@@ -283,4 +289,6 @@ class VerifyResponse(_message.Message):
     time: float
     img1_spoofing_scores: SpoofingScores
     img2_spoofing_scores: SpoofingScores
-    def __init__(self, verified: bool = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., model: _Optional[_Union[Models, str]] = ..., similarity_metric: _Optional[_Union[DistanceMetrics, str]] = ..., facial_areas: _Optional[_Union[VerifyResponse.FacialAreas, _Mapping]] = ..., distance: _Optional[float] = ..., threshold: _Optional[float] = ..., time: _Optional[float] = ..., img1_spoofing_scores: _Optional[_Union[SpoofingScores, _Mapping]] = ..., img2_spoofing_scores: _Optional[_Union[SpoofingScores, _Mapping]] = ...) -> None: ...
+    img1_embedding: _containers.RepeatedScalarFieldContainer[float]
+    img2_embedding: _containers.RepeatedScalarFieldContainer[float]
+    def __init__(self, verified: bool = ..., detector_backend: _Optional[_Union[Detectors, str]] = ..., model: _Optional[_Union[Models, str]] = ..., similarity_metric: _Optional[_Union[DistanceMetrics, str]] = ..., facial_areas: _Optional[_Union[VerifyResponse.FacialAreas, _Mapping]] = ..., distance: _Optional[float] = ..., threshold: _Optional[float] = ..., time: _Optional[float] = ..., img1_spoofing_scores: _Optional[_Union[SpoofingScores, _Mapping]] = ..., img2_spoofing_scores: _Optional[_Union[SpoofingScores, _Mapping]] = ..., img1_embedding: _Optional[_Iterable[float]] = ..., img2_embedding: _Optional[_Iterable[float]] = ...) -> None: ...

@@ -103,6 +103,7 @@ def verify(
                 - "spoof_confidence" (float): Confidence score for spoofing.
                 - "real_confidence" (float): Confidence score for real face.
                 - "uncertainty" (float): Uncertainty score.
+            - 'embedding' (List[float]): The facial embedding vector for the first image.
 
         - 'img2' (dict): Spoofing analysis results for the second image.
             - 'antispoof_scores' (dict): The anti-spoofing scores.
@@ -110,6 +111,7 @@ def verify(
                 - "spoof_confidence" (float): Confidence score for spoofing.
                 - "real_confidence" (float): Confidence score for real face.
                 - "uncertainty" (float): Uncertainty score.
+            - 'embedding' (List[float]): The facial embedding vector for the second image.
     """
 
     tic = time.time()
@@ -233,16 +235,14 @@ def verify(
         "detector_backend": detector_backend,
         "similarity_metric": distance_metric,
         "facial_areas": {"img1": facial_areas[0], "img2": facial_areas[1]},
+        "img1": {"embedding": img1_embeddings[min_idx] if min_idx != -1 else None},
+        "img2": {"embedding": img2_embeddings[min_idy] if min_idy != -1 else None},
         "time": round(toc - tic, 2),
     }
 
     if anti_spoofing is True:
-        resp_obj["img1"] = {
-            "antispoof_score": img1_spoof_infos[min_idx] if min_idx != -1 else None,
-        }
-        resp_obj["img2"] = {
-            "antispoof_score": img2_spoof_infos[min_idy] if min_idy != -1 else None,
-        }
+        resp_obj["img1"]["antispoof_score"] = img1_spoof_infos[min_idx] if min_idx != -1 else None
+        resp_obj["img2"]["antispoof_score"] = img2_spoof_infos[min_idy] if min_idy != -1 else None
 
     return resp_obj
 

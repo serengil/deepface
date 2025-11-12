@@ -201,7 +201,7 @@ def analyze(
 
                 obj["emotion"] = {}
                 for i, emotion_label in enumerate(Emotion.labels):
-                    emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
+                    emotion_prediction = emotion_predictions[i] / sum_of_predictions
                     obj["emotion"][emotion_label] = emotion_prediction
 
                 obj["dominant_emotion"] = Emotion.labels[np.argmax(emotion_predictions)]
@@ -219,7 +219,7 @@ def analyze(
                 ).predict(img_content)
                 obj["gender"] = {}
                 for i, gender_label in enumerate(Gender.labels):
-                    gender_prediction = 100 * gender_predictions[i]
+                    gender_prediction = gender_predictions[i]
                     obj["gender"][gender_label] = gender_prediction
 
                 obj["dominant_gender"] = Gender.labels[np.argmax(gender_predictions)]
@@ -232,7 +232,7 @@ def analyze(
 
                 obj["race"] = {}
                 for i, race_label in enumerate(Race.labels):
-                    race_prediction = 100 * race_predictions[i] / sum_of_predictions
+                    race_prediction = race_predictions[i] / sum_of_predictions
                     obj["race"][race_label] = race_prediction
 
                 obj["dominant_race"] = Race.labels[np.argmax(race_predictions)]

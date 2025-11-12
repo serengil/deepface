@@ -137,6 +137,7 @@ message RepresentRequest {
   optional bool align = 5;
   optional bool anti_spoofing = 6;
   optional uint32 max_faces = 7;
+  optional string normalization = 8;
 }
 
 message RepresentResponse {
@@ -164,6 +165,7 @@ message VerifyRequest {
     optional bool enforce_detection = 6;
     optional bool align = 7;
     optional bool anti_spoofing = 8;
+    optional string normalization = 9;
 }
 
 message VerifyResponse {
@@ -183,6 +185,8 @@ message VerifyResponse {
     double time = 8;
     optional SpoofingScores img1_spoofing_scores = 9;
     optional SpoofingScores img2_spoofing_scores = 10;
+    repeated double img1_embedding = 11;
+    repeated double img2_embedding = 12;
 }
 
 // ----------------

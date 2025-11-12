@@ -5,3 +5,4 @@ default_detector_backend = "opencv"
 default_max_faces = 1
 default_model_name = "VGG-Face"
 default_distance_metric = "cosine"
+default_normalization = "base"
