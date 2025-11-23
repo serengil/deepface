@@ -324,12 +324,9 @@ from lightphe import LightPHE
 # build an additively homomorphic cryptosystem (e.g. Paillier) on-prem
 cs = LightPHE(algorithm_name = "Paillier", precision = 19)
 
-# define plain vectors for source and target
-alpha = DeepFace.represent("img1.jpg")[0]["embedding"]
+# define encrypted and plain vectors
+encrypted_alpha = DeepFace.represent("source.jpg", cryptosystem=cs)[0]["encrypted_embedding"]
 beta = DeepFace.represent("target.jpg")[0]["embedding"]
-
-# encrypt source embedding on-prem - private key not required
-encrypted_alpha = cs.encrypt(alpha)
 
 # dot product of encrypted & plain embedding in cloud - private key not required
 encrypted_cosine_similarity = encrypted_alpha @ beta

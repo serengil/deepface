@@ -13,6 +13,7 @@ os.environ["TF_USE_LEGACY_KERAS"] = "1"
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from lightphe import LightPHE
 
 # package dependencies
 from deepface.commons import package_utils, folder_utils
@@ -398,6 +399,7 @@ def represent(
     max_faces: Optional[int] = None,
     l2_normalize: bool = False,
     minmax_normalize: bool = False,
+    cryptosystem: Optional[LightPHE] = None,
 ) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -441,6 +443,10 @@ def represent(
         minmax_normalize (bool): Flag to enable min-max normalization of the output embeddings
             to the range [0, 1].
 
+        cryptosystem (LightPHE): An instance of a partially homomorphic encryption system
+            to encrypt the output embeddings. If provided, the embeddings will be encrypted
+            using the specified cryptosystem.
+
     Returns:
         results (List[Dict[str, Any]] or List[Dict[str, Any]]): A list of dictionaries.
             Result type becomes List of List of Dict if batch input passed.
@@ -457,6 +463,9 @@ def represent(
 
         - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
             to 'skip', the confidence will be 0 and is nonsensical.
+
+        - encrypted_embedding (List[Any]): Encrypted multidimensional vector representing
+            facial features. This field is included only if a `cryptosystem` is provided.
     """
     return representation.represent(
         img_path=img_path,
@@ -470,6 +479,7 @@ def represent(
         max_faces=max_faces,
         l2_normalize=l2_normalize,
         minmax_normalize=minmax_normalize,
+        cryptosystem=cryptosystem,
     )
 
 
