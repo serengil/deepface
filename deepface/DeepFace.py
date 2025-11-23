@@ -396,6 +396,8 @@ def represent(
     normalization: str = "base",
     anti_spoofing: bool = False,
     max_faces: Optional[int] = None,
+    l2_normalize: bool = False,
+    minmax_normalize: bool = False,
 ) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -433,6 +435,12 @@ def represent(
 
         max_faces (int): Set a limit on the number of faces to be processed (default is None).
 
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+            of the output embeddings
+
+        minmax_normalize (bool): Flag to enable min-max normalization of the output embeddings
+            to the range [0, 1].
+
     Returns:
         results (List[Dict[str, Any]] or List[Dict[str, Any]]): A list of dictionaries.
             Result type becomes List of List of Dict if batch input passed.
@@ -460,6 +468,8 @@ def represent(
         normalization=normalization,
         anti_spoofing=anti_spoofing,
         max_faces=max_faces,
+        l2_normalize=l2_normalize,
+        minmax_normalize=minmax_normalize,
     )
 
 

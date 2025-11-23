@@ -9,6 +9,7 @@ import numpy as np
 from deepface.commons import image_utils
 from deepface.modules import modeling, detection, preprocessing
 from deepface.models.FacialRecognition import FacialRecognition
+from deepface.modules.normalization import normalize_embedding_l2, normalize_embedding_minmax
 
 
 def represent(
@@ -21,6 +22,8 @@ def represent(
     normalization: str = "base",
     anti_spoofing: bool = False,
     max_faces: Optional[int] = None,
+    l2_normalize: bool = False,
+    minmax_normalize: bool = False,
 ) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -53,6 +56,12 @@ def represent(
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
         max_faces (int): Set a limit on the number of faces to be processed (default is None).
+
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+            of the output embeddings
+
+        minmax_normalize (bool): Flag to enable min-max normalization of the output embeddings
+            to the range [0, 1].
 
     Returns:
         results (List[Dict[str, Any]] or List[Dict[str, Any]]): A list of dictionaries.
@@ -162,6 +171,12 @@ def represent(
 
     # Forward pass through the model for the entire batch
     embeddings = model.forward(batch_images)
+
+    if minmax_normalize:
+        embeddings = normalize_embedding_minmax(model_name, embeddings)
+
+    if l2_normalize:
+        embeddings = normalize_embedding_l2(embeddings)
 
     resp_objs_dict = defaultdict(list)
     for idy, batch_index in enumerate(batch_indexes):
