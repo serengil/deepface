@@ -1,17 +1,15 @@
 # built-in dependencies
 from typing import Union
+import logging
 
 # 3rd party dependencies
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify, current_app
 import numpy as np
 
 # project dependencies
 from deepface import DeepFace
 from deepface.api.src.modules.core import service
 from deepface.commons import image_utils
-from deepface.commons.logger import Logger
-
-logger = Logger()
 
 blueprint = Blueprint("routes", __name__)
 
@@ -91,7 +89,7 @@ def represent():
         max_faces=input_args.get("max_faces"),
     )
 
-    logger.debug(obj)
+    current_app.logger.debug(obj)
 
     return obj
 
@@ -123,20 +121,24 @@ def verify():
         anti_spoofing=input_args.get("anti_spoofing", False),
     )
 
-    logger.debug(verification)
+    current_app.logger.debug(verification)
 
     return verification
 
 
 @blueprint.route("/analyze", methods=["POST"])
 def analyze():
+    current_app.logger.info("'/analyze' endpoint called from GUI.")
     input_args = (request.is_json and request.get_json()) or (
         request.form and request.form.to_dict()
     )
+    current_app.logger.info(f"Request data: {input_args}")
 
     try:
         img = extract_image_from_request("img")
+        current_app.logger.info(f"Image data received. It is a {type(img)}.")
     except Exception as err:
+        current_app.logger.error(f"Error extracting image: {err}")
         return {"exception": str(err)}, 400
 
     actions = input_args.get("actions", ["age", "gender", "emotion", "race"])
@@ -154,6 +156,7 @@ def analyze():
             .split(",")
         )
 
+    current_app.logger.info("Passing image to the analysis service (DeepFace.analyze).")
     demographies = service.analyze(
         img_path=img,
         actions=actions,
@@ -162,7 +165,8 @@ def analyze():
         align=input_args.get("align", True),
         anti_spoofing=input_args.get("anti_spoofing", False),
     )
+    current_app.logger.info("Analysis service returned a result.")
+    current_app.logger.info(f"Result to be sent to GUI: {repr(demographies)}")
 
-    logger.debug(demographies)
-
-    return demographies
+    current_app.logger.info("Attempting to serialize result to JSON...")
+    return jsonify(demographies)
