@@ -178,6 +178,11 @@ def extract_faces(
             "mouth_right": current_region.mouth_right,
         }
 
+        # convert these to raw python types to ensure compability with Flask
+        for key, value in landmarks.items():
+            if value is not None:
+                landmarks[key] = (int(value[0]), int(value[1]))
+
         # Sanitize landmarks - set invalid ones to None
         for key, value in landmarks.items():
             if not is_valid_landmark(value, width, height):

@@ -71,7 +71,9 @@ def represent(
 
         cryptosystem (LightPHE): An instance of a partially homomorphic encryption system
             to encrypt the output embeddings. If provided, the embeddings will be encrypted
-            using the specified cryptosystem.
+            using the specified cryptosystem. Then, you will be able to perform homomorphic
+            operations on the encrypted embeddings without decrypting them first.
+            Check out the repo to find out more: https://github.com/serengil/lightphe
 
     Returns:
         results (List[Dict[str, Any]] or List[Dict[str, Any]]): A list of dictionaries.
