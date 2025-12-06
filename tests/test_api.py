@@ -19,6 +19,8 @@ from packaging import version
 from deepface.api.src.app import create_app
 from deepface.api.src.modules.core import routes
 from deepface.commons.logger import Logger
+from deepface.modules.detection import extract_faces, DetectedFace, FacialAreaRegion
+from deepface.modules import detection
 
 logger = Logger()
 
@@ -477,3 +479,55 @@ def is_form_data_file_testable() -> bool:
             f"Expected <= {threshold_version}, but {flask_version=} and {werkzeus_version}."
         )
     return is_testable
+
+
+def test_landmarks_are_raw_python_types(monkeypatch):
+    """
+    Tests that the landmarks returned by extract_faces are of raw Python types (int, tuple of ints).
+        This is important for compatibility with frameworks like Flask that may have issues
+        serializing NumPy types.
+    """
+    fake_landmarks = {
+        "x": 10,
+        "y": np.int64(15),
+        "w": 200,
+        "h": 200,
+        "left_eye": np.array([50, 60], dtype=np.int64),
+        "right_eye": np.array([150, 60], dtype=np.int32),
+        "nose": (100, 100),
+        "confidence": 1,
+    }
+
+    def fake_detect_faces(**kwargs):
+        return [
+            DetectedFace(
+                img=np.zeros((200, 200, 3), dtype=np.uint8),
+                facial_area=FacialAreaRegion(
+                    x=fake_landmarks["x"],
+                    y=fake_landmarks["y"],
+                    w=fake_landmarks["w"],
+                    h=fake_landmarks["h"],
+                    confidence=fake_landmarks["confidence"],
+                    left_eye=fake_landmarks["left_eye"],
+                    right_eye=fake_landmarks["right_eye"],
+                    nose=fake_landmarks["nose"],
+                ),
+                confidence=fake_landmarks["confidence"],
+            )
+        ]
+
+    monkeypatch.setattr(detection, "detect_faces", fake_detect_faces)
+
+    def fake_load_image(*args, **kwargs):
+        return np.zeros((200, 200, 3), dtype=np.uint8), "fake.jpg"
+
+    monkeypatch.setattr(detection.image_utils, "load_image", fake_load_image)
+
+    results = extract_faces("fake_path.jpg", detector_backend="opencv", enforce_detection=True)
+
+    landmarks = results[0]["facial_area"]
+    for _, value in landmarks.items():
+        if isinstance(value, tuple):
+            assert all(isinstance(coord, int) for coord in value)
+        else:
+            assert isinstance(value, int)
