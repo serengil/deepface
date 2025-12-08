@@ -438,7 +438,8 @@ disable=raw-checker-failed,
         unrecognized-option,
         consider-using-dict-items,
         consider-iterating-dictionary,
-        unexpected-keyword-arg
+        unexpected-keyword-arg,
+        unknown-option-value
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -556,6 +557,8 @@ check-str-concat-over-line-jumps=no
 
 
 [TYPECHECK]
+
+disable=unsubscriptable-object
 
 # List of decorators that produce context managers, such as
 # contextlib.contextmanager. Add to this list to register other decorators that

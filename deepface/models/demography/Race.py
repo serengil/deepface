@@ -1,8 +1,8 @@
 # stdlib dependencies
-from typing import List, Union
+from typing import List, Union, Any
 
 # 3rd party dependencies
-import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.models.facial_recognition import VGGFace
@@ -30,17 +30,18 @@ labels = ["asian", "indian", "black", "white", "middle eastern", "latino hispani
 
 logger = Logger()
 
+
 # pylint: disable=too-few-public-methods
 class RaceClient(Demography):
     """
     Race model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = load_model()
         self.model_name = "Race"
 
-    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
+    def predict(self, img: Union[NDArray[Any], List[NDArray[Any]]]) -> NDArray[Any]:
         """
         Predict race probabilities for single or multiple faces
         Args:
@@ -61,7 +62,7 @@ class RaceClient(Demography):
 
 
 def load_model(
-    url=WEIGHTS_URL,
+    url: str = WEIGHTS_URL,
 ) -> Model:
     """
     Construct race model, download its weights and load

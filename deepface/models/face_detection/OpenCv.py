@@ -1,10 +1,10 @@
 # built-in dependencies
 import os
-from typing import Any, List
+from typing import Any, List, Dict, Tuple, Optional
 
 # 3rd party dependencies
 import cv2
-import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
@@ -15,10 +15,11 @@ class OpenCvClient(Detector):
     Class to cover common face detection functionalitiy for OpenCv backend
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """OpenCV face detector model initialization"""
         self.model = self.build_model()
 
-    def build_model(self):
+    def build_model(self) -> Dict[str, Any]:
         """
         Build opencv's face and eye detector models
         Returns:
@@ -29,7 +30,7 @@ class OpenCvClient(Detector):
         detector["eye_detector"] = self.__build_cascade("haarcascade_eye")
         return detector
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
         Detect and align face with opencv
 
@@ -79,7 +80,9 @@ class OpenCvClient(Detector):
 
         return resp
 
-    def find_eyes(self, img: np.ndarray) -> tuple:
+    def find_eyes(
+        self, img: NDArray[Any]
+    ) -> Tuple[Optional[Tuple[int, int]], Optional[Tuple[int, int]]]:
         """
         Find the left and right eye coordinates of given image
         Args:
@@ -136,7 +139,7 @@ class OpenCvClient(Detector):
             )
         return left_eye, right_eye
 
-    def __build_cascade(self, model_name="haarcascade") -> Any:
+    def __build_cascade(self, model_name: str = "haarcascade") -> Any:
         """
         Build a opencv face&eye detector models
         Returns:

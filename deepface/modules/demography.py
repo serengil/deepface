@@ -1,8 +1,9 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union, IO
+from typing import Any, Dict, List, Union, IO, cast, Tuple
 
 # 3rd party dependencies
 import numpy as np
+from numpy.typing import NDArray
 from tqdm import tqdm
 
 # project dependencies
@@ -10,9 +11,10 @@ from deepface.modules import modeling, detection, preprocessing
 from deepface.models.demography import Gender, Race, Emotion
 
 
+# pylint: disable=too-many-positional-arguments
 def analyze(
-    img_path: Union[str, np.ndarray, IO[bytes], List[str], List[np.ndarray], List[IO[bytes]]],
-    actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
+    img_path: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
+    actions: Union[Tuple[str, ...], List[str]] = ("emotion", "age", "gender", "race"),
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
@@ -105,7 +107,7 @@ def analyze(
     if (isinstance(img_path, np.ndarray) and img_path.ndim == 4 and img_path.shape[0] > 1) or (
         isinstance(img_path, list)
     ):
-        batch_resp_obj = []
+        batch_resp_obj: List[List[Dict[str, Any]]] = []
         # Execute analysis for each image in the batch.
         for single_img in img_path:
             # Call the analyze function for each image in the batch.
@@ -119,6 +121,7 @@ def analyze(
                 silent=silent,
                 anti_spoofing=anti_spoofing,
             )
+            resp_obj = cast(List[Dict[str, Any]], resp_obj)
 
             # Append the response object to the batch response list.
             batch_resp_obj.append(resp_obj)
@@ -170,7 +173,7 @@ def analyze(
         # resize input image
         img_content = preprocessing.resize_image(img=img_content, target_size=(224, 224))
 
-        obj = {}
+        obj: Dict[str, Any] = {}
         # facial attribute analysis
         pbar = tqdm(
             range(0, len(actions)),

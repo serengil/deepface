@@ -1,8 +1,8 @@
 # built-in dependencies
-from typing import List
+from typing import List, cast, Any
 
 # 3rd party dependencies
-import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.commons import package_utils, weight_utils
@@ -49,13 +49,13 @@ class VggFaceClient(FacialRecognition):
     VGG-Face model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = load_model()
         self.model_name = "VGG-Face"
         self.input_shape = (224, 224)
         self.output_shape = 4096
 
-    def forward(self, img: np.ndarray) -> List[float]:
+    def forward(self, img: NDArray[Any]) -> List[float]:
         """
         Generates embeddings using the VGG-Face model.
             This method incorporates an additional normalization layer.
@@ -72,10 +72,12 @@ class VggFaceClient(FacialRecognition):
         # instead we are now calculating it with traditional way not with keras backend
         embedding = super().forward(img)
         if isinstance(embedding, list) and len(embedding) > 0 and isinstance(embedding[0], list):
-            embedding = verification.l2_normalize(embedding, axis=1)
+            embedding = cast(List[List[float]], embedding)
+            embedding_norm = verification.l2_normalize(embedding, axis=1)
         else:
-            embedding = verification.l2_normalize(embedding)
-        return embedding.tolist()
+            embedding = cast(List[float], embedding)
+            embedding_norm = verification.l2_normalize(embedding)
+        return cast(List[float], embedding_norm.tolist())
 
 
 def base_model() -> Sequential:
@@ -133,7 +135,7 @@ def base_model() -> Sequential:
 
 
 def load_model(
-    url=WEIGHTS_URL,
+    url: str = WEIGHTS_URL,
 ) -> Model:
     """
     Final VGG-Face model being used for finding embeddings

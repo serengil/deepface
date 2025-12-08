@@ -4,6 +4,7 @@ from heapq import nlargest
 
 # 3rd part dependencies
 import numpy as np
+from numpy.typing import NDArray
 import cv2
 
 # project dependencies
@@ -16,10 +17,14 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-# pylint: disable=no-else-raise
+# pylint: disable=no-else-raise, too-many-positional-arguments
 
 
-def is_valid_landmark(coord: Optional[Union[tuple, list]], width: int, height: int) -> bool:
+def is_valid_landmark(
+    coord: Optional[Union[Tuple[int, int], Tuple[float, float], List[Union[float, int]]]],
+    width: int,
+    height: int,
+) -> bool:
     """
     Check if a landmark coordinate is within valid image bounds.
 
@@ -39,7 +44,7 @@ def is_valid_landmark(coord: Optional[Union[tuple, list]], width: int, height: i
 
 
 def extract_faces(
-    img_path: Union[str, np.ndarray, IO[bytes]],
+    img_path: Union[str, NDArray[Any], IO[bytes]],
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -230,7 +235,7 @@ def extract_faces(
 
 def detect_faces(
     detector_backend: str,
-    img: np.ndarray,
+    img: NDArray[Any],
     align: bool = True,
     expand_percentage: int = 0,
     max_faces: Optional[int] = None,
@@ -310,7 +315,7 @@ def detect_faces(
 
 def extract_face(
     facial_area: FacialAreaRegion,
-    img: np.ndarray,
+    img: NDArray[Any],
     align: bool,
     expand_percentage: int,
     width_border: int,
@@ -421,8 +426,8 @@ def extract_face(
 
 
 def extract_sub_image(
-    img: np.ndarray, facial_area: Tuple[int, int, int, int]
-) -> Tuple[np.ndarray, int, int]:
+    img: NDArray[Any], facial_area: Tuple[int, int, int, int]
+) -> Tuple[NDArray[Any], int, int]:
     """
     Get the sub image with given facial area while expanding the facial region
         to ensure alignment does not shift the face outside the image.
@@ -473,10 +478,10 @@ def extract_sub_image(
 
 
 def align_img_wrt_eyes(
-    img: np.ndarray,
-    left_eye: Optional[Union[list, tuple]],
-    right_eye: Optional[Union[list, tuple]],
-) -> Tuple[np.ndarray, float]:
+    img: NDArray[Any],
+    left_eye: Optional[Union[List[float], List[int], Tuple[float, float], Tuple[int, int]]],
+    right_eye: Optional[Union[List[float], List[int], Tuple[float, float], Tuple[int, int]]],
+) -> Tuple[NDArray[Any], float]:
     """
     Align a given image horizantally with respect to their left and right eye locations
     Args:

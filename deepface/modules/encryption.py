@@ -35,8 +35,8 @@ def encrypt_embeddings(
         return encrypted_embedding
     else:
         encrypted_embeddings: List[EncryptedTensor] = []
+        embeddings = cast(List[List[float]], embeddings)
         for embedding in embeddings:
-            embedding = cast(List[float], embedding)  # let type checker know
             encrypted_embedding = encrypt_embedding(embedding, cryptosystem)
             encrypted_embeddings.append(encrypted_embedding)
 

@@ -1,3 +1,9 @@
+# built-in dependencies
+from typing import Any
+
+# 3rd party dependencies
+from numpy.typing import NDArray
+
 # project dependencies
 from deepface.commons import package_utils, weight_utils
 from deepface.models.FacialRecognition import FacialRecognition
@@ -49,13 +55,14 @@ FACENET512_WEIGHTS = (
 
 # --------------------------------
 
+
 # pylint: disable=too-few-public-methods
 class FaceNet128dClient(FacialRecognition):
     """
     FaceNet-128d model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = load_facenet128d_model()
         self.model_name = "FaceNet-128d"
         self.input_shape = (160, 160)
@@ -67,14 +74,14 @@ class FaceNet512dClient(FacialRecognition):
     FaceNet-512d model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = load_facenet512d_model()
         self.model_name = "FaceNet-512d"
         self.input_shape = (160, 160)
         self.output_shape = 512
 
 
-def scaling(x, scale):
+def scaling(x: NDArray[Any], scale: float) -> NDArray[Any]:
     return x * scale
 
 
@@ -1662,7 +1669,7 @@ def InceptionResNetV1(dimension: int = 128) -> Model:
 
 
 def load_facenet128d_model(
-    url=FACENET128_WEIGHTS,
+    url: str = FACENET128_WEIGHTS,
 ) -> Model:
     """
     Construct FaceNet-128d model, download weights and then load weights
@@ -1682,7 +1689,7 @@ def load_facenet128d_model(
 
 
 def load_facenet512d_model(
-    url=FACENET512_WEIGHTS,
+    url: str = FACENET512_WEIGHTS,
 ) -> Model:
     """
     Construct FaceNet-512d model, download its weights and load

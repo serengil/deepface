@@ -64,8 +64,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install pylint==3.0.2
         pip install black
+        pip install mypy==1.14.1
         pip install .
-        
     - name: Lint with pylint
       run: |
-        pylint --fail-under=10 deepface/
+        pylint --fail-under=10 deepface/ && mypy deepface/

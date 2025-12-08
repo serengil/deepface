@@ -1,7 +1,10 @@
-from typing import List, Tuple, Optional
+# built-in imports
+from typing import List, Tuple, Optional, Any
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import numpy as np
+
+# Third party imports
+from numpy.typing import NDArray
 
 # Notice that all facial detector models must be inherited from this class
 
@@ -9,7 +12,7 @@ import numpy as np
 # pylint: disable=unnecessary-pass, too-few-public-methods, too-many-instance-attributes
 class Detector(ABC):
     @abstractmethod
-    def detect_faces(self, img: np.ndarray) -> List["FacialAreaRegion"]:
+    def detect_faces(self, img: NDArray[Any]) -> List["FacialAreaRegion"]:
         """
         Interface for detect and align face
 
@@ -69,6 +72,6 @@ class DetectedFace:
         confidence (float): confidence score for face detection
     """
 
-    img: np.ndarray
+    img: NDArray[Any]
     facial_area: FacialAreaRegion
     confidence: float

@@ -5,6 +5,7 @@ from enum import IntEnum
 # 3rd party dependencies
 import cv2
 import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.commons import weight_utils
@@ -20,7 +21,7 @@ WEIGHTS_URL = "https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_de
 
 
 class SsdClient(Detector):
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = self.build_model()
 
     def build_model(self) -> Any:
@@ -53,7 +54,7 @@ class SsdClient(Detector):
 
         return face_detector
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
         Detect and align face with ssd
 

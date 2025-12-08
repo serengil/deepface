@@ -1,6 +1,12 @@
-from typing import Union, List
+# built-in dependencies
+from typing import Union, List, Any, cast
 from abc import ABC, abstractmethod
+
+# 3rd party dependencies
 import numpy as np
+from numpy.typing import NDArray
+
+# project dependencies
 from deepface.commons import package_utils
 
 tf_version = package_utils.get_tf_major_version()
@@ -18,10 +24,12 @@ class Demography(ABC):
     model_name: str
 
     @abstractmethod
-    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[np.ndarray, np.float64]:
+    def predict(
+        self, img: Union[NDArray[Any], List[NDArray[Any]]]
+    ) -> Union[NDArray[Any], np.float64]:
         pass
 
-    def _predict_internal(self, img_batch: np.ndarray) -> np.ndarray:
+    def _predict_internal(self, img_batch: NDArray[Any]) -> NDArray[Any]:
         """
         Predict for single image or batched images.
         This method uses legacy method while receiving single image as input.
@@ -41,15 +49,15 @@ class Demography(ABC):
 
         if img_batch.shape[0] == 1:  # Single image
             # Predict with legacy method.
-            return self.model(img_batch, training=False).numpy()[0, :]
+            return cast(NDArray[Any], self.model(img_batch, training=False).numpy()[0, :])
 
         # Batch of images
         # Predict with batch prediction
-        return self.model.predict_on_batch(img_batch)
+        return cast(NDArray[Any], self.model.predict_on_batch(img_batch))
 
     def _preprocess_batch_or_single_input(
-        self, img: Union[np.ndarray, List[np.ndarray]]
-    ) -> np.ndarray:
+        self, img: Union[NDArray[Any], List[NDArray[Any]]]
+    ) -> NDArray[Any]:
         """
         Preprocess single or batch of images, return as 4-D numpy array.
         Args:

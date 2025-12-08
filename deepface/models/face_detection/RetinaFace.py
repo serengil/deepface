@@ -1,19 +1,21 @@
 # built-in dependencies
-from typing import List
+from typing import List, Any
 
 # 3rd party dependencies
-import numpy as np
+from numpy.typing import NDArray
 from retinaface import RetinaFace as rf
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
 
+
 # pylint: disable=too-few-public-methods
 class RetinaFaceClient(Detector):
-    def __init__(self):
+    def __init__(self) -> None:
+        """RetinaFace face detector model initialization"""
         self.model = rf.build_model()
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
         Detect and align face with retinaface
 
@@ -23,7 +25,7 @@ class RetinaFaceClient(Detector):
         Returns:
             results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
         """
-        resp = []
+        resp: List[FacialAreaRegion] = []
 
         obj = rf.detect_faces(img, model=self.model, threshold=0.9)
 

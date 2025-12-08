@@ -1,8 +1,9 @@
 # built-in dependencies
-from typing import Any, List, Union
+from typing import Any, List, Union, cast
 
 # 3rd party dependencies
 import numpy as np
+from numpy.typing import NDArray
 import cv2 as cv
 
 # project dependencies
@@ -21,13 +22,13 @@ class SFaceClient(FacialRecognition):
     SFace model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = load_model()
         self.model_name = "SFace"
         self.input_shape = (112, 112)
         self.output_shape = 128
 
-    def forward(self, img: np.ndarray) -> Union[List[float], List[List[float]]]:
+    def forward(self, img: NDArray[Any]) -> Union[List[float], List[List[float]]]:
         """
         Find embeddings with SFace model
             This model necessitates the override of the forward method
@@ -43,15 +44,15 @@ class SFaceClient(FacialRecognition):
         for i in range(input_blob.shape[0]):
             embedding = self.model.model.feature(input_blob[i])
             embeddings.append(embedding)
-        embeddings = np.concatenate(embeddings, axis=0)
+        embeddings_np = np.concatenate(embeddings, axis=0)
 
-        if embeddings.shape[0] == 1:
-            return embeddings[0].tolist()
-        return embeddings.tolist()
+        if embeddings_np.shape[0] == 1:
+            return cast(List[float], embeddings_np[0].tolist())
+        return cast(List[List[float]], embeddings_np.tolist())
 
 
 def load_model(
-    url=WEIGHTS_URL,
+    url: str = WEIGHTS_URL,
 ) -> Any:
     """
     Construct SFace model, download its weights and load
@@ -67,7 +68,7 @@ def load_model(
 
 
 class SFaceWrapper:
-    def __init__(self, model_path):
+    def __init__(self, model_path: str) -> None:
         """
         SFace wrapper covering model construction, layer infos and predict
         """

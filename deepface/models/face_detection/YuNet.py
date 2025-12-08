@@ -4,7 +4,7 @@ from typing import Any, List
 
 # 3rd party dependencies
 import cv2
-import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.commons import weight_utils
@@ -18,7 +18,7 @@ WEIGHTS_URL = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detecti
 
 
 class YuNetClient(Detector):
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = self.build_model()
 
     def build_model(self) -> Any:
@@ -48,7 +48,7 @@ class YuNetClient(Detector):
         )
 
         try:
-            face_detector = cv2.FaceDetectorYN_create(weight_file, "", (0, 0))
+            face_detector = cv2.FaceDetectorYN_create(weight_file, "", (0, 0))  # type: ignore[attr-defined]
         except Exception as err:
             raise ValueError(
                 "Exception while calling opencv.FaceDetectorYN_create module."
@@ -57,7 +57,7 @@ class YuNetClient(Detector):
             ) from err
         return face_detector
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
         Detect and align face with yunet
 
@@ -76,7 +76,7 @@ class YuNetClient(Detector):
         # resize image if it is too large (Yunet fails to detect faces on large input sometimes)
         # I picked 640 as a threshold because it is the default value of max_size in Yunet.
         resized = False
-        r = 1  # resize factor
+        r: float = 1  # resize factor
         if height > 640 or width > 640:
             r = 640.0 / max(height, width)
             img = cv2.resize(img, (int(width * r), int(height * r)))

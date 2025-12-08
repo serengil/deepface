@@ -2,15 +2,15 @@
 import os
 import warnings
 import logging
-from typing import Any, Dict, IO, List, Union, Optional, Sequence
+from typing import Any, Dict, IO, List, Union, Optional, Sequence, Tuple
 
 # this has to be set before importing tensorflow
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
 
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position, too-many-positional-arguments
 
 # 3rd party dependencies
-import numpy as np
+from numpy.typing import NDArray
 import pandas as pd
 import tensorflow as tf
 from lightphe import LightPHE
@@ -71,8 +71,8 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
 
 
 def verify(
-    img1_path: Union[str, np.ndarray, IO[bytes], List[float]],
-    img2_path: Union[str, np.ndarray, IO[bytes], List[float]],
+    img1_path: Union[str, NDArray[Any], IO[bytes], List[float]],
+    img2_path: Union[str, NDArray[Any], IO[bytes], List[float]],
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",
     distance_metric: str = "cosine",
@@ -174,8 +174,8 @@ def verify(
 
 
 def analyze(
-    img_path: Union[str, np.ndarray, IO[bytes], List[str], List[np.ndarray], List[IO[bytes]]],
-    actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
+    img_path: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
+    actions: Union[Tuple[str, ...], List[str]] = ("emotion", "age", "gender", "race"),
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
@@ -277,7 +277,7 @@ def analyze(
 
 
 def find(
-    img_path: Union[str, np.ndarray, IO[bytes]],
+    img_path: Union[str, NDArray[Any], IO[bytes]],
     db_path: str,
     model_name: str = "VGG-Face",
     distance_metric: str = "cosine",
@@ -388,7 +388,7 @@ def find(
 
 
 def represent(
-    img_path: Union[str, np.ndarray, IO[bytes], Sequence[Union[str, np.ndarray, IO[bytes]]]],
+    img_path: Union[str, NDArray[Any], IO[bytes], Sequence[Union[str, NDArray[Any], IO[bytes]]]],
     model_name: str = "VGG-Face",
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -447,7 +447,7 @@ def represent(
             to encrypt the output embeddings. If provided, the embeddings will be encrypted
             using the specified cryptosystem. Then, you will be able to perform homomorphic
             operations on the encrypted embeddings without decrypting them first.
-            Check out the repo to find out more: https://github.com/serengil/lightphe 
+            Check out the repo to find out more: https://github.com/serengil/lightphe
 
     Returns:
         results (List[Dict[str, Any]] or List[Dict[str, Any]]): A list of dictionaries.
@@ -554,7 +554,7 @@ def stream(
 
 
 def extract_faces(
-    img_path: Union[str, np.ndarray, IO[bytes]],
+    img_path: Union[str, NDArray[Any], IO[bytes]],
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -640,12 +640,12 @@ def cli() -> None:
 
 
 def detectFace(
-    img_path: Union[str, np.ndarray],
-    target_size: tuple = (224, 224),
+    img_path: Union[str, NDArray[Any], IO[bytes]],
+    target_size: Tuple[int, int] = (224, 224),
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
-) -> Union[np.ndarray, None]:
+) -> Union[NDArray[Any], None]:
     """
     Deprecated face detection function. Use extract_faces for same functionality.
 

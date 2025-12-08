@@ -1,9 +1,10 @@
 # built-in dependencies
 import os
-from typing import List
+from typing import List, Any, Tuple
 
 # 3rd party dependencies
 import numpy as np
+from numpy.typing import NDArray
 import cv2
 
 # project dependencies
@@ -19,12 +20,12 @@ WEIGHTS_URL = "https://github.com/Star-Clouds/CenterFace/raw/master/models/onnx/
 
 
 class CenterFaceClient(Detector):
-    def __init__(self):
+    def __init__(self) -> None:
         # BUG: model must be flushed for each call
         # self.model = self.build_model()
         pass
 
-    def build_model(self):
+    def build_model(self) -> "CenterFace":
         """
         Download pre-trained weights of CenterFace model if necessary and load built model
         """
@@ -34,7 +35,7 @@ class CenterFaceClient(Detector):
 
         return CenterFace(weight_path=weights_path)
 
-    def detect_faces(self, img: np.ndarray) -> List["FacialAreaRegion"]:
+    def detect_faces(self, img: NDArray[Any]) -> List["FacialAreaRegion"]:
         """
         Detect and align face with CenterFace
 
@@ -92,15 +93,18 @@ class CenterFace:
         github.com/Star-Clouds/CenterFace/blob/master/prj-python/centerface.py
     """
 
-    def __init__(self, weight_path: str):
+    def __init__(self, weight_path: str) -> None:
         self.net = cv2.dnn.readNetFromONNX(weight_path)
-        self.img_h_new, self.img_w_new, self.scale_h, self.scale_w = 0, 0, 0, 0
+        self.img_h_new: int = 0
+        self.img_w_new: int = 0
+        self.scale_h: float = 0
+        self.scale_w: float = 0
 
-    def forward(self, img, height, width, threshold=0.5):
+    def forward(self, img: NDArray[Any], height: int, width: int, threshold: float = 0.5) -> Any:
         self.img_h_new, self.img_w_new, self.scale_h, self.scale_w = self.transform(height, width)
         return self.inference_opencv(img, threshold)
 
-    def inference_opencv(self, img, threshold):
+    def inference_opencv(self, img: NDArray[Any], threshold: float) -> Any:
         blob = cv2.dnn.blobFromImage(
             img,
             scalefactor=1.0,
@@ -113,12 +117,19 @@ class CenterFace:
         heatmap, scale, offset, lms = self.net.forward(["537", "538", "539", "540"])
         return self.postprocess(heatmap, lms, offset, scale, threshold)
 
-    def transform(self, h, w):
+    def transform(self, h: int, w: int) -> Tuple[int, int, float, float]:
         img_h_new, img_w_new = int(np.ceil(h / 32) * 32), int(np.ceil(w / 32) * 32)
         scale_h, scale_w = img_h_new / h, img_w_new / w
         return img_h_new, img_w_new, scale_h, scale_w
 
-    def postprocess(self, heatmap, lms, offset, scale, threshold):
+    def postprocess(
+        self,
+        heatmap: NDArray[Any],
+        lms: NDArray[Any],
+        offset: NDArray[Any],
+        scale: NDArray[Any],
+        threshold: float,
+    ) -> Any:
         dets, lms = self.decode(
             heatmap, scale, offset, lms, (self.img_h_new, self.img_w_new), threshold=threshold
         )
@@ -136,7 +147,15 @@ class CenterFace:
             lms = np.empty(shape=[0, 10], dtype=np.float32)
         return dets, lms
 
-    def decode(self, heatmap, scale, offset, landmark, size, threshold=0.1):
+    def decode(
+        self,
+        heatmap: NDArray[Any],
+        scale: NDArray[Any],
+        offset: NDArray[Any],
+        landmark: NDArray[Any],
+        size: Tuple[int, int],
+        threshold: float = 0.1,
+    ) -> Tuple[NDArray[Any], NDArray[Any]]:
         heatmap = np.squeeze(heatmap)
         scale0, scale1 = scale[0, 0, :, :], scale[0, 1, :, :]
         offset0, offset1 = offset[0, 0, :, :], offset[0, 1, :, :]
@@ -158,14 +177,14 @@ class CenterFace:
                     lm.append(landmark[0, j * 2 + 1, c0[i], c1[i]] * s1 + x1)
                     lm.append(landmark[0, j * 2, c0[i], c1[i]] * s0 + y1)
                 lms.append(lm)
-            boxes = np.asarray(boxes, dtype=np.float32)
-            keep = self.nms(boxes[:, :4], boxes[:, 4], 0.3)
-            boxes = boxes[keep, :]
-            lms = np.asarray(lms, dtype=np.float32)
-            lms = lms[keep, :]
-        return boxes, lms
+            boxes_np = np.asarray(boxes, dtype=np.float32)
+            keep = self.nms(boxes_np[:, :4], boxes_np[:, 4], 0.3)
+            boxes_np = boxes_np[keep, :]
+            lms_np = np.asarray(lms, dtype=np.float32)
+            lms_np = lms_np[keep, :]
+        return boxes_np, lms_np
 
-    def nms(self, boxes, scores, nms_thresh):
+    def nms(self, boxes: NDArray[Any], scores: NDArray[Any], nms_thresh: float) -> List[int]:
         x1 = boxes[:, 0]
         y1 = boxes[:, 1]
         x2 = boxes[:, 2]

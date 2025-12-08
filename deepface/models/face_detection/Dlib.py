@@ -1,8 +1,8 @@
 # built-in dependencies
-from typing import List
+from typing import List, Dict, Any
 
 # 3rd party dependencies
-import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.commons import weight_utils
@@ -11,13 +11,14 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-WEIGHTS_URL="http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2"
+WEIGHTS_URL = "http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2"
+
 
 class DlibClient(Detector):
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = self.build_model()
 
-    def build_model(self) -> dict:
+    def build_model(self) -> Dict[str, Any]:
         """
         Build a dlib hog face detector model
         Returns:
@@ -47,7 +48,7 @@ class DlibClient(Detector):
         detector["sp"] = sp
         return detector
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
         Detect and align face with dlib
 

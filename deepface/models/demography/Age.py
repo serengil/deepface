@@ -1,9 +1,9 @@
 # stdlib dependencies
-
-from typing import List, Union
+from typing import List, Union, Any, cast
 
 # 3rd party dependencies
 import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.models.facial_recognition import VGGFace
@@ -35,11 +35,13 @@ class ApparentAgeClient(Demography):
     Age model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = load_model()
         self.model_name = "Age"
 
-    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> Union[np.float64, np.ndarray]:
+    def predict(
+        self, img: Union[NDArray[Any], List[NDArray[Any]]]
+    ) -> Union[np.float64, NDArray[Any]]:
         """
         Predict apparent age(s) for single or multiple faces
         Args:
@@ -64,7 +66,7 @@ class ApparentAgeClient(Demography):
 
 
 def load_model(
-    url=WEIGHTS_URL,
+    url: str = WEIGHTS_URL,
 ) -> Model:
     """
     Construct age model, download its weights and load
@@ -98,7 +100,7 @@ def load_model(
     return age_model
 
 
-def find_apparent_age(age_predictions: np.ndarray) -> np.float64:
+def find_apparent_age(age_predictions: NDArray[Any]) -> np.float64:
     """
     Find apparent age prediction from a given probas of ages
     Args:
@@ -108,8 +110,7 @@ def find_apparent_age(age_predictions: np.ndarray) -> np.float64:
     """
     assert (
         len(age_predictions.shape) == 1
-    ), f"Input should be a list of predictions, \
-                                             not batched. Got shape: {age_predictions.shape}"
+    ), f"Input should be a list of predictions, not batched. Got shape: {age_predictions.shape}"
     output_indexes = np.arange(0, 101)
-    apparent_age = np.sum(age_predictions * output_indexes)
+    apparent_age = cast(np.float64, np.sum(age_predictions * output_indexes))
     return apparent_age
