@@ -31,14 +31,15 @@ else:
     )
 
 # pylint: disable=line-too-long, too-few-public-methods
-WEIGHTS_URL="https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip"
+WEIGHTS_URL = "https://github.com/swghosh/DeepFace/releases/download/weights-vggface2-2d-aligned/VGGFace2_DeepFace_weights_val-0.9034.h5.zip"
+
 
 class DeepFaceClient(FacialRecognition):
     """
     Fb's DeepFace model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # DeepFace requires tf 2.12 or less
         if tf_major == 2 and tf_minor > 12:
             # Ref: https://github.com/serengil/deepface/pull/1079
@@ -54,7 +55,7 @@ class DeepFaceClient(FacialRecognition):
 
 
 def load_model(
-    url=WEIGHTS_URL,
+    url: str = WEIGHTS_URL,
 ) -> Model:
     """
     Construct DeepFace model, download its weights and load

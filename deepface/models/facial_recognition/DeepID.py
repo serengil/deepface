@@ -34,7 +34,10 @@ else:
 
 # pylint: disable=line-too-long
 
-WEIGHTS_URL="https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_keras_weights.h5"
+WEIGHTS_URL = (
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_keras_weights.h5"
+)
+
 
 # pylint: disable=too-few-public-methods
 class DeepIdClient(FacialRecognition):
@@ -42,7 +45,7 @@ class DeepIdClient(FacialRecognition):
     DeepId model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = load_model()
         self.model_name = "DeepId"
         self.input_shape = (47, 55)
@@ -50,7 +53,7 @@ class DeepIdClient(FacialRecognition):
 
 
 def load_model(
-    url=WEIGHTS_URL,
+    url: str = WEIGHTS_URL,
 ) -> Model:
     """
     Construct DeepId model, download its weights and load
@@ -88,8 +91,6 @@ def load_model(
         file_name="deepid_keras_weights.h5", source_url=url
     )
 
-    model = weight_utils.load_model_weights(
-        model=model, weight_file=weight_file
-    )
+    model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
 
     return model

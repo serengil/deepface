@@ -1,9 +1,10 @@
 # built-in dependencies
-from typing import Union
+from typing import Union, Any, Tuple, List
 
 # 3rd party dependencies
 import cv2
 import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.commons import weight_utils
@@ -12,8 +13,9 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # pylint: disable=line-too-long, too-few-public-methods, nested-min-max
-FIRST_WEIGHTS_URL="https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/2.7_80x80_MiniFASNetV2.pth"
-SECOND_WEIGHTS_URL="https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/4_0_0_80x80_MiniFASNetV1SE.pth"
+FIRST_WEIGHTS_URL = "https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/2.7_80x80_MiniFASNetV2.pth"
+SECOND_WEIGHTS_URL = "https://github.com/minivision-ai/Silent-Face-Anti-Spoofing/raw/master/resources/anti_spoof_models/4_0_0_80x80_MiniFASNetV1SE.pth"
+
 
 class Fasnet:
     """
@@ -23,7 +25,7 @@ class Fasnet:
     Ref: github.com/minivision-ai/Silent-Face-Anti-Spoofing/blob/master/src/model_lib/MiniFASNet.py
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # pytorch is an opitonal dependency, enforce it to be installed if class imported
         try:
             import torch
@@ -94,7 +96,11 @@ class Fasnet:
         self.first_model = first_model
         self.second_model = second_model
 
-    def analyze(self, img: np.ndarray, facial_area: Union[list, tuple]):
+    def analyze(
+        self,
+        img: NDArray[Any],
+        facial_area: Union[List[Union[int, float]], Tuple[Union[int, float], ...]],
+    ) -> Tuple[bool, float]:
         """
         Analyze a given image spoofed or not
         Args:
@@ -143,7 +149,7 @@ class Fasnet:
 # subsdiary classes and functions
 
 
-def to_tensor(pic):
+def to_tensor(pic: NDArray[Any]) -> Any:
     """Convert a ``numpy.ndarray`` to tensor.
 
     See ``ToTensor`` for more details.
@@ -168,21 +174,26 @@ def to_tensor(pic):
 
 
 class Compose:
-    def __init__(self, transforms):
+    def __init__(self, transforms: List[Any]) -> None:
         self.transforms = transforms
 
-    def __call__(self, img):
+    def __call__(self, img: NDArray[Any]) -> NDArray[Any]:
         for t in self.transforms:
             img = t(img)
         return img
 
 
 class ToTensor:
-    def __call__(self, pic):
+    def __call__(self, pic: Any) -> Any:
         return to_tensor(pic)
 
 
-def _get_new_box(src_w, src_h, bbox, scale):
+def _get_new_box(
+    src_w: int,
+    src_h: int,
+    bbox: Union[List[Union[int, float]], Tuple[Union[int, float], ...]],
+    scale: float,
+) -> Tuple[int, int, int, int]:
     x = bbox[0]
     y = bbox[1]
     box_w = bbox[2]
@@ -210,7 +221,13 @@ def _get_new_box(src_w, src_h, bbox, scale):
     return int(left_top_x), int(left_top_y), int(right_bottom_x), int(right_bottom_y)
 
 
-def crop(org_img, bbox, scale, out_w, out_h):
+def crop(
+    org_img: NDArray[Any],
+    bbox: Union[List[Union[int, float]], Tuple[Union[int, float], ...]],
+    scale: float,
+    out_w: int,
+    out_h: int,
+) -> Any:
     src_h, src_w, _ = np.shape(org_img)
     left_top_x, left_top_y, right_bottom_x, right_bottom_y = _get_new_box(src_w, src_h, bbox, scale)
     img = org_img[left_top_y : right_bottom_y + 1, left_top_x : right_bottom_x + 1]

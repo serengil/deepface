@@ -1,8 +1,9 @@
 # built-in dependencies
-from typing import Tuple
+from typing import Tuple, Any
 
 # 3rd party
 import numpy as np
+from numpy.typing import NDArray
 import cv2
 
 # project dependencies
@@ -16,7 +17,7 @@ elif tf_major_version == 2:
     from tensorflow.keras.preprocessing import image
 
 
-def normalize_input(img: np.ndarray, normalization: str = "base") -> np.ndarray:
+def normalize_input(img: NDArray[Any], normalization: str = "base") -> NDArray[Any]:
     """Normalize input image.
 
     Args:
@@ -74,7 +75,7 @@ def normalize_input(img: np.ndarray, normalization: str = "base") -> np.ndarray:
     return img
 
 
-def resize_image(img: np.ndarray, target_size: Tuple[int, int]) -> np.ndarray:
+def resize_image(img: NDArray[Any], target_size: Tuple[int, int]) -> NDArray[Any]:
     """
     Resize an image to expected size of a ml model with adding black pixels.
     Args:

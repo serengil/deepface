@@ -28,7 +28,7 @@ def get_tf_minor_version() -> int:
     return int(tf.__version__.split(".", maxsplit=-1)[1])
 
 
-def validate_for_keras3():
+def validate_for_keras3() -> None:
     tf_major = get_tf_major_version()
     tf_minor = get_tf_minor_version()
 

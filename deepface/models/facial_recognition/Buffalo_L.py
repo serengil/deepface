@@ -1,21 +1,27 @@
+# built-in dependencies
 import os
-from typing import List, Union
-import numpy as np
+from typing import List, Union, Any
 
+# third-party dependencies
+import numpy as np
+from numpy.typing import NDArray
+
+# project dependencies
 from deepface.commons import weight_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
 
 logger = Logger()
 
+
 class Buffalo_L(FacialRecognition):
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = None
         self.input_shape = (112, 112)
         self.output_shape = 512
         self.load_model()
 
-    def load_model(self):
+    def load_model(self) -> None:
         """Load the InsightFace Buffalo_L recognition model."""
         try:
             from insightface.model_zoo import get_model
@@ -39,8 +45,8 @@ class Buffalo_L(FacialRecognition):
             logger.info(f"Created directory: {buffalo_l_dir}")
 
         weights_path = weight_utils.download_weights_if_necessary(
-        file_name=model_rel_path,
-        source_url="https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg" #pylint: disable=line-too-long
+            file_name=model_rel_path,
+            source_url="https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg",  # pylint: disable=line-too-long
         )
 
         if not os.path.exists(weights_path):
@@ -50,12 +56,12 @@ class Buffalo_L(FacialRecognition):
         self.model = get_model(weights_path)
         self.model.prepare(ctx_id=-1, input_size=self.input_shape)
 
-    def preprocess(self, img: np.ndarray) -> np.ndarray:
+    def preprocess(self, img: NDArray[Any]) -> NDArray[Any]:
         """
         Preprocess the input image or batch of images.
 
         Args:
-            img: Input image or batch with shape (112, 112, 3) 
+            img: Input image or batch with shape (112, 112, 3)
             or (batch_size, 112, 112, 3).
 
         Returns:
@@ -69,16 +75,16 @@ class Buffalo_L(FacialRecognition):
         img = img[:, :, :, ::-1]
         return img
 
-    def forward(self, img: np.ndarray) -> Union[List[float], List[List[float]]]:
+    def forward(self, img: NDArray[Any]) -> Union[List[float], List[List[float]]]:
         """
         Extract facial embedding(s) from the input image or batch of images.
 
         Args:
-            img: Input image or batch with shape (112, 112, 3) 
+            img: Input image or batch with shape (112, 112, 3)
             or (batch_size, 112, 112, 3).
 
         Returns:
-            Embedding as a list of floats (single image) 
+            Embedding as a list of floats (single image)
             or list of lists of floats (batch).
         """
         # Preprocess the input (single image or batch)
@@ -93,4 +99,3 @@ class Buffalo_L(FacialRecognition):
 
         # Return single embedding if batch_size is 1, otherwise return list of embeddings
         return embeddings[0] if batch_size == 1 else embeddings
-    

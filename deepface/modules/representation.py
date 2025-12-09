@@ -4,6 +4,7 @@ from collections import defaultdict
 
 # 3rd party dependencies
 import numpy as np
+from numpy.typing import NDArray
 from lightphe import LightPHE
 
 # project dependencies
@@ -17,8 +18,9 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 
+# pylint: disable=too-many-positional-arguments
 def represent(
-    img_path: Union[str, IO[bytes], np.ndarray, Sequence[Union[str, np.ndarray, IO[bytes]]]],
+    img_path: Union[str, IO[bytes], NDArray[Any], Sequence[Union[str, NDArray[Any], IO[bytes]]]],
     model_name: str = "VGG-Face",
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
@@ -181,10 +183,10 @@ def represent(
             batch_indexes.append(idx)
 
     # Convert list of images to a numpy array for batch processing
-    batch_images = np.concatenate(batch_images, axis=0)
+    batch_images_np = np.concatenate(batch_images, axis=0)
 
     # Forward pass through the model for the entire batch
-    embeddings = model.forward(batch_images)
+    embeddings = model.forward(batch_images_np)
 
     if minmax_normalize:
         embeddings = normalize_embedding_minmax(model_name, embeddings)

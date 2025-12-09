@@ -4,7 +4,7 @@ from typing import List, Any
 from enum import Enum
 
 # 3rd party dependencies
-import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
@@ -100,7 +100,7 @@ class YoloDetectorClient(Detector):
         # Return face_detector
         return YOLO(weight_file)
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
         Detect and align face with yolo
 
@@ -161,55 +161,55 @@ class YoloDetectorClient(Detector):
 
 
 class YoloDetectorClientV8n(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V8N)
 
 
 class YoloDetectorClientV8m(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V8M)
 
 
 class YoloDetectorClientV8l(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V8L)
 
 
 class YoloDetectorClientV11n(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V11N)
 
 
 class YoloDetectorClientV11s(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V11S)
 
 
 class YoloDetectorClientV11m(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V11M)
 
 
 class YoloDetectorClientV11l(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V11L)
 
 
 class YoloDetectorClientV12n(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V12N)
 
 
 class YoloDetectorClientV12s(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V12S)
 
 
 class YoloDetectorClientV12m(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V12M)
 
 
 class YoloDetectorClientV12l(YoloDetectorClient):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(YoloModel.V12L)

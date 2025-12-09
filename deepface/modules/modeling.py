@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 # built-in dependencies
-from typing import TYPE_CHECKING, Any, Final, TypedDict
+from typing import TYPE_CHECKING, Any, Final, TypedDict, Dict
 
 # project dependencies
 from deepface.models.facial_recognition import (
@@ -35,6 +35,8 @@ if TYPE_CHECKING:
     from deepface.models.Demography import Demography
     from deepface.models.Detector import Detector
     from deepface.models.FacialRecognition import FacialRecognition
+
+    cached_models: Dict[str, Dict[str, Any]] = {}
 
 
 class AvailableModels(TypedDict):
@@ -118,7 +120,7 @@ def build_model(task: str, model_name: str) -> Any:
         cached_models = {current_task: {} for current_task in AVAILABLE_MODELS.keys()}
 
     if cached_models[task].get(model_name) is None:
-        model = AVAILABLE_MODELS[task].get(model_name)
+        model = AVAILABLE_MODELS[task].get(model_name)  # type: ignore[literal-required]
         if model:
             cached_models[task][model_name] = model()
         else:

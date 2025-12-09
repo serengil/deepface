@@ -1,14 +1,15 @@
 # built-in dependencies
 import os
 import io
-from typing import Generator, IO, List, Union, Tuple
+from typing import Generator, IO, List, Union, Tuple, cast, Any
 import hashlib
 import base64
 from pathlib import Path
 
 # 3rd party dependencies
-import requests
+import requests  # type: ignore[import-untyped]
 import numpy as np
+from numpy.typing import NDArray
 import cv2
 from PIL import Image
 from werkzeug.datastructures import FileStorage
@@ -77,7 +78,9 @@ def find_image_hash(file_path: str) -> str:
     return hasher.hexdigest()
 
 
-def load_image(img: Union[str, np.ndarray, IO[bytes]]) -> Tuple[np.ndarray, str]:
+def load_image(
+    img: Union[str, NDArray[Any], IO[bytes]],
+) -> Tuple[NDArray[Any], str]:
     """
     Load image from path, url, file object, base64 or numpy array.
     Args:
@@ -92,12 +95,10 @@ def load_image(img: Union[str, np.ndarray, IO[bytes]]) -> Tuple[np.ndarray, str]
         return img, "numpy array"
 
     # The image is an object that supports `.read`
-    if hasattr(img, 'read') and callable(img.read):
+    if hasattr(img, "read") and callable(img.read):
         if isinstance(img, io.StringIO):
-            raise ValueError(
-                'img requires bytes and cannot be an io.StringIO object.'
-            )
-        return load_image_from_io_object(img), 'io object'
+            raise ValueError("img requires bytes and cannot be an io.StringIO object.")
+        return load_image_from_io_object(cast(IO[bytes], img)), "io object"
 
     if isinstance(img, Path):
         img = str(img)
@@ -125,10 +126,10 @@ def load_image(img: Union[str, np.ndarray, IO[bytes]]) -> Tuple[np.ndarray, str]
 
     img_obj_bgr = cv2.imread(img)
     # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
-    return img_obj_bgr, img
+    return cast(NDArray[Any], img_obj_bgr), img
 
 
-def load_image_from_io_object(obj: IO[bytes]) -> np.ndarray:
+def load_image_from_io_object(obj: IO[bytes]) -> NDArray[Any]:
     """
     Load image from an object that supports being read
     Args:
@@ -154,7 +155,7 @@ def load_image_from_io_object(obj: IO[bytes]) -> np.ndarray:
             obj.close()
 
 
-def load_image_from_base64(uri: str) -> np.ndarray:
+def load_image_from_base64(uri: str) -> NDArray[Any]:
     """
     Load image from base64 string.
     Args:
@@ -181,10 +182,10 @@ def load_image_from_base64(uri: str) -> np.ndarray:
     nparr = np.frombuffer(decoded_bytes, np.uint8)
     img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    return img_bgr
+    return cast(NDArray[Any], img_bgr)
 
 
-def load_image_from_file_storage(file: FileStorage) -> np.ndarray:
+def load_image_from_file_storage(file: FileStorage) -> NDArray[Any]:
     """
     Loads an image from a FileStorage object and decodes it into an OpenCV image.
     Args:
@@ -199,7 +200,7 @@ def load_image_from_file_storage(file: FileStorage) -> np.ndarray:
     return image
 
 
-def load_image_from_web(url: str) -> np.ndarray:
+def load_image_from_web(url: str) -> NDArray[Any]:
     """
     Loading an image from web
     Args:
@@ -211,4 +212,4 @@ def load_image_from_web(url: str) -> np.ndarray:
     response.raise_for_status()
     image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
     img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-    return img
+    return cast(NDArray[Any], img)

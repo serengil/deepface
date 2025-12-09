@@ -1,8 +1,9 @@
 # built-in dependencies
-from typing import List, Union
+from typing import List, Union, Any, cast
 
 # 3rd party dependencies
 import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.commons import weight_utils
@@ -20,13 +21,13 @@ class DlibClient(FacialRecognition):
     Dlib model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = DlibResNet()
         self.model_name = "Dlib"
         self.input_shape = (150, 150)
         self.output_shape = 128
 
-    def forward(self, img: np.ndarray) -> Union[List[float], List[List[float]]]:
+    def forward(self, img: NDArray[Any]) -> Union[List[float], List[List[float]]]:
         """
         Find embeddings with Dlib model.
             This model necessitates the override of the forward method
@@ -52,12 +53,12 @@ class DlibClient(FacialRecognition):
         embeddings = self.model.model.compute_face_descriptor(img)
         embeddings = [np.array(embedding).tolist() for embedding in embeddings]
         if len(embeddings) == 1:
-            return embeddings[0]
-        return embeddings
+            return cast(List[float], embeddings[0])
+        return cast(List[List[float]], embeddings)
 
 
 class DlibResNet:
-    def __init__(self):
+    def __init__(self) -> None:
 
         # This is not a must dependency. Don't import it in the global level.
         try:

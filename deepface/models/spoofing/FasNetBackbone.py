@@ -2,6 +2,9 @@
 # licensed under Apache License 2.0
 # Ref: github.com/minivision-ai/Silent-Face-Anti-Spoofing/blob/master/src/model_lib/MiniFASNet.py
 
+# built-in dependencies
+from typing import Tuple, Any, List, TYPE_CHECKING
+
 # 3rd party dependencies
 import torch
 from torch.nn import (
@@ -14,8 +17,15 @@ from torch.nn import (
     Sigmoid,
     AdaptiveAvgPool2d,
     Sequential,
-    Module,
 )
+
+if TYPE_CHECKING:
+    from torch.nn import Module
+else:
+    # minimal stub for mypy
+    class Module:  # pylint: disable=too-few-public-methods
+        pass
+
 
 # pylint: disable=super-with-arguments, too-many-instance-attributes, unused-argument, redefined-builtin, too-few-public-methods
 
@@ -125,27 +135,45 @@ keep_dict = {
 }
 
 
-def MiniFASNetV2(embedding_size=128, conv6_kernel=(7, 7), drop_p=0.2, num_classes=3, img_channel=3):
+def MiniFASNetV2(
+    embedding_size: int = 128,
+    conv6_kernel: Tuple[int, int] = (7, 7),
+    drop_p: float = 0.2,
+    num_classes: int = 3,
+    img_channel: int = 3,
+) -> "MiniFASNet":
     return MiniFASNet(
         keep_dict["1.8M_"], embedding_size, conv6_kernel, drop_p, num_classes, img_channel
     )
 
 
 def MiniFASNetV1SE(
-    embedding_size=128, conv6_kernel=(7, 7), drop_p=0.75, num_classes=3, img_channel=3
-):
+    embedding_size: int = 128,
+    conv6_kernel: Tuple[int, int] = (7, 7),
+    drop_p: float = 0.75,
+    num_classes: int = 3,
+    img_channel: int = 3,
+) -> "MiniFASNetSE":
     return MiniFASNetSE(
         keep_dict["1.8M"], embedding_size, conv6_kernel, drop_p, num_classes, img_channel
     )
 
 
-class Flatten(Module):
-    def forward(self, input):
+class Flatten(Module):  # type: ignore[misc]
+    def forward(self, input: Any) -> Any:
         return input.view(input.size(0), -1)
 
 
-class Conv_block(Module):
-    def __init__(self, in_c, out_c, kernel=(1, 1), stride=(1, 1), padding=(0, 0), groups=1):
+class Conv_block(Module):  # type: ignore[misc]
+    def __init__(
+        self,
+        in_c: Any,
+        out_c: Any,
+        kernel: Tuple[int, int] = (1, 1),
+        stride: Tuple[int, int] = (1, 1),
+        padding: Tuple[int, int] = (0, 0),
+        groups: int = 1,
+    ):
         super(Conv_block, self).__init__()
         self.conv = Conv2d(
             in_c,
@@ -159,15 +187,23 @@ class Conv_block(Module):
         self.bn = BatchNorm2d(out_c)
         self.prelu = PReLU(out_c)
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         x = self.conv(x)
         x = self.bn(x)
         x = self.prelu(x)
         return x
 
 
-class Linear_block(Module):
-    def __init__(self, in_c, out_c, kernel=(1, 1), stride=(1, 1), padding=(0, 0), groups=1):
+class Linear_block(Module):  # type: ignore[misc]
+    def __init__(
+        self,
+        in_c: Any,
+        out_c: Any,
+        kernel: Tuple[int, int] = (1, 1),
+        stride: Tuple[int, int] = (1, 1),
+        padding: Tuple[int, int] = (0, 0),
+        groups: int = 1,
+    ) -> None:
         super(Linear_block, self).__init__()
         self.conv = Conv2d(
             in_c,
@@ -180,16 +216,24 @@ class Linear_block(Module):
         )
         self.bn = BatchNorm2d(out_c)
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         x = self.conv(x)
         x = self.bn(x)
         return x
 
 
-class Depth_Wise(Module):
+class Depth_Wise(Module):  # type: ignore[misc]
     def __init__(
-        self, c1, c2, c3, residual=False, kernel=(3, 3), stride=(2, 2), padding=(1, 1), groups=1
-    ):
+        self,
+        c1: Any,
+        c2: Any,
+        c3: Any,
+        residual: bool = False,
+        kernel: Tuple[int, int] = (3, 3),
+        stride: Tuple[int, int] = (2, 2),
+        padding: Tuple[int, int] = (1, 1),
+        groups: int = 1,
+    ) -> None:
         super(Depth_Wise, self).__init__()
         c1_in, c1_out = c1
         c2_in, c2_out = c2
@@ -201,7 +245,7 @@ class Depth_Wise(Module):
         self.project = Linear_block(c3_in, c3_out, kernel=(1, 1), padding=(0, 0), stride=(1, 1))
         self.residual = residual
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         if self.residual:
             short_cut = x
         x = self.conv(x)
@@ -214,19 +258,19 @@ class Depth_Wise(Module):
         return output
 
 
-class Depth_Wise_SE(Module):
+class Depth_Wise_SE(Module):  # type: ignore[misc]
     def __init__(
         self,
-        c1,
-        c2,
-        c3,
-        residual=False,
-        kernel=(3, 3),
-        stride=(2, 2),
-        padding=(1, 1),
-        groups=1,
-        se_reduct=8,
-    ):
+        c1: Any,
+        c2: Any,
+        c3: Any,
+        residual: bool = False,
+        kernel: Tuple[int, int] = (3, 3),
+        stride: Tuple[int, int] = (2, 2),
+        padding: Tuple[int, int] = (1, 1),
+        groups: int = 1,
+        se_reduct: int = 8,
+    ) -> None:
         super(Depth_Wise_SE, self).__init__()
         c1_in, c1_out = c1
         c2_in, c2_out = c2
@@ -239,7 +283,7 @@ class Depth_Wise_SE(Module):
         self.residual = residual
         self.se_module = SEModule(c3_out, se_reduct)
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         if self.residual:
             short_cut = x
         x = self.conv(x)
@@ -253,8 +297,8 @@ class Depth_Wise_SE(Module):
         return output
 
 
-class SEModule(Module):
-    def __init__(self, channels, reduction):
+class SEModule(Module):  # type: ignore[misc]
+    def __init__(self, channels: int, reduction: int):
         super(SEModule, self).__init__()
         self.avg_pool = AdaptiveAvgPool2d(1)
         self.fc1 = Conv2d(channels, channels // reduction, kernel_size=1, padding=0, bias=False)
@@ -264,7 +308,7 @@ class SEModule(Module):
         self.bn2 = BatchNorm2d(channels)
         self.sigmoid = Sigmoid()
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         module_input = x
         x = self.avg_pool(x)
         x = self.fc1(x)
@@ -276,8 +320,18 @@ class SEModule(Module):
         return module_input * x
 
 
-class Residual(Module):
-    def __init__(self, c1, c2, c3, num_block, groups, kernel=(3, 3), stride=(1, 1), padding=(1, 1)):
+class Residual(Module):  # type: ignore[misc]
+    def __init__(
+        self,
+        c1: Any,
+        c2: Any,
+        c3: Any,
+        num_block: int,
+        groups: int,
+        kernel: Tuple[int, int] = (3, 3),
+        stride: Tuple[int, int] = (1, 1),
+        padding: Tuple[int, int] = (1, 1),
+    ) -> None:
         super(Residual, self).__init__()
         modules = []
         for i in range(num_block):
@@ -298,22 +352,22 @@ class Residual(Module):
             )
         self.model = Sequential(*modules)
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         return self.model(x)
 
 
-class ResidualSE(Module):
+class ResidualSE(Module):  # type: ignore[misc]
     def __init__(
         self,
-        c1,
-        c2,
-        c3,
-        num_block,
-        groups,
-        kernel=(3, 3),
-        stride=(1, 1),
-        padding=(1, 1),
-        se_reduct=4,
+        c1: Any,
+        c2: Any,
+        c3: Any,
+        num_block: int,
+        groups: Any,
+        kernel: Tuple[int, int] = (3, 3),
+        stride: Tuple[int, int] = (1, 1),
+        padding: Tuple[int, int] = (1, 1),
+        se_reduct: int = 4,
     ):
         super(ResidualSE, self).__init__()
         modules = []
@@ -337,7 +391,7 @@ class ResidualSE(Module):
                 )
             else:
                 modules.append(
-                    Depth_Wise(
+                    Depth_Wise(  # type: ignore[arg-type]
                         c1_tuple,
                         c2_tuple,
                         c3_tuple,
@@ -350,13 +404,19 @@ class ResidualSE(Module):
                 )
         self.model = Sequential(*modules)
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         return self.model(x)
 
 
-class MiniFASNet(Module):
+class MiniFASNet(Module):  # type: ignore[misc]
     def __init__(
-        self, keep, embedding_size, conv6_kernel=(7, 7), drop_p=0.0, num_classes=3, img_channel=3
+        self,
+        keep: List[int],
+        embedding_size: int,
+        conv6_kernel: Tuple[int, int] = (7, 7),
+        drop_p: float = 0.0,
+        num_classes: int = 3,
+        img_channel: int = 3,
     ):
         super(MiniFASNet, self).__init__()
         self.embedding_size = embedding_size
@@ -446,7 +506,7 @@ class MiniFASNet(Module):
         self.drop = torch.nn.Dropout(p=drop_p)
         self.prob = Linear(embedding_size, num_classes, bias=False)
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         out = self.conv1(x)
         out = self.conv2_dw(out)
         out = self.conv_23(out)
@@ -468,7 +528,13 @@ class MiniFASNet(Module):
 
 class MiniFASNetSE(MiniFASNet):
     def __init__(
-        self, keep, embedding_size, conv6_kernel=(7, 7), drop_p=0.75, num_classes=4, img_channel=3
+        self,
+        keep: List[int],
+        embedding_size: int,
+        conv6_kernel: Tuple[int, int] = (7, 7),
+        drop_p: float = 0.75,
+        num_classes: int = 4,
+        img_channel: int = 3,
     ):
         super(MiniFASNetSE, self).__init__(
             keep=keep,
@@ -483,7 +549,7 @@ class MiniFASNetSE(MiniFASNet):
         c2 = [(keep[5], keep[6]), (keep[8], keep[9]), (keep[11], keep[12]), (keep[14], keep[15])]
         c3 = [(keep[6], keep[7]), (keep[9], keep[10]), (keep[12], keep[13]), (keep[15], keep[16])]
 
-        self.conv_3 = ResidualSE(
+        self.conv_3 = ResidualSE(  # type: ignore[assignment]
             c1, c2, c3, num_block=4, groups=keep[4], kernel=(3, 3), stride=(1, 1), padding=(1, 1)
         )
 
@@ -512,13 +578,13 @@ class MiniFASNetSE(MiniFASNet):
             (keep[36], keep[37]),
         ]
 
-        self.conv_4 = ResidualSE(
+        self.conv_4 = ResidualSE(  # type: ignore[assignment]
             c1, c2, c3, num_block=6, groups=keep[19], kernel=(3, 3), stride=(1, 1), padding=(1, 1)
         )
 
         c1 = [(keep[40], keep[41]), (keep[43], keep[44])]
         c2 = [(keep[41], keep[42]), (keep[44], keep[45])]
         c3 = [(keep[42], keep[43]), (keep[45], keep[46])]
-        self.conv_5 = ResidualSE(
+        self.conv_5 = ResidualSE(  # type: ignore[assignment]
             c1, c2, c3, num_block=2, groups=keep[40], kernel=(3, 3), stride=(1, 1), padding=(1, 1)
         )

@@ -1,9 +1,9 @@
 # stdlib dependencies
 
-from typing import List, Union
+from typing import List, Union, Any
 
 # 3rd party dependencies
-import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.models.facial_recognition import VGGFace
@@ -26,10 +26,13 @@ else:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 
-WEIGHTS_URL="https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.h5"
+WEIGHTS_URL = (
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.h5"
+)
 
 # Labels for the genders that can be detected by the model.
 labels = ["Woman", "Man"]
+
 
 # pylint: disable=too-few-public-methods
 class GenderClient(Demography):
@@ -37,11 +40,11 @@ class GenderClient(Demography):
     Gender model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = load_model()
         self.model_name = "Gender"
 
-    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
+    def predict(self, img: Union[NDArray[Any], List[NDArray[Any]]]) -> NDArray[Any]:
         """
         Predict gender probabilities for single or multiple faces
         Args:
@@ -59,8 +62,9 @@ class GenderClient(Demography):
 
         return predictions
 
+
 def load_model(
-    url=WEIGHTS_URL,
+    url: str = WEIGHTS_URL,
 ) -> Model:
     """
     Construct gender model, download its weights and load
@@ -89,8 +93,6 @@ def load_model(
         file_name="gender_model_weights.h5", source_url=url
     )
 
-    gender_model = weight_utils.load_model_weights(
-        model=gender_model, weight_file=weight_file
-    )
+    gender_model = weight_utils.load_model_weights(model=gender_model, weight_file=weight_file)
 
     return gender_model

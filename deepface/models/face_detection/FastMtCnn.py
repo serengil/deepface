@@ -1,9 +1,9 @@
 # built-in dependencies
-from typing import Any, Union, List
+from typing import Any, Union, List, Tuple
 
 # 3rd party dependencies
 import cv2
-import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
@@ -14,10 +14,11 @@ class FastMtCnnClient(Detector):
     Fast MtCnn Detector from github.com/timesler/facenet-pytorch
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize FastMtCnnClient and build the model."""
         self.model = self.build_model()
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
         Detect and align face with mtcnn
 
@@ -30,7 +31,7 @@ class FastMtCnnClient(Detector):
         resp = []
 
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # mtcnn expects RGB but OpenCV read BGR
-        img_rgb = img_rgb.astype("uint8") # Fix facenet-pytorch dtype
+        img_rgb = img_rgb.astype("uint8")  # Fix facenet-pytorch dtype
         detections = self.model.detect(
             img_rgb, landmarks=True
         )  # returns boundingbox, prob, landmark
@@ -82,7 +83,12 @@ class FastMtCnnClient(Detector):
         return face_detector
 
 
-def xyxy_to_xywh(regions: Union[list, tuple]) -> tuple:
+def xyxy_to_xywh(
+    regions: Union[
+        List[Union[int, float]],
+        Tuple[Union[int, float], Union[int, float], Union[int, float], Union[int, float]],
+    ],
+) -> Tuple[int, int, int, int]:
     """
     Convert (x1, y1, x2, y2) format to (x, y, w, h) format.
     Args:

@@ -1,8 +1,9 @@
 # stdlib dependencies
-from typing import List, Union
+from typing import List, Union, Any
 
 # 3rd party dependencies
 import numpy as np
+from numpy.typing import NDArray
 import cv2
 
 # project dependencies
@@ -42,11 +43,11 @@ class EmotionClient(Demography):
     Emotion model class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = load_model()
         self.model_name = "Emotion"
 
-    def _preprocess_image(self, img: np.ndarray) -> np.ndarray:
+    def _preprocess_image(self, img: NDArray[Any]) -> NDArray[Any]:
         """
         Preprocess single image for emotion detection
         Args:
@@ -58,7 +59,7 @@ class EmotionClient(Demography):
         img_gray = cv2.resize(img_gray, (48, 48))
         return img_gray
 
-    def predict(self, img: Union[np.ndarray, List[np.ndarray]]) -> np.ndarray:
+    def predict(self, img: Union[NDArray[Any], List[NDArray[Any]]]) -> NDArray[Any]:
         """
         Predict emotion probabilities for single or multiple faces
         Args:
@@ -72,7 +73,9 @@ class EmotionClient(Demography):
         # Preprocessing input image or image list.
         imgs = self._preprocess_batch_or_single_input(img)
 
-        processed_imgs = np.expand_dims(np.array([self._preprocess_image(img) for img in imgs]), axis=-1)
+        processed_imgs = np.expand_dims(
+            np.array([self._preprocess_image(img) for img in imgs]), axis=-1
+        )
 
         # Prediction
         predictions = self._predict_internal(processed_imgs)
@@ -81,7 +84,7 @@ class EmotionClient(Demography):
 
 
 def load_model(
-    url=WEIGHTS_URL,
+    url: str = WEIGHTS_URL,
 ) -> Sequential:
     """
     Consruct emotion model, download and load weights

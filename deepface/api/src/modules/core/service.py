@@ -1,9 +1,9 @@
 # built-in dependencies
 import traceback
-from typing import Optional, Union
+from typing import Optional, Union, Dict, Any, Tuple, List
 
 # 3rd party dependencies
-import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface import DeepFace
@@ -16,14 +16,14 @@ logger = Logger()
 
 
 def represent(
-    img_path: Union[str, np.ndarray],
+    img_path: Union[str, NDArray[Any]],
     model_name: str,
     detector_backend: str,
     enforce_detection: bool,
     align: bool,
     anti_spoofing: bool,
     max_faces: Optional[int] = None,
-):
+) -> Tuple[Dict[str, Any], int]:
     try:
         result = {}
         embedding_objs = DeepFace.represent(
@@ -36,7 +36,7 @@ def represent(
             max_faces=max_faces,
         )
         result["results"] = embedding_objs
-        return result
+        return result, 200
     except Exception as err:
         tb_str = traceback.format_exc()
         logger.error(str(err))
@@ -45,15 +45,15 @@ def represent(
 
 
 def verify(
-    img1_path: Union[str, np.ndarray],
-    img2_path: Union[str, np.ndarray],
+    img1_path: Union[str, NDArray[Any]],
+    img2_path: Union[str, NDArray[Any]],
     model_name: str,
     detector_backend: str,
     distance_metric: str,
     enforce_detection: bool,
     align: bool,
     anti_spoofing: bool,
-):
+) -> Tuple[Dict[str, Any], int]:
     try:
         obj = DeepFace.verify(
             img1_path=img1_path,
@@ -65,7 +65,7 @@ def verify(
             enforce_detection=enforce_detection,
             anti_spoofing=anti_spoofing,
         )
-        return obj
+        return obj, 200
     except Exception as err:
         tb_str = traceback.format_exc()
         logger.error(str(err))
@@ -74,13 +74,13 @@ def verify(
 
 
 def analyze(
-    img_path: Union[str, np.ndarray],
-    actions: list,
+    img_path: Union[str, NDArray[Any]],
+    actions: List[str],
     detector_backend: str,
     enforce_detection: bool,
     align: bool,
     anti_spoofing: bool,
-):
+) -> Tuple[Dict[str, Any], int]:
     try:
         result = {}
         demographies = DeepFace.analyze(
@@ -93,7 +93,7 @@ def analyze(
             anti_spoofing=anti_spoofing,
         )
         result["results"] = demographies
-        return result
+        return result, 200
     except Exception as err:
         tb_str = traceback.format_exc()
         logger.error(str(err))

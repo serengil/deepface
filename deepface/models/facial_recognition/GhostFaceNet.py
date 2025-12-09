@@ -1,3 +1,6 @@
+# built-in dependencies
+from typing import Any
+
 # 3rd party dependencies
 import tensorflow as tf
 
@@ -60,14 +63,14 @@ class GhostFaceNetClient(FacialRecognition):
         Author declared that this backbone and pre-trained weights got 99.7667% accuracy on LFW
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model_name = "GhostFaceNet"
         self.input_shape = (112, 112)
         self.output_shape = 512
         self.model = load_model()
 
 
-def load_model():
+def load_model() -> Model:
     model = GhostFaceNetV1()
 
     weight_file = weight_utils.download_weights_if_necessary(
@@ -152,7 +155,7 @@ def GhostFaceNetV1() -> Model:
     return model
 
 
-def se_module(inputs, reduction):
+def se_module(inputs: Any, reduction: int) -> Any:
     """
     Refactored from github.com/HamadYA/GhostFaceNets/blob/main/backbones/ghost_model.py
     """
@@ -192,7 +195,9 @@ def se_module(inputs, reduction):
     return Multiply()([inputs, se])
 
 
-def ghost_module(inputs, out, convkernel=1, dwkernel=3, add_activation=True):
+def ghost_module(
+    inputs: Any, out: int, convkernel: int = 1, dwkernel: int = 3, add_activation: bool = True
+) -> Any:
     """
     Refactored from github.com/HamadYA/GhostFaceNets/blob/main/backbones/ghost_model.py
     """
@@ -226,7 +231,15 @@ def ghost_module(inputs, out, convkernel=1, dwkernel=3, add_activation=True):
     return Concatenate()([cc, nn])
 
 
-def ghost_bottleneck(inputs, dwkernel, strides, exp, out, reduction, shortcut=True):
+def ghost_bottleneck(
+    inputs: Any,
+    dwkernel: int,
+    strides: int,
+    exp: int,
+    out: int,
+    reduction: int,
+    shortcut: bool = True,
+) -> Any:
     """
     Refactored from github.com/HamadYA/GhostFaceNets/blob/main/backbones/ghost_model.py
     """
@@ -278,7 +291,7 @@ def ghost_bottleneck(inputs, dwkernel, strides, exp, out, reduction, shortcut=Tr
     return Add()([xx, nn])
 
 
-def replace_relu_with_prelu(model) -> Model:
+def replace_relu_with_prelu(model: Model) -> Model:
     """
     Replaces relu activation function in the built model with prelu.
         Refactored from github.com/HamadYA/GhostFaceNets/blob/main/backbones/ghost_model.py
@@ -288,7 +301,7 @@ def replace_relu_with_prelu(model) -> Model:
         model (Model): built model with prelu activation functions
     """
 
-    def convert_relu(layer):
+    def convert_relu(layer: Any) -> Any:
         if isinstance(layer, ReLU) or (
             isinstance(layer, Activation) and layer.activation == keras.activations.relu
         ):

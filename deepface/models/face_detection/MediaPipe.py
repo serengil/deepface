@@ -3,7 +3,7 @@ import os
 from typing import Any, List
 
 # 3rd party dependencies
-import numpy as np
+from numpy.typing import NDArray
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
@@ -14,7 +14,7 @@ class MediaPipeClient(Detector):
     MediaPipe from google.github.io/mediapipe/solutions/face_detection
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.model = self.build_model()
 
     def build_model(self) -> Any:
@@ -38,12 +38,11 @@ class MediaPipeClient(Detector):
         model_selection = int(os.environ.get("MEDIAPIPE_MODEL_SELECTION", 0))
 
         face_detection = mp_face_detection.FaceDetection(
-            min_detection_confidence=min_detection_confidence,
-            model_selection=model_selection
+            min_detection_confidence=min_detection_confidence, model_selection=model_selection
         )
         return face_detection
 
-    def detect_faces(self, img: np.ndarray) -> List[FacialAreaRegion]:
+    def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
         Detect and align face with mediapipe
 
@@ -53,7 +52,7 @@ class MediaPipeClient(Detector):
         Returns:
             results (List[FacialAreaRegion]): A list of FacialAreaRegion objects
         """
-        resp = []
+        resp: List[FacialAreaRegion] = []
 
         img_width = img.shape[1]
         img_height = img.shape[0]

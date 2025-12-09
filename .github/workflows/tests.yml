@@ -21,12 +21,52 @@ on:
       - 'setup.py'
 
 jobs:
-  unit-tests:
+  linting:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.8]
-
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pylint==2.15.10
+        pip install black
+        pip install .
+    - name: Lint with pylint
+      run: |
+        pylint --fail-under=10 deepface/
+  type-check:
+    needs: linting
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install mypy==1.14.1
+        pip install .
+    - name: Type checking with MyPy
+      run: |
+        mypy deepface/
+  unit-tests:
+    needs: type-check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -40,32 +80,8 @@ jobs:
         # sending files in form data throwing error in flask 3 while running tests
         pip install Werkzeug==2.0.2 flask==2.0.2
         pip install .
-        
     - name: Test with pytest
       run: |
         cd tests
         python -m pytest . -s --disable-warnings
-  linting:
-    needs: unit-tests
-    
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
-  
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pylint==3.0.2
-        pip install black
-        pip install .
-        
-    - name: Lint with pylint
-      run: |
-        pylint --fail-under=10 deepface/
+
