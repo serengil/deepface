@@ -126,7 +126,7 @@ def load_image(
 
     img_obj_bgr = cv2.imread(img)
     # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
-    return cast(np.ndarray, img_obj_bgr), img
+    return cast(NDArray[Any], img_obj_bgr), img
 
 
 def load_image_from_io_object(obj: IO[bytes]) -> NDArray[Any]:
@@ -182,7 +182,7 @@ def load_image_from_base64(uri: str) -> NDArray[Any]:
     nparr = np.frombuffer(decoded_bytes, np.uint8)
     img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    return cast(np.ndarray, img_bgr)
+    return cast(NDArray[Any], img_bgr)
 
 
 def load_image_from_file_storage(file: FileStorage) -> NDArray[Any]:
@@ -212,4 +212,4 @@ def load_image_from_web(url: str) -> NDArray[Any]:
     response.raise_for_status()
     image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
     img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-    return cast(np.ndarray, img)
+    return cast(NDArray[Any], img)
