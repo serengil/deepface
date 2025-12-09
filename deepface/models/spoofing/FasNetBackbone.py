@@ -159,12 +159,12 @@ def MiniFASNetV1SE(
     )
 
 
-class Flatten(Module):  # type: ignore[misc]:
+class Flatten(Module):  # type: ignore[misc]
     def forward(self, input: Any) -> Any:
         return input.view(input.size(0), -1)
 
 
-class Conv_block(Module):  # type: ignore[misc]:
+class Conv_block(Module):  # type: ignore[misc]
     def __init__(
         self,
         in_c: Any,
@@ -194,7 +194,7 @@ class Conv_block(Module):  # type: ignore[misc]:
         return x
 
 
-class Linear_block(Module):  # type: ignore[misc]:
+class Linear_block(Module):  # type: ignore[misc]
     def __init__(
         self,
         in_c: Any,
@@ -222,7 +222,7 @@ class Linear_block(Module):  # type: ignore[misc]:
         return x
 
 
-class Depth_Wise(Module):  # type: ignore[misc]:
+class Depth_Wise(Module):  # type: ignore[misc]
     def __init__(
         self,
         c1: Any,
@@ -258,7 +258,7 @@ class Depth_Wise(Module):  # type: ignore[misc]:
         return output
 
 
-class Depth_Wise_SE(Module):  # type: ignore[misc]:
+class Depth_Wise_SE(Module):  # type: ignore[misc]
     def __init__(
         self,
         c1: Any,
@@ -297,7 +297,7 @@ class Depth_Wise_SE(Module):  # type: ignore[misc]:
         return output
 
 
-class SEModule(Module):  # type: ignore[misc]:
+class SEModule(Module):  # type: ignore[misc]
     def __init__(self, channels: int, reduction: int):
         super(SEModule, self).__init__()
         self.avg_pool = AdaptiveAvgPool2d(1)
@@ -320,7 +320,7 @@ class SEModule(Module):  # type: ignore[misc]:
         return module_input * x
 
 
-class Residual(Module):  # type: ignore[misc]:
+class Residual(Module):  # type: ignore[misc]
     def __init__(
         self,
         c1: Any,
@@ -356,7 +356,7 @@ class Residual(Module):  # type: ignore[misc]:
         return self.model(x)
 
 
-class ResidualSE(Module):  # type: ignore[misc]:
+class ResidualSE(Module):  # type: ignore[misc]
     def __init__(
         self,
         c1: Any,
@@ -408,7 +408,7 @@ class ResidualSE(Module):  # type: ignore[misc]:
         return self.model(x)
 
 
-class MiniFASNet(Module):  # type: ignore[misc]:
+class MiniFASNet(Module):  # type: ignore[misc]
     def __init__(
         self,
         keep: List[int],
