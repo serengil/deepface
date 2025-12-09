@@ -3,7 +3,7 @@
 # Ref: github.com/minivision-ai/Silent-Face-Anti-Spoofing/blob/master/src/model_lib/MiniFASNet.py
 
 # built-in dependencies
-from typing import Tuple, Any, List
+from typing import Tuple, Any, List, TYPE_CHECKING
 
 # 3rd party dependencies
 import torch
@@ -17,8 +17,15 @@ from torch.nn import (
     Sigmoid,
     AdaptiveAvgPool2d,
     Sequential,
-    Module,
 )
+
+if TYPE_CHECKING:
+    from torch.nn import Module
+else:
+    # minimal stub for mypy
+    class Module:
+        pass
+
 
 # pylint: disable=super-with-arguments, too-many-instance-attributes, unused-argument, redefined-builtin, too-few-public-methods
 

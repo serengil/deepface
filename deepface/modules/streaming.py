@@ -120,7 +120,7 @@ def analysis(
         if not has_frame:
             break
 
-        raw_img = img.copy()
+        raw_img = img.copy()  # type: ignore[union-attr]
 
         faces_coordinates = []
 
@@ -1013,7 +1013,7 @@ def overlay_age_gender(
 
         cv2.drawContours(
             img,
-            [triangle_coordinates],
+            [triangle_coordinates],  # type: ignore[list-item]
             0,
             info_box_color,
             -1,
@@ -1059,7 +1059,7 @@ def overlay_age_gender(
 
         cv2.drawContours(
             img,
-            [triangle_coordinates],
+            [triangle_coordinates],  # type: ignore[list-item]
             0,
             info_box_color,
             -1,
