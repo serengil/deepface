@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from torch.nn import Module
 else:
     # minimal stub for mypy
-    class Module:
+    class Module:  # pylint: disable=too-few-public-methods
         pass
 
 
