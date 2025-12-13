@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union, Optional, Sequence, IO
+from typing import Any, Dict, List, Union, Optional, Sequence, IO, cast
 from collections import defaultdict
 
 # 3rd party dependencies
@@ -115,15 +115,18 @@ def represent(
         target_size = model.input_shape
         if detector_backend != "skip":
             # Images are returned in RGB format.
-            img_objs = detection.extract_faces(
-                img_path=single_img_path,
-                detector_backend=detector_backend,
-                grayscale=False,
-                enforce_detection=enforce_detection,
-                align=align,
-                expand_percentage=expand_percentage,
-                anti_spoofing=anti_spoofing,
-                max_faces=max_faces,
+            img_objs: List[Dict[str, Any]] = cast(
+                List[Dict[str, Any]],
+                detection.extract_faces(
+                    img_path=single_img_path,
+                    detector_backend=detector_backend,
+                    grayscale=False,
+                    enforce_detection=enforce_detection,
+                    align=align,
+                    expand_percentage=expand_percentage,
+                    anti_spoofing=anti_spoofing,
+                    max_faces=max_faces,
+                ),
             )
         else:  # skip
             # Try load. If load error, will raise exception internal

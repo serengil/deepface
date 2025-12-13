@@ -2,7 +2,7 @@
 import os
 import warnings
 import logging
-from typing import Any, Dict, IO, List, Union, Optional, Sequence, Tuple
+from typing import Any, Dict, IO, List, Union, Optional, Sequence, Tuple, cast
 
 # this has to be set before importing tensorflow
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
@@ -554,7 +554,7 @@ def stream(
 
 
 def extract_faces(
-    img_path: Union[str, NDArray[Any], IO[bytes]],
+    img_path: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -563,14 +563,14 @@ def extract_faces(
     color_face: str = "rgb",
     normalize_face: bool = True,
     anti_spoofing: bool = False,
-) -> List[Dict[str, Any]]:
+) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Extract faces from a given image
 
     Args:
-        img_path (str or np.ndarray or IO[bytes]): Path to the first image. Accepts exact image path
-            as a string, numpy array (BGR), a file object that supports at least `.read` and is
-            opened in binary mode, or base64 encoded images.
+        img_path (str or list of str ornp.ndarray or IO[bytes]): Path to the first image.
+            Accepts exact image path as a string, list of string, numpy array (BGR), a file object
+            that supports at least `.read` and is opened in binary mode, or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
@@ -669,12 +669,15 @@ def detectFace(
         img (np.ndarray): detected (and aligned) facial area image as numpy array
     """
     logger.warn("Function detectFace is deprecated. Use extract_faces instead.")
-    face_objs = extract_faces(
-        img_path=img_path,
-        detector_backend=detector_backend,
-        grayscale=False,
-        enforce_detection=enforce_detection,
-        align=align,
+    face_objs: List[Dict[str, Any]] = cast(
+        List[Dict[str, Any]],
+        extract_faces(
+            img_path=img_path,
+            detector_backend=detector_backend,
+            grayscale=False,
+            enforce_detection=enforce_detection,
+            align=align,
+        ),
     )
     extracted_face = None
     if len(face_objs) > 0:
