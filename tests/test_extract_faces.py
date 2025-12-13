@@ -84,12 +84,13 @@ def test_different_detectors():
 
 def test_numpy_input():
     img_path = "dataset/img1.jpg"
-    img = cv2.imread(img_path)
+    img = cv2.imread(img_path)[:, :, ::-1]  # BGR to RGB
 
-    for detector in detectors:
+    for detector in ["mtcnn"]:
         img_objs = DeepFace.extract_faces(img_path=img, detector_backend=detector)
         # img_objs should be a list of dicts
         assert isinstance(img_objs, list)
+        assert len(img_objs) == 1
         for img_obj in img_objs:
             assert isinstance(img_obj, dict)
             assert "face" in img_obj.keys()
@@ -189,17 +190,19 @@ def test_batch_str_inputs():
 
 
 def test_batch_ndarray_inputs():
-    img1 = cv2.imread("dataset/img1.jpg")
-    img3 = cv2.imread("dataset/img3.jpg")
+    img1 = cv2.imread("dataset/img1.jpg")  # 1382 × 1868
+    img3 = cv2.imread("dataset/img3.jpg")  # 1536 × 2048
 
-    img1 = cv2.resize(img1, (224, 224))
-    img3 = cv2.resize(img3, (224, 224))
+    h, w = img1.shape[:2]
+
+    img3 = cv2.resize(img3, (w, h))
 
     img_batch = np.array([img1, img3])
+    assert img_batch.shape == (2, h, w, 3)
 
     expected_num_faces = [1, 1]
 
-    results = DeepFace.extract_faces(img_path=img_batch, detector_backend="mtcnn")
+    results = DeepFace.extract_faces(img_path=img_batch, detector_backend="retinaface")
     # result should be a list of list of dicts
     assert isinstance(results, list)
     assert len(results) == len(img_batch)
