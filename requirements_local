@@ -4,3 +4,14 @@ Pillow==9.0.0
 opencv-python==4.9.0.80
 tensorflow==2.13.1
 keras==2.13.1
+requests==2.27.1
+gdown==4.2.0
+tqdm==4.66.1
+Flask==2.0.2
+Werkzeug==2.0.2
+flask_cors==4.0.1
+mtcnn==0.1.1
+retina-face==0.0.17
+fire==0.4.0
+gunicorn==20.1.0
+lightphe==0.0.19
