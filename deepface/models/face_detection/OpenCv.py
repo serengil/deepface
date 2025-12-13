@@ -8,6 +8,7 @@ from numpy.typing import NDArray
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
+from deepface.modules.exceptions import UnimplementedError
 
 
 class OpenCvClient(Detector):
@@ -167,7 +168,7 @@ class OpenCvClient(Detector):
             detector = cv2.CascadeClassifier(eye_detector_path)
 
         else:
-            raise ValueError(f"unimplemented model_name for build_cascade - {model_name}")
+            raise UnimplementedError(f"unimplemented model_name for build_cascade - {model_name}")
 
         return detector
 

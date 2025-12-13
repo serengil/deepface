@@ -13,6 +13,7 @@ from deepface.modules import modeling, detection, preprocessing
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.modules.normalization import normalize_embedding_l2, normalize_embedding_minmax
 from deepface.modules.encryption import encrypt_embeddings
+from deepface.modules.exceptions import SpoofDetected
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -160,7 +161,7 @@ def represent(
 
         for img_obj in img_objs:
             if anti_spoofing is True and img_obj.get("is_real", True) is False:
-                raise ValueError("Spoof detected in the given image.")
+                raise SpoofDetected("Spoof detected in the given image.")
 
             img = img_obj["face"]
 

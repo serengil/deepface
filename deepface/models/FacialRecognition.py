@@ -8,6 +8,7 @@ from numpy.typing import NDArray
 
 # project imports
 from deepface.commons import package_utils
+from deepface.modules.exceptions import InvalidEmbeddingsShapeError
 
 tf_version = package_utils.get_tf_major_version()
 if tf_version == 2:
@@ -43,7 +44,9 @@ class FacialRecognition(ABC):
         elif img.ndim == 4 and img.shape[0] > 1:
             embeddings = self.model.predict_on_batch(img)
         else:
-            raise ValueError(f"Input image must be (1, X, X, 3) shaped but it is {img.shape}")
+            raise InvalidEmbeddingsShapeError(
+                f"Input image must be (1, X, X, 3) shaped but it is {img.shape}"
+            )
 
         assert isinstance(
             embeddings, np.ndarray
