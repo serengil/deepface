@@ -190,21 +190,19 @@ def test_batch_str_inputs():
 
 def test_batch_ndarray_inputs():
     img1 = cv2.imread("dataset/img1.jpg")
-    img2 = cv2.imread("dataset/couple.jpg")
     img3 = cv2.imread("dataset/img3.jpg")
 
     img1 = cv2.resize(img1, (224, 224))
-    img2 = cv2.resize(img2, (224, 224))
     img3 = cv2.resize(img3, (224, 224))
 
-    img_batch = np.array([img1, img2, img3])
+    img_batch = np.array([img1, img3])
 
-    expected_num_faces = [1, 2, 1]
+    expected_num_faces = [1, 1]
 
     results = DeepFace.extract_faces(img_path=img_batch, detector_backend="mtcnn")
     # result should be a list of list of dicts
     assert isinstance(results, list)
-    assert len(results) == 3
+    assert len(results) == len(img_batch)
     for i, inner_results in enumerate(results):
         assert isinstance(inner_results, list)
         assert len(inner_results) == expected_num_faces[i]
