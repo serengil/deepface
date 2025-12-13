@@ -10,6 +10,7 @@ import gdown
 # project dependencies
 from deepface.commons import folder_utils, package_utils
 from deepface.commons.logger import Logger
+from deepface.modules.exceptions import UnimplementedError
 
 
 tf_version = package_utils.get_tf_major_version()
@@ -46,7 +47,7 @@ def download_weights_if_necessary(
         return target_file
 
     if compress_type is not None and compress_type not in ALLOWED_COMPRESS_TYPES:
-        raise ValueError(f"unimplemented compress type - {compress_type}")
+        raise UnimplementedError(f"unimplemented compress type - {compress_type}")
 
     try:
         logger.info(f"🔗 {file_name} will be downloaded from {source_url} to {target_file}...")
@@ -223,7 +224,7 @@ def download_all_models_in_one_shot() -> None:
             filename = i["filename"]
             url = i["url"]
         else:
-            raise ValueError("unimplemented scenario")
+            raise UnimplementedError("unimplemented scenario")
         logger.info(
             f"Downloading {url} to ~/.deepface/weights/{filename} with {compress_type} compression"
         )

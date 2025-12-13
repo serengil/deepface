@@ -13,6 +13,13 @@ from tqdm import tqdm
 # project dependencies
 from deepface.commons import image_utils
 from deepface.modules import representation, detection, verification
+from deepface.modules.exceptions import (
+    ImgNotFound,
+    PathNotFound,
+    EmptyDatasource,
+    SpoofDetected,
+    DimensionMismatchError,
+)
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -116,11 +123,11 @@ def find(
     tic = time.time()
 
     if not os.path.isdir(db_path):
-        raise ValueError(f"Passed path {db_path} does not exist!")
+        raise PathNotFound(f"Passed path {db_path} does not exist!")
 
     img, _ = image_utils.load_image(img_path)
     if img is None:
-        raise ValueError(f"Passed image path {img_path} does not exist!")
+        raise ImgNotFound(f"Passed image path {img_path} does not exist!")
 
     file_parts = [
         "ds",
@@ -174,9 +181,9 @@ def find(
     storage_images = set(image_utils.yield_images(path=db_path))
 
     if len(storage_images) == 0 and refresh_database is True:
-        raise ValueError(f"No item found in {db_path}")
+        raise EmptyDatasource(f"No item found in {db_path}")
     if len(representations) == 0 and refresh_database is False:
-        raise ValueError(f"Nothing is found in {datastore_path}")
+        raise EmptyDatasource(f"Nothing is found in {datastore_path}")
 
     must_save_pickle = False
     new_images, old_images, replaced_images = set(), set(), set()
@@ -288,7 +295,7 @@ def find(
 
     for source_obj in source_objs:
         if anti_spoofing is True and source_obj.get("is_real", True) is False:
-            raise ValueError("Spoof detected in the given image.")
+            raise SpoofDetected("Spoof detected in the given image.")
         source_img = source_obj["face"]
         source_region = source_obj["facial_area"]
         target_embedding_obj = representation.represent(
@@ -324,7 +331,7 @@ def find(
             target_dims = len(list(target_representation))
             source_dims = len(list(source_representation))
             if target_dims != source_dims:
-                raise ValueError(
+                raise DimensionMismatchError(
                     "Source and target embeddings must have same dimensions but "
                     + f"{target_dims}:{source_dims}. Model structure may change"
                     + " after pickle created. Delete the {file_name} and re-run."
@@ -569,7 +576,7 @@ def find_batched(
 
     for source_obj in source_objs:
         if anti_spoofing and not source_obj.get("is_real", True):
-            raise ValueError("Spoof detected in the given image.")
+            raise SpoofDetected("Spoof detected in the given image.")
 
         source_img = source_obj["face"]
         source_region = source_obj["facial_area"]

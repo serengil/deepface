@@ -13,7 +13,12 @@ from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
 from deepface.config.confidence import confidences
 from deepface.config.threshold import thresholds
-
+from deepface.modules.exceptions import (
+    SpoofDetected,
+    DimensionMismatchError,
+    DataTypeError,
+    InvalidEmbeddingsShapeError,
+)
 
 logger = Logger()
 
@@ -155,7 +160,7 @@ def verify(
             # given image is already pre-calculated embedding
             if not all(isinstance(dim, (float, int)) for dim in img_path):
 
-                raise ValueError(
+                raise DataTypeError(
                     f"When passing img{index}_path as a list,"
                     " ensure that all its items are of type float."
                 )
@@ -168,7 +173,7 @@ def verify(
                 )
 
             if len(img_path) != dims:
-                raise ValueError(
+                raise DimensionMismatchError(
                     f"embeddings of {model_name} should have {dims} dimensions,"
                     f" but {index}-th image has {len(img_path)} dimensions input"
                 )
@@ -270,7 +275,7 @@ def __extract_faces_and_embeddings(
     # find embeddings for each face
     for img_obj in img_objs:
         if anti_spoofing is True and img_obj.get("is_real", True) is False:
-            raise ValueError("Spoof detected in given image.")
+            raise SpoofDetected("Spoof detected in given image.")
         img_embedding_obj = representation.represent(
             img_path=img_obj["face"][:, :, ::-1],  # make compatible with direct representation call
             model_name=model_name,
@@ -320,7 +325,7 @@ def find_cosine_distance(
         distances = 1 - cosine_similarities
         return cast(NDArray[Any], distances)
     else:
-        raise ValueError(
+        raise InvalidEmbeddingsShapeError(
             f"Embeddings must be 1D or 2D, but received "
             f"source shape: {source_representation.shape}, test shape: {test_representation.shape}"
         )

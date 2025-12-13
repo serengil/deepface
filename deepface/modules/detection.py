@@ -12,7 +12,8 @@ from deepface.modules import modeling
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.commons import image_utils
 from deepface.models.face_detection import OpenCv
-
+from deepface.modules.exceptions import FaceNotDetected
+from deepface.modules.exceptions import UnimplementedError, ImgNotFound
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -157,13 +158,13 @@ def extract_faces(
     # in case of no face found
     if len(face_objs) == 0 and enforce_detection is True:
         if img_name is not None:
-            raise ValueError(
+            raise FaceNotDetected(
                 f"Face could not be detected in {img_name}."
                 "Please confirm that the picture is a face photo "
                 "or consider to set enforce_detection param to False."
             )
         else:
-            raise ValueError(
+            raise FaceNotDetected(
                 "Face could not be detected. Please confirm that the picture is a face photo "
                 "or consider to set enforce_detection param to False."
             )
@@ -189,7 +190,9 @@ def extract_faces(
             elif color_face == "gray":
                 current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
             else:
-                raise ValueError(f"The color_face can be rgb, bgr or gray, but it is {color_face}.")
+                raise UnimplementedError(
+                    f"The color_face can be rgb, bgr or gray, but it is {color_face}."
+                )
 
         if normalize_face:
             current_img = current_img / 255  # normalize input in [0, 1]
@@ -250,7 +253,7 @@ def extract_faces(
         resp_objs.append(resp_obj)
 
     if len(resp_objs) == 0 and enforce_detection == True:
-        raise ValueError(
+        raise ImgNotFound(
             f"Exception while extracting faces from {img_name}."
             "Consider to set enforce_detection arg to False."
         )

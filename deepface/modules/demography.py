@@ -9,6 +9,7 @@ from tqdm import tqdm
 # project dependencies
 from deepface.modules import modeling, detection, preprocessing
 from deepface.models.demography import Gender, Race, Emotion
+from deepface.modules.exceptions import UnimplementedError, SpoofDetected
 
 
 # pylint: disable=too-many-positional-arguments
@@ -140,7 +141,7 @@ def analyze(
     # For each action, check if it is valid
     for action in actions:
         if action not in ("emotion", "age", "gender", "race"):
-            raise ValueError(
+            raise UnimplementedError(
                 f"Invalid action passed ({repr(action)})). "
                 "Valid actions are `emotion`, `age`, `gender`, `race`."
             )
@@ -162,7 +163,7 @@ def analyze(
 
     for img_obj in img_objs:
         if anti_spoofing is True and img_obj.get("is_real", True) is False:
-            raise ValueError("Spoof detected in the given image.")
+            raise SpoofDetected("Spoof detected in the given image.")
 
         img_content = img_obj["face"]
         img_region = img_obj["facial_area"]

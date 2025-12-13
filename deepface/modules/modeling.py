@@ -30,6 +30,7 @@ from deepface.models.face_detection import (
 )
 from deepface.models.demography import Age, Gender, Race, Emotion
 from deepface.models.spoofing import FasNet
+from deepface.modules.exceptions import UnimplementedError
 
 if TYPE_CHECKING:
     from deepface.models.Demography import Demography
@@ -114,7 +115,7 @@ def build_model(task: str, model_name: str) -> Any:
     global cached_models
 
     if task not in AVAILABLE_MODELS.keys():
-        raise ValueError(f"unimplemented task - {task}")
+        raise UnimplementedError(f"unimplemented task - {task}")
 
     if "cached_models" not in globals():
         cached_models = {current_task: {} for current_task in AVAILABLE_MODELS.keys()}
@@ -124,6 +125,6 @@ def build_model(task: str, model_name: str) -> Any:
         if model:
             cached_models[task][model_name] = model()
         else:
-            raise ValueError(f"Invalid model_name passed - {task}/{model_name}")
+            raise UnimplementedError(f"Invalid model_name passed - {task}/{model_name}")
 
     return cached_models[task][model_name]

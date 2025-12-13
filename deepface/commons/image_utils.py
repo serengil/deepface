@@ -14,6 +14,9 @@ import cv2
 from PIL import Image
 from werkzeug.datastructures import FileStorage
 
+# project dependencies
+from deepface.modules.exceptions import ImgNotFound, DataTypeError
+
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
 PIL_EXTS = {"jpeg", "png"}
@@ -97,14 +100,14 @@ def load_image(
     # The image is an object that supports `.read`
     if hasattr(img, "read") and callable(img.read):
         if isinstance(img, io.StringIO):
-            raise ValueError("img requires bytes and cannot be an io.StringIO object.")
+            raise DataTypeError("img requires bytes and cannot be an io.StringIO object.")
         return load_image_from_io_object(cast(IO[bytes], img)), "io object"
 
     if isinstance(img, Path):
         img = str(img)
 
     if not isinstance(img, str):
-        raise ValueError(f"img must be numpy array or str but it is {type(img)}")
+        raise DataTypeError(f"img must be numpy array or str but it is {type(img)}")
 
     # The image is a base64 string
     if img.startswith("data:image/"):
@@ -116,7 +119,7 @@ def load_image(
 
     # The image is a path
     if not os.path.isfile(img):
-        raise ValueError(f"Confirm that {img} exists")
+        raise ImgNotFound(f"Confirm that {img} exists")
 
     # image must be a file on the system then
 
@@ -177,7 +180,7 @@ def load_image_from_base64(uri: str) -> NDArray[Any]:
     with Image.open(io.BytesIO(decoded_bytes)) as img:
         file_type = img.format.lower()
         if file_type not in {"jpeg", "png"}:
-            raise ValueError(f"Input image can be jpg or png, but it is {file_type}")
+            raise DataTypeError(f"Input image can be jpg or png, but it is {file_type}")
 
     nparr = np.frombuffer(decoded_bytes, np.uint8)
     img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)

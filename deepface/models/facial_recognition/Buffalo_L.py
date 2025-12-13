@@ -10,6 +10,7 @@ from numpy.typing import NDArray
 from deepface.commons import weight_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.models.FacialRecognition import FacialRecognition
+from deepface.modules.exceptions import InvalidEmbeddingsShapeError
 
 logger = Logger()
 
@@ -70,7 +71,9 @@ class Buffalo_L(FacialRecognition):
         if len(img.shape) == 3:
             img = np.expand_dims(img, axis=0)  # Convert single image to batch of 1
         elif len(img.shape) != 4:
-            raise ValueError(f"Input must be (112, 112, 3) or (X, 112, 112, 3). Got {img.shape}")
+            raise InvalidEmbeddingsShapeError(
+                f"Input must be (112, 112, 3) or (X, 112, 112, 3). Got {img.shape}"
+            )
         # Convert RGB to BGR for the entire batch
         img = img[:, :, :, ::-1]
         return img
