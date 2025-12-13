@@ -13,6 +13,11 @@ cd ..
 # build deepface image
 docker build -t deepface .
 
+# push to docker hub
+# docker login
+# docker tag deepface:latest serengil/deepface:latest
+# docker push serengil/deepface:latest
+
 # copy weights from your local
 # docker cp ~/.deepface/weights/. <CONTAINER_ID>:/root/.deepface/weights/
 
