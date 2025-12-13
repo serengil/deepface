@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, IO, List, Tuple, Union, Optional
+from typing import Any, Dict, IO, List, Tuple, Union, Optional, cast
 from heapq import nlargest
 
 # 3rd part dependencies
@@ -44,7 +44,7 @@ def is_valid_landmark(
 
 
 def extract_faces(
-    img_path: Union[str, NDArray[Any], IO[bytes]],
+    img_path: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
     detector_backend: str = "opencv",
     enforce_detection: bool = True,
     align: bool = True,
@@ -54,14 +54,14 @@ def extract_faces(
     normalize_face: bool = True,
     anti_spoofing: bool = False,
     max_faces: Optional[int] = None,
-) -> List[Dict[str, Any]]:
+) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Extract faces from a given image
 
     Args:
-        img_path (str or np.ndarray or IO[bytes]): Path to the first image. Accepts exact image path
-            as a string, numpy array (BGR), a file object that supports at least `.read` and is
-            opened in binary mode, or base64 encoded images.
+        img_path (str or list of str ornp.ndarray or IO[bytes]): Path to the first image.
+            Accepts exact image path as a string, list of string, numpy array (BGR), a file object
+            that supports at least `.read` and is opened in binary mode, or base64 encoded images.
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
             'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
@@ -105,8 +105,33 @@ def extract_faces(
         - "antispoof_score" (float): score of antispoofing analyze result. this key is
             just available in the result only if anti_spoofing is set to True in input arguments.
     """
+    if isinstance(img_path, list) or (isinstance(img_path, np.ndarray) and img_path.ndim == 4):
+        if isinstance(img_path, np.ndarray):
+            img_paths = [img_path[i] for i in range(img_path.shape[0])]
+        else:
+            img_paths = img_path
 
-    resp_objs = []
+        all_faces: List[List[Dict[str, Any]]] = []
+        for single_img_path in img_paths:
+            faces = cast(
+                List[Dict[str, Any]],
+                extract_faces(
+                    img_path=single_img_path,
+                    detector_backend=detector_backend,
+                    enforce_detection=enforce_detection,
+                    align=align,
+                    expand_percentage=expand_percentage,
+                    grayscale=grayscale,
+                    color_face=color_face,
+                    normalize_face=normalize_face,
+                    anti_spoofing=anti_spoofing,
+                    max_faces=max_faces,
+                ),
+            )
+            all_faces.append(faces)
+        return all_faces
+
+    resp_objs: List[Dict[str, Any]] = []
 
     # img might be path, base64 or numpy array. Convert it to numpy whatever it is.
     img, img_name = image_utils.load_image(img_path)

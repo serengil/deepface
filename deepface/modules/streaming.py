@@ -300,11 +300,14 @@ def search_identity(
     logger.info(f"Hello, {target_path} (confidence: {confidence}%)")
 
     # load found identity image - extracted if possible
-    target_objs = DeepFace.extract_faces(
-        img_path=target_path,
-        detector_backend=detector_backend,
-        enforce_detection=False,
-        align=True,
+    target_objs: List[Dict[str, Any]] = cast(
+        List[Dict[str, Any]],
+        DeepFace.extract_faces(
+            img_path=target_path,
+            detector_backend=detector_backend,
+            enforce_detection=False,
+            align=True,
+        ),
     )
 
     # extract facial area of the identified image if and only if it has one face
@@ -452,12 +455,15 @@ def grab_facial_areas(
         result (list): list of tuple with x, y, w and h coordinates
     """
     try:
-        face_objs = DeepFace.extract_faces(
-            img_path=img,
-            detector_backend=detector_backend,
-            # you may consider to extract with larger expanding value
-            expand_percentage=0,
-            anti_spoofing=anti_spoofing,
+        face_objs: List[Dict[str, Any]] = cast(
+            List[Dict[str, Any]],
+            DeepFace.extract_faces(
+                img_path=img,
+                detector_backend=detector_backend,
+                # you may consider to extract with larger expanding value
+                expand_percentage=0,
+                anti_spoofing=anti_spoofing,
+            ),
         )
         faces = [
             (

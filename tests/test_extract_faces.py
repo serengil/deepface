@@ -23,7 +23,10 @@ def test_different_detectors():
 
     for detector in detectors:
         img_objs = DeepFace.extract_faces(img_path=img_path, detector_backend=detector)
+        # img_objs should be a list of dicts
+        assert isinstance(img_objs, list)
         for img_obj in img_objs:
+            assert isinstance(img_obj, dict)
             assert "face" in img_obj.keys()
             assert "facial_area" in img_obj.keys()
             assert isinstance(img_obj["facial_area"], dict)
@@ -79,6 +82,24 @@ def test_different_detectors():
         logger.info(f"✅ extract_faces for {detector} backend test is done")
 
 
+def test_numpy_input():
+    img_path = "dataset/img1.jpg"
+    img = cv2.imread(img_path)[:, :, ::-1]  # BGR to RGB
+
+    for detector in ["mtcnn"]:
+        img_objs = DeepFace.extract_faces(img_path=img, detector_backend=detector)
+        # img_objs should be a list of dicts
+        assert isinstance(img_objs, list)
+        assert len(img_objs) == 1
+        for img_obj in img_objs:
+            assert isinstance(img_obj, dict)
+            assert "face" in img_obj.keys()
+            assert "facial_area" in img_obj.keys()
+            img = img_obj["face"]
+            assert img.shape[0] > 0 and img.shape[1] > 0
+        logger.info(f"✅ extract_faces for {detector} backend with numpy input test is done")
+
+
 def test_backends_for_enforced_detection_with_non_facial_inputs():
     black_img = np.zeros([224, 224, 3])
     for detector in detectors:
@@ -119,7 +140,7 @@ def image_to_base64(image_path):
 
 
 def test_facial_coordinates_are_in_borders():
-    detectors = ["retinaface", "mtcnn"]
+    inner_detectors = ["retinaface", "mtcnn"]
     expected_faces = [7, 5]
     # mtcnn finds 6 faces in my local & ci-cd, but found 5 in another env.
 
@@ -127,7 +148,7 @@ def test_facial_coordinates_are_in_borders():
     img = cv2.imread(img_path)
     height, width, _ = img.shape
 
-    for i, detector_backend in enumerate(detectors):
+    for i, detector_backend in enumerate(inner_detectors):
         results = DeepFace.extract_faces(img_path=img_path, detector_backend=detector_backend)
 
         # this is a hard example, mtcnn can detect 6 and retinaface can detect 7 faces
@@ -148,3 +169,48 @@ def test_facial_coordinates_are_in_borders():
             assert y + h < height
 
         logger.info(f"✅ facial area coordinates are all in image borders for {detector_backend}")
+
+
+def test_batch_str_inputs():
+    img_paths = ["dataset/img1.jpg", "dataset/couple.jpg", "dataset/img3.jpg"]
+    expected_num_faces = [1, 2, 1]
+    results = DeepFace.extract_faces(img_path=img_paths, detector_backend="mtcnn")
+    # result should be a list of list of dicts
+    assert isinstance(results, list)
+    assert len(results) == 3
+    for i, inner_results in enumerate(results):
+        assert isinstance(inner_results, list)
+        assert len(inner_results) == expected_num_faces[i]
+        for result in inner_results:
+            assert isinstance(result, dict)
+            assert "face" in result
+            assert "facial_area" in result
+
+    logger.info("✅ extract_faces batch str input test is done")
+
+
+def test_batch_ndarray_inputs():
+    img1 = cv2.imread("dataset/img1.jpg")  # 1382 × 1868
+    img3 = cv2.imread("dataset/img3.jpg")  # 1536 × 2048
+
+    h, w = img1.shape[:2]
+
+    img3 = cv2.resize(img3, (w, h))
+
+    img_batch = np.array([img1, img3])
+    assert img_batch.shape == (2, h, w, 3)
+
+    expected_num_faces = [1, 1]
+
+    results = DeepFace.extract_faces(img_path=img_batch, detector_backend="retinaface")
+    # result should be a list of list of dicts
+    assert isinstance(results, list)
+    assert len(results) == len(img_batch)
+    for i, inner_results in enumerate(results):
+        assert isinstance(inner_results, list)
+        assert len(inner_results) == expected_num_faces[i]
+        for result in inner_results:
+            assert isinstance(result, dict)
+            assert "face" in result
+            assert "facial_area" in result
+    logger.info("✅ extract_faces batch ndarray input test is done")

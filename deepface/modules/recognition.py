@@ -253,14 +253,17 @@ def find(
     # now, we got representations for facial database
 
     # img path might have more than once face
-    source_objs = detection.extract_faces(
-        img_path=img_path,
-        detector_backend=detector_backend,
-        grayscale=False,
-        enforce_detection=enforce_detection,
-        align=align,
-        expand_percentage=expand_percentage,
-        anti_spoofing=anti_spoofing,
+    source_objs: List[Dict[str, Any]] = cast(
+        List[Dict[str, Any]],
+        detection.extract_faces(
+            img_path=img_path,
+            detector_backend=detector_backend,
+            grayscale=False,
+            enforce_detection=enforce_detection,
+            align=align,
+            expand_percentage=expand_percentage,
+            anti_spoofing=anti_spoofing,
+        ),
     )
 
     if batched:
@@ -413,14 +416,17 @@ def __find_bulk_embeddings(
         file_hash = image_utils.find_image_hash(employee)
 
         try:
-            img_objs = detection.extract_faces(
-                img_path=employee,
-                detector_backend=detector_backend,
-                grayscale=False,
-                enforce_detection=enforce_detection,
-                align=align,
-                expand_percentage=expand_percentage,
-                color_face="bgr",  # `represent` expects images in bgr format.
+            img_objs: List[Dict[str, Any]] = cast(
+                List[Dict[str, Any]],
+                detection.extract_faces(
+                    img_path=employee,
+                    detector_backend=detector_backend,
+                    grayscale=False,
+                    enforce_detection=enforce_detection,
+                    align=align,
+                    expand_percentage=expand_percentage,
+                    color_face="bgr",  # `represent` expects images in bgr format.
+                ),
             )
 
         except ValueError as err:
