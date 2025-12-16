@@ -1,4 +1,6 @@
+import math
 import grpc
+from typing import Optional
 
 from deepface.commons.logger import Logger
 from deepface.commons import image_utils
@@ -6,16 +8,14 @@ from deepface.api.proto.deepface_pb2 import AnalyzeRequest, AnalyzeResponse, Rep
 from deepface.api.proto.deepface_pb2_grpc import DeepFaceServiceServicer
 
 from deepface import DeepFace
+from deepface.models.Face import FaceLandmarks, FacePose, FaceSpoofing, FaceQuality
 
 from deepface.api.src.modules.core.common import (
     default_detector_backend,
-    default_enforce_detection,
-    default_align,
     default_anti_spoofing,
     default_max_faces,
     default_model_name,
     default_distance_metric,
-    default_normalization,
 )
 
 logger = Logger()
@@ -28,71 +28,50 @@ class DeepFaceService(DeepFaceServiceServicer):
         logger.info(f"Received Analyze request: {request.image_url}")
 
         try:
-            demographies = DeepFace.analyze(
+            faces = DeepFace.analyze(
                 img_path=image_utils.load_image_from_web(request.image_url),
                 actions=actions_enum_to_string(request.actions),
-                detector_backend=Detectors.Name(request.detector_backend).lower() if 
-                request.HasField("detector_backend") else default_detector_backend,
-                align=request.align
-                if request.HasField("align") else default_align,
-                anti_spoofing=request.anti_spoofing if
-                request.HasField("anti_spoofing") else default_anti_spoofing,
+                detector_backend=Detectors.Name(request.detector_backend).lower() if request.HasField("detector_backend") else default_detector_backend,
+                anti_spoofing=request.anti_spoofing if request.HasField("anti_spoofing") else default_anti_spoofing
             )
         except Exception as err:
             context.set_details(f"Exception while analyzing: {str(err)}")
             context.set_code(grpc.StatusCode.INTERNAL)
             return response
         
-        logger.debug(f"Demographies received: {demographies}")
+        logger.debug(f"{len(faces)} faces received: {faces}")
 
-        for demography in demographies:
-            if isinstance(demography, list):
-                demography = demography[0]
+        for face in faces:
             result = response.results.add()
-            if "age" in demography:
-                result.age = int(demography.get("age", 0))
-            if "gender" in demography:
-                result.gender.man = demography.get("gender", {}).get("Man", 0.0)
-                result.gender.woman = demography.get("gender", {}).get("Woman", 0.0)
-            if "face_confidence" in demography:
-                result.face_confidence = float(demography.get("face_confidence", 0.0))
-            if "sharpness" in demography:
-                result.face_quality.sharpness = float(demography.get("sharpness", 0.0))
-            if "brightness" in demography:
-                result.face_quality.brightness = float(demography.get("brightness", 0.0))
-            if "contrast" in demography:
-                result.face_quality.contrast = float(demography.get("contrast", 0.0))
-            if "dominant_emotion" in demography:
-                result.dominant_emotion = demography.get("dominant_emotion", "")
-            if "dominant_gender" in demography:
-                result.dominant_gender = demography.get("dominant_gender", "")
-            if "dominant_race" in demography:
-                result.dominant_race = demography.get("dominant_race", "")
-            if "race" in demography:
-                race = demography.get("race", {})
-                result.race.asian = race.get("asian", 0.0)
-                result.race.indian = race.get("indian", 0.0)
-                result.race.black = race.get("black", 0.0)
-                result.race.white = race.get("white", 0.0)
-                result.race.middle_eastern = race.get("middle eastern", 0.0)
-                result.race.latino_hispanic = race.get("latino hispanic", 0.0)
-            if "region" in demography:
-                fill_facial_area(result.facial_area, demography["region"])
-            if "emotion" in demography:
-                emotion = demography.get("emotion", {})
-                result.emotion.angry = emotion.get("angry", 0.0)
-                result.emotion.disgust = emotion.get("disgust", 0.0)
-                result.emotion.fear = emotion.get("fear", 0.0)
-                result.emotion.happy = emotion.get("happy", 0.0)
-                result.emotion.sad = emotion.get("sad", 0.0)
-                result.emotion.surprise = emotion.get("surprise", 0.0)
-                result.emotion.neutral = emotion.get("neutral", 0.0)
-            if "antispoof_scores" in demography:
-                spoofing_scores = demography.get("antispoof_scores")
-                if spoofing_scores is not None:
-                    result.spoofing_scores.spoof_confidence = float(spoofing_scores.get("spoof_confidence", 0.0))
-                    result.spoofing_scores.real_confidence = float(spoofing_scores.get("real_confidence", 0.0))
-                    result.spoofing_scores.uncertainty = float(spoofing_scores.get("uncertainty", 0.0))
+            result.face_confidence = face.confidence or 0.0
+            landmarks_to_proto(face.landmarks, result.facial_area)
+            face_quality_to_proto(face.quality, result.face_quality)
+            face_pose_to_proto(face.pose, result.face_pose)
+            spoofing_scores_to_proto(face.spoofing, result.spoofing_scores)
+
+            if face.demographics is not None:
+                result.age = face.demographics.age or 0
+
+                result.dominant_gender = face.demographics.dominant_gender() or ""
+                result.gender.man = face.demographics.genders.get("Man", 0.0)
+                result.gender.woman = face.demographics.genders.get("Woman", 0.0)
+
+                result.dominant_emotion = face.demographics.dominant_emotion() or ""
+                result.emotion.angry = face.demographics.emotions.get("angry", 0.0)
+                result.emotion.disgust = face.demographics.emotions.get("disgust", 0.0)
+                result.emotion.fear = face.demographics.emotions.get("fear", 0.0)
+                result.emotion.happy = face.demographics.emotions.get("happy", 0.0)
+                result.emotion.sad = face.demographics.emotions.get("sad", 0.0)
+                result.emotion.surprise = face.demographics.emotions.get("surprise", 0.0)
+                result.emotion.neutral = face.demographics.emotions.get("neutral", 0.0)
+    
+                result.dominant_race = face.demographics.dominant_race() or ""
+                result.race.asian = face.demographics.races.get("asian", 0.0)
+                result.race.indian = face.demographics.races.get("indian", 0.0)
+                result.race.black = face.demographics.races.get("black", 0.0)
+                result.race.white = face.demographics.races.get("white", 0.0)
+                result.race.middle_eastern = face.demographics.races.get("middle eastern", 0.0)
+                result.race.latino_hispanic = face.demographics.races.get("latino hispanic", 0.0)
 
         return response
 
@@ -102,52 +81,29 @@ class DeepFaceService(DeepFaceServiceServicer):
         logger.info(f"Received Represent request: {request.image_url}")
 
         try:
-            results = DeepFace.represent(
+            faces = DeepFace.represent(
                 img_path=image_utils.load_image_from_web(request.image_url),
-                model_name=model_name_enum_to_string(request.model_name) if
-                request.HasField("model_name") else default_model_name,
-                detector_backend=Detectors.Name(request.detector_backend).lower() if
-                request.HasField("detector_backend") else default_detector_backend,
-                enforce_detection=request.enforce_detection if 
-                request.HasField("enforce_detection") else default_enforce_detection,
-                align=request.align
-                if request.HasField("align") else default_align,
-                anti_spoofing=request.anti_spoofing if
-                request.HasField("anti_spoofing") else default_anti_spoofing,
-                max_faces=request.max_faces
-                if request.HasField("max_faces") else default_max_faces,
-                normalization=request.normalization
-                if request.HasField("normalization") else default_normalization,
+                model_name=model_name_enum_to_string(request.model_name) if request.HasField("model_name") else default_model_name,
+                detector_backend=Detectors.Name(request.detector_backend).lower() if request.HasField("detector_backend") else default_detector_backend,
+                anti_spoofing=request.anti_spoofing if request.HasField("anti_spoofing") else default_anti_spoofing,
+                max_faces=request.max_faces if request.HasField("max_faces") else default_max_faces
             )
         except Exception as err:
             context.set_details(f"Exception while representing: {str(err)}")
             context.set_code(grpc.StatusCode.INTERNAL)
             return response
 
-        for result in results:
-            if isinstance(result, list):
-                result = result[0]
-            rep = response.results.add()
-            if "embedding" in result:
-                rep.embedding.extend(result["embedding"])
-            if "face_confidence" in result:
-                rep.face_confidence = float(result["face_confidence"])
-            if "sharpness" in result:
-                rep.face_quality.sharpness = float(result.get("sharpness", 0.0))
-            if "brightness" in result:
-                rep.face_quality.brightness = float(result.get("brightness", 0.0))
-            if "contrast" in result:
-                rep.face_quality.contrast = float(result.get("contrast", 0.0))
-            if "facial_area" in result:
-                fill_facial_area(rep.facial_area, result["facial_area"])
-            if "antispoof_scores" in result:
-                spoofing_scores = result.get("antispoof_scores")
-                if spoofing_scores is not None:
-                    rep.spoofing_scores.spoof_confidence = float(spoofing_scores.get("spoof_confidence", 0.0))
-                    rep.spoofing_scores.real_confidence = float(spoofing_scores.get("real_confidence", 0.0))
-                    rep.spoofing_scores.uncertainty = float(spoofing_scores.get("uncertainty", 0.0))
+        logger.debug(f"{len(faces)} faces received: {faces}")
 
-        logger.debug(results)
+        for face in faces:
+            result = response.results.add()
+            result.face_confidence = face.confidence or 0.0
+            landmarks_to_proto(face.landmarks, result.facial_area)
+            face_quality_to_proto(face.quality, result.face_quality)
+            face_pose_to_proto(face.pose, result.face_pose)
+            spoofing_scores_to_proto(face.spoofing, result.spoofing_scores)
+            if face.embedding is not None:
+                result.embedding.extend(face.embedding)
 
         return response
 
@@ -158,81 +114,103 @@ class DeepFaceService(DeepFaceServiceServicer):
 
         try:
 
-            results = DeepFace.verify(
+            verif = DeepFace.verify(
                 img1_path=image_utils.load_image_from_web(request.image1_url),
                 img2_path=image_utils.load_image_from_web(request.image2_url),
-                model_name=model_name_enum_to_string(request.model_name) if
-                request.HasField("model_name") else default_model_name,
-                detector_backend=Detectors.Name(request.detector_backend).lower() if
-                request.HasField("detector_backend") else default_detector_backend,
-                distance_metric=DistanceMetrics.Name(request.distance_metric).lower() if
-                request.HasField("distance_metric") else default_distance_metric,
-                align=request.align
-                if request.HasField("align") else default_align,
-                enforce_detection=request.enforce_detection
-                if request.HasField("enforce_detection") else
-                default_enforce_detection,
-                anti_spoofing=request.anti_spoofing
-                if request.HasField("anti_spoofing") else default_anti_spoofing,
-                normalization=request.normalization
-                if request.HasField("normalization") else default_normalization,
+                model_name=model_name_enum_to_string(request.model_name) if request.HasField("model_name") else default_model_name,
+                detector_backend=Detectors.Name(request.detector_backend).lower() if request.HasField("detector_backend") else default_detector_backend,
+                distance_metric=DistanceMetrics.Name(request.distance_metric).lower() if request.HasField("distance_metric") else default_distance_metric,
+                anti_spoofing=request.anti_spoofing if request.HasField("anti_spoofing") else default_anti_spoofing
             )
-            if "verified" in results:
-                response.verified = bool(results["verified"])
-            if "distance" in results:
-                response.distance = float(results["distance"])
-            if "facial_areas" in results:
-                facial_areas = results["facial_areas"]
-                fill_facial_area(response.facial_areas.img1, facial_areas["img1"])
-                fill_facial_area(response.facial_areas.img2, facial_areas["img2"])
-            if "threshold" in results:
-                response.threshold = float(results["threshold"])
-            if "time" in results:
-                response.time = float(results["time"])
-            if "similarity_metric" in results:
-                metric_str = results["similarity_metric"].upper()
+
+            logger.debug(f"verif response received: {verif}")
+
+            response.verified = verif.verified or False
+            response.distance = verif.distance or math.inf
+            response.threshold = verif.threshold or math.inf
+            response.time = verif.time or 0.0
+            if verif.metric is not None:
+                metric_str = verif.metric.upper()
                 if hasattr(DistanceMetrics, metric_str):
                     response.similarity_metric = getattr(DistanceMetrics, metric_str)
                 else:
                     response.similarity_metric = DistanceMetrics.COSINE
-            if "detector_backend" in results:
-                backend_str = results["detector_backend"].upper()
+            if verif.detector_backend is not None:
+                backend_str = verif.detector_backend.upper()
                 if hasattr(Detectors, backend_str):
                     response.detector_backend = getattr(Detectors, backend_str)
                 else:
                     response.detector_backend = Detectors.OPENCV
-            if "model" in results:
-                model_str = results["model"].upper()
+            if verif.model is not None:
+                model_str = verif.model.upper()
                 if hasattr(Models, model_str):
                     response.model = getattr(Models, model_str)
                 else:
                     response.model = Models.VGG_FACE
-            if "img1" in results and "antispoof_scores" in results["img1"]:
-                spoofing_scores = results["img1"].get("antispoof_scores")
-                if spoofing_scores is not None:
-                    response.img1_spoofing_scores.spoof_confidence = float(spoofing_scores.get("spoof_confidence", 0.0))
-                    response.img1_spoofing_scores.real_confidence = float(spoofing_scores.get("real_confidence", 0.0))
-                    response.img1_spoofing_scores.uncertainty = float(spoofing_scores.get("uncertainty", 0.0))
-            if "img2" in results and "antispoof_scores" in results["img2"]:
-                spoofing_scores = results["img2"].get("antispoof_scores")
-                if spoofing_scores is not None:
-                    response.img2_spoofing_scores.spoof_confidence = float(spoofing_scores.get("spoof_confidence", 0.0))
-                    response.img2_spoofing_scores.real_confidence = float(spoofing_scores.get("real_confidence", 0.0))
-                    response.img2_spoofing_scores.uncertainty = float(spoofing_scores.get("uncertainty", 0.0))
-            if "img1" in results and "embedding" in results["img1"]:
-                response.img1_embedding.extend(results["img1"]["embedding"])
-            if "img2" in results and "embedding" in results["img2"]:
-                response.img2_embedding.extend(results["img2"]["embedding"])
+                    response.detector_backend = Detectors.OPENCV
+            if verif.face1 is not None:
+                landmarks_to_proto(verif.face1.landmarks, response.facial_areas.img1)
+                spoofing_scores_to_proto(verif.face1.spoofing, response.img1_spoofing_scores)
+                face_quality_to_proto(verif.face1.quality, response.img1_face_quality)
+                face_pose_to_proto(verif.face1.pose, response.img1_face_pose)
+                if verif.face1.embedding is not None:
+                    response.img1_embedding.extend(verif.face1.embedding)
+            if verif.face2 is not None:
+                landmarks_to_proto(verif.face2.landmarks, response.facial_areas.img2)
+                spoofing_scores_to_proto(verif.face2.spoofing, response.img2_spoofing_scores)
+                face_quality_to_proto(verif.face2.quality, response.img2_face_quality)
+                face_pose_to_proto(verif.face2.pose, response.img2_face_pose)
+                if verif.face2.embedding is not None:
+                    response.img2_embedding.extend(verif.face2.embedding)
 
         except Exception as err:
-            context.set_details(f"Exception while representing: {str(err)}")
+            context.set_details(f"Exception while verifying: {str(err)}")
             context.set_code(grpc.StatusCode.INTERNAL)
             return response
 
-        logger.debug(results)
-
         return response
 
+def landmarks_to_proto(landmarks: Optional[FaceLandmarks], proto_landmarks):
+    """
+    Convert landmarks to proto format.
+    """
+    if landmarks is None:
+        return
+    proto_landmarks.left_eye.extend(landmarks.left_eye or [])
+    proto_landmarks.right_eye.extend(landmarks.right_eye or [])
+    proto_landmarks.mouth_left.extend(landmarks.mouth_left or [])
+    proto_landmarks.mouth_right.extend(landmarks.mouth_right or [])
+    proto_landmarks.nose.extend(landmarks.nose or [])
+
+def face_quality_to_proto(quality: Optional[FaceQuality], proto_quality):
+    """
+    Convert face quality to proto format.
+    """
+    if quality is None:
+        return
+    proto_quality.sharpness = quality.sharpness or 0.0
+    proto_quality.brightness = quality.brightness or 0.0
+    proto_quality.contrast = quality.contrast or 0.0
+
+def face_pose_to_proto(pose: Optional[FacePose], proto_pose):
+    """
+    Convert face pose to proto format.
+    """
+    if pose is None:
+        return
+    proto_pose.yaw = pose.yaw or 0.0
+    proto_pose.pitch = pose.pitch or 0.0
+    proto_pose.roll = pose.roll or 0.0
+
+def spoofing_scores_to_proto(spoofing: Optional[FaceSpoofing], proto_spoofing_scores):
+    """
+    Convert spoofing scores to proto format.
+    """
+    if spoofing is None:
+        return
+    proto_spoofing_scores.spoof_confidence = spoofing.spoof_confidence or 0.0
+    proto_spoofing_scores.real_confidence = spoofing.real_confidence or 0.0
+    proto_spoofing_scores.uncertainty = spoofing.uncertainty_confidence or 0.0
 
 def actions_enum_to_string(actions) -> list[str]:
     """
@@ -250,23 +228,6 @@ def actions_enum_to_string(actions) -> list[str]:
             case AnalyzeRequest.Action.EMOTION:
                 action_names.append("emotion")
     return action_names
-
-def fill_facial_area(facial_area_msg, data: dict):
-    """
-    Fill a FacialArea protobuf message from a dict.
-    """
-    for key in ["left_eye", "right_eye", "mouth_left", "mouth_right", "nose"]:
-        value = data.get(key)
-        if value is None:
-            value = [0]
-        elif not isinstance(value, (list, tuple)):
-            value = [value]
-        value = [v if v is not None else 0 for v in value]
-        getattr(facial_area_msg, key).extend(value)
-    facial_area_msg.h = int(data.get("h") or 0)
-    facial_area_msg.w = int(data.get("w") or 0)
-    facial_area_msg.x = int(data.get("x") or 0)
-    facial_area_msg.y = int(data.get("y") or 0)
 
 def model_name_enum_to_string(model_name) -> str:
     """

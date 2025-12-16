@@ -68,6 +68,12 @@ message FaceQuality {
     float contrast = 3;
 }
 
+message FacePose {
+    float yaw = 1;
+    float pitch = 2;
+    float roll = 3;
+}
+
 // ----------------
 // Messages for the Analy method
 // ----------------
@@ -83,8 +89,8 @@ message AnalyzeRequest {
     string image_url = 1;
     repeated Action actions = 2; // Actions to perform, e.g., "age", "gender", "emotion", "race"
     optional Detectors detector_backend = 3;
-    optional bool enforce_detection = 4;
-    optional bool align = 5;
+    optional bool enforce_detection = 4 [deprecated = true];
+    optional bool align = 5 [deprecated = true];
     optional bool anti_spoofing = 6;
     optional uint32 max_faces = 7;
 }
@@ -127,6 +133,7 @@ message AnalyzeResponse {
         FacialArea facial_area = 9;
         optional SpoofingScores spoofing_scores = 10;
         FaceQuality face_quality = 11;
+        FacePose face_pose = 12;
     }
 
     repeated Result results = 1;
@@ -140,11 +147,11 @@ message RepresentRequest {
   string image_url = 1;
   optional Models model_name = 2;
   optional Detectors detector_backend = 3;
-  optional bool enforce_detection = 4;
-  optional bool align = 5;
+  optional bool enforce_detection = 4 [deprecated = true];
+  optional bool align = 5 [deprecated = true];
   optional bool anti_spoofing = 6;
   optional uint32 max_faces = 7;
-  optional string normalization = 8;
+  optional string normalization = 8 [deprecated = true];
 }
 
 message RepresentResponse {
@@ -155,6 +162,7 @@ message RepresentResponse {
         FacialArea facial_area = 3;
         optional SpoofingScores spoofing_scores = 4;
         FaceQuality face_quality = 5;
+        FacePose face_pose = 6;
     }
 
     repeated Results results = 1;
@@ -170,10 +178,10 @@ message VerifyRequest {
     optional Models model_name = 3;
     optional Detectors detector_backend = 4;
     optional DistanceMetrics distance_metric = 5;
-    optional bool enforce_detection = 6;
-    optional bool align = 7;
+    optional bool enforce_detection = 6 [deprecated = true];
+    optional bool align = 7 [deprecated = true];
     optional bool anti_spoofing = 8;
-    optional string normalization = 9;
+    optional string normalization = 9 [deprecated = true];
 }
 
 message VerifyResponse {
@@ -197,6 +205,8 @@ message VerifyResponse {
     repeated double img2_embedding = 12;
     FaceQuality img1_face_quality = 13;
     FaceQuality img2_face_quality = 14;
+    FacePose img1_face_pose = 15;
+    FacePose img2_face_pose = 16;
 }
 
 // ----------------

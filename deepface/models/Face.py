@@ -4,6 +4,8 @@ import numpy as np
 from dataclasses import dataclass
 from typing import Tuple, Optional, List
 
+from deepface.models.spoofing.FasNet import crop
+
 @dataclass
 class FaceQuality:
     sharpness: float
@@ -17,6 +19,8 @@ class FaceQuality:
             "contrast": self.contrast,
         }
 
+
+
 @dataclass
 class FaceSpoofing:
     spoof_confidence: float
@@ -29,6 +33,8 @@ class FaceSpoofing:
             "real_confidence": self.real_confidence,
             "uncertainty_confidence": self.uncertainty_confidence,
         }
+
+
 
 @dataclass
 class FaceLandmarks:
@@ -72,6 +78,8 @@ class FaceLandmarks:
             "nose": self.nose,
         }
 
+
+
 @dataclass
 class FacePose:
     roll: float
@@ -84,6 +92,8 @@ class FacePose:
             "pitch": self.pitch,
             "yaw": self.yaw,
         }
+
+
 
 @dataclass
 class FaceDemographics:
@@ -117,6 +127,8 @@ class FaceDemographics:
             "races": self.races,
             "dominant_race": self.dominant_race(),
         }
+
+
 
 @dataclass
 class Face:
@@ -152,7 +164,15 @@ class Face:
         """
         Compute quality metrics for the face image and update the quality attribute.
         """
-        norm_img = self.get_face_crop(img, (112, 112))
+        # Note: we use the same crop function from the spoofing module to get
+        # a natural quality and keep face ratio (no black borders)
+        norm_img = crop(
+            img, 
+            (self.landmarks.x, self.landmarks.y, self.landmarks.w, self.landmarks.h),
+            1, 
+            112,
+            112
+        )
         if len(norm_img.shape) == 3:
             norm_img = cv2.cvtColor(norm_img, cv2.COLOR_BGR2GRAY)
         self.quality = FaceQuality(
@@ -165,86 +185,62 @@ class Face:
        # TODO: implement pose estimation.
        pass
 
-    def get_face_crop(self, img: np.ndarray, target_size: tuple[int, int], scale_face_area: float = 1.0, eyes_aligned: bool = False) -> np.ndarray:
+    def get_face_crop(self, img: np.ndarray, target_size: tuple[int, int], aligned: bool = True) -> np.ndarray:
         """
-        Crops a face, aligns it using eyes positions (optional), ensures it has the size target_size.
-            Pads with black pixels only if the crop goes outside the image boundaries.
+        Generates a cropped and resized image of the face.
+            The cropping is done based on the face landmarks if aligned is True, otherwise based on the face bounding box.
 
         Args:
             img (np.ndarray): The source image.
             target_size (tuple[int, int]): Desired output size (width, height).
-            scale_face_area (float): Scale factor (1.0 = tight face box, >1.0 = context).
-            eyes_aligned (bool): Whether to rotate the image so eyes are horizontal.
+            aligned (bool): Whether to use landmarks for alignment. Defaults to True.
 
         Returns:
-            np.ndarray: The processed image (W=target_size[0], H=target_size[1]).
+            np.ndarray: The cropped and resized face image.
         """
-        x, y, w, h = self.landmarks.x, self.landmarks.y, self.landmarks.w, self.landmarks.h
-        
-        # 1. Calculate the center of the face
-        cx = x + w // 2
-        cy = y + h // 2
+        if aligned:
+            # Src points from ArcFace (112x112) matrice used for alignment.
+            src_points = np.array([
+                [38.2946, 51.6963],  # Right Eye
+                [73.5318, 51.5014],  # Left Eye
+                [56.0252, 71.7366],  # Nose
+                [41.5493, 92.3655],  # Right Mouth
+                [70.7299, 92.2041]   # Left Mouth
+            ], dtype=np.float32)
 
-        # 2. Alignment (Rotation)
-        # We rotate the entire image around the face center (cx, cy).
-        # This is safe because (cx, cy) remains the pivot point.
-        if eyes_aligned and self.landmarks.left_eye and self.landmarks.right_eye:
-            left_eye = self.landmarks.left_eye   # Tuple (x, y) - typically subject's left (image right)
-            right_eye = self.landmarks.right_eye # Tuple (x, y) - typically subject's right (image left)
+            # Apply scaling to the reference points if target size differs from 112x112.
+            scale_x = target_size[0] / 112
+            scale_y = target_size[1] / 112
+            src_points[:, 0] *= scale_x
+            src_points[:, 1] *= scale_y
 
-            # Calculate angle. 
-            # Note: Ensure these point to the correct eye landmarks for your model
-            dy = left_eye[1] - right_eye[1]
-            dx = left_eye[0] - right_eye[0]
-            angle = np.degrees(np.arctan2(dy, dx))
+            dst_points = np.array([
+                self.landmarks.right_eye,
+                self.landmarks.left_eye,
+                self.landmarks.nose,
+                self.landmarks.mouth_right,
+                self.landmarks.mouth_left
+            ], dtype=np.float32)
 
-            # Rotate Matrix: Center at (cx, cy)
-            M = cv2.getRotationMatrix2D((float(cx), float(cy)), angle, 1.0)
-            
-            # Apply rotation
-            h_img, w_img = img.shape[:2]
-            img = cv2.warpAffine(img, M, (w_img, h_img))
+            tform_matrix, _ = cv2.estimateAffinePartial2D(dst_points, src_points, method=cv2.LMEDS)
+            return cv2.warpAffine(img, tform_matrix, target_size, borderValue=0)
+        else:
+            src_points = np.array([
+                [0, 0],
+                [target_size[0] - 1, 0],
+                [target_size[0] - 1, target_size[1] - 1],
+                [0, target_size[1] - 1]
+            ], dtype=np.float32)
 
-        # 3. Square the Bounding Box
-        # To guarantee a square output without squashing, we use the largest dimension
-        box_len = int(max(w, h) * scale_face_area)
+            dst_points = np.array([
+                [self.landmarks.x, self.landmarks.y],
+                [self.landmarks.x + self.landmarks.w, self.landmarks.y],
+                [self.landmarks.x + self.landmarks.w, self.landmarks.y + self.landmarks.h],
+                [self.landmarks.x, self.landmarks.y + self.landmarks.h]
+            ], dtype=np.float32)
 
-        # 4. Calculate Crop Coordinates (Centered at cx, cy)
-        half_len = box_len // 2
-        x1 = cx - half_len
-        y1 = cy - half_len
-        x2 = x1 + box_len
-        y2 = y1 + box_len
-
-        # 5. Handle Boundary Conditions (Padding)
-        h_img, w_img = img.shape[:2]
-        
-        # Calculate the intersection of the crop box and the image
-        x1_valid = max(0, x1)
-        y1_valid = max(0, y1)
-        x2_valid = min(w_img, x2)
-        y2_valid = min(h_img, y2)
-
-        # Crop the valid part
-        crop = img[y1_valid:y2_valid, x1_valid:x2_valid]
-
-        # 6. Create the Canvas (Black Background)
-        # We initialize a black square of size box_len x box_len
-        padded_crop = np.zeros((box_len, box_len, 3), dtype=img.dtype)
-
-        # Calculate where to paste the valid crop
-        pad_x = x1_valid - x1
-        pad_y = y1_valid - y1
-        
-        h_c, w_c = crop.shape[:2]
-        
-        # Paste
-        padded_crop[pad_y : pad_y + h_c, pad_x : pad_x + w_c] = crop
-
-        # 7. Final Resize
-        # The padded_crop is now a square of size 'box_len'. 
-        # We resize it to the requested 'target_size'.
-        return cv2.resize(padded_crop, target_size)
+            tform_matrix, _ = cv2.estimateAffinePartial2D(dst_points, src_points, method=cv2.LMEDS)
+            return cv2.warpAffine(img, tform_matrix, target_size, borderValue=0)
 
     def to_dict(self):
         return {

@@ -1,6 +1,6 @@
 # built-in dependencies
 import time
-from typing import IO, Optional, Union, List, Tuple
+from typing import IO, Any, Optional, Union, List, cast
 
 # 3rd party dependencies
 import numpy as np
@@ -15,8 +15,8 @@ logger = Logger()
 
 
 def verify(
-    img1_path: str,
-    img2_path: str,
+    img1_path: Union[str, np.ndarray, IO[bytes]],
+    img2_path: Union[str, np.ndarray, IO[bytes]],
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",
     distance_metric: str = "cosine",
@@ -26,9 +26,13 @@ def verify(
     """
     Verify if an image pair represents the same person or different persons.
     Args:
-        img1_path (str): Path to the first image.
+        img1_path (str, np.ndarray, IO[bytes]): The exact path to the first image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image.
 
-        img2_path (str): Path to the second image.
+        img2_path (str, np.ndarray, IO[bytes]): The exact path to the second image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
@@ -56,7 +60,7 @@ def verify(
 
     # extract faces
     faces = representation.represent(
-        img_path=[img1_path, img2_path],
+        img_path=cast(Any, [img1_path, img2_path]),
         model_name=model_name,
         detector_backend=detector_backend,
         anti_spoofing=anti_spoofing,

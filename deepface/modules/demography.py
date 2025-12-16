@@ -106,8 +106,8 @@ def analyze(
 
         # prepare input image for facial attribute analysis
         # 224x224 is the expected input for all demography models except emotion (which uses 48x48 grayscale internally)
-        face_img = face.get_face_crop(img, target_size=(224,224), scale_face_area=1, eyes_aligned=True)
-        face_img = face_img[:, :, ::-1] # RGB to BGR (Note: we are not sure why we do that unforunately)
+        face_img = face.get_face_crop(img, target_size=(224,224), aligned=True)
+        face_img = face_img[:, :, ::-1] # RGB to BGR
 
         # run requested facial attribute analysis
         pbar = tqdm(

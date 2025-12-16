@@ -2,6 +2,7 @@
 from typing import List, Union, Optional, IO, cast
 
 # 3rd party dependencies
+import cv2
 import numpy as np
 
 # project dependencies
@@ -77,7 +78,7 @@ def represent(
     # prepare input for model
     face_imgs: List[np.ndarray] = []
     for face in faces:
-        face_img = face.get_face_crop(img, target_size=target_size, scale_face_area=1, eyes_aligned=True)
+        face_img = face.get_face_crop(img, target_size=target_size, aligned=True)
         face_img = face_img[:, :, ::-1] # RGB to BGR
         face_img = preprocessing.convert_to_4D(img=face_img) # convert to 4D for ML models
         face_img = preprocessing.normalize_input(face_img, model_name) # normalize input for the requested model
