@@ -62,6 +62,12 @@ message SpoofingScores {
     float uncertainty = 3;
 }
 
+message FaceQuality {
+    float sharpness = 1;
+    float brightness = 2;
+    float contrast = 3;
+}
+
 // ----------------
 // Messages for the Analy method
 // ----------------
@@ -120,6 +126,7 @@ message AnalyzeResponse {
         Race race = 8;
         FacialArea facial_area = 9;
         optional SpoofingScores spoofing_scores = 10;
+        FaceQuality face_quality = 11;
     }
 
     repeated Result results = 1;
@@ -147,6 +154,7 @@ message RepresentResponse {
         double face_confidence = 2;
         FacialArea facial_area = 3;
         optional SpoofingScores spoofing_scores = 4;
+        FaceQuality face_quality = 5;
     }
 
     repeated Results results = 1;
@@ -187,6 +195,8 @@ message VerifyResponse {
     optional SpoofingScores img2_spoofing_scores = 10;
     repeated double img1_embedding = 11;
     repeated double img2_embedding = 12;
+    FaceQuality img1_face_quality = 13;
+    FaceQuality img2_face_quality = 14;
 }
 
 // ----------------

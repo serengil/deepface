@@ -28,15 +28,8 @@ def normalize_input(img: np.ndarray, normalization: str = "base") -> np.ndarray:
         numpy array: the normalized image.
     """
 
-    # issue 131 declares that some normalization techniques improves the accuracy
-
     if normalization == "base":
         return img
-
-    # @trevorgribble and @davedgd contributed this feature
-    # restore input in scale of [0, 255] because it was normalized in scale of
-    # [0, 1] in preprocess_face
-    img *= 255
 
     if normalization == "raw":
         pass  # return just restored pixels
@@ -73,10 +66,22 @@ def normalize_input(img: np.ndarray, normalization: str = "base") -> np.ndarray:
 
     return img
 
+def convert_to_4D(img: np.ndarray) -> np.ndarray:
+    """
+    Convert image to 4-dimensional array.
+    Args:
+        img (np.ndarray): pre-loaded image as numpy array
+    Returns:
+        img (np.ndarray): converted input image
+    """
+    # make it 4-dimensional how ML models expect
+    img = image.img_to_array(img)
+    img = np.expand_dims(img, axis=0)
+    return img
 
 def resize_image(img: np.ndarray, target_size: Tuple[int, int]) -> np.ndarray:
     """
-    Resize an image to expected size of a ml model with adding black pixels.
+    Resize an image to expected size of a ml model with adding black pixels and convert it to 4-dimensional array.
     Args:
         img (np.ndarray): pre-loaded image as numpy array
         target_size (tuple): input shape of ml model
@@ -114,8 +119,4 @@ def resize_image(img: np.ndarray, target_size: Tuple[int, int]) -> np.ndarray:
     # make it 4-dimensional how ML models expect
     img = image.img_to_array(img)
     img = np.expand_dims(img, axis=0)
-
-    if img.max() > 1:
-        img = (img.astype(np.float32) / 255.0).astype(np.float32)
-
     return img

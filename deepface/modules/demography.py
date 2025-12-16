@@ -1,189 +1,115 @@
 # built-in dependencies
-from typing import Any, Dict, List, Optional, Union, IO
+from typing import List, Optional, Union, IO
 
 # 3rd party dependencies
+import cv2
 import numpy as np
 from tqdm import tqdm
 
 # project dependencies
-from deepface.modules import modeling, detection, preprocessing
-from deepface.models.demography import Gender, Race, Emotion
+from deepface.modules import modeling, detection
+from deepface.models.Face import Face, FaceDemographics
+from deepface.models.demography import Age, Gender, Race, Emotion
 
 
 def analyze(
     img_path: Union[str, np.ndarray, IO[bytes], List[str], List[np.ndarray], List[IO[bytes]]],
-    actions: Union[tuple, list] = ("emotion", "age", "gender", "race"),
-    enforce_detection: bool = True,
+    actions: list = ["emotion", "age", "gender", "race"],
     detector_backend: str = "opencv",
-    align: bool = True,
-    expand_percentage: int = 0,
-    silent: bool = False,
     anti_spoofing: bool = False,
     max_faces: Optional[int] = None,
-) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
+    silent: bool = False,
+) -> List[Face]:
     """
     Analyze facial attributes such as age, gender, emotion, and race in the provided image.
-
     Args:
-        img_path (str, np.ndarray, IO[bytes], list): The exact path to the image,
-            a numpy array in BGR format, or a base64 encoded image. If the source image
-            contains multiple faces, the result will include information for each detected face.
+        img_path (str, np.ndarray, IO[bytes], list): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If the source image contains multiple faces,
+            the result will include information for each detected face.
 
         actions (tuple): Attributes to analyze. The default is ('age', 'gender', 'emotion', 'race').
             You can exclude some of these attributes from the analysis if needed.
 
-        enforce_detection (boolean): If no face is detected in an image, raise an exception.
-            Set to False to avoid the exception for low-resolution images (default is True).
-
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
-            'centerface' or 'skip' (default is opencv).
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n',  'yolov11s', 'yolov11m',
+            'centerface' (default is opencv).
 
-        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
-        align (boolean): Perform alignment based on the eye positions (default is True).
-
-        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+        max_faces (int): Set a limit on the number of faces to be processed and returned (default is None).
 
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
 
-        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
-
     Returns:
-        results (List[Dict[str, Any]]): A list of dictionaries, where each dictionary represents
-           the analysis results for a detected face.
-
-           Each dictionary in the list contains the following keys:
-
-           - 'region' (dict): Represents the rectangular region of the detected face in the image.
-               - 'x': x-coordinate of the top-left corner of the face.
-               - 'y': y-coordinate of the top-left corner of the face.
-               - 'w': Width of the detected face region.
-               - 'h': Height of the detected face region.
-
-           - 'age' (float): Estimated age of the detected face.
-
-           - 'face_confidence' (float): Confidence score for the detected face.
-                Indicates the reliability of the face detection.
-
-           - 'dominant_gender' (str): The dominant gender in the detected face.
-                Either "Man" or "Woman."
-
-           - 'gender' (dict): Confidence scores for each gender category.
-               - 'Man': Confidence score for the male gender.
-               - 'Woman': Confidence score for the female gender.
-
-           - 'dominant_emotion' (str): The dominant emotion in the detected face.
-                Possible values include "sad," "angry," "surprise," "fear," "happy,"
-                "disgust," and "neutral."
-
-           - 'emotion' (dict): Confidence scores for each emotion category.
-               - 'sad': Confidence score for sadness.
-               - 'angry': Confidence score for anger.
-               - 'surprise': Confidence score for surprise.
-               - 'fear': Confidence score for fear.
-               - 'happy': Confidence score for happiness.
-               - 'disgust': Confidence score for disgust.
-               - 'neutral': Confidence score for neutrality.
-
-           - 'dominant_race' (str): The dominant race in the detected face.
-                Possible values include "indian," "asian," "latino hispanic,"
-                "black," "middle eastern," and "white."
-
-           - 'race' (dict): Confidence scores for each race category.
-               - 'indian': Confidence score for Indian ethnicity.
-               - 'asian': Confidence score for Asian ethnicity.
-               - 'latino hispanic': Confidence score for Latino/Hispanic ethnicity.
-               - 'black': Confidence score for Black ethnicity.
-               - 'middle eastern': Confidence score for Middle Eastern ethnicity.
-               - 'white': Confidence score for White ethnicity.
-
-           - 'antispoof_scores' (dict): antispoofing analyze result. This key is
-                just available in the result only if anti_spoofing is set to True in input arguments.
-                It contains:
-                - "spoof_confidence" (float): Confidence score for spoofing.
-                - "real_confidence" (float): Confidence score for real face.
-                - "uncertainty" (float): Uncertainty score.
+        List[Face.Face]: A list of Face objects, each containing demographic results for detected faces.
     """
 
     # batch input
-    if (isinstance(img_path, np.ndarray) and img_path.ndim == 4 and img_path.shape[0] > 1) or (
-        isinstance(img_path, list)
-    ):
-        batch_resp_obj = []
+    if (isinstance(img_path, np.ndarray) and img_path.ndim == 4 and img_path.shape[0] > 1) or isinstance(img_path, list):
+        batch_faces: List[Face] = []
         # Execute analysis for each image in the batch.
         for single_img in img_path:
             # Call the analyze function for each image in the batch.
-            resp_obj = analyze(
+            faces = analyze(
                 img_path=single_img,
                 actions=actions,
-                enforce_detection=enforce_detection,
                 detector_backend=detector_backend,
-                align=align,
-                expand_percentage=expand_percentage,
-                silent=silent,
                 anti_spoofing=anti_spoofing,
+                max_faces=max_faces,
+                silent=silent,
             )
+            # Append the response to the batch response list.
+            batch_faces.extend(faces)
+        return batch_faces
 
-            # Append the response object to the batch response list.
-            batch_resp_obj.append(resp_obj)
-        return batch_resp_obj
-
-    # if actions is passed as tuple with single item, interestingly it becomes str here
-    if isinstance(actions, str):
-        actions = (actions,)
-
-    # check if actions is not an iterable or empty.
-    if not hasattr(actions, "__getitem__") or not actions:
-        raise ValueError("`actions` must be a list of strings.")
-
-    actions = list(actions)
-
-    # For each action, check if it is valid
+    # for each action, check if it is valid
     for action in actions:
         if action not in ("emotion", "age", "gender", "race"):
             raise ValueError(
                 f"Invalid action passed ({repr(action)})). "
                 "Valid actions are `emotion`, `age`, `gender`, `race`."
             )
-    # ---------------------------------
-    resp_objects = []
 
-    img_objs = detection.extract_faces(
+    # extract faces
+    img, faces = detection.extract_faces(
         img_path=img_path,
         detector_backend=detector_backend,
-        enforce_detection=enforce_detection,
-        grayscale=False,
-        align=align,
-        expand_percentage=expand_percentage,
         anti_spoofing=anti_spoofing,
         max_faces=max_faces,
     )
 
-    for img_obj in img_objs:
-        img_content = img_obj["face"]
-        img_region = img_obj["facial_area"]
-        img_confidence = img_obj["confidence"]
-        obj = {
-            "region": img_region,
-            "face_confidence": img_confidence,
-        }
+    # load requested models
+    emotion_model: Optional[Emotion.EmotionClient] = None
+    age_model: Optional[Age.ApparentAgeClient] = None
+    gender_model: Optional[Gender.GenderClient] = None
+    race_model: Optional[Race.RaceClient] = None
+    if "emotion" in actions:
+        emotion_model = modeling.build_model(task="facial_attribute", model_name="Emotion")
+    if "age" in actions:
+        age_model = modeling.build_model(task="facial_attribute", model_name="Age")
+    if "gender" in actions:
+        gender_model = modeling.build_model(task="facial_attribute", model_name="Gender")
+    if "race" in actions:
+        race_model = modeling.build_model(task="facial_attribute", model_name="Race")
 
-        if anti_spoofing is True:
-            obj["antispoof_scores"] = img_obj.get("antispoof_scores", None)
+    # analyze each face
+    for face in faces:
+        # init empty demographics
+        face.demographics = FaceDemographics(
+            emotions={},
+            genders={},
+            races={},
+            age=None,
+        )
 
-        if img_content.shape[0] == 0 or img_content.shape[1] == 0:
-            continue
+        # prepare input image for facial attribute analysis
+        # 224x224 is the expected input for all demography models except emotion (which uses 48x48 grayscale internally)
+        face_img = face.get_face_crop(img, target_size=(224,224), scale_face_area=1, eyes_aligned=True)
+        face_img = face_img[:, :, ::-1] # RGB to BGR (Note: we are not sure why we do that unforunately)
 
-        # rgb to bgr
-        img_content = img_content[:, :, ::-1]
-
-        # resize input image
-        img_content = preprocessing.resize_image(img=img_content, target_size=(224, 224))
-
-        # facial attribute analysis
+        # run requested facial attribute analysis
         pbar = tqdm(
             range(0, len(actions)),
             desc="Finding actions",
@@ -193,50 +119,29 @@ def analyze(
             action = actions[index]
             pbar.set_description(f"Action: {action}")
 
-            if action == "emotion":
-                emotion_predictions = modeling.build_model(
-                    task="facial_attribute", model_name="Emotion"
-                ).predict(img_content)
+            if action == "emotion" and emotion_model is not None:
+                # Note: emotion predict resizes the image to (48, 48) and converts to grayscale internally
+                emotion_predictions = emotion_model.predict(face_img)
                 sum_of_predictions = emotion_predictions.sum()
-
-                obj["emotion"] = {}
                 for i, emotion_label in enumerate(Emotion.labels):
                     emotion_prediction = emotion_predictions[i] / sum_of_predictions
-                    obj["emotion"][emotion_label] = emotion_prediction
+                    face.demographics.emotions[emotion_label] = emotion_prediction
 
-                obj["dominant_emotion"] = Emotion.labels[np.argmax(emotion_predictions)]
+            elif action == "age" and age_model is not None:
+                apparent_age = age_model.predict(face_img)
+                face.demographics.age = int(apparent_age)
 
-            elif action == "age":
-                apparent_age = modeling.build_model(
-                    task="facial_attribute", model_name="Age"
-                ).predict(img_content)
-                # int cast is for exception - object of type 'float32' is not JSON serializable
-                obj["age"] = int(apparent_age)
-
-            elif action == "gender":
-                gender_predictions = modeling.build_model(
-                    task="facial_attribute", model_name="Gender"
-                ).predict(img_content)
-                obj["gender"] = {}
+            elif action == "gender" and gender_model is not None:
+                gender_predictions = gender_model.predict(face_img)
                 for i, gender_label in enumerate(Gender.labels):
                     gender_prediction = gender_predictions[i]
-                    obj["gender"][gender_label] = gender_prediction
+                    face.demographics.genders[gender_label] = gender_prediction
 
-                obj["dominant_gender"] = Gender.labels[np.argmax(gender_predictions)]
-
-            elif action == "race":
-                race_predictions = modeling.build_model(
-                    task="facial_attribute", model_name="Race"
-                ).predict(img_content)
+            elif action == "race" and race_model is not None:
+                race_predictions = race_model.predict(face_img)
                 sum_of_predictions = race_predictions.sum()
-
-                obj["race"] = {}
                 for i, race_label in enumerate(Race.labels):
                     race_prediction = race_predictions[i] / sum_of_predictions
-                    obj["race"][race_label] = race_prediction
+                    face.demographics.races[race_label] = race_prediction
 
-                obj["dominant_race"] = Race.labels[np.argmax(race_predictions)]
-
-        resp_objects.append(obj)
-
-    return resp_objects
+    return faces

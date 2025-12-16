@@ -129,17 +129,14 @@ class Fasnet:
             second_result = self.second_model.forward(second_img)
             second_result = F.softmax(second_result).cpu().numpy()
 
+        # Sum predictions from both models
         prediction = np.zeros((1, 3))
         prediction += first_result
         prediction += second_result
+        prediction /= 2
+        print(f"Fasnet spoofing prediction: spoofing={prediction[0][0]}, real={prediction[0][1]}, uncertain={prediction[0][2]}, first_result={first_result}, second_result={second_result}")
 
-        label = np.argmax(prediction)
-        is_real = True if label == 1 else False  # pylint: disable=simplifiable-if-expression
-        score = prediction[0][label] / 2
-        print(f"Fasnet spoofing prediction: label={label} is_real={is_real}, score={score}, first_result={first_result}, second_result={second_result}")
-
-        return prediction[0][0] / 2, prediction[0][1] / 2, prediction[0][2] / 2
-
+        return prediction[0][0], prediction[0][1], prediction[0][2]
 
 # subsdiary classes and functions
 
@@ -188,32 +185,56 @@ def _get_new_box(src_w, src_h, bbox, scale):
     y = bbox[1]
     box_w = bbox[2]
     box_h = bbox[3]
+
+    # Use the larger dimension to ensure we don't cut off chin/forehead
+    max_side = max(box_w, box_h)
+    
+    # Re-calculate center based on the original non-square box
+    center_x = x + box_w / 2
+    center_y = y + box_h / 2
+    
+    # Update w and h to be the square side
+    box_w = max_side
+    box_h = max_side
+
     scale = min((src_h - 1) / box_h, min((src_w - 1) / box_w, scale))
     new_width = box_w * scale
     new_height = box_h * scale
-    center_x, center_y = box_w / 2 + x, box_h / 2 + y
+
+    # Calculate new top-left based on the CENTER
     left_top_x = center_x - new_width / 2
     left_top_y = center_y - new_height / 2
     right_bottom_x = center_x + new_width / 2
     right_bottom_y = center_y + new_height / 2
+
+    # Shift logic (Keeps the box inside the image without shrinking it if possible)
     if left_top_x < 0:
         right_bottom_x -= left_top_x
         left_top_x = 0
     if left_top_y < 0:
         right_bottom_y -= left_top_y
         left_top_y = 0
+    
     if right_bottom_x > src_w - 1:
         left_top_x -= right_bottom_x - src_w + 1
         right_bottom_x = src_w - 1
     if right_bottom_y > src_h - 1:
         left_top_y -= right_bottom_y - src_h + 1
         right_bottom_y = src_h - 1
+        
     return int(left_top_x), int(left_top_y), int(right_bottom_x), int(right_bottom_y)
-
 
 def crop(org_img, bbox, scale, out_w, out_h):
     src_h, src_w, _ = np.shape(org_img)
     left_top_x, left_top_y, right_bottom_x, right_bottom_y = _get_new_box(src_w, src_h, bbox, scale)
+    
+    # Slice
     img = org_img[left_top_y : right_bottom_y + 1, left_top_x : right_bottom_x + 1]
+    
+    # Safety Check: If the shifting failed to keep it inside (e.g. image too small),
+    # img might be empty. Return resized black image to prevent crash.
+    if img.size == 0:
+        return np.zeros((out_h, out_w, 3), dtype=org_img.dtype)
+
     dst_img = cv2.resize(img, (out_w, out_h))
     return dst_img

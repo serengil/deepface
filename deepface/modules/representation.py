@@ -1,192 +1,98 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union, Optional, Sequence, IO
-from collections import defaultdict
+from typing import List, Union, Optional, IO, cast
 
 # 3rd party dependencies
 import numpy as np
 
 # project dependencies
-from deepface.commons import image_utils
 from deepface.modules import modeling, detection, preprocessing
 from deepface.models.FacialRecognition import FacialRecognition
+from deepface.models.Face import Face
 
 
 def represent(
-    img_path: Union[str, IO[bytes], np.ndarray, Sequence[Union[str, np.ndarray, IO[bytes]]]],
+    img_path: Union[str, np.ndarray, IO[bytes], List[str], List[np.ndarray], List[IO[bytes]]],
     model_name: str = "VGG-Face",
-    enforce_detection: bool = True,
     detector_backend: str = "opencv",
-    align: bool = True,
-    expand_percentage: int = 0,
-    normalization: str = "base",
     anti_spoofing: bool = False,
     max_faces: Optional[int] = None,
-) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
+) -> List[Face]:
     """
     Represent facial images as multi-dimensional vector embeddings.
 
     Args:
-        img_path (str, np.ndarray, or Sequence[Union[str, np.ndarray]]):
-            The exact path to the image, a numpy array in BGR format,
-            a base64 encoded image, or a sequence of these.
-            If the source image contains multiple faces,
-            the result will include information for each detected face.
+        img_path (str, np.ndarray, IO[bytes], or Sequence[Union[str, np.ndarray, IO[bytes]]]):
+            The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If the source image contains multiple faces,
+            the result will include information for each detected face. If a sequence is provided,
+            each element should be a string or numpy array representing an image, and the function
+            will process images in batch.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet
-
-        enforce_detection (boolean): If no face is detected in an image, raise an exception.
-            Default is True. Set to False to avoid the exception for low-resolution images.
+            (default is VGG-Face.).
 
         detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s',
-            'yolov11m', 'centerface' or 'skip'.
-
-        align (boolean): Perform alignment based on the eye positions.
-
-        expand_percentage (int): expand detected facial area with a percentage (default is 0).
-
-        normalization (string): Normalize the input image before feeding it to the model.
-            Default is base. Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8', 'yolov11n', 'yolov11s', 'yolov11m',
+            'centerface' or 'skip' (default is opencv).
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
-        max_faces (int): Set a limit on the number of faces to be processed (default is None).
+        max_faces (int): Set a limit on the number of faces to be processed and returned (default is None).
 
     Returns:
-        results (List[Dict[str, Any]] or List[Dict[str, Any]]): A list of dictionaries.
-            Result type becomes List of List of Dict if batch input passed.
-            Each containing the following fields:
-
-        - embedding (List[float]): Multidimensional vector representing facial features.
-            The number of dimensions varies based on the reference model
-            (e.g., FaceNet returns 128 dimensions, VGG-Face returns 4096 dimensions).
-        - facial_area (dict): Detected facial area by face detection in dictionary format.
-            Contains 'x' and 'y' as the left-corner point, and 'w' and 'h'
-            as the width and height. If `detector_backend` is set to 'skip', it represents
-            the full image area and is nonsensical.
-        - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
-            to 'skip', the confidence will be 0 and is nonsensical.
-        - antispoof_scores (dict): antispoofing analyze result. This key is
-            just available in the result only if anti_spoofing is set to True in input arguments.
-            It contains:
-            - "spoof_confidence" (float): Confidence score for spoofing.
-            - "real_confidence" (float): Confidence score for real face.
-            - "uncertainty" (float): Uncertainty score.
+        List[Face.Face]: A list of Face objects, each containing embedding results for detected faces.
     """
-    resp_objs = []
 
-    model: FacialRecognition = modeling.build_model(
-        task="facial_recognition", model_name=model_name
-    )
-
-    # Handle list of image paths or 4D numpy array
-    if isinstance(img_path, list):
-        images = img_path
-    elif isinstance(img_path, np.ndarray) and img_path.ndim == 4:
-        images = [img_path[i] for i in range(img_path.shape[0])]
-    else:
-        images = [img_path]
-
-    batch_images, batch_regions, batch_confidences, batch_indexes, batch_spoof_checks = (
-        [],
-        [],
-        [],
-        [],
-        [],
-    )
-
-    for idx, single_img_path in enumerate(images):
-        # we have run pre-process in verification. so, skip if it is coming from verify.
-        target_size = model.input_shape
-        if detector_backend != "skip":
-            # Images are returned in RGB format.
-            img_objs = detection.extract_faces(
-                img_path=single_img_path,
+    # batch input
+    if (isinstance(img_path, np.ndarray) and img_path.ndim == 4 and img_path.shape[0] > 1) or isinstance(img_path, list):
+        batch_faces: List[Face] = []
+        # Execute analysis for each image in the batch.
+        for single_img in img_path:
+            # Call the analyze function for each image in the batch.
+            faces = represent(
+                img_path=single_img,
+                model_name=model_name,
                 detector_backend=detector_backend,
-                grayscale=False,
-                enforce_detection=enforce_detection,
-                align=align,
-                expand_percentage=expand_percentage,
                 anti_spoofing=anti_spoofing,
                 max_faces=max_faces,
             )
-        else:  # skip
-            # Try load. If load error, will raise exception internal
-            img, _ = image_utils.load_image(single_img_path)
+            # Append the response to the batch response list.
+            batch_faces.extend(faces)
+        return batch_faces
 
-            if len(img.shape) != 3:
-                raise ValueError(f"Input img must be 3 dimensional but it is {img.shape}")
+    # load model
+    model: FacialRecognition = modeling.build_model(task="facial_recognition", model_name=model_name)
+    target_size = model.input_shape # expected input size (width, height)
 
-            # Convert to RGB format to keep compatability with `extract_faces`.
-            img = img[:, :, ::-1]
+    # extract faces
+    img, faces = detection.extract_faces(
+        img_path=img_path,
+        detector_backend=detector_backend,
+        anti_spoofing=anti_spoofing,
+        max_faces=max_faces,
+    )
 
-            # make dummy region and confidence to keep compatibility with `extract_faces`
-            img_objs = [
-                {
-                    "face": img,
-                    "facial_area": {"x": 0, "y": 0, "w": img.shape[0], "h": img.shape[1]},
-                    "confidence": 0,
-                }
-            ]
-        # ---------------------------------
+    # prepare input for model
+    face_imgs: List[np.ndarray] = []
+    for face in faces:
+        face_img = face.get_face_crop(img, target_size=target_size, scale_face_area=1, eyes_aligned=True)
+        face_img = face_img[:, :, ::-1] # RGB to BGR
+        face_img = preprocessing.convert_to_4D(img=face_img) # convert to 4D for ML models
+        face_img = preprocessing.normalize_input(face_img, model_name) # normalize input for the requested model
+        face_imgs.append(face_img)
 
-        if max_faces is not None and max_faces < len(img_objs):
-            # sort as largest facial areas come first
-            img_objs = sorted(
-                img_objs,
-                key=lambda img_obj: img_obj["facial_area"]["w"] * img_obj["facial_area"]["h"],
-                reverse=True,
-            )
-            # discard rest of the items
-            img_objs = img_objs[0:max_faces]
+    # forward pass through the model for the entire batch
+    embeddings = model.forward(np.concatenate(face_imgs, axis=0)) if len(face_imgs) > 0 else []
 
-        for img_obj in img_objs:
-            is_real = img_obj.get("is_real", True)
-            antispoof_scores = img_obj.get("antispoof_scores", None)
+    # shady fix since the design ofr the model forward function is awful
+    if len(faces) == 1:
+        embeddings = [embeddings]
 
-            img = img_obj["face"]
+    # add embeddings to face objects
+    for idx, face in enumerate(faces):
+        embedding = embeddings[idx]
+        face.embedding = cast(List[float], embedding)
 
-            # rgb to bgr
-            img = img[:, :, ::-1]
-
-            region = img_obj["facial_area"]
-            confidence = img_obj["confidence"]
-
-            # resize to expected shape of ml model
-            img = preprocessing.resize_image(
-                img=img,
-                # thanks to DeepId (!)
-                target_size=(target_size[1], target_size[0]),
-            )
-
-            # custom normalization
-            img = preprocessing.normalize_input(img=img, normalization=normalization)
-
-            batch_images.append(img)
-            batch_regions.append(region)
-            batch_confidences.append(confidence)
-            batch_indexes.append(idx)
-            batch_spoof_checks.append(antispoof_scores)
-
-    # Convert list of images to a numpy array for batch processing
-    batch_images = np.concatenate(batch_images, axis=0)
-
-    # Forward pass through the model for the entire batch
-    embeddings = model.forward(batch_images)
-
-    resp_objs_dict = defaultdict(list)
-    for idy, batch_index in enumerate(batch_indexes):
-        resp_obj = {
-            "embedding": embeddings if len(batch_images) == 1 else embeddings[idy],
-            "facial_area": batch_regions[idy],
-            "face_confidence": batch_confidences[idy],
-        }
-        if anti_spoofing is True:
-            resp_obj["antispoof_scores"] = batch_spoof_checks[idy]
-
-        resp_objs_dict[batch_index].append(resp_obj)
-
-    resp_objs = [resp_objs_dict[idx] for idx in range(len(images))]
-
-    return resp_objs[0] if len(images) == 1 else resp_objs
+    return faces

@@ -31,9 +31,6 @@ class DeepFaceService(DeepFaceServiceServicer):
             demographies = DeepFace.analyze(
                 img_path=image_utils.load_image_from_web(request.image_url),
                 actions=actions_enum_to_string(request.actions),
-                enforce_detection=request.enforce_detection
-                if request.HasField("enforce_detection") else
-                default_enforce_detection,
                 detector_backend=Detectors.Name(request.detector_backend).lower() if 
                 request.HasField("detector_backend") else default_detector_backend,
                 align=request.align
@@ -59,6 +56,12 @@ class DeepFaceService(DeepFaceServiceServicer):
                 result.gender.woman = demography.get("gender", {}).get("Woman", 0.0)
             if "face_confidence" in demography:
                 result.face_confidence = float(demography.get("face_confidence", 0.0))
+            if "sharpness" in demography:
+                result.face_quality.sharpness = float(demography.get("sharpness", 0.0))
+            if "brightness" in demography:
+                result.face_quality.brightness = float(demography.get("brightness", 0.0))
+            if "contrast" in demography:
+                result.face_quality.contrast = float(demography.get("contrast", 0.0))
             if "dominant_emotion" in demography:
                 result.dominant_emotion = demography.get("dominant_emotion", "")
             if "dominant_gender" in demography:
@@ -129,6 +132,12 @@ class DeepFaceService(DeepFaceServiceServicer):
                 rep.embedding.extend(result["embedding"])
             if "face_confidence" in result:
                 rep.face_confidence = float(result["face_confidence"])
+            if "sharpness" in result:
+                rep.face_quality.sharpness = float(result.get("sharpness", 0.0))
+            if "brightness" in result:
+                rep.face_quality.brightness = float(result.get("brightness", 0.0))
+            if "contrast" in result:
+                rep.face_quality.contrast = float(result.get("contrast", 0.0))
             if "facial_area" in result:
                 fill_facial_area(rep.facial_area, result["facial_area"])
             if "antispoof_scores" in result:
