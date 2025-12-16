@@ -1,4 +1,5 @@
 
+import math
 import cv2
 import numpy as np
 from dataclasses import dataclass
@@ -64,6 +65,109 @@ class FaceLandmarks:
                 self.is_within_boundaries(self.right_eye, img_width, img_height) and
                 self.is_within_boundaries(self.mouth_left, img_width, img_height) and
                 self.is_within_boundaries(self.mouth_right, img_width, img_height))
+
+    def estimate_roll(self) -> float:
+        """Estimate the roll angle of the face based on eye positions.
+        Returns:
+            float: Estimated roll angle in radians.
+                Positive values mean the left eye is lower (clockwise tilt in image coordinates).
+        """
+        if self.left_eye is None or self.right_eye is None:
+            return 0.0
+        dy = self.left_eye[1] - self.right_eye[1]
+        dx = self.left_eye[0] - self.right_eye[0]
+        return np.arctan2(dy, dx)
+
+    def estimate_pitch(self, roll) -> float:
+        """Estimate the pitch angle of the face based on eye and mouth positions.
+        Returns:
+            float: Estimated pitch angle in radians.
+                Positive values mean the face is looking down.
+        """
+        # Check required landmarks
+        if (self.left_eye is None or self.right_eye is None or 
+            self.nose is None or 
+            self.mouth_left is None or self.mouth_right is None):
+            return 0.0
+
+        # Prepare landmarks (extract x, y from tuples)
+        lx, ly = self.left_eye[0], self.left_eye[1]
+        rx, ry = self.right_eye[0], self.right_eye[1]
+        nx, ny = self.nose[0], self.nose[1]
+        mlx, mly = self.mouth_left[0], self.mouth_left[1]
+        mrx, mry = self.mouth_right[0], self.mouth_right[1]
+
+        # Calculate Mid-Points
+        mid_eye_x = (lx + rx) / 2.0
+        mid_eye_y = (ly + ry) / 2.0
+        
+        mid_mouth_x = (mlx + mrx) / 2.0
+        mid_mouth_y = (mly + mry) / 2.0
+
+        # Rotate landmarks by -roll to normalize (level the face)
+        # The pivot point is the mid-eye, so its coordinates don't change.
+        # We only need the transformed Y-coordinates of the Nose and Mouth.
+        (nx, ny) = _rotate_point((nx, ny), (mid_eye_x, mid_eye_y), -roll)
+        (mid_mouth_x, mid_mouth_y) = _rotate_point((mid_mouth_x, mid_mouth_y), (mid_eye_x, mid_eye_y), -roll)
+
+        # Compute ratio position of the nose between eyes and mouth.
+        # Distance from Eye-Line to Mouth-Line (Vertical denominator)
+        eye_to_mouth_dist = abs(mid_mouth_y - mid_eye_y)
+
+        if eye_to_mouth_dist <= 0:
+            return 0.0
+
+        # Normalized position of nose (0.0 = at eyes, 1.0 = at mouth)
+        # 0.5 is roughly neutral.
+        nose_pos_ratio = (ny - mid_eye_y) / eye_to_mouth_dist
+
+        # Map to angle (degrees)
+        k_deg = 90.0   # arbitrary number to map offset [-1,1] to pitch [-90,90°]
+        r0 = 0.5       # arbitrary neutral ratio at frontal pose (nose is usually halfway)
+        
+        # Calculate offset from neutral and clamp
+        offset = max(-1.0, min(1.0, nose_pos_ratio - r0))
+        pitch_deg = offset * k_deg
+        return pitch_deg * math.pi / 180.0
+
+    def estimate_yaw(self, roll: float) -> float:
+        """Estimate the yaw angle of the face based on eye and nose positions.
+        Returns:
+            float: Estimated yaw angle in radians.
+                Positive values mean the face is looking to its right (left in image coordinates).
+        """
+        # Check required landmarks
+        if self.left_eye is None or self.right_eye is None or self.nose is None:
+            return 0.0
+
+        # Prepare landmarks
+        lx, ly = self.left_eye[0], self.left_eye[1]
+        rx, ry = self.right_eye[0], self.right_eye[1]
+        nx, ny = self.nose[0], self.nose[1]
+
+        # Calculate Mid-Eye Point
+        mx = (lx + rx) / 2.0
+        my = (ly + ry) / 2.0
+
+    	# Rotate landmarks by -roll (to level the eyes on the y axis).
+        (lx, ly) = _rotate_point((lx, ly), (mx, my), -roll)
+        (rx, ry) = _rotate_point((rx, ry), (mx, my), -roll)
+        (nx, ny) = _rotate_point((nx, ny), (mx, my), -roll)
+
+        # Normalize by inter-ocular distance.
+        iod = math.hypot(lx - rx, ly - ry)
+        if iod <= 0:
+            return 0.0
+
+        # Compute normalized horizontal offset of the nose
+        # If nose is to the left of center (viewer's perspective), value is Positive.
+        offset = (mx - nx) / iod
+
+        # Map to angle (degrees), then convert to radians.
+        k_deg = 90.0 # arbitrary number to map offset [-0.5,0.5] to yaw [-45°,45°]
+        max_angle = 180.0 # maximum yaw angle in degrees to clamp to
+        yaw_deg = max(-max_angle, min(offset*k_deg, max_angle))
+        return yaw_deg * math.pi / 180.0
 
     def to_dict(self):
         return {
@@ -137,9 +241,14 @@ class Face:
     Args:
         confidence (float): confidence score for face detection
         landmarks (FaceLandmarks): facial landmarks associated with the face
+        quality (FaceQuality, optional): quality metrics of the face
+        pose (FacePose, optional): pose information of the face in degrees
+        demographics (FaceDemographics, optional): demographic attributes of the face
+        spoofing (FaceSpoofing, optional): spoofing analysis results
+        embedding (List[float], optional): face embedding vector
     """
-    landmarks: FaceLandmarks
     confidence: Optional[float]
+    landmarks: FaceLandmarks
     quality: Optional[FaceQuality] = None
     pose: Optional[FacePose] = None
     demographics: Optional[FaceDemographics] = None
@@ -169,7 +278,7 @@ class Face:
         norm_img = crop(
             img, 
             (self.landmarks.x, self.landmarks.y, self.landmarks.w, self.landmarks.h),
-            1, 
+            1,
             112,
             112
         )
@@ -182,8 +291,17 @@ class Face:
         )
 
     def compute_pose(self):
-       # TODO: implement pose estimation.
-       pass
+        """
+        Compute face pose (roll, pitch, yaw) based on landmarks and update the pose attribute.
+        """
+        roll = self.landmarks.estimate_roll()
+        pitch = self.landmarks.estimate_pitch(roll)
+        yaw = self.landmarks.estimate_yaw(roll)
+        self.pose = FacePose(
+            roll=math.degrees(roll),
+            pitch=math.degrees(pitch),
+            yaw=math.degrees(yaw)
+        )
 
     def get_face_crop(self, img: np.ndarray, target_size: tuple[int, int], aligned: bool = True) -> np.ndarray:
         """
@@ -251,3 +369,17 @@ class Face:
             "demographics": self.demographics.to_dict() if self.demographics else None,
             "spoofing": self.spoofing.to_dict() if self.spoofing else None,
         }
+
+def _rotate_point(point: tuple[float, float], origin: tuple[float, float], angle: float) -> tuple[float, float]:
+    """
+    Returns a new point rotated around origin.
+    """
+    x, y = point
+    ox, oy = origin
+    cx = x - ox
+    cy = y - oy
+    cr = math.cos(angle)
+    sr = math.sin(angle)
+    new_x = ox + cr * cx - sr * cy
+    new_y = oy + sr * cx + cr * cy
+    return (new_x, new_y)
