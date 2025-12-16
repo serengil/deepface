@@ -85,9 +85,8 @@ def test_different_detectors():
 def test_numpy_input():
     img_path = "dataset/img1.jpg"
     img = cv2.imread(img_path)[:, :, ::-1]  # BGR to RGB
-
-    for detector in ["mtcnn"]:
-        img_objs = DeepFace.extract_faces(img_path=img, detector_backend=detector)
+    for detector in detectors:
+        img_objs = DeepFace.extract_faces(img_path=img.copy(), detector_backend=detector)
         # img_objs should be a list of dicts
         assert isinstance(img_objs, list)
         assert len(img_objs) == 1
@@ -95,8 +94,8 @@ def test_numpy_input():
             assert isinstance(img_obj, dict)
             assert "face" in img_obj.keys()
             assert "facial_area" in img_obj.keys()
-            img = img_obj["face"]
-            assert img.shape[0] > 0 and img.shape[1] > 0
+            face = img_obj["face"]
+            assert face.shape[0] > 0 and face.shape[1] > 0
         logger.info(f"✅ extract_faces for {detector} backend with numpy input test is done")
 
 
@@ -190,17 +189,19 @@ def test_batch_str_inputs():
 
 
 def test_batch_ndarray_inputs():
-    img1 = cv2.imread("dataset/img1.jpg")  # 1382 × 1868
-    img3 = cv2.imread("dataset/img3.jpg")  # 1536 × 2048
+    img1 = cv2.imread("dataset/img1.jpg")[:, :, ::-1]  # BGR to RGB
+    img2 = cv2.imread("dataset/couple.jpg")[:, :, ::-1]  # BGR to RGB
+    img3 = cv2.imread("dataset/img3.jpg")[:, :, ::-1]  # BGR to RGB
 
     h, w = img1.shape[:2]
 
+    img2 = cv2.resize(img2, (w, h))
     img3 = cv2.resize(img3, (w, h))
 
-    img_batch = np.array([img1, img3])
-    assert img_batch.shape == (2, h, w, 3)
+    img_batch = np.array([img1, img2, img3])
+    assert img_batch.shape == (3, h, w, 3)
 
-    expected_num_faces = [1, 1]
+    expected_num_faces = [1, 2, 1]
 
     results = DeepFace.extract_faces(img_path=img_batch, detector_backend="retinaface")
     # result should be a list of list of dicts
@@ -208,7 +209,9 @@ def test_batch_ndarray_inputs():
     assert len(results) == len(img_batch)
     for i, inner_results in enumerate(results):
         assert isinstance(inner_results, list)
-        assert len(inner_results) == expected_num_faces[i]
+        assert (
+            len(inner_results) == expected_num_faces[i]
+        ), f"Number of faces for image {i} does not match"
         for result in inner_results:
             assert isinstance(result, dict)
             assert "face" in result
