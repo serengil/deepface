@@ -75,7 +75,7 @@ def test_batched_find_with_similarity_search():
         model_name="VGG-Face", distance_metric="cosine"
     )
     results = DeepFace.find(
-        img_path=img_path, db_path="dataset", silent=True, batched=True, verify=False, k=k
+        img_path=img_path, db_path="dataset", silent=True, batched=True, similarity_search=True, k=k
     )
     assert isinstance(results, list)
     assert len(results) > 0

@@ -284,6 +284,8 @@ def find(
     enforce_detection: bool = True,
     detector_backend: str = "opencv",
     align: bool = True,
+    similarity_search: bool = False,
+    k: Optional[int] = None,
     expand_percentage: int = 0,
     threshold: Optional[float] = None,
     normalization: str = "base",
@@ -317,6 +319,13 @@ def find(
             'centerface' or 'skip' (default is opencv).
 
         align (boolean): Perform alignment based on the eye positions (default is True).
+
+        similarity_search (boolean): If False, performs identity verification and returns images of
+            the same person. If True, performs similarity search and returns visually similar faces
+            (e.g., celebrity or parental look-alikes). Default is False.
+
+        k (int): Number of top similar faces to retrieve from the database for each detected face.
+            If not specified, all faces within the threshold will be returned (default is None).
 
         expand_percentage (int): expand detected facial area with a percentage (default is 0).
 
@@ -377,6 +386,8 @@ def find(
         enforce_detection=enforce_detection,
         detector_backend=detector_backend,
         align=align,
+        similarity_search=similarity_search,
+        k=k,
         expand_percentage=expand_percentage,
         threshold=threshold,
         normalization=normalization,

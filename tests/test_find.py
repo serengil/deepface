@@ -194,7 +194,11 @@ def test_find_for_similarity_search():
         model_name="VGG-Face", distance_metric="cosine"
     )
     dfs = DeepFace.find(
-        img_path=img_path, db_path="dataset", silent=True, verify=False, k=k  # similarity search
+        img_path=img_path,
+        db_path="dataset",
+        silent=True,
+        similarity_search=True,
+        k=k,
     )
 
     assert isinstance(dfs, list)
