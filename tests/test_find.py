@@ -171,3 +171,49 @@ def test_find_without_refresh_database():
         logger.debug(df.head())
         assert df.shape[0] > 0
     logger.info("✅ test find without refresh database done")
+
+
+def test_find_for_similarity_search():
+    angelinas = [
+        os.path.join("dataset", "img1.jpg"),
+        os.path.join("dataset", "img2.jpg"),
+        os.path.join("dataset", "img4.jpg"),
+        os.path.join("dataset", "img5.jpg"),
+        os.path.join("dataset", "img6.jpg"),
+        os.path.join("dataset", "img7.jpg"),
+        os.path.join("dataset", "img10.jpg"),
+        os.path.join("dataset", "img11.jpg"),
+        os.path.join("dataset", "img11_reflection.jpg"),
+        os.path.join("dataset", "couple.jpg"),
+        os.path.join("dataset", "selfie-many-people.jpg"),
+    ]
+    k = len(angelinas) + 5
+    img_path = os.path.join("dataset", "img1.jpg")
+
+    verification_threshold = verification.find_threshold(
+        model_name="VGG-Face", distance_metric="cosine"
+    )
+    dfs = DeepFace.find(
+        img_path=img_path,
+        db_path="dataset",
+        silent=True,
+        similarity_search=True,
+        k=k,
+    )
+
+    assert isinstance(dfs, list)
+    assert len(dfs) > 0
+    for df in dfs:
+        assert isinstance(df, pd.DataFrame)
+        assert df.shape[0] <= k
+
+        verify_df = df[df["identity"].isin(angelinas)]
+        similar_df = df[~df["identity"].isin(angelinas)]
+
+        assert verify_df.shape[0] > 0
+        assert verify_df["distance"].max() <= verification_threshold
+
+        assert similar_df.shape[0] > 0
+        assert similar_df["distance"].min() > verification_threshold
+
+    logger.info("✅ test find for similarity search done")
