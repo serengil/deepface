@@ -10,7 +10,6 @@ import numpy as np
 
 
 # project dependencies
-from deepface.modules.database.types import EmbeddingRecord
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -56,7 +55,7 @@ class PostgresClient:
         self.conn.close()
 
     def insert_embeddings(
-        self, embeddings: List[EmbeddingRecord], batch_size: int = 100
+        self, embeddings: List[Dict[str, Any]], batch_size: int = 100
     ) -> Optional[int]:
         if not embeddings:
             raise ValueError("No embeddings to insert.")
@@ -73,7 +72,7 @@ class PostgresClient:
                 face_hash,
                 embedding_hash
             )
-            VALUES (%s, %s::jsonb, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s::jsonb, %s, %s, %s, %s, %s, %s, %s);
         """
 
         values = []
@@ -117,3 +116,31 @@ class PostgresClient:
             raise ValueError(
                 f"Duplicate detected for extracted face and embedding columns in {i}-th batch"
             ) from e
+
+    def fetch_all_embeddings(
+        self, model_name: str, detector_backend: str, aligned: bool, l2_normalized: bool
+    ) -> List[Dict[str, Any]]:
+
+        query = """
+            SELECT id, img_name, embedding
+            FROM embeddings
+            WHERE model_name = %s AND detector_backend = %s AND aligned = %s AND l2_normalized = %s;
+        """
+
+        with self.conn.cursor() as cur:
+            cur.execute(query, (model_name, detector_backend, aligned, l2_normalized))
+            records = cur.fetchall()
+
+        embeddings = [
+            {
+                "id": r[0],
+                "img_name": r[1],
+                "embedding": r[2],
+                "model_name": model_name,
+                "detector_backend": detector_backend,
+                "aligned": aligned,
+                "l2_normalized": l2_normalized,
+            }
+            for r in records
+        ]
+        return embeddings

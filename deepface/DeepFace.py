@@ -296,7 +296,8 @@ def find(
     batched: bool = False,
 ) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
     """
-    Identify individuals in a database
+    Identify individuals in a database. This is a stateful facial recognition function.
+        Use search function to do it in a stateless way.
     Args:
         img_path (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
             in BGR format, a file object that supports at least `.read` and is opened in binary
@@ -758,6 +759,82 @@ def register(
         expand_percentage=expand_percentage,
         normalization=normalization,
         anti_spoofing=anti_spoofing,
+        database_type=database_type,
+        connection_details=connection_details,
+        connection=connection,
+    )
+
+
+def search(
+    img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    distance_metric: str = "cosine",
+    enforce_detection: bool = True,
+    align: bool = True,
+    l2_normalize: bool = False,
+    expand_percentage: int = 0,
+    normalization: str = "base",
+    anti_spoofing: bool = False,
+    similarity_search: bool = False,
+    k: Optional[int] = None,
+    database_type: str = "postgres",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
+    """
+    Search for identities in database for face recognition. This is a stateless facial
+        recognition function. Use find function to do it in a stateful way.
+    Args:
+        img (str or np.ndarray or IO[bytes] or list): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If a list is provided, each element should be a string
+            or numpy array representing an image, and the function will process images in batch.
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
+            'centerface' or 'skip' (default is opencv).
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'angular' (default is cosine).
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Set to False to avoid the exception for low-resolution images (default is True).
+        align (bool): Flag to enable face alignment (default is True).
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+        normalization (string): Normalize the input image before feeding it to the model.
+            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+        similarity_search (boolean): If False, performs identity verification and returns images of
+            the same person. If True, performs similarity search and returns visually similar faces
+            (e.g., celebrity or parental look-alikes). Default is False.
+        k (int): Number of top similar faces to retrieve from the database for each detected face.
+            If not specified, all faces within the threshold will be returned (default is None).
+        database_type (str): Type of database to search identities. Options: 'postgres'
+            (default is 'postgres').
+        connection_details (dict or str): Connection details for the database.
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+    Returns:
+        results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
+            A list of pandas dataframes or a list of dicts.
+            Each dataframe or dict corresponds to the identity information for
+            an individual detected in the source image.
+    """
+    return datastore.search(
+        img=img,
+        model_name=model_name,
+        detector_backend=detector_backend,
+        distance_metric=distance_metric,
+        enforce_detection=enforce_detection,
+        align=align,
+        l2_normalize=l2_normalize,
+        expand_percentage=expand_percentage,
+        normalization=normalization,
+        anti_spoofing=anti_spoofing,
+        similarity_search=similarity_search,
+        k=k,
         database_type=database_type,
         connection_details=connection_details,
         connection=connection,
