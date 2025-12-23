@@ -27,6 +27,7 @@ from deepface.modules import (
     detection,
     streaming,
     preprocessing,
+    datastore,
 )
 from deepface import __version__
 
@@ -410,6 +411,7 @@ def represent(
     max_faces: Optional[int] = None,
     l2_normalize: bool = False,
     minmax_normalize: bool = False,
+    return_face: bool = False,
     cryptosystem: Optional[LightPHE] = None,
 ) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
@@ -454,6 +456,9 @@ def represent(
         minmax_normalize (bool): Flag to enable min-max normalization of the output embeddings
             to the range [0, 1].
 
+        return_face (bool): If True, the detected face images will also be returned along
+            with embeddings. Default is False.
+
         cryptosystem (LightPHE): An instance of a partially homomorphic encryption system
             to encrypt the output embeddings. If provided, the embeddings will be encrypted
             using the specified cryptosystem. Then, you will be able to perform homomorphic
@@ -492,6 +497,7 @@ def represent(
         max_faces=max_faces,
         l2_normalize=l2_normalize,
         minmax_normalize=minmax_normalize,
+        return_face=return_face,
         cryptosystem=cryptosystem,
     )
 
@@ -695,3 +701,64 @@ def detectFace(
         extracted_face = face_objs[0]["face"]
         extracted_face = preprocessing.resize_image(img=extracted_face, target_size=target_size)
     return extracted_face
+
+
+def register(
+    img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
+    img_name: Optional[str] = None,
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    enforce_detection: bool = True,
+    align: bool = True,
+    l2_normalize: bool = False,
+    expand_percentage: int = 0,
+    normalization: str = "base",
+    anti_spoofing: bool = False,
+    database_type: str = "postgres",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+) -> Dict[str, Any]:
+    """
+    Register identities to database for face recognition
+    Args:
+        img (str or np.ndarray or IO[bytes] or list): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If a list is provided, each element should be a string
+            or numpy array representing an image, and the function will process images in batch.
+        img_name (optional str): image name to store in db, if not provided then we will try to
+            extract it from given img.
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
+            'centerface' or 'skip' (default is opencv).
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Set to False to avoid the exception for low-resolution images (default is True).
+        align (bool): Flag to enable face alignment (default is True).
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+        normalization (string): Normalize the input image before feeding it to the model.
+            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+        database_type (str): Type of database to register identities. Options: 'postgres'
+            (default is 'postgres').
+        connection_details (dict or str): Connection details for the database.
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+    """
+    return datastore.register(
+        img=img,
+        img_name=img_name,
+        model_name=model_name,
+        detector_backend=detector_backend,
+        enforce_detection=enforce_detection,
+        align=align,
+        l2_normalize=l2_normalize,
+        expand_percentage=expand_percentage,
+        normalization=normalization,
+        anti_spoofing=anti_spoofing,
+        database_type=database_type,
+        connection_details=connection_details,
+        connection=connection,
+    )
