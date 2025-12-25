@@ -781,7 +781,8 @@ def search(
     database_type: str = "postgres",
     connection_details: Optional[Union[Dict[str, Any], str]] = None,
     connection: Any = None,
-) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
+    search_method: str = "exact",
+) -> List[pd.DataFrame]:
     """
     Search for identities in database for face recognition. This is a stateless facial
         recognition function. Use find function to do it in a stateful way.
@@ -816,11 +817,25 @@ def search(
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
+        search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
+            To use ann search, you must run build_index function first to create the index.
     Returns:
-        results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
-            A list of pandas dataframes or a list of dicts.
-            Each dataframe or dict corresponds to the identity information for
-            an individual detected in the source image.
+        results (List[pd.DataFrame]):
+            A list of pandas dataframes or a list of dicts. Each dataframe or dict corresponds
+                to the identity information for an individual detected in the source image.
+
+            The DataFrame columns or dict keys include:
+            - id: ID of the detected individual.
+            - img_name: Name of the image file in the database.
+            - model_name: Name of the model used for recognition.
+            - aligned: Whether face alignment was performed.
+            - l2_normalized: Whether L2 normalization was applied.
+            - search_method: Method used for searching identities: exact or ann.
+            - distance_metric: Distance metric used for similarity measurement.
+                Distance metric will be ignored for ann search, and set to cosine if l2_normalize
+                is True, euclidean if l2_normalize is False.
+            - distance: Similarity score between the faces based on the specified model
+                and distance metric
     """
     return datastore.search(
         img=img,
@@ -838,6 +853,7 @@ def search(
         database_type=database_type,
         connection_details=connection_details,
         connection=connection,
+        search_method=search_method,
     )
 
 

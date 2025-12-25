@@ -7,9 +7,9 @@ Pipfile.lock
 .mypy_cache/
 .idea/
 deepface.egg-info/
-tests/dataset/*.pkl
-tests/*.ipynb
-tests/*.csv
+tests/unit/dataset/*.pkl
+tests/unit/*.ipynb
+tests/unit/*.csv
 *.pyc
 **/.coverage
 **/.coverage.*

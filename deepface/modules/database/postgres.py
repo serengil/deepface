@@ -3,7 +3,7 @@ import os
 import json
 import hashlib
 import struct
-from typing import Any, Dict, Optional, List, Union
+from typing import Any, Dict, Optional, List, Union, cast
 
 # 3rd party dependencies
 import numpy as np
@@ -145,6 +145,32 @@ class PostgresClient:
                 (model_name, detector_backend, aligned, l2_normalized, index_data),
             )
             self.conn.commit()
+
+    def get_embeddings_index(
+        self,
+        model_name: str,
+        detector_backend: str,
+        aligned: bool,
+        l2_normalized: bool,
+    ) -> bytes:
+        query = """
+            SELECT index_data
+            FROM embeddings_index
+            WHERE model_name = %s AND detector_backend = %s AND align = %s AND l2_normalized = %s
+        """
+        with self.conn.cursor() as cur:
+            cur.execute(
+                query,
+                (model_name, detector_backend, aligned, l2_normalized),
+            )
+            result = cur.fetchone()
+            if result:
+                return cast(bytes, result[0])
+            raise ValueError(
+                "No Embeddings index found for the specified parameters "
+                f" {model_name=}, {detector_backend=}, {aligned=}, {l2_normalized=}. "
+                "You must run build_index first."
+            )
 
     def insert_embeddings(
         self, embeddings: List[Dict[str, Any]], batch_size: int = 100

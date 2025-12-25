@@ -1,7 +1,8 @@
 # built-in dependencies
-from typing import Any, Dict, IO, List, Union, Optional, cast
+from typing import Any, Dict, IO, List, Union, Optional, cast, Set, Tuple
 import uuid
 import time
+import math
 
 # 3rd party dependencies
 import pandas as pd
@@ -24,7 +25,7 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 
-# pylint: disable=too-many-positional-arguments
+# pylint: disable=too-many-positional-arguments, no-else-return
 def register(
     img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
     img_name: Optional[str] = None,
@@ -106,7 +107,11 @@ def search(
     database_type: str = "postgres",
     connection_details: Optional[Union[Dict[str, Any], str]] = None,
     connection: Any = None,
-) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
+    search_method: str = "exact",
+) -> List[pd.DataFrame]:
+    dfs: List[pd.DataFrame] = []
+    threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
+
     db_client = __connect_database(
         database_type=database_type,
         connection_details=connection_details,
@@ -126,63 +131,117 @@ def search(
         return_face=False,
     )
 
-    # add approximate nearest neighbour code here
-    # tips: l2_norm = True then cosine, else euclidean
-    # ignore distance_metric for ann
+    if search_method == "ann":
+        if l2_normalize is True:
+            distance_metric = "cosine"
+        elif l2_normalize is False:
+            distance_metric = "euclidean"
 
-    # exact nearest neighbour
+        threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
 
-    source_embeddings = db_client.fetch_all_embeddings(
-        model_name=model_name,
-        detector_backend=detector_backend,
-        aligned=align,
-        l2_normalized=l2_normalize,
-    )
-    if not source_embeddings:
-        raise ValueError(
-            "No embeddings found in the database for the criteria "
-            f"{model_name=}, {detector_backend=}, {align=}, {l2_normalize=}."
-            "You must call register some embeddings to the database before using search."
+        try:
+            import faiss
+        except ImportError as e:
+            raise ValueError(
+                "faiss is not installed. Please install faiss to use approximate nearest neighbour."
+            ) from e
+
+        embeddings_index_bytes = db_client.get_embeddings_index(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=align,
+            l2_normalized=l2_normalize,
         )
+        embeddings_index_buffer = np.frombuffer(embeddings_index_bytes, dtype=np.uint8)
+        embeddings_index = faiss.deserialize_index(embeddings_index_buffer)
+        logger.info("Loaded embeddings index from database.")
 
-    dfs = []
-    for result in results:
-        target_embedding = cast(List[float], result["embedding"])
+        for result in results:
+            query_vector = np.array(result["embedding"], dtype="float32").reshape(1, -1)
+            distances, indices = embeddings_index.search(query_vector, k or 20)
+            instances = []
+            for i, index in enumerate(indices[0]):
+                instance = {
+                    "id": index,
+                    "model_name": model_name,
+                    "detector_backend": detector_backend,
+                    "aligned": align,
+                    "l2_normalized": l2_normalize,
+                    "search_method": search_method,
+                    "distance_metric": distance_metric,
+                    "distance": (
+                        math.sqrt(distances[0][i])
+                        if distance_metric == "euclidean"
+                        else distances[0][i] / 2
+                    ),
+                }
+                if similarity_search is False and instance["distance"] <= threshold:
+                    instances.append(instance)
 
-        df = pd.DataFrame(source_embeddings)
-        df["target_embedding"] = [target_embedding for _ in range(len(df))]
+            if len(instances) > 0:
+                df = pd.DataFrame(instances)
+                df = df.sort_values(by="distance", ascending=True).reset_index(drop=True)
+                if k is not None and k > 0:
+                    df = df.nsmallest(k, "distance")
+                dfs.append(df)
+        return dfs
 
-        if distance_metric == "cosine":
-            df["distance"] = df.apply(
-                lambda row: find_cosine_distance(row["embedding"], row["target_embedding"]), axis=1
+    elif search_method == "exact":
+        source_embeddings = db_client.fetch_all_embeddings(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=align,
+            l2_normalized=l2_normalize,
+        )
+        if not source_embeddings:
+            raise ValueError(
+                "No embeddings found in the database for the criteria "
+                f"{model_name=}, {detector_backend=}, {align=}, {l2_normalize=}."
+                "You must call register some embeddings to the database before using search."
             )
-        elif distance_metric == "euclidean":
-            df["distance"] = df.apply(
-                lambda row: find_euclidean_distance(row["embedding"], row["target_embedding"]),
-                axis=1,
-            )
-        elif distance_metric == "angular":
-            df["distance"] = df.apply(
-                lambda row: find_angular_distance(row["embedding"], row["target_embedding"]),
-                axis=1,
-            )
-        else:
-            raise ValueError(f"Unsupported distance metric: {distance_metric}")
 
-        df = df.drop(columns=["embedding", "target_embedding"])
+        for result in results:
+            target_embedding = cast(List[float], result["embedding"])
 
-        if similarity_search is False:
-            threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
-            df = df[df["distance"] <= threshold]
+            df = pd.DataFrame(source_embeddings)
+            df["target_embedding"] = [target_embedding for _ in range(len(df))]
+            df["search_method"] = search_method
+            df["distance_metric"] = distance_metric
 
-        if k is not None and k > 0:
-            df = df.nsmallest(k, "distance")
+            if distance_metric == "cosine":
+                df["distance"] = df.apply(
+                    lambda row: find_cosine_distance(row["embedding"], row["target_embedding"]),
+                    axis=1,
+                )
+            elif distance_metric == "euclidean":
+                df["distance"] = df.apply(
+                    lambda row: find_euclidean_distance(row["embedding"], row["target_embedding"]),
+                    axis=1,
+                )
+            elif distance_metric == "angular":
+                df["distance"] = df.apply(
+                    lambda row: find_angular_distance(row["embedding"], row["target_embedding"]),
+                    axis=1,
+                )
+            else:
+                raise ValueError(f"Unsupported distance metric: {distance_metric}")
 
-        df = df.sort_values(by="distance", ascending=True).reset_index(drop=True)
+            df = df.drop(columns=["embedding", "target_embedding"])
 
-        dfs.append(df)
+            if similarity_search is False:
+                df = df[df["distance"] <= threshold]
 
-    return dfs
+            if k is not None and k > 0:
+                df = df.nsmallest(k, "distance")
+
+            df = df.sort_values(by="distance", ascending=True).reset_index(drop=True)
+
+            dfs.append(df)
+
+        return dfs
+
+    else:
+        raise ValueError(f"Unsupported search method: {search_method}")
 
 
 def __get_embeddings(
@@ -233,6 +292,32 @@ def __connect_database(
     raise ValueError(f"Unsupported database type: {database_type}")
 
 
+def __get_index(
+    db_client: PostgresClient,
+    model_name: str,
+    detector_backend: str,
+    align: bool,
+    l2_normalize: bool,
+) -> Tuple[Any, Set[int]]:
+    import faiss
+
+    try:
+        embeddings_index_bytes = db_client.get_embeddings_index(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=align,
+            l2_normalized=l2_normalize,
+        )
+        embeddings_index_buffer = np.frombuffer(embeddings_index_bytes, dtype=np.uint8)
+        embeddings_index = faiss.deserialize_index(embeddings_index_buffer)
+        indexed_indices = faiss.vector_to_array(embeddings_index.id_map)
+        indexed_ids = set(indexed_indices)
+        return embeddings_index, indexed_ids
+    except ValueError:
+        indexed_ids = set()
+        return None, indexed_ids
+
+
 def build_index(
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",
@@ -254,6 +339,18 @@ def build_index(
         connection=connection,
     )
 
+    index, indexed_embeddings = __get_index(
+        db_client=db_client,
+        model_name=model_name,
+        detector_backend=detector_backend,
+        align=align,
+        l2_normalize=l2_normalize,
+    )
+    if len(indexed_embeddings) > 0:
+        logger.info(f"Found {len(indexed_embeddings)} embeddings already indexed in the database.")
+    else:
+        logger.info("No existing index found in the database. A new index will be created.")
+
     tic = time.time()
     source_embeddings = db_client.fetch_all_embeddings(
         model_name=model_name,
@@ -273,20 +370,32 @@ def build_index(
         f"Fetched {len(source_embeddings)} embeddings from database in {toc - tic:.2f} seconds."
     )
 
-    # ids = [item["id"] for item in source_embeddings]
-    vectors = np.array([item["embedding"] for item in source_embeddings], dtype="float32")
+    unindexed_source_embeddings = [
+        item for item in source_embeddings if item["id"] not in indexed_embeddings
+    ]
+
+    if not unindexed_source_embeddings:
+        logger.info("All embeddings are already indexed. No new embeddings to index.")
+        return
+
+    ids = [item["id"] for item in unindexed_source_embeddings]
+    vectors = np.array([item["embedding"] for item in unindexed_source_embeddings], dtype="float32")
 
     embedding_dim_size = len(source_embeddings[0]["embedding"])
     m = 32
 
-    index = faiss.IndexHNSWFlat(embedding_dim_size, m)
+    if index is None:
+        base_index = faiss.IndexHNSWFlat(embedding_dim_size, m)
+        index = faiss.IndexIDMap(base_index)
 
     tic = time.time()
     for i in range(0, len(vectors), batch_size):
+        batch_ids = np.array(ids[i : i + batch_size], dtype="int64")
         batch_vectors = vectors[i : i + batch_size]
-        index.add(batch_vectors)  # pylint: disable=no-value-for-parameter
+        index.add_with_ids(batch_vectors, batch_ids)
+
     toc = time.time()
-    logger.info(f"Added embeddings to index in {toc - tic:.2f} seconds.")
+    logger.info(f"Added {len(vectors)} embeddings to index in {toc - tic:.2f} seconds.")
 
     index_path = f"/tmp/{model_name}_{detector_backend}_{align}_{l2_normalize}.faiss"
 
