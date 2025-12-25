@@ -839,3 +839,35 @@ def search(
         connection_details=connection_details,
         connection=connection,
     )
+
+
+def build_index(
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    align: bool = True,
+    l2_normalize: bool = False,
+    database_type: str = "postgres",
+    connection: Any = None,
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+) -> None:
+    """
+    Build index for faster search in the database.
+    Args:
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
+            'centerface' or 'skip' (default is opencv).
+        align (bool): Flag to enable face alignment (default is True).
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+    """
+    return datastore.build_index(
+        model_name=model_name,
+        detector_backend=detector_backend,
+        l2_normalize=l2_normalize,
+        align=align,
+        database_type=database_type,
+        connection=connection,
+        connection_details=connection_details,
+    )

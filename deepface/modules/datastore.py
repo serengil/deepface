@@ -1,10 +1,11 @@
 # built-in dependencies
 from typing import Any, Dict, IO, List, Union, Optional, cast
 import uuid
-
+import time
 
 # 3rd party dependencies
 import pandas as pd
+import numpy as np
 from numpy.typing import NDArray
 
 # project dependencies
@@ -40,12 +41,13 @@ def register(
     connection: Any = None,
 ) -> Dict[str, Any]:
 
-    if database_type == "postgres":
-        db_client = PostgresClient(connection_details=connection_details, connection=connection)
-    else:
-        raise ValueError(f"Unsupported database type: {database_type}")
+    db_client = __connect_database(
+        database_type=database_type,
+        connection_details=connection_details,
+        connection=connection,
+    )
 
-    results = get_embeddings(
+    results = __get_embeddings(
         img=img,
         model_name=model_name,
         detector_backend=detector_backend,
@@ -105,12 +107,13 @@ def search(
     connection_details: Optional[Union[Dict[str, Any], str]] = None,
     connection: Any = None,
 ) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
-    if database_type == "postgres":
-        db_client = PostgresClient(connection_details=connection_details, connection=connection)
-    else:
-        raise ValueError(f"Unsupported database type: {database_type}")
+    db_client = __connect_database(
+        database_type=database_type,
+        connection_details=connection_details,
+        connection=connection,
+    )
 
-    results = get_embeddings(
+    results = __get_embeddings(
         img=img,
         model_name=model_name,
         detector_backend=detector_backend,
@@ -122,6 +125,12 @@ def search(
         l2_normalize=l2_normalize,
         return_face=False,
     )
+
+    # add approximate nearest neighbour code here
+    # tips: l2_norm = True then cosine, else euclidean
+    # ignore distance_metric for ann
+
+    # exact nearest neighbour
 
     source_embeddings = db_client.fetch_all_embeddings(
         model_name=model_name,
@@ -176,7 +185,7 @@ def search(
     return dfs
 
 
-def get_embeddings(
+def __get_embeddings(
     img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",
@@ -211,3 +220,92 @@ def get_embeddings(
         elif isinstance(result, list):
             flat_results.extend(result)
     return flat_results
+
+
+def __connect_database(
+    database_type: str = "postgres",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+) -> PostgresClient:
+    if database_type == "postgres":
+        db_client = PostgresClient(connection_details=connection_details, connection=connection)
+        return db_client
+    raise ValueError(f"Unsupported database type: {database_type}")
+
+
+def build_index(
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    align: bool = True,
+    l2_normalize: bool = False,
+    database_type: str = "postgres",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+    batch_size: int = 1000,
+) -> None:
+    try:
+        import faiss
+    except ImportError as e:
+        raise ValueError("faiss is not installed. Please install faiss to use build_index.") from e
+
+    db_client = __connect_database(
+        database_type=database_type,
+        connection_details=connection_details,
+        connection=connection,
+    )
+
+    tic = time.time()
+    source_embeddings = db_client.fetch_all_embeddings(
+        model_name=model_name,
+        detector_backend=detector_backend,
+        aligned=align,
+        l2_normalized=l2_normalize,
+    )
+    toc = time.time()
+
+    if not source_embeddings:
+        raise ValueError(
+            "No embeddings found in the database for the criteria "
+            f"{model_name=}, {detector_backend=}, {align=}, {l2_normalize=}."
+            "You must call register some embeddings to the database before using build_index."
+        )
+    logger.info(
+        f"Fetched {len(source_embeddings)} embeddings from database in {toc - tic:.2f} seconds."
+    )
+
+    # ids = [item["id"] for item in source_embeddings]
+    vectors = np.array([item["embedding"] for item in source_embeddings], dtype="float32")
+
+    embedding_dim_size = len(source_embeddings[0]["embedding"])
+    m = 32
+
+    index = faiss.IndexHNSWFlat(embedding_dim_size, m)
+
+    tic = time.time()
+    for i in range(0, len(vectors), batch_size):
+        batch_vectors = vectors[i : i + batch_size]
+        index.add(batch_vectors)  # pylint: disable=no-value-for-parameter
+    toc = time.time()
+    logger.info(f"Added embeddings to index in {toc - tic:.2f} seconds.")
+
+    index_path = f"/tmp/{model_name}_{detector_backend}_{align}_{l2_normalize}.faiss"
+
+    # now create index from scratch, then think how to load an index and add new vectors to it
+    tic = time.time()
+    faiss.write_index(index, index_path)
+    toc = time.time()
+    logger.info(f"Saved index to disk in {toc - tic:.2f} seconds")
+
+    with open(index_path, "rb") as f:
+        index_data = f.read()
+
+    tic = time.time()
+    db_client.upsert_embeddings_index(
+        model_name=model_name,
+        detector_backend=detector_backend,
+        aligned=align,
+        l2_normalized=l2_normalize,
+        index_data=index_data,
+    )
+    toc = time.time()
+    logger.info(f"Upserted index to database in {toc - tic:.2f} seconds.")

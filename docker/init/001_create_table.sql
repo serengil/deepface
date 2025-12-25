@@ -16,3 +16,16 @@ CREATE TABLE IF NOT EXISTS embeddings (
 
     UNIQUE (face_hash, embedding_hash)
 );
+
+CREATE TABLE IF NOT EXISTS embeddings_index (
+    id SERIAL PRIMARY KEY,
+    model_name TEXT,
+    detector_backend TEXT,
+    align BOOL,
+    l2_normalized BOOL,
+    index_data BYTEA,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now(),
+
+    UNIQUE (model_name, detector_backend, align, l2_normalized)
+);
