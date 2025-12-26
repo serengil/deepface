@@ -24,12 +24,8 @@ from deepface.modules import detection
 
 logger = Logger()
 
-IMG1_SOURCE = (
-    "https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/tests/dataset/img1.jpg"
-)
-IMG2_SOURCE = (
-    "https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/tests/dataset/img2.jpg"
-)
+IMG1_SOURCE = "https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/tests/unit/dataset/img1.jpg"
+IMG2_SOURCE = "https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/tests/unit/dataset/img2.jpg"
 DUMMY_APP = Flask(__name__)
 
 
@@ -142,7 +138,7 @@ class TestVerifyEndpoint(unittest.TestCase):
         data = {
             "model_name": "Facenet",
             "detector_backend": "mtcnn",
-            "img": "https://github.com/serengil/deepface/blob/master/tests/dataset/couple.jpg?raw=true",
+            "img": "https://github.com/serengil/deepface/blob/master/tests/unit/dataset/couple.jpg?raw=true",
         }
 
         response = self.app.post("/represent", json=data)
@@ -193,7 +189,7 @@ class TestVerifyEndpoint(unittest.TestCase):
             # image path
             image_path,
             # image url
-            f"https://github.com/serengil/deepface/blob/master/tests/{image_path}?raw=true",
+            f"https://github.com/serengil/deepface/blob/master/tests/unit/{image_path}?raw=true",
             # encoded image
             encoded_image,
         ]
@@ -306,8 +302,8 @@ class TestVerifyEndpoint(unittest.TestCase):
                     "detector_backend": "mtcnn",
                 },
             )
-            assert response.status_code == 200
             result = response.json
+            assert response.status_code == 200, response.data
             assert isinstance(result, dict)
             assert result.get("age") is not True
             assert result.get("dominant_gender") is not True
@@ -330,7 +326,7 @@ class TestVerifyEndpoint(unittest.TestCase):
                         "distance_metric": "euclidean",
                     },
                 )
-                assert response.status_code == 200
+                assert response.status_code == 200, response.data
                 result = response.json
                 assert isinstance(result, dict)
                 assert result.get("verified") is not None
