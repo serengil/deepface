@@ -82,6 +82,6 @@ jobs:
         pip install .
     - name: Test with pytest
       run: |
-        cd tests
+        cd tests/unit
         python -m pytest . -s --disable-warnings
 

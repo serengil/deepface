@@ -23,7 +23,16 @@ docker build -t deepface .
 
 # run the built image
 # docker run --net="host" deepface
-docker run -p 5005:5000 deepface
+# docker run -p 5005:5000 deepface
+ENV_FILE="deepface/api/.env"
+if [ -f "$ENV_FILE" ]; then
+    echo ".env found, sending to container"
+    docker run -p 5005:5000 --env-file "$ENV_FILE" deepface
+else
+    echo "no .env found, running container without env vars"
+    docker run -p 5005:5000 deepface
+fi
+
 
 # or pull the pre-built image from docker hub and run it
 # docker pull serengil/deepface

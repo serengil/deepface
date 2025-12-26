@@ -12,7 +12,7 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 
-# pylint: disable=broad-except
+# pylint: disable=broad-except, too-many-positional-arguments
 
 
 def represent(
@@ -99,3 +99,114 @@ def analyze(
         logger.error(str(err))
         logger.error(tb_str)
         return {"error": f"Exception while analyzing: {str(err)} - {tb_str}"}, 400
+
+
+def register(
+    img: Union[str, NDArray[Any]],
+    model_name: str,
+    detector_backend: str,
+    enforce_detection: bool,
+    align: bool,
+    l2_normalize: bool,
+    expand_percentage: int,
+    normalization: str,
+    anti_spoofing: bool,
+    img_name: Optional[str],
+    database_type: str,
+    connection_details: str,
+) -> Tuple[Dict[str, Any], int]:
+    try:
+        return (
+            DeepFace.register(
+                img=img,
+                img_name=img_name,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                enforce_detection=enforce_detection,
+                align=align,
+                l2_normalize=l2_normalize,
+                expand_percentage=expand_percentage,
+                normalization=normalization,
+                anti_spoofing=anti_spoofing,
+                database_type=database_type,
+                connection_details=connection_details,
+            ),
+            200,
+        )
+    except Exception as err:
+        tb_str = traceback.format_exc()
+        logger.error(str(err))
+        logger.error(tb_str)
+        return {"error": f"Exception while registering: {str(err)} - {tb_str}"}, 400
+
+
+def search(
+    img: Union[str, NDArray[Any]],
+    model_name: str,
+    detector_backend: str,
+    distance_metric: str,
+    enforce_detection: bool,
+    align: bool,
+    l2_normalize: bool,
+    expand_percentage: int,
+    normalization: str,
+    anti_spoofing: bool,
+    similarity_search: bool,
+    k: Optional[int],
+    database_type: str,
+    connection_details: str,
+    search_method: str,
+) -> Tuple[Dict[str, Any], int]:
+    try:
+        result = {}
+        dfs = DeepFace.search(
+            img=img,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            distance_metric=distance_metric,
+            enforce_detection=enforce_detection,
+            align=align,
+            l2_normalize=l2_normalize,
+            expand_percentage=expand_percentage,
+            normalization=normalization,
+            anti_spoofing=anti_spoofing,
+            similarity_search=similarity_search,
+            k=k,
+            database_type=database_type,
+            connection_details=connection_details,
+            search_method=search_method,
+        )
+
+        result["results"] = [df.to_dict(orient="records") for df in dfs]
+        return result, 200
+
+    except Exception as err:
+        tb_str = traceback.format_exc()
+        logger.error(str(err))
+        logger.error(tb_str)
+        return {"error": f"Exception while searching: {str(err)} - {tb_str}"}, 400
+
+
+def build_index(
+    model_name: str,
+    detector_backend: str,
+    align: bool,
+    l2_normalize: bool,
+    database_type: str,
+    connection_details: str,
+) -> Tuple[Dict[str, Any], int]:
+    try:
+        DeepFace.build_index(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            align=align,
+            l2_normalize=l2_normalize,
+            database_type=database_type,
+            connection_details=connection_details,
+        )
+        return {"message": "Index built successfully"}, 200
+    except Exception as err:
+        tb_str = traceback.format_exc()
+        logger.error(str(err))
+        logger.error(tb_str)
+        return {"error": f"Exception while building index: {str(err)} - {tb_str}"}, 400

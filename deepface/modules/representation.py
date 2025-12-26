@@ -32,6 +32,7 @@ def represent(
     max_faces: Optional[int] = None,
     l2_normalize: bool = False,
     minmax_normalize: bool = False,
+    return_face: bool = False,
     cryptosystem: Optional[LightPHE] = None,
 ) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
@@ -71,6 +72,9 @@ def represent(
 
         minmax_normalize (bool): Flag to enable min-max normalization of the output embeddings
             to the range [0, 1].
+
+        return_face (bool): If True, the detected face images will also be returned along
+            with embeddings. Default is False.
 
         cryptosystem (LightPHE): An instance of a partially homomorphic encryption system
             to encrypt the output embeddings. If provided, the embeddings will be encrypted
@@ -207,6 +211,9 @@ def represent(
             "facial_area": batch_regions[idy],
             "face_confidence": batch_confidences[idy],
         }
+
+        if return_face:
+            resp_obj["face"] = batch_images_np[idy]
         if cryptosystem is not None and encrypted_embeddings is not None:
             resp_obj["encrypted_embedding"] = (
                 encrypted_embeddings if len(batch_images) == 1 else encrypted_embeddings[idy]
