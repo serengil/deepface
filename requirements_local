@@ -17,3 +17,4 @@ gunicorn==20.1.0
 lightphe==0.0.20
 psycopg[binary]==3.2.13
 faiss-cpu==1.7.3
+python-dotenv==1.0.1

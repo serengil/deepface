@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, IO, List, Union, Optional, cast, Set, Tuple
+from typing import Any, Dict, IO, List, Union, Optional, cast
 import uuid
 import time
 import math
@@ -110,7 +110,6 @@ def search(
     search_method: str = "exact",
 ) -> List[pd.DataFrame]:
     dfs: List[pd.DataFrame] = []
-    threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
 
     db_client = __connect_database(
         database_type=database_type,
@@ -163,6 +162,7 @@ def search(
             for i, index in enumerate(indices[0]):
                 instance = {
                     "id": index,
+                    # "img_name": "N/A",  # need to fetch from DB if required
                     "model_name": model_name,
                     "detector_backend": detector_backend,
                     "aligned": align,
@@ -187,6 +187,13 @@ def search(
         return dfs
 
     elif search_method == "exact":
+
+        if l2_normalize is True and distance_metric == "euclidean":
+            logger.warn("Overwriting distance_metric to 'cosine' since vectors are L2 normalized.")
+            distance_metric = "cosine"
+
+        threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
+
         source_embeddings = db_client.fetch_all_embeddings(
             model_name=model_name,
             detector_backend=detector_backend,
@@ -298,7 +305,7 @@ def __get_index(
     detector_backend: str,
     align: bool,
     l2_normalize: bool,
-) -> Tuple[Any, Set[int]]:
+) -> Any:
     import faiss
 
     try:
@@ -310,12 +317,9 @@ def __get_index(
         )
         embeddings_index_buffer = np.frombuffer(embeddings_index_bytes, dtype=np.uint8)
         embeddings_index = faiss.deserialize_index(embeddings_index_buffer)
-        indexed_indices = faiss.vector_to_array(embeddings_index.id_map)
-        indexed_ids = set(indexed_indices)
-        return embeddings_index, indexed_ids
+        return embeddings_index
     except ValueError:
-        indexed_ids = set()
-        return None, indexed_ids
+        return None
 
 
 def build_index(
@@ -339,17 +343,20 @@ def build_index(
         connection=connection,
     )
 
-    index, indexed_embeddings = __get_index(
+    index = __get_index(
         db_client=db_client,
         model_name=model_name,
         detector_backend=detector_backend,
         align=align,
         l2_normalize=l2_normalize,
     )
-    if len(indexed_embeddings) > 0:
+    if index is not None:
+        indexed_indices = faiss.vector_to_array(index.id_map)
+        indexed_embeddings = set(indexed_indices)
         logger.info(f"Found {len(indexed_embeddings)} embeddings already indexed in the database.")
     else:
         logger.info("No existing index found in the database. A new index will be created.")
+        indexed_embeddings = set()
 
     tic = time.time()
     source_embeddings = db_client.fetch_all_embeddings(

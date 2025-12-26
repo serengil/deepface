@@ -8,6 +8,7 @@ from numpy.typing import NDArray
 # project dependencies
 from deepface import __version__
 from deepface.api.src.modules.core import service
+from deepface.api.src.dependencies.variables import Variables
 from deepface.commons import image_utils
 from deepface.commons.logger import Logger
 
@@ -168,3 +169,110 @@ def analyze() -> Tuple[Dict[str, Any], int]:
     logger.debug(demographies)
 
     return demographies, status_code
+
+
+@blueprint.route("/register", methods=["POST"])
+def register() -> Tuple[Dict[str, Any], int]:
+    # load injected variables
+    variables: Variables = blueprint.variables  # type: ignore[attr-defined]
+
+    if variables.conection_details is None:
+        return {
+            "error": "Database connection details must be provided in `DEEPFACE_CONNECTION_DETAILS`"
+            " environment variables"
+        }, 500
+
+    input_args = (request.is_json and request.get_json()) or (
+        request.form and request.form.to_dict()
+    )
+
+    try:
+        img = extract_image_from_request("img")
+    except Exception as err:
+        return {"exception": str(err)}, 400
+
+    result, status_code = service.register(
+        img=img,
+        img_name=input_args.get("img_name"),
+        model_name=input_args.get("model_name", "VGG-Face"),
+        detector_backend=input_args.get("detector_backend", "opencv"),
+        enforce_detection=bool(input_args.get("enforce_detection", True)),
+        align=bool(input_args.get("align", True)),
+        l2_normalize=bool(input_args.get("l2_normalize", False)),
+        expand_percentage=int(input_args.get("expand_percentage", 0)),
+        normalization=input_args.get("normalization", "base"),
+        anti_spoofing=bool(input_args.get("anti_spoofing", False)),
+        database_type=variables.database_type,
+        connection_details=variables.conection_details,
+    )
+
+    if status_code == 200:
+        logger.info("An image has been registered to the database.")
+    else:
+        logger.error("An error occurred while registering an image to the database.")
+
+    return result, status_code
+
+
+@blueprint.route("/search", methods=["POST"])
+def search() -> Tuple[Dict[str, Any], int]:
+    # load injected variables
+    variables: Variables = blueprint.variables  # type: ignore[attr-defined]
+
+    if variables.conection_details is None:
+        return {
+            "error": "Database connection details must be provided in `DEEPFACE_CONNECTION_DETAILS`"
+            " environment variables"
+        }, 500
+
+    input_args = (request.is_json and request.get_json()) or (
+        request.form and request.form.to_dict()
+    )
+
+    try:
+        img = extract_image_from_request("img")
+    except Exception as err:
+        return {"exception": str(err)}, 400
+
+    return service.search(
+        img=img,
+        model_name=input_args.get("model_name", "VGG-Face"),
+        detector_backend=input_args.get("detector_backend", "opencv"),
+        enforce_detection=bool(input_args.get("enforce_detection", True)),
+        align=bool(input_args.get("align", True)),
+        distance_metric=input_args.get("distance_metric", "cosine"),
+        l2_normalize=bool(input_args.get("l2_normalize", False)),
+        database_type=variables.database_type,
+        connection_details=variables.conection_details,
+        search_method=input_args.get("search_method", "exact"),
+        expand_percentage=int(input_args.get("expand_percentage", 0)),
+        normalization=input_args.get("normalization", "base"),
+        anti_spoofing=bool(input_args.get("anti_spoofing", False)),
+        similarity_search=bool(input_args.get("similarity_search", False)),
+        k=int(input_args.get("k", 5)) if input_args.get("k") is not None else None,
+    )
+
+
+@blueprint.route("/build/index", methods=["POST"])
+def build_index() -> Tuple[Dict[str, Any], int]:
+    # load injected variables
+    variables: Variables = blueprint.variables  # type: ignore[attr-defined]
+
+    if variables.conection_details is None:
+        return {
+            "error": "Database connection details must be provided in `DEEPFACE_CONNECTION_DETAILS`"
+            " environment variables"
+        }, 500
+
+    input_args = (request.is_json and request.get_json()) or (
+        request.form and request.form.to_dict()
+    )
+
+    return service.build_index(
+        model_name=input_args.get("model_name", "VGG-Face"),
+        detector_backend=input_args.get("detector_backend", "opencv"),
+        align=bool(input_args.get("align", True)),
+        l2_normalize=bool(input_args.get("l2_normalize", False)),
+        database_type=variables.database_type,
+        connection_details=variables.conection_details,
+    )

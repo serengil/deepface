@@ -867,7 +867,8 @@ def build_index(
     connection_details: Optional[Union[Dict[str, Any], str]] = None,
 ) -> None:
     """
-    Build index for faster search in the database.
+    Build index for faster search in the database. You should set search_method to 'ann'
+        in the search function to use the built index.
     Args:
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
