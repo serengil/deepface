@@ -86,6 +86,28 @@ dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%"></p>
 
+Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed face search mechanism where embeddings are explicitly registered and queried.
+
+```python
+# register an image into the database
+DeepFace.register(img = "img1.jpg")
+
+# perform exact search
+dfs = DeepFace.search(img = "target.jpg")
+```
+
+If you want to perform approximate nearest neighbor search instead of exact search to achieve faster results on large-scale databases, you can build an index beforehand and explicitly enable ANN search.
+
+```python
+# build index on registered embeddings
+DeepFace.build_index()
+
+# perform approximate nearest neighbor search
+dfs = DeepFace.search(img = "target.jpg", search_method = "ann")
+```
+
+The register, search, and index operations are also available via the DeepFace API.
+
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
 DeepFace also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Result is going to be the size of faces appearing in the source image.

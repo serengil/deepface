@@ -14,4 +14,7 @@ mtcnn==0.1.1
 retina-face==0.0.17
 fire==0.4.0
 gunicorn==20.1.0
-lightphe==0.0.19
+lightphe==0.0.20
+psycopg[binary]==3.2.13
+faiss-cpu==1.7.3
+python-dotenv==1.0.1

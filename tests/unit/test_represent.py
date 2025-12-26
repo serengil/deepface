@@ -41,7 +41,7 @@ def test_standard_represent_with_io_object():
 
     # Confirm non-image io objects raise exceptions
     with pytest.raises(ValueError, match="Failed to decode image"):
-        DeepFace.represent(io.BytesIO(open(r"../requirements.txt", "rb").read()))
+        DeepFace.represent(io.BytesIO(open(r"../../requirements.txt", "rb").read()))
 
     logger.info("✅ test standard represent with io object function done")
 
@@ -117,17 +117,17 @@ def test_represent_detector_backend():
     assert len(results_1) == 1
 
     # Results performing face extraction first.
-    faces = DeepFace.extract_faces(img_path="dataset/img1.jpg", color_face='bgr')
+    faces = DeepFace.extract_faces(img_path="dataset/img1.jpg", color_face="bgr")
     assert len(faces) == 1
 
     # Images sent into represent need to be in BGR format.
-    img = faces[0]['face']
+    img = faces[0]["face"]
     results_2 = DeepFace.represent(img_path=img, detector_backend="skip")
     assert len(results_2) == 1
 
     # The embeddings should be the exact same for both cases.
-    embedding_1 = results_1[0]['embedding']
-    embedding_2 = results_2[0]['embedding']
+    embedding_1 = results_1[0]["embedding"]
+    embedding_2 = results_2[0]["embedding"]
     assert embedding_1 == embedding_2
     logger.info("✅ test represent function for consistent output.")
 
