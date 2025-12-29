@@ -336,7 +336,9 @@ def find(
         for _, instance in df.iterrows():
             source_representation = instance["embedding"]
             if source_representation is None:
-                distances.append(float("inf"))  # no representation for this image
+                # no representation for this image
+                distances.append(float("inf"))
+                confidences.append(0.0)
                 continue
 
             target_dims = len(list(target_representation))
