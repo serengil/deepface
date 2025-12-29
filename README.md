@@ -19,20 +19,7 @@
 
 <div align="center">
   <a href="https://trendshift.io/repositories/4227" target="_blank"><img src="https://trendshift.io/api/badge/repositories/4227" alt="serengil%2Fdeepface | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-  <!--
-  <a href="https://www.producthunt.com/posts/deepface?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-deepface" target="_blank">
-      <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=753599&theme=light" alt="DeepFace - A Lightweight Deep Face Recognition Library for Python | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" />
-  </a>
-  -->
 </div>
-
-<!--
-[![Hacker News](https://img.shields.io/badge/dynamic/json?color=orange&label=Hacker%20News&query=score&url=https%3A%2F%2Fhacker-news.firebaseio.com%2Fv0%2Fitem%2F42584896.json&logo=y-combinator)](https://news.ycombinator.com/item?id=42584896)
-[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-%E2%96%B2-orange?logo=producthunt)](https://www.producthunt.com/posts/deepface?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-deepface)
--->
-
-<!-- [![DOI](http://img.shields.io/:DOI-10.1109/ICEET53442.2021.9659697-blue.svg?style=flat)](https://doi.org/10.1109/ICEET53442.2021.9659697) -->
-<!-- [![DOI](http://img.shields.io/:DOI-10.1109/ASYU50717.2020.9259802-blue.svg?style=flat)](https://doi.org/10.1109/ASYU50717.2020.9259802) -->
 
 </div>
 
@@ -78,7 +65,7 @@ result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 
 **Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
-[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. Herein, deepface has an out-of-the-box find function to handle this action. It's going to look for the identity of input image in the database path and it will return list of pandas data frame as output. Meanwhile, facial embeddings of the facial database are stored in a pickle file to be searched faster in next time. Result is going to be the size of faces appearing in the source image. Besides, target images in the database can have many faces as well.
+[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. DeepFace provides an out-of-the-box `find` function that searches for the identity of an input image within a specified database path. It returns a list of pandas DataFrames containing the results. Meanwhile, facial embeddings are stored in a pickle file to be searched faster in next time.
 
 ```python
 dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")
@@ -86,7 +73,7 @@ dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%"></p>
 
-Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed face search mechanism where embeddings are explicitly registered and queried.
+Here, the find function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed face search mechanism where embeddings are explicitly registered and queried. Currently, postgres and mongo are supported as backend databases.
 
 ```python
 # register an image into the database
@@ -96,7 +83,7 @@ DeepFace.register(img = "img1.jpg")
 dfs = DeepFace.search(img = "target.jpg")
 ```
 
-If you want to perform approximate nearest neighbor search instead of exact search to achieve faster results on large-scale databases, you can build an index beforehand and explicitly enable ANN search.
+If you want to perform [approximate nearest neighbor](https://sefiks.com/2023/12/31/a-step-by-step-approximate-nearest-neighbor-example-in-python-from-scratch/) search instead of exact search to achieve faster results on [large-scale databases](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm), you can build an index beforehand and explicitly enable ANN search.
 
 ```python
 # build index on registered embeddings
@@ -105,8 +92,6 @@ DeepFace.build_index()
 # perform approximate nearest neighbor search
 dfs = DeepFace.search(img = "target.jpg", search_method = "ann")
 ```
-
-The register, search, and index operations are also available via the DeepFace API.
 
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
@@ -313,26 +298,22 @@ dfs = DeepFace.find(
 DeepFace serves an API as well - see [`api folder`](https://github.com/serengil/deepface/tree/master/deepface/api/src) for more details. You can clone deepface source code and run the api with the following command. It will use gunicorn server to get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
 
 ```shell
-cd scripts
-
-# run the service directly
-./service.sh
-
-# run the service via docker
-./dockerize.sh
+cd scripts && ./service.sh
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%"></p>
 
-Face recognition, facial attribute analysis and vector representation functions are covered in the API. You are expected to call these functions as http post methods. Default service endpoints will be `http://localhost:5005/verify` for face recognition, `http://localhost:5005/analyze` for facial attribute analysis, and `http://localhost:5005/represent` for vector representation. The API accepts images as file uploads (via form data), or as exact image paths, URLs, or base64-encoded strings (via either JSON or form data), providing versatile options for different client requirements. [Here](https://github.com/serengil/deepface/tree/master/deepface/api/postman), you can find a postman project to find out how these methods should be called.
+Face verification, facial attribute analysis, vector representation and register & search functions are covered in the API. The API accepts images as file uploads (via form data), or as exact image paths, URLs, or base64-encoded strings (via either JSON or form data).
 
-**Large Scale Facial Recognition** - [`Playlist`](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm)
+```shell
+$ curl -X POST http://localhost:5005/represent -H "Content-Type: application/json" -d '{"model_name":"Facenet", "img":"img1.jpg"}'
+$ curl -X POST http://localhost:5005/verify -H "Content-Type: application/json" -d '{"img1":"img1.jpg", "img2":"img3.jpg"}'
+$ curl -X POST http://localhost:5005/analyze -H 'Content-Type: application/json' -d '{"img": "img2.jpg", "actions": ["age", "gender"]}'
+$ curl -X POST http://localhost:5005/register -H "Content-Type: application/json" -d '{"model_name":"Facenet", "img":"img18.jpg"}'
+$ curl -X POST http://localhost:5005/search -H "Content-Type: application/json" -d '{"img":"img1.jpg", "model_name":"Facenet"}'
+```
 
-If your task requires facial recognition on large datasets, you should combine DeepFace with a vector index or vector database. This setup will perform [approximate nearest neighbor](https://youtu.be/c10w0Ptn_CU) searches instead of exact ones, allowing you to identify a face in a database containing billions of entries within milliseconds. Common vector index solutions include [Annoy](https://youtu.be/Jpxm914o2xk), [Faiss](https://youtu.be/6AmEvDTKT-k), [Voyager](https://youtu.be/2ZYTV9HlFdU), [NMSLIB](https://youtu.be/EVBhO8rbKbg), [ElasticSearch](https://youtu.be/i4GvuOmzKzo). For vector databases, popular options are [Postgres with its pgvector extension](https://youtu.be/Xfv4hCWvkp0) and [RediSearch](https://youtu.be/yrXlS0d6t4w).
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-big-data.jpg" width="90%"></p>
-
-Conversely, if your task involves facial recognition on small to moderate-sized databases, you can adopt use relational databases such as [Postgres](https://youtu.be/f41sLxn1c0k) or [SQLite](https://youtu.be/_1ShBeWToPg), or NoSQL databases like [Mongo](https://youtu.be/dmprgum9Xu8), [Redis](https://youtu.be/X7DSpUMVTsw) or [Cassandra](https://youtu.be/J_yXpc3Y8Ec) to perform exact nearest neighbor search.
+[`Here`](https://github.com/serengil/deepface/tree/master/deepface/api/postman), you can find a postman project to find out how these methods should be called.
 
 **Encrypt Embeddings** - [`Demo with PHE`](https://youtu.be/8VCu39jFZ7k), [`Tutorial for PHE`](https://sefiks.com/2025/03/04/vector-similarity-search-with-partially-homomorphic-encryption-in-python/), [`Demo with FHE`](https://youtu.be/njjw0PEhH00), [`Tutorial for FHE`](https://sefiks.com/2021/12/01/homomorphic-facial-recognition-with-tenseal/)
 
@@ -390,35 +371,11 @@ Before creating a PR, you should run the unit tests and linting locally by runni
 
 There are many ways to support a project - starring⭐️ the GitHub repo is just one 🙏 It really helps the project get discovered by more people.
 
-If you do like this work, then you can support it financially on [Patreon](https://www.patreon.com/serengil?repo=deepface), [GitHub Sponsors](https://github.com/sponsors/serengil) or [Buy Me a Coffee](https://buymeacoffee.com/serengil). Also, your company's logo will be shown on README on GitHub if you become a sponsor in gold, silver or bronze tiers.
+If you do like this work, then you can support it financially on [Patreon](https://www.patreon.com/serengil?repo=deepface), [GitHub Sponsors](https://github.com/sponsors/serengil) or [Buy Me a Coffee](https://buymeacoffee.com/serengil).
 
 <a href="https://www.patreon.com/serengil?repo=deepface">
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/patreon.png" width="30%">
 </a>
-
-<!--
-<a href="https://github.com/sponsors/serengil">
-<img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/github_sponsor_button.png" width="37%">
-</a>
-
-<a href="https://buymeacoffee.com/serengil">
-<img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/bmc-button.png" width="25%">
-</a>
--->
-
-<!--
-Additionally, you can help us reach a wider audience by upvoting our posts on Hacker News and Product Hunt.
-
-<div style="display: flex; align-items: center; gap: 10px;">
-  <a href="https://news.ycombinator.com/item?id=42584896">
-    <img src="https://hackerbadge.vercel.app/api?id=42584896&type=orange" style="width: 250px; height: 54px;" width="250" alt="Featured on Hacker News">
-  </a>
-  
-  <a href="https://www.producthunt.com/posts/deepface?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-deepface" target="_blank">
-    <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=753599&theme=light" alt="DeepFace - A Lightweight Deep Face Recognition Library for Python | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" />
-  </a>
-</div>
--->
 
 ## Citation
 
@@ -444,23 +401,6 @@ Please cite deepface in your publications if it helps your research.
 </details>
 
 <details>
-  <summary>S. I. Serengil and A. Ozpinar, <b>"LightFace: A Hybrid Deep Face Recognition Framework"</b>, <i>2020 Innovations in Intelligent Systems and Applications Conference (ASYU)</i>, 2020, pp. 23-27.</summary>
-  
-  ```BibTeX
-  @inproceedings{serengil2020lightface,
-    title        = {LightFace: A Hybrid Deep Face Recognition Framework},
-    author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-    booktitle    = {2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
-    pages        = {23-27},
-    year         = {2020},
-    doi          = {10.1109/ASYU50717.2020.9259802},
-    url          = {https://ieeexplore.ieee.org/document/9259802},
-    organization = {IEEE}
-  }
-  ```
-</details>
-
-<details>
   <summary>S. I. Serengil and A. Ozpinar, <b>"HyperExtended LightFace: A Facial Attribute Analysis Framework"</b>, <i>2021 International Conference on Engineering and Emerging Technologies (ICEET)</i>, 2021, pp. 1-4.</summary>
   
   ```BibTeX
@@ -472,6 +412,23 @@ Please cite deepface in your publications if it helps your research.
     year         = {2021},
     doi          = {10.1109/ICEET53442.2021.9659697},
     url          = {https://ieeexplore.ieee.org/document/9659697},
+    organization = {IEEE}
+  }
+  ```
+</details>
+
+<details>
+  <summary>S. I. Serengil and A. Ozpinar, <b>"LightFace: A Hybrid Deep Face Recognition Framework"</b>, <i>2020 Innovations in Intelligent Systems and Applications Conference (ASYU)</i>, 2020, pp. 23-27.</summary>
+  
+  ```BibTeX
+  @inproceedings{serengil2020lightface,
+    title        = {LightFace: A Hybrid Deep Face Recognition Framework},
+    author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
+    booktitle    = {2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
+    pages        = {23-27},
+    year         = {2020},
+    doi          = {10.1109/ASYU50717.2020.9259802},
+    url          = {https://ieeexplore.ieee.org/document/9259802},
     organization = {IEEE}
   }
   ```

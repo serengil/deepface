@@ -742,11 +742,14 @@ def register(
         normalization (string): Normalize the input image before feeding it to the model.
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
-        database_type (str): Type of database to register identities. Options: 'postgres'
+        database_type (str): Type of database to register identities. Options: 'postgres', 'mongo'
             (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
+    Returns:
+        result (dict): A dictionary containing registration results with following keys.
+            - inserted (int): Number of embeddings successfully registered to the database.
     """
     return datastore.register(
         img=img,
@@ -812,7 +815,7 @@ def search(
             (e.g., celebrity or parental look-alikes). Default is False.
         k (int): Number of top similar faces to retrieve from the database for each detected face.
             If not specified, all faces within the threshold will be returned (default is None).
-        database_type (str): Type of database to search identities. Options: 'postgres'
+        database_type (str): Type of database to search identities. Options: 'postgres', 'mongo'
             (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
@@ -865,6 +868,7 @@ def build_index(
     database_type: str = "postgres",
     connection: Any = None,
     connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    max_neighbors_per_node: int = 32,
 ) -> None:
     """
     Build index for faster search in the database. You should set search_method to 'ann'
@@ -878,6 +882,13 @@ def build_index(
             'centerface' or 'skip' (default is opencv).
         align (bool): Flag to enable face alignment (default is True).
         l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        database_type (str): Type of database to build index. Options: 'postgres', 'mongo'
+            (default is 'postgres').
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+        connection_details (dict or str): Connection details for the database.
+        max_neighbors_per_node (int): Maximum number of neighbors per node in the index
+            (default is 32).
     """
     return datastore.build_index(
         model_name=model_name,
@@ -887,4 +898,5 @@ def build_index(
         database_type=database_type,
         connection=connection,
         connection_details=connection_details,
+        max_neighbors_per_node=max_neighbors_per_node,
     )
