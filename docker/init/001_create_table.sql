@@ -3,7 +3,8 @@ DROP TABLE IF EXISTS embeddings;
 CREATE TABLE IF NOT EXISTS embeddings (
     id SERIAL PRIMARY KEY,
     img_name TEXT NOT NULL,
-    face JSONB NOT NULL,
+    face BYTEA NOT NULL,
+    face_shape INT[] NOT NULL,
     model_name TEXT NOT NULL,
     detector_backend TEXT NOT NULL,
     aligned BOOLEAN DEFAULT true,
@@ -11,8 +12,8 @@ CREATE TABLE IF NOT EXISTS embeddings (
     embedding FLOAT8[] NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now(),
 
-    face_hash BYTEA NOT NULL,
-    embedding_hash BYTEA NOT NULL,
+    face_hash TEXT NOT NULL,
+    embedding_hash TEXT NOT NULL,
 
     UNIQUE (face_hash, embedding_hash)
 );

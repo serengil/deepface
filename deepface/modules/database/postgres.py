@@ -8,8 +8,8 @@ from typing import Any, Dict, Optional, List, Union, cast
 # 3rd party dependencies
 import numpy as np
 
-
 # project dependencies
+from deepface.modules.database.types import Database
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -21,15 +21,16 @@ CREATE_EMBEDDINGS_TABLE_SQL = """
     CREATE TABLE IF NOT EXISTS embeddings (
         id BIGSERIAL PRIMARY KEY,
         img_name TEXT NOT NULL,
-        face JSONB NOT NULL,
+        face BYTEA NOT NULL,
+        face_shape INT[] NOT NULL,
         model_name TEXT NOT NULL,
         detector_backend TEXT NOT NULL,
         aligned BOOLEAN DEFAULT true,
         l2_normalized BOOLEAN DEFAULT false,
         embedding FLOAT8[] NOT NULL,
         created_at TIMESTAMPTZ DEFAULT now(),
-        face_hash BYTEA NOT NULL,
-        embedding_hash BYTEA NOT NULL,
+        face_hash TEXT NOT NULL,
+        embedding_hash TEXT NOT NULL,
         UNIQUE (face_hash, embedding_hash)
     );
 """
@@ -50,7 +51,7 @@ CREATE_EMBEDDINGS_INDEX_TABLE_SQL = """
 
 
 # pylint: disable=too-many-positional-arguments
-class PostgresClient:
+class PostgresClient(Database):
     def __init__(
         self,
         connection_details: Optional[Union[Dict[str, Any], str]] = None,
@@ -85,9 +86,9 @@ class PostgresClient:
                 self.conn = self.psycopg.connect(**self.conn_details)
 
         # Ensure the embeddings table exists
-        self.__ensure_embeddings_table()
+        self.ensure_embeddings_table()
 
-    def __ensure_embeddings_table(self) -> None:
+    def ensure_embeddings_table(self) -> None:
         """
         Ensure that the `embeddings` table exists.
         """
@@ -131,6 +132,15 @@ class PostgresClient:
         l2_normalized: bool,
         index_data: bytes,
     ) -> None:
+        """
+        Upsert embeddings index into PostgreSQL.
+        Args:
+            model_name (str): Name of the model.
+            detector_backend (str): Name of the detector backend.
+            aligned (bool): Whether the embeddings are aligned.
+            l2_normalized (bool): Whether the embeddings are L2 normalized.
+            index_data (bytes): Serialized index data.
+        """
         query = """
             INSERT INTO embeddings_index (model_name, detector_backend, align, l2_normalized, index_data)
             VALUES (%s, %s, %s, %s, %s)
@@ -153,6 +163,16 @@ class PostgresClient:
         aligned: bool,
         l2_normalized: bool,
     ) -> bytes:
+        """
+        Get embeddings index from PostgreSQL.
+        Args:
+            model_name (str): Name of the model.
+            detector_backend (str): Name of the detector backend.
+            aligned (bool): Whether the embeddings are aligned.
+            l2_normalized (bool): Whether the embeddings are L2 normalized.
+        Returns:
+            bytes: Serialized index data.
+        """
         query = """
             SELECT index_data
             FROM embeddings_index
@@ -172,9 +192,15 @@ class PostgresClient:
                 "You must run build_index first."
             )
 
-    def insert_embeddings(
-        self, embeddings: List[Dict[str, Any]], batch_size: int = 100
-    ) -> Optional[int]:
+    def insert_embeddings(self, embeddings: List[Dict[str, Any]], batch_size: int = 100) -> int:
+        """
+        Insert multiple embeddings into PostgreSQL.
+        Args:
+            embeddings (List[Dict[str, Any]]): List of embeddings to insert.
+            batch_size (int): Number of embeddings to insert per batch.
+        Returns:
+            int: Number of embeddings inserted.
+        """
         if not embeddings:
             raise ValueError("No embeddings to insert.")
 
@@ -182,6 +208,7 @@ class PostgresClient:
             INSERT INTO embeddings (
                 img_name,
                 face,
+                face_shape,
                 model_name,
                 detector_backend,
                 aligned,
@@ -190,29 +217,27 @@ class PostgresClient:
                 face_hash,
                 embedding_hash
             )
-            VALUES (%s, %s::jsonb, %s, %s, %s, %s, %s, %s, %s);
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """
 
         values = []
         for e in embeddings:
             face = e["face"]
-            if isinstance(face, np.ndarray):
-                face_json = json.dumps(face.tolist())
-            elif isinstance(face, list):
-                face_json = json.dumps(face)
-            else:
-                raise ValueError("Face data must be a numpy array or a list.")
+            face_shape = list(face.shape)
+            face_bytes = face.astype(np.float32).tobytes()
+            face_json = json.dumps(face.tolist())
 
             embedding_bytes = struct.pack(f'{len(e["embedding"])}d', *e["embedding"])
 
             # uniqueness is guaranteed by face hash and embedding hash
-            face_hash = hashlib.sha256(face_json.encode()).digest()
-            embedding_hash = hashlib.sha256(embedding_bytes).digest()
+            face_hash = hashlib.sha256(face_json.encode()).hexdigest()
+            embedding_hash = hashlib.sha256(embedding_bytes).hexdigest()
 
             values.append(
                 (
                     e["img_name"],
-                    face_json,
+                    face_bytes,
+                    face_shape,
                     e["model_name"],
                     e["detector_backend"],
                     e["aligned"],

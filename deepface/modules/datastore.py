@@ -10,7 +10,9 @@ import numpy as np
 from numpy.typing import NDArray
 
 # project dependencies
+from deepface.modules.database.types import Database
 from deepface.modules.database.postgres import PostgresClient
+from deepface.modules.database.mongo import MongoDbClient as MongoClient
 
 from deepface.modules.representation import represent
 from deepface.modules.verification import (
@@ -41,7 +43,38 @@ def register(
     connection_details: Optional[Union[Dict[str, Any], str]] = None,
     connection: Any = None,
 ) -> Dict[str, Any]:
-
+    """
+    Register identities to database for face recognition
+    Args:
+        img (str or np.ndarray or IO[bytes] or list): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If a list is provided, each element should be a string
+            or numpy array representing an image, and the function will process images in batch.
+        img_name (optional str): image name to store in db, if not provided then we will try to
+            extract it from given img.
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
+            'centerface' or 'skip' (default is opencv).
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Set to False to avoid the exception for low-resolution images (default is True).
+        align (bool): Flag to enable face alignment (default is True).
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+        normalization (string): Normalize the input image before feeding it to the model.
+            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+        database_type (str): Type of database to register identities. Options: 'postgres', 'mongo'
+            (default is 'postgres').
+        connection_details (dict or str): Connection details for the database.
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+    Returns:
+        result (dict): A dictionary containing registration results with following keys.
+            - inserted (int): Number of embeddings successfully registered to the database.
+    """
     db_client = __connect_database(
         database_type=database_type,
         connection_details=connection_details,
@@ -109,6 +142,60 @@ def search(
     connection: Any = None,
     search_method: str = "exact",
 ) -> List[pd.DataFrame]:
+    """
+    Search for identities in database for face recognition. This is a stateless facial
+        recognition function. Use find function to do it in a stateful way.
+    Args:
+        img (str or np.ndarray or IO[bytes] or list): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If a list is provided, each element should be a string
+            or numpy array representing an image, and the function will process images in batch.
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
+            'centerface' or 'skip' (default is opencv).
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'angular' (default is cosine).
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Set to False to avoid the exception for low-resolution images (default is True).
+        align (bool): Flag to enable face alignment (default is True).
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+        normalization (string): Normalize the input image before feeding it to the model.
+            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+        similarity_search (boolean): If False, performs identity verification and returns images of
+            the same person. If True, performs similarity search and returns visually similar faces
+            (e.g., celebrity or parental look-alikes). Default is False.
+        k (int): Number of top similar faces to retrieve from the database for each detected face.
+            If not specified, all faces within the threshold will be returned (default is None).
+        database_type (str): Type of database to search identities. Options: 'postgres', 'mongo'
+            (default is 'postgres').
+        connection_details (dict or str): Connection details for the database.
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+        search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
+            To use ann search, you must run build_index function first to create the index.
+    Returns:
+        results (List[pd.DataFrame]):
+            A list of pandas dataframes or a list of dicts. Each dataframe or dict corresponds
+                to the identity information for an individual detected in the source image.
+
+            The DataFrame columns or dict keys include:
+            - id: ID of the detected individual.
+            - img_name: Name of the image file in the database.
+            - model_name: Name of the model used for recognition.
+            - aligned: Whether face alignment was performed.
+            - l2_normalized: Whether L2 normalization was applied.
+            - search_method: Method used for searching identities: exact or ann.
+            - distance_metric: Distance metric used for similarity measurement.
+                Distance metric will be ignored for ann search, and set to cosine if l2_normalize
+                is True, euclidean if l2_normalize is False.
+            - distance: Similarity score between the faces based on the specified model
+                and distance metric
+    """
     dfs: List[pd.DataFrame] = []
 
     db_client = __connect_database(
@@ -131,10 +218,18 @@ def search(
     )
 
     if search_method == "ann":
+        new_distance_metric = None
         if l2_normalize is True:
-            distance_metric = "cosine"
+            new_distance_metric = "cosine"
         elif l2_normalize is False:
-            distance_metric = "euclidean"
+            new_distance_metric = "euclidean"
+
+        if new_distance_metric is not None and new_distance_metric != distance_metric:
+            logger.warn(
+                f"Overwriting distance_metric to '{new_distance_metric}' since "
+                f"{'vectors are L2-norm' if l2_normalize else 'vectors are not L2-norm'}."
+            )
+            distance_metric = new_distance_metric
 
         threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
 
@@ -189,8 +284,10 @@ def search(
     elif search_method == "exact":
 
         if l2_normalize is True and distance_metric == "euclidean":
-            logger.warn("Overwriting distance_metric to 'cosine' since vectors are L2 normalized.")
-            distance_metric = "cosine"
+            logger.warn(
+                "Overwriting distance_metric to 'euclidean_l2' since vectors are L2 normalized."
+            )
+            distance_metric = "euclidean_l2"
 
         threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
 
@@ -263,6 +360,33 @@ def __get_embeddings(
     anti_spoofing: bool = False,
     return_face: bool = True,
 ) -> List[Dict[str, Any]]:
+    """
+    Get embeddings for given image(s)
+    Args:
+        img (str or np.ndarray or IO[bytes] or list): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If a list is provided, each element should be a string
+            or numpy array representing an image, and the function will process images in batch.
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
+            'centerface' or 'skip' (default is opencv).
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Set to False to avoid the exception for low-resolution images (default is True).
+        align (bool): Flag to enable face alignment (default is True).
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+        normalization (string): Normalize the input image before feeding it to the model.
+            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+        return_face (bool): Whether to return the aligned face along with the embedding
+            (default is True).
+    Returns:
+        results (List[Dict]): A list of dictionaries containing embeddings and optionally
+            aligned face images for each detected face in the input image(s).
+    """
     results = represent(
         img_path=img,
         model_name=model_name,
@@ -292,20 +416,47 @@ def __connect_database(
     database_type: str = "postgres",
     connection_details: Optional[Union[Dict[str, Any], str]] = None,
     connection: Any = None,
-) -> PostgresClient:
+) -> Database:
+    """
+    Connect to the specified database type
+    Args:
+        database_type (str): Type of database to connect. Options: 'postgres', 'mongo'
+            (default is 'postgres').
+        connection_details (dict or str): Connection details for the database.
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+    Returns:
+        db_client (Database): An instance of the connected database client.
+    """
     if database_type == "postgres":
-        db_client = PostgresClient(connection_details=connection_details, connection=connection)
-        return db_client
+        postgres_client = PostgresClient(
+            connection_details=connection_details, connection=connection
+        )
+        return postgres_client
+    if database_type == "mongo":
+        mongo_client = MongoClient(connection_details=connection_details, connection=connection)
+        return mongo_client
     raise ValueError(f"Unsupported database type: {database_type}")
 
 
 def __get_index(
-    db_client: PostgresClient,
+    db_client: Database,
     model_name: str,
     detector_backend: str,
     align: bool,
     l2_normalize: bool,
 ) -> Any:
+    """
+    Retrieve the embeddings index from the database
+    Args:
+        db_client (Database): An instance of the connected database client.
+        model_name (str): Model for face recognition.
+        detector_backend (string): face detector backend.
+        align (bool): Flag to enable face alignment.
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+    Returns:
+        embeddings_index (Any): The deserialized embeddings index object, or None if not found.
+    """
     import faiss
 
     try:
@@ -331,7 +482,28 @@ def build_index(
     connection_details: Optional[Union[Dict[str, Any], str]] = None,
     connection: Any = None,
     batch_size: int = 1000,
+    max_neighbors_per_node: int = 32,
 ) -> None:
+    """
+    Build index for faster search in the database. You should set search_method to 'ann'
+        in the search function to use the built index.
+    Args:
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
+            'centerface' or 'skip' (default is opencv).
+        align (bool): Flag to enable face alignment (default is True).
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        database_type (str): Type of database to build index. Options: 'postgres', 'mongo'
+            (default is 'postgres').
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+        connection_details (dict or str): Connection details for the database.
+        max_neighbors_per_node (int): Maximum number of neighbors per node in the index
+            (default is 32).
+    """
     try:
         import faiss
     except ImportError as e:
@@ -389,10 +561,9 @@ def build_index(
     vectors = np.array([item["embedding"] for item in unindexed_source_embeddings], dtype="float32")
 
     embedding_dim_size = len(source_embeddings[0]["embedding"])
-    m = 32
 
     if index is None:
-        base_index = faiss.IndexHNSWFlat(embedding_dim_size, m)
+        base_index = faiss.IndexHNSWFlat(embedding_dim_size, max_neighbors_per_node)
         index = faiss.IndexIDMap(base_index)
 
     tic = time.time()
