@@ -13,6 +13,17 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init:/docker-entrypoint-initdb.d
+  weaviate:
+    image: semitechnologies/weaviate:latest
+    ports:
+      - "8080:8080"  # REST API / GraphQL Playground
+    environment:
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      ENABLE_MODULES: ""
+      PERSISTENCE_DATA_PATH: "./data"
+    volumes:
+      - ./weaviate_data:/var/lib/weaviate
 
 volumes:
   postgres_data:

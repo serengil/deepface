@@ -13,12 +13,14 @@ from numpy.typing import NDArray
 from deepface.modules.database.types import Database
 from deepface.modules.database.postgres import PostgresClient
 from deepface.modules.database.mongo import MongoDbClient as MongoClient
+from deepface.modules.database.weaviate import WeaviateClient
 
 from deepface.modules.representation import represent
 from deepface.modules.verification import (
     find_angular_distance,
     find_cosine_distance,
     find_euclidean_distance,
+    l2_normalize as find_l2_normalize,
     find_threshold,
 )
 from deepface.commons.logger import Logger
@@ -66,8 +68,8 @@ def register(
         normalization (string): Normalize the input image before feeding it to the model.
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
-        database_type (str): Type of database to register identities. Options: 'postgres', 'mongo'
-            (default is 'postgres').
+        database_type (str): Type of database to register identities. Options: 'postgres', 'mongo',
+            'weaviate' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -171,8 +173,8 @@ def search(
             (e.g., celebrity or parental look-alikes). Default is False.
         k (int): Number of top similar faces to retrieve from the database for each detected face.
             If not specified, all faces within the threshold will be returned (default is None).
-        database_type (str): Type of database to search identities. Options: 'postgres', 'mongo'
-            (default is 'postgres').
+        database_type (str): Type of database to search identities. Options: 'postgres', 'mongo',
+            'weaviate' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -198,6 +200,25 @@ def search(
     """
     dfs: List[pd.DataFrame] = []
 
+    # adjust distance metric
+    if search_method == "ann":
+        # ann does cosine for l2 normalized vectors, euclidean for non-l2 normalized vectors
+        new_distance_metric = "cosine" if l2_normalize is True else "euclidean"
+        if new_distance_metric != distance_metric:
+            logger.warn(
+                f"Overwriting distance_metric to '{new_distance_metric}' since "
+                f"{'vectors are L2-norm' if l2_normalize else 'vectors are not L2-norm'}."
+            )
+            distance_metric = new_distance_metric
+    elif search_method != "exact":
+        if l2_normalize is True and distance_metric == "euclidean":
+            logger.warn(
+                "Overwriting distance_metric to 'euclidean_l2' since vectors are L2 normalized."
+            )
+            distance_metric = "euclidean_l2"
+
+    threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
+
     db_client = __connect_database(
         database_type=database_type,
         connection_details=connection_details,
@@ -217,22 +238,7 @@ def search(
         return_face=False,
     )
 
-    if search_method == "ann":
-        new_distance_metric = None
-        if l2_normalize is True:
-            new_distance_metric = "cosine"
-        elif l2_normalize is False:
-            new_distance_metric = "euclidean"
-
-        if new_distance_metric is not None and new_distance_metric != distance_metric:
-            logger.warn(
-                f"Overwriting distance_metric to '{new_distance_metric}' since "
-                f"{'vectors are L2-norm' if l2_normalize else 'vectors are not L2-norm'}."
-            )
-            distance_metric = new_distance_metric
-
-        threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
-
+    if search_method == "ann" and database_type in ["mongo", "postgres"]:  # use faiss
         try:
             import faiss
         except ImportError as e:
@@ -281,16 +287,46 @@ def search(
                 dfs.append(df)
         return dfs
 
-    elif search_method == "exact":
-
-        if l2_normalize is True and distance_metric == "euclidean":
-            logger.warn(
-                "Overwriting distance_metric to 'euclidean_l2' since vectors are L2 normalized."
+    elif search_method == "ann" and database_type in ["weaviate"]:  # use vector db
+        for result in results:
+            target_vector: List[float] = result["embedding"]
+            neighbours = db_client.search_by_vector(
+                vector=target_vector,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                aligned=align,
+                l2_normalized=l2_normalize,
+                limit=k or 20,
             )
-            distance_metric = "euclidean_l2"
+            instances = []
+            for neighbour in neighbours:
+                instance = {
+                    "id": neighbour["id"],
+                    "img_name": neighbour["img_name"],
+                    "model_name": model_name,
+                    "detector_backend": detector_backend,
+                    "aligned": align,
+                    "l2_normalized": l2_normalize,
+                    "search_method": search_method,
+                    "distance_metric": distance_metric,
+                    "distance": (
+                        neighbour["distance"] if l2_normalize else math.sqrt(neighbour["distance"])
+                    ),
+                }
 
-        threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
+                if similarity_search is False and instance["distance"] <= threshold:
+                    instances.append(instance)
 
+            if len(instances) > 0:
+                df = pd.DataFrame(instances)
+                df = df.sort_values(by="distance", ascending=True).reset_index(drop=True)
+                if k is not None and k > 0:
+                    df = df.nsmallest(k, "distance")
+                dfs.append(df)
+
+        return dfs
+
+    elif search_method == "exact":
         source_embeddings = db_client.fetch_all_embeddings(
             model_name=model_name,
             detector_backend=detector_backend,
@@ -325,6 +361,14 @@ def search(
             elif distance_metric == "angular":
                 df["distance"] = df.apply(
                     lambda row: find_angular_distance(row["embedding"], row["target_embedding"]),
+                    axis=1,
+                )
+            elif distance_metric == "euclidean_l2":
+                df["distance"] = df.apply(
+                    lambda row: find_euclidean_distance(
+                        find_l2_normalize(row["embedding"]),
+                        find_l2_normalize(row["target_embedding"]),
+                    ),
                     axis=1,
                 )
             else:
@@ -420,8 +464,8 @@ def __connect_database(
     """
     Connect to the specified database type
     Args:
-        database_type (str): Type of database to connect. Options: 'postgres', 'mongo'
-            (default is 'postgres').
+        database_type (str): Type of database to connect. Options: 'postgres', 'mongo',
+            'weaviate' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -436,6 +480,12 @@ def __connect_database(
     if database_type == "mongo":
         mongo_client = MongoClient(connection_details=connection_details, connection=connection)
         return mongo_client
+
+    if database_type == "weaviate":
+        weaviate_client = WeaviateClient(
+            connection_details=connection_details, connection=connection
+        )
+        return weaviate_client
     raise ValueError(f"Unsupported database type: {database_type}")
 
 
@@ -496,14 +546,21 @@ def build_index(
             'centerface' or 'skip' (default is opencv).
         align (bool): Flag to enable face alignment (default is True).
         l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
-        database_type (str): Type of database to build index. Options: 'postgres', 'mongo'
-            (default is 'postgres').
+        database_type (str): Type of database to build index. Options: 'postgres', 'mongo',
+            'weaviate' (default is 'postgres').
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
         connection_details (dict or str): Connection details for the database.
         max_neighbors_per_node (int): Maximum number of neighbors per node in the index
             (default is 32).
     """
+    if database_type in ["weaviate"]:
+        logger.info(
+            "Weaviate is a vector database and manages its own indexes. "
+            "No need to build index manually."
+        )
+        return
+
     try:
         import faiss
     except ImportError as e:

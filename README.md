@@ -58,7 +58,7 @@ from deepface import DeepFace
 This function determines whether two facial images belong to the same person or to different individuals. It accepts exact image file paths as input, but also supports NumPy arrays, base64-encoded images, and URLs. The function returns a dictionary, where the key of interest is `verified`: True indicates the images are of the same person, while False means they are of different people. In addition to this binary classification, the function also provides a [`confidence`](https://youtu.be/QQ4vO6UOsFo) score that reflects the likelihood that the two images represent the same person.
 
 ```python
-result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
+result: dict = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/verify-credit.jpg" width="99%"></p>
@@ -68,12 +68,12 @@ result = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 [Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. DeepFace provides an out-of-the-box `find` function that searches for the identity of an input image within a specified database path. It returns a list of pandas DataFrames containing the results. Meanwhile, facial embeddings are stored in a pickle file to be searched faster in next time.
 
 ```python
-dfs = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")
+dfs: List[pd.DataFrame] = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")
 ```
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%"></p>
 
-Here, the find function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed face search mechanism where embeddings are explicitly registered and queried. Currently, postgres and mongo are supported as backend databases.
+Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed `search` functionality where embeddings are explicitly registered and queried. Currently, postgres, mongo and weaviate are supported as backend databases.
 
 ```python
 # register an image into the database
@@ -83,22 +83,24 @@ DeepFace.register(img = "img1.jpg")
 dfs = DeepFace.search(img = "target.jpg")
 ```
 
-If you want to perform [approximate nearest neighbor](https://sefiks.com/2023/12/31/a-step-by-step-approximate-nearest-neighbor-example-in-python-from-scratch/) search instead of exact search to achieve faster results on [large-scale databases](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm), you can build an index beforehand and explicitly enable ANN search.
+If you want to perform [`approximate nearest neighbor`](https://sefiks.com/2023/12/31/a-step-by-step-approximate-nearest-neighbor-example-in-python-from-scratch/) search instead of exact search to achieve faster results on [large-scale databases](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm), you can build an index beforehand and explicitly enable ANN search. Here, [Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) is used to index embeddings in postgres and mongo whereas weaviate handles indexing internally.
 
 ```python
-# build index on registered embeddings
+# build index on registered embeddings (for postgres and mongo only)
 DeepFace.build_index()
 
 # perform approximate nearest neighbor search
 dfs = DeepFace.search(img = "target.jpg", search_method = "ann")
 ```
 
+For database-backed search, exact search is suitable for datasets up to ~10k entries, typically returning results in less than a second; Postgres or Mongo with ANN works well for datasets from ~10k to 1M entries, with typical response times of seconds; and Vector databases such as Weaviate optimized for very large-scale datasets from ~1M to billions entries (and can scale further with clustering), typically returning results in seconds.
+
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
 DeepFace also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Result is going to be the size of faces appearing in the source image.
 
 ```python
-objs = DeepFace.analyze(
+objs: List[dict] = DeepFace.analyze(
   img_path = "img4.jpg", actions = ['age', 'gender', 'race', 'emotion']
 )
 ```
@@ -301,16 +303,22 @@ DeepFace serves an API as well - see [`api folder`](https://github.com/serengil/
 cd scripts && ./service.sh
 ```
 
+Alternatively, you can run the dockerized service.
+
+```shell
+cd scripts && ./dockerize.sh
+```
+
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-api.jpg" width="90%"></p>
 
 Face verification, facial attribute analysis, vector representation and register & search functions are covered in the API. The API accepts images as file uploads (via form data), or as exact image paths, URLs, or base64-encoded strings (via either JSON or form data).
 
 ```shell
-$ curl -X POST http://localhost:5005/represent -H "Content-Type: application/json" -d '{"model_name":"Facenet", "img":"img1.jpg"}'
-$ curl -X POST http://localhost:5005/verify -H "Content-Type: application/json" -d '{"img1":"img1.jpg", "img2":"img3.jpg"}'
-$ curl -X POST http://localhost:5005/analyze -H 'Content-Type: application/json' -d '{"img": "img2.jpg", "actions": ["age", "gender"]}'
-$ curl -X POST http://localhost:5005/register -H "Content-Type: application/json" -d '{"model_name":"Facenet", "img":"img18.jpg"}'
-$ curl -X POST http://localhost:5005/search -H "Content-Type: application/json" -d '{"img":"img1.jpg", "model_name":"Facenet"}'
+$ curl -X POST http://localhost:5005/represent -d '{"model_name":"Facenet", "img":"img1.jpg"}' -H "Content-Type: application/json"
+$ curl -X POST http://localhost:5005/verify -d '{"img1":"img1.jpg", "img2":"img3.jpg"}' -H "Content-Type: application/json"
+$ curl -X POST http://localhost:5005/analyze -d '{"img": "img2.jpg", "actions": ["age", "gender"]}' -H "Content-Type: application/json"
+$ curl -X POST http://localhost:5005/register -d '{"model_name":"Facenet", "img":"img18.jpg"}' -H "Content-Type: application/json"
+$ curl -X POST http://localhost:5005/search -d '{"img":"img1.jpg", "model_name":"Facenet"}' -H "Content-Type: application/json"
 ```
 
 [`Here`](https://github.com/serengil/deepface/tree/master/deepface/api/postman), you can find a postman project to find out how these methods should be called.

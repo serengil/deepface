@@ -1,5 +1,6 @@
 # built-in dependencies
 from typing import List, Any
+import warnings
 
 # 3rd party dependencies
 from numpy.typing import NDArray
@@ -16,7 +17,9 @@ class MtCnnClient(Detector):
     """
 
     def __init__(self) -> None:
-        self.model = MTCNN()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", ResourceWarning)
+            self.model = MTCNN()
 
     def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
