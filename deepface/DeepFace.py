@@ -742,8 +742,8 @@ def register(
         normalization (string): Normalize the input image before feeding it to the model.
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
-        database_type (str): Type of database to register identities. Options: 'postgres', 'mongo'
-            (default is 'postgres').
+        database_type (str): Type of database to register identities. Options: 'postgres', 'mongo',
+            'weaviate' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -815,8 +815,8 @@ def search(
             (e.g., celebrity or parental look-alikes). Default is False.
         k (int): Number of top similar faces to retrieve from the database for each detected face.
             If not specified, all faces within the threshold will be returned (default is None).
-        database_type (str): Type of database to search identities. Options: 'postgres', 'mongo'
-            (default is 'postgres').
+        database_type (str): Type of database to search identities. Options: 'postgres', 'mongo',
+            'weaviate' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -873,6 +873,12 @@ def build_index(
     """
     Build index for faster search in the database. You should set search_method to 'ann'
         in the search function to use the built index.
+
+    - Use this function after registering all identities to the database.
+    - This function is resumable, run again whenever new identities are added to the db.
+    - Vector databases handle indexing internally, so you don't need to use this function
+        when using a vector database (e.g. 'weaviate') as database_type.
+
     Args:
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
@@ -882,8 +888,8 @@ def build_index(
             'centerface' or 'skip' (default is opencv).
         align (bool): Flag to enable face alignment (default is True).
         l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
-        database_type (str): Type of database to build index. Options: 'postgres', 'mongo'
-            (default is 'postgres').
+        database_type (str): Type of database to build index. Options: 'postgres', 'mongo',
+            'weaviate' (default is 'postgres').
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
         connection_details (dict or str): Connection details for the database.

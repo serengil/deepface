@@ -278,3 +278,17 @@ class MongoDbClient(Database):
             )
 
         return results
+
+    def search_by_vector(
+        self,
+        vector: List[float],
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        aligned: bool = True,
+        l2_normalized: bool = False,
+        limit: int = 10,
+    ) -> List[Dict[str, Any]]:
+        """
+        ANN search using the main vector (embedding).
+        """
+        raise NotImplementedError("ANN search is not natively supported in MongoDB.")

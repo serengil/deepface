@@ -19,3 +19,4 @@ benchmarks/dataset
 benchmarks/lfwe
 venv
 **/.env
+docker/weaviate_data
