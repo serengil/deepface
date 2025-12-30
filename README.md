@@ -361,6 +361,20 @@ DeepFace can also be used to compare a child's face to their parents' or relativ
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-scaled.jpg" width="90%"></p>
 
+## Limitations and Ethical Considerations
+
+DeepFace is a powerful tool for face‑related tasks, but users should be aware of its limitations and the ethical implications of its use.
+
+* **Biases in training data.** The pre‑trained models (age, gender, race, emotion) were trained on specific datasets that may not be representative of all populations. Consequently, predictions may be less accurate for underrepresented groups and can perpetuate existing societal biases.
+
+* **Gender binary assumption.** The gender model outputs only “Man” or “Woman,” which does not reflect the full spectrum of gender identities.
+
+* **Sensitive applications.** Face recognition and attribute analysis can be used in ways that infringe on privacy, enable surveillance without consent, or lead to discriminatory outcomes. We urge developers to consider these risks and adhere to ethical guidelines (e.g., [ACM Code of Ethics](https://www.acm.org/code-of-ethics), [AI Ethics Guidelines](https://www.partnershiponai.org/resources/)) when deploying systems that affect people.
+
+* **Not for high‑stakes decisions.** The library is intended for research and experimentation. It should not be used as the sole basis for consequential decisions (e.g., hiring, law enforcement, access to services) without thorough validation and human oversight.
+
+By being mindful of these issues, the community can help ensure that face‑recognition technology is used responsibly and for the benefit of all.
+
 ## Contribution
 
 Pull requests are more than welcome! If you are planning to contribute a large patch, please create an issue first to get any upfront questions or design decisions out of the way first.
