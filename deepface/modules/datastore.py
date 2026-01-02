@@ -73,6 +73,13 @@ def register(
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
+
+        Note:
+            Instead of providing `connection` or `connection_details`, database connection
+            information can be supplied via environment variables:
+            - DEEPFACE_POSTGRES_URI
+            - DEEPFACE_MONGO_URI
+            - DEEPFACE_WEAVIATE_URI
     Returns:
         result (dict): A dictionary containing registration results with following keys.
             - inserted (int): Number of embeddings successfully registered to the database.
@@ -173,13 +180,20 @@ def search(
             (e.g., celebrity or parental look-alikes). Default is False.
         k (int): Number of top similar faces to retrieve from the database for each detected face.
             If not specified, all faces within the threshold will be returned (default is None).
+        search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
+            To use ann search, you must run build_index function first to create the index.
         database_type (str): Type of database to search identities. Options: 'postgres', 'mongo',
             'weaviate' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
-        search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
-            To use ann search, you must run build_index function first to create the index.
+
+        Note:
+            Instead of providing `connection` or `connection_details`, database connection
+            information can be supplied via environment variables:
+            - DEEPFACE_POSTGRES_URI
+            - DEEPFACE_MONGO_URI
+            - DEEPFACE_WEAVIATE_URI
     Returns:
         results (List[pd.DataFrame]):
             A list of pandas dataframes or a list of dicts. Each dataframe or dict corresponds
@@ -392,137 +406,6 @@ def search(
         raise ValueError(f"Unsupported search method: {search_method}")
 
 
-def __get_embeddings(
-    img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
-    model_name: str = "VGG-Face",
-    detector_backend: str = "opencv",
-    enforce_detection: bool = True,
-    align: bool = True,
-    l2_normalize: bool = False,
-    expand_percentage: int = 0,
-    normalization: str = "base",
-    anti_spoofing: bool = False,
-    return_face: bool = True,
-) -> List[Dict[str, Any]]:
-    """
-    Get embeddings for given image(s)
-    Args:
-        img (str or np.ndarray or IO[bytes] or list): The exact path to the image, a numpy array
-            in BGR format, a file object that supports at least `.read` and is opened in binary
-            mode, or a base64 encoded image. If a list is provided, each element should be a string
-            or numpy array representing an image, and the function will process images in batch.
-        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
-            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
-        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
-            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
-            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
-            'centerface' or 'skip' (default is opencv).
-        enforce_detection (boolean): If no face is detected in an image, raise an exception.
-            Set to False to avoid the exception for low-resolution images (default is True).
-        align (bool): Flag to enable face alignment (default is True).
-        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
-        expand_percentage (int): expand detected facial area with a percentage (default is 0).
-        normalization (string): Normalize the input image before feeding it to the model.
-            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
-        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
-        return_face (bool): Whether to return the aligned face along with the embedding
-            (default is True).
-    Returns:
-        results (List[Dict]): A list of dictionaries containing embeddings and optionally
-            aligned face images for each detected face in the input image(s).
-    """
-    results = represent(
-        img_path=img,
-        model_name=model_name,
-        detector_backend=detector_backend,
-        enforce_detection=enforce_detection,
-        align=align,
-        anti_spoofing=anti_spoofing,
-        expand_percentage=expand_percentage,
-        normalization=normalization,
-        l2_normalize=l2_normalize,
-        return_face=return_face,
-    )
-
-    if len(results) == 0:
-        raise ValueError("No embeddings were detected in the provided image(s).")
-
-    flat_results: List[Dict[str, Any]] = []
-    for result in results:
-        if isinstance(result, dict):
-            flat_results.append(result)
-        elif isinstance(result, list):
-            flat_results.extend(result)
-    return flat_results
-
-
-def __connect_database(
-    database_type: str = "postgres",
-    connection_details: Optional[Union[Dict[str, Any], str]] = None,
-    connection: Any = None,
-) -> Database:
-    """
-    Connect to the specified database type
-    Args:
-        database_type (str): Type of database to connect. Options: 'postgres', 'mongo',
-            'weaviate' (default is 'postgres').
-        connection_details (dict or str): Connection details for the database.
-        connection (Any): Existing database connection object. If provided, this connection
-            will be used instead of creating a new one.
-    Returns:
-        db_client (Database): An instance of the connected database client.
-    """
-    if database_type == "postgres":
-        postgres_client = PostgresClient(
-            connection_details=connection_details, connection=connection
-        )
-        return postgres_client
-    if database_type == "mongo":
-        mongo_client = MongoClient(connection_details=connection_details, connection=connection)
-        return mongo_client
-
-    if database_type == "weaviate":
-        weaviate_client = WeaviateClient(
-            connection_details=connection_details, connection=connection
-        )
-        return weaviate_client
-    raise ValueError(f"Unsupported database type: {database_type}")
-
-
-def __get_index(
-    db_client: Database,
-    model_name: str,
-    detector_backend: str,
-    align: bool,
-    l2_normalize: bool,
-) -> Any:
-    """
-    Retrieve the embeddings index from the database
-    Args:
-        db_client (Database): An instance of the connected database client.
-        model_name (str): Model for face recognition.
-        detector_backend (string): face detector backend.
-        align (bool): Flag to enable face alignment.
-        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
-    Returns:
-        embeddings_index (Any): The deserialized embeddings index object, or None if not found.
-    """
-    import faiss
-
-    try:
-        embeddings_index_bytes = db_client.get_embeddings_index(
-            model_name=model_name,
-            detector_backend=detector_backend,
-            aligned=align,
-            l2_normalized=l2_normalize,
-        )
-        embeddings_index_buffer = np.frombuffer(embeddings_index_bytes, dtype=np.uint8)
-        embeddings_index = faiss.deserialize_index(embeddings_index_buffer)
-        return embeddings_index
-    except ValueError:
-        return None
-
-
 def build_index(
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",
@@ -546,13 +429,20 @@ def build_index(
             'centerface' or 'skip' (default is opencv).
         align (bool): Flag to enable face alignment (default is True).
         l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        max_neighbors_per_node (int): Maximum number of neighbors per node in the index
+            (default is 32).
         database_type (str): Type of database to build index. Options: 'postgres', 'mongo',
             'weaviate' (default is 'postgres').
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
         connection_details (dict or str): Connection details for the database.
-        max_neighbors_per_node (int): Maximum number of neighbors per node in the index
-            (default is 32).
+
+        Note:
+            Instead of providing `connection` or `connection_details`, database connection
+            information can be supplied via environment variables:
+            - DEEPFACE_POSTGRES_URI
+            - DEEPFACE_MONGO_URI
+            - DEEPFACE_WEAVIATE_URI
     """
     if database_type in ["weaviate"]:
         logger.info(
@@ -653,3 +543,141 @@ def build_index(
     )
     toc = time.time()
     logger.info(f"Upserted index to database in {toc - tic:.2f} seconds.")
+
+
+def __get_embeddings(
+    img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    enforce_detection: bool = True,
+    align: bool = True,
+    l2_normalize: bool = False,
+    expand_percentage: int = 0,
+    normalization: str = "base",
+    anti_spoofing: bool = False,
+    return_face: bool = True,
+) -> List[Dict[str, Any]]:
+    """
+    Get embeddings for given image(s)
+    Args:
+        img (str or np.ndarray or IO[bytes] or list): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. If a list is provided, each element should be a string
+            or numpy array representing an image, and the function will process images in batch.
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
+            'centerface' or 'skip' (default is opencv).
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Set to False to avoid the exception for low-resolution images (default is True).
+        align (bool): Flag to enable face alignment (default is True).
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+        normalization (string): Normalize the input image before feeding it to the model.
+            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+        return_face (bool): Whether to return the aligned face along with the embedding
+            (default is True).
+    Returns:
+        results (List[Dict]): A list of dictionaries containing embeddings and optionally
+            aligned face images for each detected face in the input image(s).
+    """
+    results = represent(
+        img_path=img,
+        model_name=model_name,
+        detector_backend=detector_backend,
+        enforce_detection=enforce_detection,
+        align=align,
+        anti_spoofing=anti_spoofing,
+        expand_percentage=expand_percentage,
+        normalization=normalization,
+        l2_normalize=l2_normalize,
+        return_face=return_face,
+    )
+
+    if len(results) == 0:
+        raise ValueError("No embeddings were detected in the provided image(s).")
+
+    flat_results: List[Dict[str, Any]] = []
+    for result in results:
+        if isinstance(result, dict):
+            flat_results.append(result)
+        elif isinstance(result, list):
+            flat_results.extend(result)
+    return flat_results
+
+
+def __connect_database(
+    database_type: str = "postgres",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+) -> Database:
+    """
+    Connect to the specified database type
+    Args:
+        database_type (str): Type of database to connect. Options: 'postgres', 'mongo',
+            'weaviate' (default is 'postgres').
+        connection_details (dict or str): Connection details for the database.
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+
+        Note:
+            Instead of providing `connection` or `connection_details`, database connection
+            information can be supplied via environment variables:
+            - DEEPFACE_POSTGRES_URI
+            - DEEPFACE_MONGO_URI
+            - DEEPFACE_WEAVIATE_URI
+    Returns:
+        db_client (Database): An instance of the connected database client.
+    """
+    if database_type == "postgres":
+        postgres_client = PostgresClient(
+            connection_details=connection_details, connection=connection
+        )
+        return postgres_client
+    if database_type == "mongo":
+        mongo_client = MongoClient(connection_details=connection_details, connection=connection)
+        return mongo_client
+
+    if database_type == "weaviate":
+        weaviate_client = WeaviateClient(
+            connection_details=connection_details, connection=connection
+        )
+        return weaviate_client
+    raise ValueError(f"Unsupported database type: {database_type}")
+
+
+def __get_index(
+    db_client: Database,
+    model_name: str,
+    detector_backend: str,
+    align: bool,
+    l2_normalize: bool,
+) -> Any:
+    """
+    Retrieve the embeddings index from the database
+    Args:
+        db_client (Database): An instance of the connected database client.
+        model_name (str): Model for face recognition.
+        detector_backend (string): face detector backend.
+        align (bool): Flag to enable face alignment.
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+    Returns:
+        embeddings_index (Any): The deserialized embeddings index object, or None if not found.
+    """
+    import faiss
+
+    try:
+        embeddings_index_bytes = db_client.get_embeddings_index(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=align,
+            l2_normalized=l2_normalize,
+        )
+        embeddings_index_buffer = np.frombuffer(embeddings_index_bytes, dtype=np.uint8)
+        embeddings_index = faiss.deserialize_index(embeddings_index_buffer)
+        return embeddings_index
+    except ValueError:
+        return None

@@ -63,7 +63,7 @@ result: dict = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/verify-credit.jpg" width="99%"></p>
 
-**Face recognition** - [`Demo`](https://youtu.be/Hrjp-EStM_s)
+**Face recognition** - [`Tutorial`](https://sefiks.com/2026/01/01/introducing-brand-new-face-recognition-in-deepface/), [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
 [Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. DeepFace provides an out-of-the-box `find` function that searches for the identity of an input image within a specified database path. It returns a list of pandas DataFrames containing the results. Meanwhile, facial embeddings are stored in a pickle file to be searched faster in next time.
 
@@ -73,7 +73,7 @@ dfs: List[pd.DataFrame] = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%"></p>
 
-Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed `search` functionality where embeddings are explicitly registered and queried. Currently, postgres, mongo and weaviate are supported as backend databases.
+Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed [`search`](https://sefiks.com/2026/01/01/introducing-brand-new-face-recognition-in-deepface/) functionality where embeddings are explicitly registered and queried. Currently, postgres, mongo and weaviate are supported as backend databases.
 
 ```python
 # register an image into the database
@@ -153,7 +153,7 @@ Here, you can also find some real time demos for various facial recognition mode
 Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function. Represent function returns a list of embeddings. Result is going to be the size of faces appearing in the image path.
 
 ```python
-embedding_objs = DeepFace.represent(img_path = "img.jpg")
+embedding_objs: List[dict] = DeepFace.represent(img_path = "img.jpg")
 ```
 
 Embeddings can be [plotted](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) as below. Each slot is corresponding to a dimension value and dimension value is emphasized with colors. Similar to 2D barcodes, vertical dimension stores no information in the illustration.
