@@ -499,9 +499,9 @@ def find_threshold(model_name: str, distance_metric: str) -> float:
     return threshold
 
 
-def __sigmoid_percent(z: float) -> float:
+def __sigmoid(z: float) -> float:
     """
-    Compute a numerically stable sigmoid-based confidence score in percentage.
+    Compute a numerically stable sigmoid-based confidence score.
 
     This implementation avoids floating-point overflow errors that can occur
     when computing the standard sigmoid function (1 / (1 + exp(-z))) for very
@@ -571,7 +571,7 @@ def find_confidence(
         distance = distance / normalizer
 
     z = w * distance + b
-    confidence = 100 * __sigmoid_percent(z)
+    confidence = 100 * __sigmoid(z)
 
     # re-distribute the confidence between 0-49 for different persons, 51-100 for same persons
     if verified:
