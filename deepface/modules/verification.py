@@ -513,7 +513,7 @@ def __sigmoid_percent(z: float) -> float:
         z (float): Input value.
 
     Returns:
-        float: Sigmoid output scaled to the range [0, 100].
+        float: Sigmoid output scaled to the range [0, 1].
     """
     if z >= 0:
         return 1 / (1 + math.exp(-z))
