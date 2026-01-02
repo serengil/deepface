@@ -850,6 +850,13 @@ def search(
             - aligned: Whether face alignment was performed.
             - l2_normalized: Whether L2 normalization was applied.
             - search_method: Method used for searching identities: exact or ann.
+            - confidence: Confidence score indicating the likelihood that the images
+                represent the same person. The score is between 0 and 100, where higher values
+                indicate greater confidence in the verification result.
+            - target_x, target_y, target_w, target_h: Bounding box coordinates of the
+                target face in the database. Notice that source image's face coordinates
+                are not included in the result here.
+            - threshold: threshold to determine a pair whether same person or different persons
             - distance_metric: Distance metric used for similarity measurement.
                 Distance metric will be ignored for ann search, and set to cosine if l2_normalize
                 is True, euclidean if l2_normalize is False.

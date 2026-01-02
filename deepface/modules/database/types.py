@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 from abc import ABC, abstractmethod
 
 
@@ -79,5 +79,15 @@ class Database(ABC):
     ) -> List[Dict[str, Any]]:
         """
         ANN search using the main vector (embedding).
+        """
+        pass
+
+    @abstractmethod
+    def search_by_id(
+        self,
+        ids: Union[List[str], List[int]],
+    ) -> List[Dict[str, Any]]:
+        """
+        Search records by their IDs.
         """
         pass

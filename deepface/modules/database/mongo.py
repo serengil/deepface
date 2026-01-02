@@ -266,7 +266,7 @@ class MongoDbClient(Database):
         for doc in cursor:
             results.append(
                 {
-                    # "_id": str(doc["_id"]),
+                    "_id": str(doc["_id"]),
                     "id": doc["sequence"],
                     "img_name": doc["img_name"],
                     "embedding": doc["embedding"],
@@ -292,3 +292,31 @@ class MongoDbClient(Database):
         ANN search using the main vector (embedding).
         """
         raise NotImplementedError("ANN search is not natively supported in MongoDB.")
+
+    def search_by_id(
+        self,
+        ids: Union[List[str], List[int]],
+    ) -> List[Dict[str, Any]]:
+        """
+        Search records by their IDs.
+        """
+        cursor = self.embeddings.find(
+            {"sequence": {"$in": ids}},
+            {
+                "_id": 1,
+                "sequence": 1,
+                "img_name": 1,
+            },
+        )
+
+        results: List[Dict[str, Any]] = []
+        for doc in cursor:
+            results.append(
+                {
+                    "_id": str(doc["_id"]),
+                    "id": doc["sequence"],
+                    "img_name": doc["img_name"],
+                }
+            )
+
+        return results
