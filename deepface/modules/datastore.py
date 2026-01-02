@@ -22,6 +22,7 @@ from deepface.modules.verification import (
     find_euclidean_distance,
     l2_normalize as find_l2_normalize,
     find_threshold,
+    find_confidence,
 )
 from deepface.commons.logger import Logger
 
@@ -275,6 +276,12 @@ def search(
             distances, indices = embeddings_index.search(query_vector, k or 20)
             instances = []
             for i, index in enumerate(indices[0]):
+                distance = (
+                    math.sqrt(distances[0][i])
+                    if distance_metric == "euclidean"
+                    else distances[0][i] / 2
+                )
+                verified = bool(distance <= threshold)
                 instance = {
                     "id": index,
                     # "img_name": "N/A",  # need to fetch from DB if required
@@ -283,14 +290,23 @@ def search(
                     "aligned": align,
                     "l2_normalized": l2_normalize,
                     "search_method": search_method,
+                    "target_x": result.get("facial_area", {}).get("x", None),
+                    "target_y": result.get("facial_area", {}).get("y", None),
+                    "target_w": result.get("facial_area", {}).get("w", None),
+                    "target_h": result.get("facial_area", {}).get("h", None),
                     "distance_metric": distance_metric,
-                    "distance": (
-                        math.sqrt(distances[0][i])
-                        if distance_metric == "euclidean"
-                        else distances[0][i] / 2
-                    ),
+                    "distance": distance,
                 }
-                if similarity_search is False and instance["distance"] <= threshold:
+
+                confidence = find_confidence(
+                    distance=instance["distance"],
+                    model_name=model_name,
+                    distance_metric=distance_metric,
+                    verified=verified,
+                )
+                instance["confidence"] = confidence
+
+                if similarity_search is False and verified:
                     instances.append(instance)
 
             if len(instances) > 0:
@@ -314,6 +330,10 @@ def search(
             )
             instances = []
             for neighbour in neighbours:
+                distance = (
+                    neighbour["distance"] if l2_normalize else math.sqrt(neighbour["distance"])
+                )
+                verified = bool(distance <= threshold)
                 instance = {
                     "id": neighbour["id"],
                     "img_name": neighbour["img_name"],
@@ -322,13 +342,21 @@ def search(
                     "aligned": align,
                     "l2_normalized": l2_normalize,
                     "search_method": search_method,
+                    "target_x": result.get("facial_area", {}).get("x", None),
+                    "target_y": result.get("facial_area", {}).get("y", None),
+                    "target_w": result.get("facial_area", {}).get("w", None),
+                    "target_h": result.get("facial_area", {}).get("h", None),
                     "distance_metric": distance_metric,
-                    "distance": (
-                        neighbour["distance"] if l2_normalize else math.sqrt(neighbour["distance"])
+                    "distance": distance,
+                    "confidence": find_confidence(
+                        distance=distance,
+                        model_name=model_name,
+                        distance_metric=distance_metric,
+                        verified=verified,
                     ),
                 }
 
-                if similarity_search is False and instance["distance"] <= threshold:
+                if similarity_search is False and verified:
                     instances.append(instance)
 
             if len(instances) > 0:
@@ -360,6 +388,10 @@ def search(
             df = pd.DataFrame(source_embeddings)
             df["target_embedding"] = [target_embedding for _ in range(len(df))]
             df["search_method"] = search_method
+            df["target_x"] = result.get("facial_area", {}).get("x", None)
+            df["target_y"] = result.get("facial_area", {}).get("y", None)
+            df["target_w"] = result.get("facial_area", {}).get("w", None)
+            df["target_h"] = result.get("facial_area", {}).get("h", None)
             df["distance_metric"] = distance_metric
 
             if distance_metric == "cosine":
@@ -387,6 +419,16 @@ def search(
                 )
             else:
                 raise ValueError(f"Unsupported distance metric: {distance_metric}")
+
+            df["confidence"] = df.apply(
+                lambda row: find_confidence(
+                    distance=row["distance"],
+                    model_name=model_name,
+                    distance_metric=distance_metric,
+                    verified=bool(row["distance"] <= threshold),
+                ),
+                axis=1,
+            )
 
             df = df.drop(columns=["embedding", "target_embedding"])
 
