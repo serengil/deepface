@@ -12,6 +12,7 @@ load_dotenv()
 from deepface import __version__
 from deepface.api.src.modules.core.routes import blueprint
 from deepface.api.src.dependencies.variables import Variables
+from deepface.api.src.dependencies.container import Container
 from deepface import DeepFace
 from deepface.commons.logger import Logger
 
@@ -22,13 +23,17 @@ def create_app() -> Flask:
     app = Flask(__name__)
     CORS(app)
 
-    # inject variables
     variables = Variables()
+    container = Container(variables=variables)
+
+    # inject variables
     blueprint.variables = variables  # type: ignore[attr-defined]
+    blueprint.container = container  # type: ignore[attr-defined]
 
     load_models_on_startup(variables)
 
     app.register_blueprint(blueprint)
+
     logger.info(f"Welcome to DeepFace API v{__version__}!")
     return app
 

@@ -29,6 +29,7 @@ IMG2_SOURCE = "https://raw.githubusercontent.com/serengil/deepface/refs/heads/ma
 DUMMY_APP = Flask(__name__)
 
 
+# pylint: disable=too-many-public-methods
 class TestVerifyEndpoint(unittest.TestCase):
     def setUp(self):
         download_test_images(IMG1_SOURCE)
@@ -446,6 +447,46 @@ class TestVerifyEndpoint(unittest.TestCase):
                 assert result == img_data
 
         logger.info("✅ test extract_image_from_request for image string from form done")
+
+
+class TestTokenValidation(unittest.TestCase):
+    @patch.dict(os.environ, {"DEEPFACE_AUTH_TOKEN": "some_token"})
+    def setUp(self):
+        app = create_app()
+        app.config["DEBUG"] = True
+        app.config["TESTING"] = True
+        self.app = app.test_client()
+
+    def test_missing_token(self):
+        data = {
+            "img1": "dataset/img1.jpg",
+            "img2": "dataset/img2.jpg",
+        }
+        response = self.app.post("/verify", json=data)
+        assert response.status_code == 401
+        logger.info("✅ missing bearer token test is done")
+
+    def test_invalid_token(self):
+        data = {
+            "img1": "dataset/img1.jpg",
+            "img2": "dataset/img2.jpg",
+        }
+        response = self.app.post(
+            "/verify", json=data, headers={"Authorization": "Bearer wrong_token"}
+        )
+        assert response.status_code == 401
+        logger.info("✅ invalid bearer token test is done")
+
+    def test_valid_token(self):
+        data = {
+            "img1": "dataset/img1.jpg",
+            "img2": "dataset/img2.jpg",
+        }
+        response = self.app.post(
+            "/verify", json=data, headers={"Authorization": "Bearer some_token"}
+        )
+        assert response.status_code == 200
+        logger.info("✅ valid bearer token test is done")
 
 
 def download_test_images(url: str):
