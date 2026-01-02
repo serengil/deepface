@@ -312,3 +312,36 @@ class PostgresClient(Database):
         ANN search using the main vector (embedding).
         """
         raise NotImplementedError("ANN search is not natively supported in Postgres.")
+
+    def search_by_id(
+        self,
+        ids: Union[List[str], List[int]],
+    ) -> List[Dict[str, Any]]:
+        """
+        Search records by their IDs.
+        """
+        if not ids:
+            return []
+
+        # we may return the face in the future
+        query = """
+            SELECT id, img_name
+            FROM embeddings
+            WHERE id = ANY(%s)
+            ORDER BY id ASC;
+        """
+
+        results: List[Dict[str, Any]] = []
+
+        with self.conn.cursor() as cur:
+            cur.execute(query, (ids,))
+            rows = cur.fetchall()
+            for r in rows:
+                results.append(
+                    {
+                        "id": r[0],
+                        "img_name": r[1],
+                    }
+                )
+
+        return results

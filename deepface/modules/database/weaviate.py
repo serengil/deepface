@@ -278,3 +278,15 @@ class WeaviateClient(Database):
         Insert or update the embeddings index in the database.
         """
         raise NotImplementedError("Weaviate does not support storing embeddings index.")
+
+    def search_by_id(
+        self,
+        ids: Union[List[str], List[int]],
+    ) -> List[Dict[str, Any]]:
+        """
+        Search embeddings by their IDs.
+        """
+        raise NotImplementedError(
+            "search_by_id is not implemented for Weaviate yet "
+            "because search by vector returns metadata already."
+        )

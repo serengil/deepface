@@ -207,6 +207,13 @@ def search(
             - aligned: Whether face alignment was performed.
             - l2_normalized: Whether L2 normalization was applied.
             - search_method: Method used for searching identities: exact or ann.
+            - target_x, target_y, target_w, target_h: Bounding box coordinates of the
+                target face in the database. Notice that source image's face coordinates
+                are not included in the result here.
+            - threshold: threshold to determine a pair whether same person or different persons
+            - confidence: Confidence score indicating the likelihood that the images
+                represent the same person. The score is between 0 and 100, where higher values
+                indicate greater confidence in the verification result.
             - distance_metric: Distance metric used for similarity measurement.
                 Distance metric will be ignored for ann search, and set to cosine if l2_normalize
                 is True, euclidean if l2_normalize is False.
@@ -294,6 +301,7 @@ def search(
                     "target_y": result.get("facial_area", {}).get("y", None),
                     "target_w": result.get("facial_area", {}).get("w", None),
                     "target_h": result.get("facial_area", {}).get("h", None),
+                    "threshold": threshold,
                     "distance_metric": distance_metric,
                     "distance": distance,
                     "confidence": find_confidence(
@@ -307,12 +315,21 @@ def search(
                 if similarity_search is False and verified:
                     instances.append(instance)
 
-            if len(instances) > 0:
-                df = pd.DataFrame(instances)
-                df = df.sort_values(by="distance", ascending=True).reset_index(drop=True)
-                if k is not None and k > 0:
-                    df = df.nsmallest(k, "distance")
-                dfs.append(df)
+            if len(instances) == 0:
+                continue
+
+            df = pd.DataFrame(instances)
+            df = df.sort_values(by="distance", ascending=True).reset_index(drop=True)
+            if k is not None and k > 0:
+                df = df.nsmallest(k, "distance")
+
+            # we should query DB to get img_name for each id
+            id_mappings = db_client.search_by_id(ids=df["id"].tolist())
+            ids_df = pd.DataFrame(id_mappings, columns=["id", "img_name"])
+            df = df.merge(ids_df, on="id", how="left")
+            del ids_df
+
+            dfs.append(df)
         return dfs
 
     elif search_method == "ann" and database_type in ["weaviate"]:  # use vector db
@@ -344,6 +361,7 @@ def search(
                     "target_y": result.get("facial_area", {}).get("y", None),
                     "target_w": result.get("facial_area", {}).get("w", None),
                     "target_h": result.get("facial_area", {}).get("h", None),
+                    "threshold": threshold,
                     "distance_metric": distance_metric,
                     "distance": distance,
                     "confidence": find_confidence(
@@ -390,6 +408,7 @@ def search(
             df["target_y"] = result.get("facial_area", {}).get("y", None)
             df["target_w"] = result.get("facial_area", {}).get("w", None)
             df["target_h"] = result.get("facial_area", {}).get("h", None)
+            df["threshold"] = threshold
             df["distance_metric"] = distance_metric
 
             if distance_metric == "cosine":
