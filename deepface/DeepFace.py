@@ -747,6 +747,14 @@ def register(
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
+
+        Note:
+            Instead of providing `connection` or `connection_details`, database connection
+            information can be supplied via environment variables:
+            - DEEPFACE_POSTGRES_URI
+            - DEEPFACE_MONGO_URI
+            - DEEPFACE_WEAVIATE_URI
+
     Returns:
         result (dict): A dictionary containing registration results with following keys.
             - inserted (int): Number of embeddings successfully registered to the database.
@@ -815,13 +823,21 @@ def search(
             (e.g., celebrity or parental look-alikes). Default is False.
         k (int): Number of top similar faces to retrieve from the database for each detected face.
             If not specified, all faces within the threshold will be returned (default is None).
+        search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
+            To use ann search, you must run build_index function first to create the index.
         database_type (str): Type of database to search identities. Options: 'postgres', 'mongo',
             'weaviate' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
-        search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
-            To use ann search, you must run build_index function first to create the index.
+
+        Note:
+            Instead of providing `connection` or `connection_details`, database connection
+            information can be supplied via environment variables:
+            - DEEPFACE_POSTGRES_URI
+            - DEEPFACE_MONGO_URI
+            - DEEPFACE_WEAVIATE_URI
+
     Returns:
         results (List[pd.DataFrame]):
             A list of pandas dataframes or a list of dicts. Each dataframe or dict corresponds
@@ -888,13 +904,20 @@ def build_index(
             'centerface' or 'skip' (default is opencv).
         align (bool): Flag to enable face alignment (default is True).
         l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        max_neighbors_per_node (int): Maximum number of neighbors per node in the index
+            (default is 32).
         database_type (str): Type of database to build index. Options: 'postgres', 'mongo',
             'weaviate' (default is 'postgres').
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
         connection_details (dict or str): Connection details for the database.
-        max_neighbors_per_node (int): Maximum number of neighbors per node in the index
-            (default is 32).
+
+        Note:
+            Instead of providing `connection` or `connection_details`, database connection
+            information can be supplied via environment variables:
+            - DEEPFACE_POSTGRES_URI
+            - DEEPFACE_MONGO_URI
+            - DEEPFACE_WEAVIATE_URI
     """
     return datastore.build_index(
         model_name=model_name,
