@@ -296,15 +296,13 @@ def search(
                     "target_h": result.get("facial_area", {}).get("h", None),
                     "distance_metric": distance_metric,
                     "distance": distance,
+                    "confidence": find_confidence(
+                        distance=distance,
+                        model_name=model_name,
+                        distance_metric=distance_metric,
+                        verified=verified,
+                    ),
                 }
-
-                confidence = find_confidence(
-                    distance=instance["distance"],
-                    model_name=model_name,
-                    distance_metric=distance_metric,
-                    verified=verified,
-                )
-                instance["confidence"] = confidence
 
                 if similarity_search is False and verified:
                     instances.append(instance)
