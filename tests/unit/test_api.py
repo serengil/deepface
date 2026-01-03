@@ -479,12 +479,12 @@ class TestTokenValidation(unittest.TestCase):
             assert response.status_code == 401
             logger.info(f"✅ invalid bearer token test for {endpoint} is done")
 
-    @patch("deepface.api.src.modules.core.service.verify")
-    @patch("deepface.api.src.modules.core.service.analyze")
-    @patch("deepface.api.src.modules.core.service.represent")
-    @patch("deepface.api.src.modules.core.service.register")
-    @patch("deepface.api.src.modules.core.service.search")
     @patch("deepface.api.src.modules.core.service.build_index")
+    @patch("deepface.api.src.modules.core.service.search")
+    @patch("deepface.api.src.modules.core.service.register")
+    @patch("deepface.api.src.modules.core.service.represent")
+    @patch("deepface.api.src.modules.core.service.analyze")
+    @patch("deepface.api.src.modules.core.service.verify")
     def test_valid_token(
         self,
         mock_verify,
