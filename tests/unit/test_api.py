@@ -8,7 +8,6 @@ from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, patch
 
 # 3rd party dependencies
-import pytest
 import flask
 import gdown
 import numpy as np
