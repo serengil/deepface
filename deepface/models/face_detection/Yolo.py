@@ -19,43 +19,43 @@ class YoloModel(Enum):
     V8N = ("yolov8n-face.pt", "https://drive.google.com/uc?id=1qcr9DbgsX3ryrz2uU8w4Xm3cOrRywXqb")
     V8M = (
         "yolov8m-face.pt",
-        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov8m-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/1.0.0/yolov8m-face.pt",
     )
     V8L = (
         "yolov8l-face.pt",
-        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov8l-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/1.0.0/yolov8l-face.pt",
     )
     V11N = (
         "yolov11n-face.pt",
-        "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11n-face.pt",
+        "https://github.com/akanametov/yolo-face/releases/download/1.0.0/yolov11n-face.pt",
     )
     V11S = (
         "yolov11s-face.pt",
-        "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11s-face.pt",
+        "https://github.com/akanametov/yolo-face/releases/download/1.0.0/yolov11s-face.pt",
     )
     V11M = (
         "yolov11m-face.pt",
-        "https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11m-face.pt",
+        "https://github.com/akanametov/yolo-face/releases/download/1.0.0/yolov11m-face.pt",
     )
     V11L = (
         "yolov11l-face.pt",
-        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov11l-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/1.0.0/yolov11l-face.pt",
     )
     V12N = (
         "yolov12n-face.pt",
-        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov12n-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/1.0.0/yolov12n-face.pt",
     )
     V12S = (
         "yolov12s-face.pt",
-        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov12s-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/1.0.0/yolov12s-face.pt",
     )
     V12M = (
         "yolov12m-face.pt",
-        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov12m-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/1.0.0/yolov12m-face.pt",
     )
     V12L = (
         "yolov12l-face.pt",
-        "https://github.com/YapaLab/yolo-face/releases/download/v0.0.0/yolov12l-face.pt",
+        "https://github.com/YapaLab/yolo-face/releases/download/1.0.0/yolov12l-face.pt",
     )
 
     def __init__(self, file_name: str, url: str):
