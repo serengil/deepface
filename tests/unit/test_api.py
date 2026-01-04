@@ -29,8 +29,8 @@ IMG2_SOURCE = "https://raw.githubusercontent.com/serengil/deepface/refs/heads/ma
 DUMMY_APP = Flask(__name__)
 
 
-# pylint: disable=too-many-public-methods
-class TestVerifyEndpoint(unittest.TestCase):
+# pylint: disable=too-many-public-methods, too-many-positional-arguments
+class TestApiFunctions(unittest.TestCase):
     def setUp(self):
         download_test_images(IMG1_SOURCE)
         download_test_images(IMG2_SOURCE)
@@ -450,43 +450,138 @@ class TestVerifyEndpoint(unittest.TestCase):
 
 
 class TestTokenValidation(unittest.TestCase):
-    @patch.dict(os.environ, {"DEEPFACE_AUTH_TOKEN": "some_token"})
+    @patch.dict(
+        os.environ,
+        {
+            "DEEPFACE_AUTH_TOKEN": "some_token",
+            "DEEPFACE_CONNECTION_DETAILS": "some_connection_string",
+        },
+    )
     def setUp(self):
         app = create_app()
         app.config["DEBUG"] = True
         app.config["TESTING"] = True
         self.app = app.test_client()
+        self.payloads = [
+            ("/verify", {"img1": "dataset/img1.jpg", "img2": "dataset/img2.jpg"}),
+            ("/represent", {"img": "dataset/img1.jpg"}),
+            ("/analyze", {"img": "dataset/img1.jpg"}),
+            ("/register", {"img": "dataset/img1.jpg"}),
+            ("/build/index", {}),
+            ("/search", {"img": "dataset/img1.jpg"}),
+        ]
 
     def test_missing_token(self):
-        data = {
-            "img1": "dataset/img1.jpg",
-            "img2": "dataset/img2.jpg",
-        }
-        response = self.app.post("/verify", json=data)
-        assert response.status_code == 401
-        logger.info("✅ missing bearer token test is done")
+        for endpoint, data in self.payloads:
+            response = self.app.post(endpoint, json=data)
+            assert response.status_code == 401
+            logger.info(f"✅ missing bearer token test for {endpoint} is done")
 
     def test_invalid_token(self):
-        data = {
-            "img1": "dataset/img1.jpg",
-            "img2": "dataset/img2.jpg",
-        }
-        response = self.app.post(
-            "/verify", json=data, headers={"Authorization": "Bearer wrong_token"}
-        )
-        assert response.status_code == 401
-        logger.info("✅ invalid bearer token test is done")
+        for endpoint, data in self.payloads:
+            response = self.app.post(
+                endpoint, json=data, headers={"Authorization": "Bearer wrong_token"}
+            )
+            assert response.status_code == 401
+            logger.info(f"✅ invalid bearer token test for {endpoint} is done")
 
-    def test_valid_token(self):
-        data = {
-            "img1": "dataset/img1.jpg",
-            "img2": "dataset/img2.jpg",
-        }
-        response = self.app.post(
-            "/verify", json=data, headers={"Authorization": "Bearer some_token"}
-        )
-        assert response.status_code == 200
-        logger.info("✅ valid bearer token test is done")
+    @patch("deepface.api.src.modules.core.service.build_index")
+    @patch("deepface.api.src.modules.core.service.search")
+    @patch("deepface.api.src.modules.core.service.register")
+    @patch("deepface.api.src.modules.core.service.represent")
+    @patch("deepface.api.src.modules.core.service.analyze")
+    @patch("deepface.api.src.modules.core.service.verify")
+    def test_valid_token(
+        self,
+        mock_verify,
+        mock_analyze,
+        mock_represent,
+        mock_register,
+        mock_search,
+        mock_build_index,
+    ):
+        mock_verify.return_value = ({"verified": True}, 200)
+        mock_analyze.return_value = ({"results": []}, 200)
+        mock_represent.return_value = ({"results": []}, 200)
+        mock_register.return_value = ({"inserted": 1}, 200)
+        mock_search.return_value = ({"results": []}, 200)
+        mock_build_index.return_value = ({"message": "Index built successfully"}, 200)
+
+        for endpoint, data in self.payloads:
+            response = self.app.post(
+                endpoint, json=data, headers={"Authorization": "Bearer some_token"}
+            )
+            assert (
+                response.status_code == 200
+            ), f"Failed at {endpoint} with status {response.status_code}"
+            logger.info(f"✅ valid bearer token test for {endpoint} is done")
+
+
+class TestConnectionStringFailedValidation(unittest.TestCase):
+    def setUp(self):
+        os.environ.pop("DEEPFACE_CONNECTION_DETAILS", None)
+        os.environ.pop("DEEPFACE_POSTGRES_URI", None)
+
+        app = create_app()
+        app.config["DEBUG"] = True
+        app.config["TESTING"] = True
+        self.app = app.test_client()
+
+    def test_register(self):
+        response = self.app.post("/register", json={})
+        assert response.status_code == 500
+        logger.info("✅ invalid connection string test for /register is done")
+
+    def test_build_index(self):
+        response = self.app.post("/build/index", json={})
+        assert response.status_code == 500
+        logger.info("✅ invalid connection string test for /build/index is done")
+
+    def test_search(self):
+        response = self.app.post("/search", json={})
+        assert response.status_code == 500
+        logger.info("✅ invalid connection string test for /search is done")
+
+
+class TestConnectionStringSucceddedValidation(unittest.TestCase):
+    @patch.dict(os.environ, {"DEEPFACE_CONNECTION_DETAILS": "some_connection_string"})
+    def setUp(self):
+        self.patcher_register = patch("deepface.api.src.modules.core.service.register")
+        self.patcher_search = patch("deepface.api.src.modules.core.service.search")
+        self.patcher_build_index = patch("deepface.api.src.modules.core.service.build_index")
+
+        self.mock_register = self.patcher_register.start()
+        self.mock_search = self.patcher_search.start()
+        self.mock_build_index = self.patcher_build_index.start()
+
+        self.mock_register.return_value = ({"inserted": 1}, 200)
+        self.mock_search.return_value = ({"results": []}, 200)
+        self.mock_build_index.return_value = ({"message": "Index built successfully"}, 200)
+
+        app = create_app()
+        app.config["DEBUG"] = True
+        app.config["TESTING"] = True
+        self.app = app.test_client()
+
+    def tearDown(self):
+        self.patcher_register.stop()
+        self.patcher_search.stop()
+        self.patcher_build_index.stop()
+
+    def test_register(self):
+        response = self.app.post("/register", json={"img": "dataset/img1.jpg"})
+        assert response.status_code == 200, response.data
+        logger.info("✅ successful connection string test for /register is done")
+
+    def test_build_index(self):
+        response = self.app.post("/build/index", json={})
+        assert response.status_code == 200, response.data
+        logger.info("✅ successful connection string test for /build/index is done")
+
+    def test_search(self):
+        response = self.app.post("/search", json={"img": "dataset/img1.jpg"})
+        assert response.status_code == 200, response.data
+        logger.info("✅ successful connection string test for /search is done")
 
 
 def download_test_images(url: str):
