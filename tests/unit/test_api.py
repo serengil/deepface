@@ -450,7 +450,13 @@ class TestApiFunctions(unittest.TestCase):
 
 
 class TestTokenValidation(unittest.TestCase):
-    @patch.dict(os.environ, {"DEEPFACE_AUTH_TOKEN": "some_token"})
+    @patch.dict(
+        os.environ,
+        {
+            "DEEPFACE_AUTH_TOKEN": "some_token",
+            "DEEPFACE_CONNECTION_DETAILS": "some_connection_string",
+        },
+    )
     def setUp(self):
         app = create_app()
         app.config["DEBUG"] = True
