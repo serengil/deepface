@@ -10,7 +10,6 @@ from deepface import __version__
 from deepface.api.src.modules.core import service
 from deepface.api.src.dependencies.variables import Variables
 from deepface.api.src.dependencies.container import Container
-from deepface.api.src.modules.auth.service import AuthService
 from deepface.commons import image_utils
 from deepface.commons.logger import Logger
 

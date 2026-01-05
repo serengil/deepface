@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Optional
+from typing import Optional, Dict, Any
 
 # project dependencies
 from deepface.commons.logger import Logger
@@ -21,7 +21,7 @@ class AuthService:
             return parts[1]
         return None
 
-    def validate(self, headers: dict) -> bool:
+    def validate(self, headers: Dict[str, Any]) -> bool:
         if not self.is_auth_enabled:
             logger.debug("Authentication is disabled. Skipping token validation.")
             return True
