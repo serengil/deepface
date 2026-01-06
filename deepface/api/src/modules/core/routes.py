@@ -10,7 +10,6 @@ from deepface import __version__
 from deepface.api.src.modules.core import service
 from deepface.api.src.dependencies.variables import Variables
 from deepface.api.src.dependencies.container import Container
-from deepface.api.src.modules.auth.service import AuthService
 from deepface.commons import image_utils
 from deepface.commons.logger import Logger
 
@@ -20,32 +19,6 @@ blueprint = Blueprint("routes", __name__)
 
 
 # pylint: disable=no-else-return, broad-except
-
-
-def validate_token(auth_service: AuthService) -> bool:
-    # bearer token validation disabled
-    if not auth_service.is_auth_enabled:
-        logger.debug("Authentication is disabled. Skipping token validation.")
-        return True
-
-    auth_header = request.headers.get("Authorization")
-
-    token = None
-    if auth_header:
-        parts = auth_header.split()
-        if len(parts) == 2 and parts[0].lower() == "bearer":
-            token = parts[1]
-
-    if token is None:
-        logger.debug("No authentication token provided. Validation failed.")
-        return False
-
-    if not auth_service.validate_token(token):
-        logger.debug("Invalid authentication token provided. Validation failed.")
-        return False
-
-    logger.debug("Authentication token validated successfully.")
-    return True
 
 
 @blueprint.route("/")
@@ -104,7 +77,7 @@ def extract_image_from_request(img_key: str) -> Union[str, NDArray[Any]]:
 def represent() -> Tuple[Dict[str, Any], int]:
     # load injected container
     container: Container = blueprint.container  # type: ignore[attr-defined]
-    if not validate_token(container.auth_service):
+    if not container.auth_service.validate(request.headers):
         return {"message": "Invalid or missing authentication token"}, 401
 
     input_args = (request.is_json and request.get_json()) or (
@@ -137,7 +110,7 @@ def represent() -> Tuple[Dict[str, Any], int]:
 def verify() -> Tuple[Dict[str, Any], int]:
     # load injected container
     container: Container = blueprint.container  # type: ignore[attr-defined]
-    if not validate_token(container.auth_service):
+    if not container.auth_service.validate(request.headers):
         return {"message": "Invalid or missing authentication token"}, 401
 
     input_args = (request.is_json and request.get_json()) or (
@@ -174,7 +147,7 @@ def verify() -> Tuple[Dict[str, Any], int]:
 def analyze() -> Tuple[Dict[str, Any], int]:
     # load injected container
     container: Container = blueprint.container  # type: ignore[attr-defined]
-    if not validate_token(container.auth_service):
+    if not container.auth_service.validate(request.headers):
         return {"message": "Invalid or missing authentication token"}, 401
 
     input_args = (request.is_json and request.get_json()) or (
@@ -220,7 +193,7 @@ def register() -> Tuple[Dict[str, Any], int]:
     # load injected variables and container
     variables: Variables = blueprint.variables  # type: ignore[attr-defined]
     container: Container = blueprint.container  # type: ignore[attr-defined]
-    if not validate_token(container.auth_service):
+    if not container.auth_service.validate(request.headers):
         return {"message": "Invalid or missing authentication token"}, 401
 
     if variables.conection_details is None:
@@ -266,7 +239,7 @@ def search() -> Tuple[Dict[str, Any], int]:
     # load injected variables and container
     variables: Variables = blueprint.variables  # type: ignore[attr-defined]
     container: Container = blueprint.container  # type: ignore[attr-defined]
-    if not validate_token(container.auth_service):
+    if not container.auth_service.validate(request.headers):
         return {"message": "Invalid or missing authentication token"}, 401
 
     if variables.conection_details is None:
@@ -308,7 +281,7 @@ def build_index() -> Tuple[Dict[str, Any], int]:
     # load injected variables and container
     variables: Variables = blueprint.variables  # type: ignore[attr-defined]
     container: Container = blueprint.container  # type: ignore[attr-defined]
-    if not validate_token(container.auth_service):
+    if not container.auth_service.validate(request.headers):
         return {"message": "Invalid or missing authentication token"}, 401
 
     if variables.conection_details is None:
