@@ -65,7 +65,7 @@ result: dict = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 
 **Face recognition** - [`Tutorial`](https://sefiks.com/2026/01/01/introducing-brand-new-face-recognition-in-deepface/), [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
-[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. DeepFace provides an out-of-the-box `find` function that searches for the identity of an input image within a specified database path. It returns a list of pandas DataFrames containing the results. Meanwhile, facial embeddings are stored in a pickle file to be searched faster in next time.
+[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. DeepFace provides an out-of-the-box `find` function that searches for the identity of an input image within a specified database path.
 
 ```python
 dfs: List[pd.DataFrame] = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")
@@ -92,8 +92,6 @@ DeepFace.build_index()
 # perform approximate nearest neighbor search
 dfs = DeepFace.search(img = "target.jpg", search_method = "ann")
 ```
-
-For database-backed search, exact search is suitable for datasets up to ~10k entries, typically returning results in less than a second; Postgres or Mongo with ANN works well for datasets from ~10k to 1M entries, with typical response times of seconds; and Vector databases such as Weaviate optimized for very large-scale datasets from ~1M to billions entries (and can scale further with clustering), typically returning results in seconds.
 
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
