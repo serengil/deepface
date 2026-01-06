@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 # pylint: disable=unnecessary-pass, too-many-positional-arguments
 class Database(ABC):
     @abstractmethod
-    def ensure_embeddings_table(self) -> None:
+    def ensure_embeddings_table(self, **kwargs: Any) -> None:
         """
         Ensure that the embeddings table or indexes exist in the database.
         """
