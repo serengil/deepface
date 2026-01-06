@@ -10,6 +10,7 @@ import numpy as np
 
 # project dependencies
 from deepface.modules.database.types import Database
+from deepface.modules.exceptions import DuplicateEntryError
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -88,7 +89,7 @@ class PostgresClient(Database):
         # Ensure the embeddings table exists
         self.ensure_embeddings_table()
 
-    def ensure_embeddings_table(self) -> None:
+    def ensure_embeddings_table(self, **kwargs: Any) -> None:
         """
         Ensure that the `embeddings` table exists.
         """
@@ -256,7 +257,10 @@ class PostgresClient(Database):
                     self.conn.commit()
                 return len(values)
         except self.psycopg.errors.UniqueViolation as e:
-            raise ValueError(
+            if len(values) == 1:
+                logger.warn("Duplicate detected for extracted face and embedding.")
+                return 0
+            raise DuplicateEntryError(
                 f"Duplicate detected for extracted face and embedding columns in {i}-th batch"
             ) from e
 

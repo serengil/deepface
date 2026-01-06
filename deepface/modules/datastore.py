@@ -343,6 +343,12 @@ def search(
                 l2_normalized=l2_normalize,
                 limit=k or 20,
             )
+            if not neighbours:
+                raise ValueError(
+                    "No embeddings found in the database for the criteria "
+                    f"{model_name=}, {detector_backend=}, {align=}, {l2_normalize=}."
+                    "You must call register some embeddings to the database before using search."
+                )
             instances = []
             for neighbour in neighbours:
                 distance = (

@@ -9,8 +9,9 @@ from typing import Any, Dict, Optional, List, Union
 
 # project dependencies
 from deepface.modules.database.types import Database
+from deepface.commons.logger import Logger
 
-_WEAVIATE_CHECKED: Dict[str, bool] = {}
+logger = Logger()
 
 
 # pylint: disable=too-many-positional-arguments
@@ -59,52 +60,55 @@ class WeaviateClient(Database):
 
             self.client = self.weaviate.Client(**client_config)
 
-        # Schema check once per URL/connection
-        if not _WEAVIATE_CHECKED.get(self.url):
-            self.ensure_embeddings_table()
-            _WEAVIATE_CHECKED[self.url] = True
-
-    def ensure_embeddings_table(self) -> None:
+    def ensure_embeddings_table(self, **kwargs: Any) -> None:
         """
         Ensure Weaviate schemas exist for embeddings using both cosine and L2 (euclidean).
         """
-        schemas = ["cosine", "l2-squared"]
+        model_name = kwargs.get("model_name", "VGG-Face")
+        detector_backend = kwargs.get("detector_backend", "opencv")
+        aligned = kwargs.get("aligned", True)
+        l2_normalized = kwargs.get("l2_normalized", False)
 
         existing_schema = self.client.schema.get()
         existing_classes = {c["class"] for c in existing_schema.get("classes", [])}
 
-        base_properties = [
-            {"name": "img_name", "dataType": ["text"]},
-            {"name": "face", "dataType": ["blob"]},
-            {"name": "face_shape", "dataType": ["int[]"]},
-            {"name": "model_name", "dataType": ["text"]},
-            {"name": "detector_backend", "dataType": ["text"]},
-            {"name": "aligned", "dataType": ["boolean"]},
-            {"name": "l2_normalized", "dataType": ["boolean"]},
-            {"name": "face_hash", "dataType": ["text"]},
-            {"name": "embedding_hash", "dataType": ["text"]},
-            # embedding property is optional since we pass it as vector
-            {"name": "embedding", "dataType": ["number[]"]},
-        ]
+        class_name = generate_class_name(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=aligned,
+            l2_normalized=l2_normalized,
+        )
 
-        for schema in schemas:
-            class_name = "EmbeddingsNorm" if schema == "cosine" else "EmbeddingsRaw"
+        if class_name in existing_classes:
+            logger.debug(f"Weaviate class {class_name} already exists.")
+            return
 
-            if class_name in existing_classes:
-                continue
+        self.client.schema.create_class(
+            {
+                "class": class_name,
+                "vectorIndexType": "hnsw",
+                "vectorizer": "none",
+                "vectorIndexConfig": {
+                    "M": int(os.getenv("WEAVIATE_HNSW_M", "16")),
+                    "distance": "cosine" if l2_normalized else "l2-squared",
+                },
+                "properties": [
+                    {"name": "img_name", "dataType": ["text"]},
+                    {"name": "face", "dataType": ["blob"]},
+                    {"name": "face_shape", "dataType": ["int[]"]},
+                    {"name": "model_name", "dataType": ["text"]},
+                    {"name": "detector_backend", "dataType": ["text"]},
+                    {"name": "aligned", "dataType": ["boolean"]},
+                    {"name": "l2_normalized", "dataType": ["boolean"]},
+                    {"name": "face_hash", "dataType": ["text"]},
+                    {"name": "embedding_hash", "dataType": ["text"]},
+                    # embedding property is optional since we pass it as vector
+                    {"name": "embedding", "dataType": ["number[]"]},
+                ],
+            }
+        )
 
-            self.client.schema.create_class(
-                {
-                    "class": "EmbeddingsNorm" if schema == "cosine" else "EmbeddingsRaw",
-                    "vectorIndexType": "hnsw",
-                    "vectorizer": "none",
-                    "vectorIndexConfig": {
-                        "M": int(os.getenv("WEAVIATE_HNSW_M", "16")),
-                        "distance": schema,
-                    },
-                    "properties": base_properties,
-                }
-            )
+        logger.debug(f"Weaviate class {class_name} created successfully.")
 
     def insert_embeddings(self, embeddings: List[Dict[str, Any]], batch_size: int = 100) -> int:
         """
@@ -113,12 +117,23 @@ class WeaviateClient(Database):
         if not embeddings:
             raise ValueError("No embeddings to insert.")
 
+        self.ensure_embeddings_table(
+            model_name=embeddings[0]["model_name"],
+            detector_backend=embeddings[0]["detector_backend"],
+            aligned=embeddings[0]["aligned"],
+            l2_normalized=embeddings[0]["l2_normalized"],
+        )
+        class_name = generate_class_name(
+            model_name=embeddings[0]["model_name"],
+            detector_backend=embeddings[0]["detector_backend"],
+            aligned=embeddings[0]["aligned"],
+            l2_normalized=embeddings[0]["l2_normalized"],
+        )
+
         with self.client.batch as batcher:
             batcher.batch_size = batch_size
             batcher.timeout_retries = 3
-
             for e in embeddings:
-                class_name = "EmbeddingsNorm" if e["l2_normalized"] else "EmbeddingsRaw"
                 face_json = json.dumps(e["face"].tolist())
                 face_hash = hashlib.sha256(face_json.encode()).hexdigest()
                 embedding_bytes = struct.pack(f'{len(e["embedding"])}d', *e["embedding"])
@@ -139,9 +154,10 @@ class WeaviateClient(Database):
                 )
                 existing = query.get("data", {}).get("Get", {}).get(class_name, [])
                 if existing:
-                    raise ValueError(
-                        f"Embedding with hash {embedding_hash} already exists in the database."
+                    logger.warn(
+                        f"Embedding with hash {embedding_hash} already exists in {class_name}."
                     )
+                    continue
 
                 uid = str(uuid.uuid4())
                 properties = {
@@ -172,20 +188,21 @@ class WeaviateClient(Database):
         """
         Fetch all embeddings with filters.
         """
-        class_name = "EmbeddingsNorm" if l2_normalized else "EmbeddingsRaw"
-        filters = {
-            "operator": "And",
-            "operands": [
-                {"path": ["model_name"], "operator": "Equal", "valueText": model_name},
-                {"path": ["detector_backend"], "operator": "Equal", "valueText": detector_backend},
-                {"path": ["aligned"], "operator": "Equal", "valueBoolean": aligned},
-                {"path": ["l2_normalized"], "operator": "Equal", "valueBoolean": l2_normalized},
-            ],
-        }
+        class_name = generate_class_name(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=aligned,
+            l2_normalized=l2_normalized,
+        )
+        self.ensure_embeddings_table(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=aligned,
+            l2_normalized=l2_normalized,
+        )
 
         results = (
             self.client.query.get(class_name, ["img_name", "embedding"])
-            .with_where(filters)
             .with_additional(["id"])
             .do()
         )
@@ -218,17 +235,20 @@ class WeaviateClient(Database):
         """
         ANN search using the main vector (embedding).
         """
-        class_name = "EmbeddingsNorm" if l2_normalized else "EmbeddingsRaw"
-
-        where_filters = [
-            {"path": ["model_name"], "operator": "Equal", "valueText": model_name},
-            {"path": ["detector_backend"], "operator": "Equal", "valueText": detector_backend},
-            {"path": ["aligned"], "operator": "Equal", "valueBoolean": aligned},
-            {"path": ["l2_normalized"], "operator": "Equal", "valueBoolean": l2_normalized},
-        ]
+        class_name = generate_class_name(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=aligned,
+            l2_normalized=l2_normalized,
+        )
+        self.ensure_embeddings_table(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=aligned,
+            l2_normalized=l2_normalized,
+        )
 
         query = self.client.query.get(class_name, ["img_name", "embedding"])
-        query = query.with_where({"operator": "And", "operands": where_filters})
         query = (
             query.with_near_vector({"vector": vector})
             .with_limit(limit)
@@ -290,3 +310,21 @@ class WeaviateClient(Database):
             "search_by_id is not implemented for Weaviate yet "
             "because search by vector returns metadata already."
         )
+
+
+def generate_class_name(
+    model_name: str,
+    detector_backend: str,
+    aligned: bool,
+    l2_normalized: bool,
+) -> str:
+    """
+    Generate Weaviate class name based on parameters.
+    """
+    class_name_attributes = [
+        model_name.replace("-", ""),
+        detector_backend,
+        "Aligned" if aligned else "Unaligned",
+        "Norm" if l2_normalized else "Raw",
+    ]
+    return "Embeddings_" + "_".join(class_name_attributes).lower()

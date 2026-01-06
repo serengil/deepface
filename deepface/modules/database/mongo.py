@@ -11,6 +11,7 @@ import numpy as np
 
 # project dependencies
 from deepface.modules.database.types import Database
+from deepface.modules.exceptions import DuplicateEntryError
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -67,7 +68,7 @@ class MongoDbClient(Database):
         """Close MongoDB connection."""
         self.client.close()
 
-    def ensure_embeddings_table(self) -> None:
+    def ensure_embeddings_table(self, **kwargs: Any) -> None:
         """
         Ensure required MongoDB indexes exist.
         """
@@ -222,7 +223,12 @@ class MongoDbClient(Database):
                 result = self.embeddings.insert_many(docs[i : i + batch_size], ordered=False)
                 inserted += len(result.inserted_ids)
         except (self.DuplicateKeyError, self.BulkWriteError) as e:
-            raise ValueError("Duplicate detected for extracted face and embedding") from e
+            if len(docs) == 1:
+                logger.warn("Duplicate detected for extracted face and embedding.")
+                return inserted
+            raise DuplicateEntryError(
+                f"Duplicate detected for extracted face and embedding in {i}-th batch"
+            ) from e
 
         return inserted
 

@@ -53,3 +53,9 @@ class UnimplementedError(ValueError):
     """Raised when a requested feature is not implemented."""
 
     pass
+
+
+class DuplicateEntryError(ValueError):
+    """Raised when a duplicate entry is found in the database."""
+
+    pass
