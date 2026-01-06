@@ -11,6 +11,7 @@ import numpy as np
 
 # project dependencies
 from deepface.modules.database.types import Database
+from deepface.modules.exceptions import DuplicateEntryError
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -225,7 +226,7 @@ class MongoDbClient(Database):
             if len(docs) == 1:
                 logger.warn("Duplicate detected for extracted face and embedding.")
                 return inserted
-            raise ValueError(
+            raise DuplicateEntryError(
                 f"Duplicate detected for extracted face and embedding in {i}-th batch"
             ) from e
 

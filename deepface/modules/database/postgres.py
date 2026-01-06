@@ -10,6 +10,7 @@ import numpy as np
 
 # project dependencies
 from deepface.modules.database.types import Database
+from deepface.modules.exceptions import DuplicateEntryError
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -259,7 +260,7 @@ class PostgresClient(Database):
             if len(values) == 1:
                 logger.warn("Duplicate detected for extracted face and embedding.")
                 return 0
-            raise ValueError(
+            raise DuplicateEntryError(
                 f"Duplicate detected for extracted face and embedding columns in {i}-th batch"
             ) from e
 
