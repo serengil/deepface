@@ -61,8 +61,8 @@ class PostgresClient(Database):
         # Import here to avoid mandatory dependency
         try:
             import psycopg
-        except ModuleNotFoundError as e:
-            raise ImportError(
+        except (ModuleNotFoundError, ImportError) as e:
+            raise ValueError(
                 "psycopg is an optional dependency, ensure the library is installed."
                 "Please install using 'pip show \"psycopg[binary]\"' "
             ) from e
@@ -85,6 +85,8 @@ class PostgresClient(Database):
                 self.conn = self.psycopg.connect(self.conn_details)
             elif isinstance(self.conn_details, dict):
                 self.conn = self.psycopg.connect(**self.conn_details)
+            else:
+                raise ValueError("connection_details must be either a string or a dict.")
 
         # Ensure the embeddings table exists
         self.ensure_embeddings_table()
