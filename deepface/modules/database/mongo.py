@@ -33,8 +33,8 @@ class MongoDbClient(Database):
             from pymongo import MongoClient, ASCENDING
             from pymongo.errors import DuplicateKeyError, BulkWriteError
             from bson import Binary
-        except ModuleNotFoundError as e:
-            raise ImportError(
+        except (ModuleNotFoundError, ImportError) as e:
+            raise ValueError(
                 "pymongo is an optional dependency. Please install it as `pip install pymongo`"
             ) from e
         self.MongoClient = MongoClient

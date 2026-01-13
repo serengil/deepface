@@ -5,6 +5,7 @@ import hashlib
 import struct
 import base64
 import uuid
+import math
 from typing import Any, Dict, Optional, List, Union
 
 # project dependencies
@@ -28,8 +29,8 @@ class WeaviateClient(Database):
     ):
         try:
             import weaviate
-        except ModuleNotFoundError as e:
-            raise ImportError(
+        except (ModuleNotFoundError, ImportError) as e:
+            raise ValueError(
                 "weaviate-client is an optional dependency. "
                 "Install with 'pip install weaviate-client'"
             ) from e
@@ -72,7 +73,7 @@ class WeaviateClient(Database):
         existing_schema = self.client.schema.get()
         existing_classes = {c["class"] for c in existing_schema.get("classes", [])}
 
-        class_name = generate_class_name(
+        class_name = self.__generate_node_label(
             model_name=model_name,
             detector_backend=detector_backend,
             aligned=aligned,
@@ -123,7 +124,7 @@ class WeaviateClient(Database):
             aligned=embeddings[0]["aligned"],
             l2_normalized=embeddings[0]["l2_normalized"],
         )
-        class_name = generate_class_name(
+        class_name = self.__generate_node_label(
             model_name=embeddings[0]["model_name"],
             detector_backend=embeddings[0]["detector_backend"],
             aligned=embeddings[0]["aligned"],
@@ -188,7 +189,7 @@ class WeaviateClient(Database):
         """
         Fetch all embeddings with filters.
         """
-        class_name = generate_class_name(
+        class_name = self.__generate_node_label(
             model_name=model_name,
             detector_backend=detector_backend,
             aligned=aligned,
@@ -235,7 +236,7 @@ class WeaviateClient(Database):
         """
         ANN search using the main vector (embedding).
         """
-        class_name = generate_class_name(
+        class_name = self.__generate_node_label(
             model_name=model_name,
             detector_backend=detector_backend,
             aligned=aligned,
@@ -263,7 +264,11 @@ class WeaviateClient(Database):
                 "id": r.get("_additional", {}).get("id"),
                 "img_name": r["img_name"],
                 "embedding": r["embedding"],
-                "distance": r.get("_additional", {}).get("distance"),
+                "distance": (
+                    r.get("_additional", {}).get("distance")
+                    if l2_normalized
+                    else math.sqrt(r.get("_additional", {}).get("distance"))
+                ),
             }
             for r in data
         ]
@@ -284,7 +289,7 @@ class WeaviateClient(Database):
         """
         Retrieve the embeddings index from the database.
         """
-        raise NotImplementedError("Weaviate does not support storing embeddings index.")
+        raise NotImplementedError("Weaviate does not require storing embeddings index.")
 
     def upsert_embeddings_index(
         self,
@@ -297,7 +302,7 @@ class WeaviateClient(Database):
         """
         Insert or update the embeddings index in the database.
         """
-        raise NotImplementedError("Weaviate does not support storing embeddings index.")
+        raise NotImplementedError("Weaviate does not require storing embeddings index.")
 
     def search_by_id(
         self,
@@ -311,20 +316,20 @@ class WeaviateClient(Database):
             "because search by vector returns metadata already."
         )
 
-
-def generate_class_name(
-    model_name: str,
-    detector_backend: str,
-    aligned: bool,
-    l2_normalized: bool,
-) -> str:
-    """
-    Generate Weaviate class name based on parameters.
-    """
-    class_name_attributes = [
-        model_name.replace("-", ""),
-        detector_backend,
-        "Aligned" if aligned else "Unaligned",
-        "Norm" if l2_normalized else "Raw",
-    ]
-    return "Embeddings_" + "_".join(class_name_attributes).lower()
+    @staticmethod
+    def __generate_node_label(
+        model_name: str,
+        detector_backend: str,
+        aligned: bool,
+        l2_normalized: bool,
+    ) -> str:
+        """
+        Generate Weaviate class name based on parameters.
+        """
+        class_name_attributes = [
+            model_name.replace("-", ""),
+            detector_backend,
+            "Aligned" if aligned else "Unaligned",
+            "Norm" if l2_normalized else "Raw",
+        ]
+        return "Embeddings_" + "_".join(class_name_attributes).lower()

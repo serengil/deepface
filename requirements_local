@@ -20,3 +20,4 @@ pymongo==4.3.3
 faiss-cpu==1.7.3
 python-dotenv==1.0.1
 # weaviate-client==3.26.7 --no-deps
+# neo4j==5.1.0

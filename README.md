@@ -55,7 +55,7 @@ from deepface import DeepFace
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
-This function determines whether two facial images belong to the same person or to different individuals. It accepts exact image file paths as input, but also supports NumPy arrays, base64-encoded images, and URLs. The function returns a dictionary, where the key of interest is `verified`: True indicates the images are of the same person, while False means they are of different people. In addition to this binary classification, the function also provides a [`confidence`](https://youtu.be/QQ4vO6UOsFo) score that reflects the likelihood that the two images represent the same person.
+This function determines whether two facial images belong to the same person or to different individuals. The function returns a dictionary, where the key of interest is `verified`: True indicates the images are of the same person, while False means they are of different people.
 
 ```python
 result: dict = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
@@ -73,29 +73,29 @@ dfs: List[pd.DataFrame] = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%"></p>
 
-Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed [`search`](https://sefiks.com/2026/01/01/introducing-brand-new-face-recognition-in-deepface/) functionality where embeddings are explicitly registered and queried. Currently, postgres, mongo and weaviate are supported as backend databases.
+Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed [`search`](https://sefiks.com/2026/01/01/introducing-brand-new-face-recognition-in-deepface/) functionality where embeddings are explicitly registered and queried. Currently, [postgres](https://sefiks.com/2023/06/22/vector-similarity-search-in-postgresql/), [mongo](https://sefiks.com/2021/01/22/deep-face-recognition-with-mongodb/), [neo4j](https://sefiks.com/2021/04/03/deep-face-recognition-with-neo4j/) and weaviate are supported as backend databases.
 
 ```python
 # register an image into the database
 DeepFace.register(img = "img1.jpg")
 
 # perform exact search
-dfs = DeepFace.search(img = "target.jpg")
+dfs: List[pd.DataFrame] = DeepFace.search(img = "target.jpg")
 ```
 
-If you want to perform [`approximate nearest neighbor`](https://sefiks.com/2023/12/31/a-step-by-step-approximate-nearest-neighbor-example-in-python-from-scratch/) search instead of exact search to achieve faster results on [large-scale databases](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm), you can build an index beforehand and explicitly enable ANN search. Here, [Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) is used to index embeddings in postgres and mongo whereas weaviate handles indexing internally.
+If you want to perform [`approximate nearest neighbor`](https://sefiks.com/2023/12/31/a-step-by-step-approximate-nearest-neighbor-example-in-python-from-scratch/) search instead of exact search to achieve faster results on [large-scale databases](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm), you can build an index beforehand and explicitly enable ANN search. Here, [Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) is used to index embeddings in postgres and mongo, whereas weaviate and neo4j handle indexing internally.
 
 ```python
 # build index on registered embeddings (for postgres and mongo only)
 DeepFace.build_index()
 
 # perform approximate nearest neighbor search
-dfs = DeepFace.search(img = "target.jpg", search_method = "ann")
+dfs: List[pd.DataFrame] = DeepFace.search(img = "target.jpg", search_method = "ann")
 ```
 
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
-DeepFace also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions. Result is going to be the size of faces appearing in the source image.
+DeepFace also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions.
 
 ```python
 objs: List[dict] = DeepFace.analyze(
@@ -148,7 +148,7 @@ Here, you can also find some real time demos for various facial recognition mode
 
 **Embeddings** - [`Tutorial`](https://sefiks.com/2025/06/28/what-are-vector-embeddings-and-why-they-matter-in-ai/), [`Demo`](https://youtu.be/OYialFo7Qo4)
 
-Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function. Represent function returns a list of embeddings. Result is going to be the size of faces appearing in the image path.
+Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function.
 
 ```python
 embedding_objs: List[dict] = DeepFace.represent(img_path = "img.jpg")

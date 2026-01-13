@@ -14,6 +14,7 @@ from deepface.modules.database.types import Database
 from deepface.modules.database.postgres import PostgresClient
 from deepface.modules.database.mongo import MongoDbClient as MongoClient
 from deepface.modules.database.weaviate import WeaviateClient
+from deepface.modules.database.neo4j import Neo4jClient
 
 from deepface.modules.representation import represent
 from deepface.modules.verification import (
@@ -70,7 +71,7 @@ def register(
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
         database_type (str): Type of database to register identities. Options: 'postgres', 'mongo',
-            'weaviate' (default is 'postgres').
+            'weaviate', 'neo4j' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -81,6 +82,7 @@ def register(
             - DEEPFACE_POSTGRES_URI
             - DEEPFACE_MONGO_URI
             - DEEPFACE_WEAVIATE_URI
+            - DEEPFACE_NEO4J_URI
     Returns:
         result (dict): A dictionary containing registration results with following keys.
             - inserted (int): Number of embeddings successfully registered to the database.
@@ -184,7 +186,7 @@ def search(
         search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
             To use ann search, you must run build_index function first to create the index.
         database_type (str): Type of database to search identities. Options: 'postgres', 'mongo',
-            'weaviate' (default is 'postgres').
+            'weaviate', 'neo4j' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -195,6 +197,7 @@ def search(
             - DEEPFACE_POSTGRES_URI
             - DEEPFACE_MONGO_URI
             - DEEPFACE_WEAVIATE_URI
+            - DEEPFACE_NEO4J_URI
     Returns:
         results (List[pd.DataFrame]):
             A list of pandas dataframes or a list of dicts. Each dataframe or dict corresponds
@@ -332,7 +335,7 @@ def search(
             dfs.append(df)
         return dfs
 
-    elif search_method == "ann" and database_type in ["weaviate"]:  # use vector db
+    elif search_method == "ann" and database_type in ["weaviate", "neo4j"]:  # use vector db
         for result in results:
             target_vector: List[float] = result["embedding"]
             neighbours = db_client.search_by_vector(
@@ -351,9 +354,7 @@ def search(
                 )
             instances = []
             for neighbour in neighbours:
-                distance = (
-                    neighbour["distance"] if l2_normalize else math.sqrt(neighbour["distance"])
-                )
+                distance = neighbour["distance"]
                 verified = bool(distance <= threshold)
                 instance = {
                     "id": neighbour["id"],
@@ -497,7 +498,7 @@ def build_index(
         max_neighbors_per_node (int): Maximum number of neighbors per node in the index
             (default is 32).
         database_type (str): Type of database to build index. Options: 'postgres', 'mongo',
-            'weaviate' (default is 'postgres').
+            'weaviate', 'neo4j' (default is 'postgres').
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
         connection_details (dict or str): Connection details for the database.
@@ -508,12 +509,10 @@ def build_index(
             - DEEPFACE_POSTGRES_URI
             - DEEPFACE_MONGO_URI
             - DEEPFACE_WEAVIATE_URI
+            - DEEPFACE_NEO4J_URI
     """
-    if database_type in ["weaviate"]:
-        logger.info(
-            "Weaviate is a vector database and manages its own indexes. "
-            "No need to build index manually."
-        )
+    if database_type in ["weaviate", "neo4j"]:
+        logger.info(f"{database_type} manages its own indexes. No need to build index manually.")
         return
 
     try:
@@ -683,7 +682,7 @@ def __connect_database(
     Connect to the specified database type
     Args:
         database_type (str): Type of database to connect. Options: 'postgres', 'mongo',
-            'weaviate' (default is 'postgres').
+            'weaviate', 'neo4j' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -694,6 +693,7 @@ def __connect_database(
             - DEEPFACE_POSTGRES_URI
             - DEEPFACE_MONGO_URI
             - DEEPFACE_WEAVIATE_URI
+            - DEEPFACE_NEO4J_URI
     Returns:
         db_client (Database): An instance of the connected database client.
     """
@@ -711,6 +711,10 @@ def __connect_database(
             connection_details=connection_details, connection=connection
         )
         return weaviate_client
+
+    if database_type == "neo4j":
+        neo4j_client = Neo4jClient(connection_details=connection_details, connection=connection)
+        return neo4j_client
     raise ValueError(f"Unsupported database type: {database_type}")
 
 
