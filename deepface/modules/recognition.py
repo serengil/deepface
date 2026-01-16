@@ -1,14 +1,16 @@
 # built-in dependencies
 import os
 import pickle
-from typing import List, Union, Optional, Dict, Any, Set, IO, cast
+from typing import List, Union, Optional, Dict, Any, Set, IO, cast, Tuple
 import time
+import ast
 
 # 3rd party dependencies
 import numpy as np
 from numpy.typing import NDArray
 import pandas as pd
 from tqdm import tqdm
+from lightdsa import LightDSA
 
 # project dependencies
 from deepface.commons import image_utils
@@ -43,6 +45,7 @@ def find(
     refresh_database: bool = True,
     anti_spoofing: bool = False,
     batched: bool = False,
+    credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None,
 ) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
     """
     Identify individuals in a database
@@ -96,6 +99,19 @@ def find(
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
+        credentials (LightDSA or dict): public - private key pair. This will be used to sign
+            and verify the integrity of the datastore pickle file. Since pickle files are not safe
+            to load from untrusted sources, signing helps detect tampering and prevents loading a
+            modified datastore that could execute arbitrary code.
+
+            ```
+            from lightdsa import LightDSA
+            cs = LightDSA(algorithm_name = "eddsa")
+            DeepFace.find(..., credentials=cs)
+            # DeepFace.find(..., credentials={**cs.dsa.keys, "algorithm_name": cs.algorithm_name})
+            ```
+
+            See LightDSA repo for more details: https://github.com/serengil/LightDSA
 
     Returns:
         results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
@@ -168,14 +184,12 @@ def find(
         "target_h",
     }
 
-    # Ensure the proper pickle file exists
+    # Ensure the proper datastore file exists
     if not os.path.exists(datastore_path):
-        with open(datastore_path, "wb") as f:
-            pickle.dump([], f, pickle.HIGHEST_PROTOCOL)
+        __save_representations(datastore_path=datastore_path, credentials=credentials)
 
-    # Load the representations from the pickle file
-    with open(datastore_path, "rb") as f:
-        representations = pickle.load(f)
+    # Load the representations from the existing datastore
+    representations = __load_representations(datastore_path=datastore_path, credentials=credentials)
 
     # check each item of representations list has required keys
     for i, current_representation in enumerate(representations):
@@ -253,8 +267,9 @@ def find(
         must_save_pickle = True
 
     if must_save_pickle:
-        with open(datastore_path, "wb") as f:
-            pickle.dump(representations, f, pickle.HIGHEST_PROTOCOL)
+        __save_representations(
+            datastore_path=datastore_path, representations=representations, credentials=credentials
+        )
         if not silent:
             logger.info(f"There are now {len(representations)} representations in {file_name}")
 
@@ -677,3 +692,193 @@ def find_batched(
 
         resp_obj.append(result_dicts)
     return resp_obj
+
+
+def __save_representations(
+    datastore_path: str,
+    representations: Optional[List[Dict[str, Any]]] = None,
+    credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None,
+) -> None:
+    """
+    Save representations to a pickle file
+
+    Args:
+        datastore_path (str): path to the pickle file
+        representations (list): list of representations to be saved
+        credentials (LightDSA or dict): public - private key pair as LightDSA object or dictionary.
+            This is going to be used to sign the integrity of the datastore pickle file.
+            If not provided, the datastore will not be signed.
+    """
+    with open(datastore_path, "wb") as f:
+        pickle.dump(representations or [], f, pickle.HIGHEST_PROTOCOL)
+
+    __sign_datastore(datastore_path=datastore_path, credentials=credentials)
+
+
+def __load_representations(
+    datastore_path: str, credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Load representations from a pickle file
+
+    Args:
+        datastore_path (str): path to the pickle file
+        credentials (LightDSA or dict): public - private key pair as LightDSA object or dictionary.
+            This is going to be used to sign the integrity of the datastore pickle file.
+            If not provided, the datastore will not be signed.
+    Returns:
+        representations (list): list of loaded representations
+    """
+    __verify_signature(datastore_path=datastore_path, credentials=credentials)
+
+    with open(datastore_path, "rb") as f:
+        representations = pickle.load(f)
+
+    if not isinstance(representations, list) or not all(
+        isinstance(x, dict) for x in representations
+    ):
+        raise ValueError("Invalid datastore format")
+
+    return cast(List[Dict[str, Any]], representations)
+
+
+def __build_dsa(credentials: Union[LightDSA, Dict[str, Any]]) -> LightDSA:
+    """
+    Build LightDSA object from credentials
+    Args:
+        credentials (LightDSA or dict): public - private key pair as LightDSA object or dictionary.
+    Returns:
+        dsa (LightDSA): LightDSA object
+    """
+    if isinstance(credentials, dict):
+        if "algorithm_name" not in credentials:
+            raise ValueError("credentials dictionary must have 'algorithm_name' key.")
+        dsa = LightDSA(
+            algorithm_name=credentials["algorithm_name"],
+            form_name=credentials.get("form_name"),
+            curve_name=credentials.get("curve_name"),
+            keys=credentials,
+        )
+    elif isinstance(credentials, LightDSA):
+        dsa = credentials
+    else:
+        raise ValueError("credentials must be either LightDSA or dict type.")
+    return dsa
+
+
+def __sign_datastore(
+    datastore_path: str, credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None
+) -> None:
+    """
+    Sign the datastore pickle file
+    Args:
+        datastore_path (str): path to the pickle file
+        credentials (LightDSA or dict): public - private key pair as LightDSA object or dictionary.
+            This is going to be used to sign the integrity of the datastore pickle file.
+            If not provided, the datastore will not be signed.
+    """
+    if credentials is None:
+        logger.debug("No credentials provided. Skipping datastore signing.")
+        return
+
+    dsa = __build_dsa(credentials=credentials)
+
+    with open(datastore_path, "rb") as f:
+        data: bytes = f.read()
+
+    signature = dsa.sign(message=data)
+    with open(datastore_path + ".ldsa", "w", encoding="utf-8") as f:
+        f.write(repr(signature))
+
+    logger.debug(f"Datastore pickle {datastore_path} signed successfully.")
+
+
+def __verify_signature(
+    datastore_path: str, credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None
+) -> None:
+    """
+    Verify the signature of a datastore pickle file
+
+    Args:
+        datastore_path (str): path to the pickle file
+        credentials (LightDSA or dict): public - private key pair as LightDSA object or dictionary.
+            This is going to be used to sign the integrity of the datastore pickle file.
+            If not provided, the datastore will not be signed.
+    """
+    if credentials is None:
+        logger.debug("No credentials provided. Skipping signature verification.")
+        return
+
+    dsa = __build_dsa(credentials=credentials)
+
+    algorithm_name = dsa.algorithm_name
+
+    with open(datastore_path, "rb") as f:
+        data: bytes = f.read()
+
+    signature_path = datastore_path + ".ldsa"
+    if not os.path.exists(signature_path):
+        raise ValueError(
+            f"Signature file {signature_path} not found."
+            "You may need to re-create the pickle by deleting the existing one."
+        )
+
+    with open(signature_path, "r", encoding="utf-8") as f:
+        signature_unified = f.read()
+
+    try:
+        signature: Union[Tuple[int, int], Tuple[Tuple[int, int], int], int] = ast.literal_eval(
+            signature_unified
+        )
+    except SyntaxError as err:
+        raise ValueError(
+            f"Signature content must be python literal. Verify the signature {signature_path}"
+        ) from err
+
+    if algorithm_name == "rsa":
+        if not isinstance(signature, int):
+            raise ValueError(
+                f"Invalid signature format for RSA algorithm. Verify the signature {signature_path}"
+            )
+    elif algorithm_name == "dsa":
+        if (
+            not isinstance(signature, tuple)
+            or len(signature) != 2
+            or not all(isinstance(x, int) for x in signature)
+        ):
+            raise ValueError(
+                f"DSA signature must be Tuple[int, int]. Verify the signature {signature_path}"
+            )
+    elif algorithm_name == "eddsa":
+        if (
+            not isinstance(signature, tuple)  # pylint: disable=too-many-boolean-expressions
+            or len(signature) != 2
+            or not isinstance(signature[0], tuple)
+            or len(signature[0]) != 2
+            or not all(isinstance(x, int) for x in signature[0])
+            or not isinstance(signature[1], int)
+        ):
+            raise ValueError(
+                "EdDSA signature must be Tuple[Tuple[int, int], int]."
+                f"Verify the signature {signature_path}"
+            )
+    elif algorithm_name == "ecdsa":
+        if (
+            not isinstance(signature, tuple)
+            or len(signature) != 2
+            or not all(isinstance(x, int) for x in signature)
+        ):
+            raise ValueError(
+                f"ECDSA signature must be Tuple[int, int]. Verify the signature {signature_path}"
+            )
+    else:
+        raise ValueError(f"Unsupported algorithm_name: {algorithm_name}")
+
+    # this will raise exception if verification fails
+    is_verified = dsa.verify(message=data, signature=signature)
+
+    # still check the boolean result
+    if not is_verified:
+        raise ValueError("Datastore pickle signature verification failed.")
+
+    logger.info(f"Datastore pickle {datastore_path} signature verified successfully.")
