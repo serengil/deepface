@@ -15,8 +15,9 @@ retina-face==0.0.17
 fire==0.4.0
 gunicorn==20.1.0
 lightphe==0.0.20
+lightdsa==0.0.3
 psycopg[binary]==3.2.13
-pymongo==4.3.3
+# pymongo==4.3.3
 faiss-cpu==1.7.3
 python-dotenv==1.0.1
 # weaviate-client==3.26.7 --no-deps

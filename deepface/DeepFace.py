@@ -14,6 +14,7 @@ from numpy.typing import NDArray
 import pandas as pd
 import tensorflow as tf
 from lightphe import LightPHE
+from lightdsa import LightDSA
 
 # package dependencies
 from deepface.commons import package_utils, folder_utils
@@ -294,6 +295,7 @@ def find(
     refresh_database: bool = True,
     anti_spoofing: bool = False,
     batched: bool = False,
+    credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None,
 ) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
     """
     Identify individuals in a database. This is a stateful facial recognition function.
@@ -348,6 +350,20 @@ def find(
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
+        credentials (LightDSA or dict): public - private key pair. This will be used to sign
+            and verify the integrity of the datastore pickle file. Since pickle files are not safe
+            to load from untrusted sources, signing helps detect tampering and prevents loading a
+            modified datastore that could execute arbitrary code.
+
+            ```
+            from lightdsa import LightDSA
+            cs = LightDSA(algorithm_name = "eddsa")
+            DeepFace.find(..., credentials=cs)
+            # DeepFace.find(..., credentials={**cs.dsa.keys, "algorithm_name": cs.algorithm_name})
+            ```
+
+            See LightDSA repo for more details: https://github.com/serengil/LightDSA
+
     Returns:
         results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
             A list of pandas dataframes (if `batched=False`) or
@@ -397,6 +413,7 @@ def find(
         refresh_database=refresh_database,
         anti_spoofing=anti_spoofing,
         batched=batched,
+        credentials=credentials,
     )
 
 
