@@ -12,6 +12,7 @@ from numpy.typing import NDArray
 # project dependencies
 from deepface.modules.database.types import Database
 from deepface.modules.database.postgres import PostgresClient
+from deepface.modules.database.pgvector import PGVectorClient
 from deepface.modules.database.mongo import MongoDbClient as MongoClient
 from deepface.modules.database.weaviate import WeaviateClient
 from deepface.modules.database.neo4j import Neo4jClient
@@ -71,7 +72,7 @@ def register(
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
         database_type (str): Type of database to register identities. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -186,7 +187,7 @@ def search(
         search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
             To use ann search, you must run build_index function first to create the index.
         database_type (str): Type of database to search identities. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -335,7 +336,11 @@ def search(
             dfs.append(df)
         return dfs
 
-    elif search_method == "ann" and database_type in ["weaviate", "neo4j"]:  # use vector db
+    elif search_method == "ann" and database_type in [
+        "weaviate",
+        "neo4j",
+        "pgvector",
+    ]:  # use vector db
         for result in results:
             target_vector: List[float] = result["embedding"]
             neighbours = db_client.search_by_vector(
@@ -498,7 +503,7 @@ def build_index(
         max_neighbors_per_node (int): Maximum number of neighbors per node in the index
             (default is 32).
         database_type (str): Type of database to build index. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector' (default is 'postgres').
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
         connection_details (dict or str): Connection details for the database.
@@ -511,7 +516,7 @@ def build_index(
             - DEEPFACE_WEAVIATE_URI
             - DEEPFACE_NEO4J_URI
     """
-    if database_type in ["weaviate", "neo4j"]:
+    if database_type in ["weaviate", "neo4j", "pgvector"]:
         logger.info(f"{database_type} manages its own indexes. No need to build index manually.")
         return
 
@@ -682,7 +687,7 @@ def __connect_database(
     Connect to the specified database type
     Args:
         database_type (str): Type of database to connect. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -702,6 +707,13 @@ def __connect_database(
             connection_details=connection_details, connection=connection
         )
         return postgres_client
+
+    if database_type == "pgvector":
+        pgvector_client = PGVectorClient(
+            connection_details=connection_details, connection=connection
+        )
+        return pgvector_client
+
     if database_type == "mongo":
         mongo_client = MongoClient(connection_details=connection_details, connection=connection)
         return mongo_client
@@ -715,6 +727,7 @@ def __connect_database(
     if database_type == "neo4j":
         neo4j_client = Neo4jClient(connection_details=connection_details, connection=connection)
         return neo4j_client
+
     raise ValueError(f"Unsupported database type: {database_type}")
 
 

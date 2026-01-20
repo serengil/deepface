@@ -77,7 +77,7 @@ dfs: List[pd.DataFrame] = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%"></p>
 
-Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed [`search`](https://sefiks.com/2026/01/01/introducing-brand-new-face-recognition-in-deepface/) functionality where embeddings are explicitly registered and queried. Currently, [postgres](https://sefiks.com/2023/06/22/vector-similarity-search-in-postgresql/), [mongo](https://sefiks.com/2021/01/22/deep-face-recognition-with-mongodb/), [neo4j](https://sefiks.com/2021/04/03/deep-face-recognition-with-neo4j/) and weaviate are supported as backend databases.
+Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed [`search`](https://sefiks.com/2026/01/01/introducing-brand-new-face-recognition-in-deepface/) functionality where embeddings are explicitly registered and queried. Currently, [postgres](https://sefiks.com/2023/06/22/vector-similarity-search-in-postgresql/), [mongo](https://sefiks.com/2021/01/22/deep-face-recognition-with-mongodb/), [neo4j](https://sefiks.com/2021/04/03/deep-face-recognition-with-neo4j/), [pgvector](https://sefiks.com/2024/07/05/postgres-as-a-vector-database-billion-scale-vector-similarity-search-with-pgvector/) and weaviate are supported as backend databases.
 
 ```python
 # register an image into the database
@@ -87,7 +87,7 @@ DeepFace.register(img = "img1.jpg")
 dfs: List[pd.DataFrame] = DeepFace.search(img = "target.jpg")
 ```
 
-If you want to perform [`approximate nearest neighbor`](https://sefiks.com/2023/12/31/a-step-by-step-approximate-nearest-neighbor-example-in-python-from-scratch/) search instead of exact search to achieve faster results on [large-scale databases](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm), you can build an index beforehand and explicitly enable ANN search. Here, [Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) is used to index embeddings in postgres and mongo, whereas weaviate and neo4j handle indexing internally.
+If you want to perform [`approximate nearest neighbor`](https://sefiks.com/2023/12/31/a-step-by-step-approximate-nearest-neighbor-example-in-python-from-scratch/) search instead of exact search to achieve faster results on [large-scale databases](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm), you can build an index beforehand and explicitly enable ANN search. Here, [Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) is used to index embeddings in postgres and mongo; whereas pgvector, weaviate and neo4j handle indexing internally.
 
 ```python
 # build index on registered embeddings (for postgres and mongo only)

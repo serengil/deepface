@@ -12,7 +12,20 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init:/docker-entrypoint-initdb.d
+      - ./postgres-init:/docker-entrypoint-initdb.d
+  pgvector:
+    image: pgvector/pgvector:pg15
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: deepface
+      POSTGRES_USER: deepface_user
+      POSTGRES_PASSWORD: deepface_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./pgvector-init:/docker-entrypoint-initdb.d
   weaviate:
     image: semitechnologies/weaviate:latest
     ports:
