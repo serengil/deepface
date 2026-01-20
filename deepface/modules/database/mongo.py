@@ -62,13 +62,13 @@ class MongoDbClient(Database):
         self.embeddings = self.db.embeddings
         self.embeddings_index = self.db.embeddings_index
         self.counters = self.db.counters
-        self.ensure_embeddings_table()
+        self.initialize_database()
 
     def close(self) -> None:
         """Close MongoDB connection."""
         self.client.close()
 
-    def ensure_embeddings_table(self, **kwargs: Any) -> None:
+    def initialize_database(self, **kwargs: Any) -> None:
         """
         Ensure required MongoDB indexes exist.
         """
@@ -284,20 +284,6 @@ class MongoDbClient(Database):
             )
 
         return results
-
-    def search_by_vector(
-        self,
-        vector: List[float],
-        model_name: str = "VGG-Face",
-        detector_backend: str = "opencv",
-        aligned: bool = True,
-        l2_normalized: bool = False,
-        limit: int = 10,
-    ) -> List[Dict[str, Any]]:
-        """
-        ANN search using the main vector (embedding).
-        """
-        raise NotImplementedError("ANN search is not natively supported in MongoDB.")
 
     def search_by_id(
         self,

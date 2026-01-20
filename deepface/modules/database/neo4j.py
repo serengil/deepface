@@ -67,7 +67,7 @@ class Neo4jClient(Database):
             self.conn.close()
             logger.debug("Neo4j connection closed.")
 
-    def ensure_embeddings_table(self, **kwargs: Any) -> None:
+    def initialize_database(self, **kwargs: Any) -> None:
         """
         Ensure Neo4j database has the necessary constraints and indexes for storing embeddings.
         """
@@ -123,7 +123,7 @@ class Neo4jClient(Database):
         if not embeddings:
             raise ValueError("No embeddings to insert.")
 
-        self.ensure_embeddings_table(
+        self.initialize_database(
             model_name=embeddings[0]["model_name"],
             detector_backend=embeddings[0]["detector_backend"],
             aligned=embeddings[0]["aligned"],
@@ -254,7 +254,7 @@ class Neo4jClient(Database):
         """
         ANN search using the main vector (embedding).
         """
-        self.ensure_embeddings_table(
+        self.initialize_database(
             model_name=model_name,
             detector_backend=detector_backend,
             aligned=aligned,
@@ -313,43 +313,6 @@ class Neo4jClient(Database):
                 )
 
         return out
-
-    def get_embeddings_index(
-        self,
-        model_name: str,
-        detector_backend: str,
-        aligned: bool,
-        l2_normalized: bool,
-    ) -> bytes:
-        """
-        Retrieve the embeddings index from the database.
-        """
-        raise NotImplementedError("Neo4j does not require storing embeddings index.")
-
-    def upsert_embeddings_index(
-        self,
-        model_name: str,
-        detector_backend: str,
-        aligned: bool,
-        l2_normalized: bool,
-        index_data: bytes,
-    ) -> None:
-        """
-        Insert or update the embeddings index in the database.
-        """
-        raise NotImplementedError("Neo4j does not require storing embeddings index.")
-
-    def search_by_id(
-        self,
-        ids: Union[List[str], List[int]],
-    ) -> List[Dict[str, Any]]:
-        """
-        Search embeddings by their IDs.
-        """
-        raise NotImplementedError(
-            "search_by_id is not implemented for Neo4j yet "
-            "because search by vector returns metadata already."
-        )
 
     def __is_gds_installed(self) -> bool:
         """

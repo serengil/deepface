@@ -7,12 +7,14 @@ class Variables:
     def __init__(self) -> None:
         self.database_type = os.getenv("DEEPFACE_DATABASE_TYPE", "postgres").lower()
 
-        if self.database_type == "postgres":
+        if self.database_type in ["postgres", "pgvector"]:
             conection_details = os.getenv("DEEPFACE_POSTGRES_URI")
         elif self.database_type == "mongo":
             conection_details = os.getenv("DEEPFACE_MONGO_URI")
         elif self.database_type == "weaviate":
             conection_details = os.getenv("DEEPFACE_WEAVIATE_URI")
+        elif self.database_type == "neo4j":
+            conection_details = os.getenv("DEEPFACE_NEO4J_URI")
         else:
             conection_details = None
 

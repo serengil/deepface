@@ -15,6 +15,9 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 
+_SCHEMA_CHECKED: Dict[str, bool] = {}
+
+
 # pylint: disable=too-many-positional-arguments
 class WeaviateClient(Database):
     """
@@ -61,7 +64,7 @@ class WeaviateClient(Database):
 
             self.client = self.weaviate.Client(**client_config)
 
-    def ensure_embeddings_table(self, **kwargs: Any) -> None:
+    def initialize_database(self, **kwargs: Any) -> None:
         """
         Ensure Weaviate schemas exist for embeddings using both cosine and L2 (euclidean).
         """
@@ -79,6 +82,10 @@ class WeaviateClient(Database):
             aligned=aligned,
             l2_normalized=l2_normalized,
         )
+
+        if _SCHEMA_CHECKED.get(class_name):
+            logger.debug("Weaviate schema already checked, skipping.")
+            return
 
         if class_name in existing_classes:
             logger.debug(f"Weaviate class {class_name} already exists.")
@@ -110,6 +117,7 @@ class WeaviateClient(Database):
         )
 
         logger.debug(f"Weaviate class {class_name} created successfully.")
+        _SCHEMA_CHECKED[class_name] = True
 
     def insert_embeddings(self, embeddings: List[Dict[str, Any]], batch_size: int = 100) -> int:
         """
@@ -118,7 +126,7 @@ class WeaviateClient(Database):
         if not embeddings:
             raise ValueError("No embeddings to insert.")
 
-        self.ensure_embeddings_table(
+        self.initialize_database(
             model_name=embeddings[0]["model_name"],
             detector_backend=embeddings[0]["detector_backend"],
             aligned=embeddings[0]["aligned"],
@@ -195,7 +203,7 @@ class WeaviateClient(Database):
             aligned=aligned,
             l2_normalized=l2_normalized,
         )
-        self.ensure_embeddings_table(
+        self.initialize_database(
             model_name=model_name,
             detector_backend=detector_backend,
             aligned=aligned,
@@ -242,7 +250,7 @@ class WeaviateClient(Database):
             aligned=aligned,
             l2_normalized=l2_normalized,
         )
-        self.ensure_embeddings_table(
+        self.initialize_database(
             model_name=model_name,
             detector_backend=detector_backend,
             aligned=aligned,
@@ -278,43 +286,6 @@ class WeaviateClient(Database):
         Close the Weaviate client connection.
         """
         self.client.close()
-
-    def get_embeddings_index(
-        self,
-        model_name: str,
-        detector_backend: str,
-        aligned: bool,
-        l2_normalized: bool,
-    ) -> bytes:
-        """
-        Retrieve the embeddings index from the database.
-        """
-        raise NotImplementedError("Weaviate does not require storing embeddings index.")
-
-    def upsert_embeddings_index(
-        self,
-        model_name: str,
-        detector_backend: str,
-        aligned: bool,
-        l2_normalized: bool,
-        index_data: bytes,
-    ) -> None:
-        """
-        Insert or update the embeddings index in the database.
-        """
-        raise NotImplementedError("Weaviate does not require storing embeddings index.")
-
-    def search_by_id(
-        self,
-        ids: Union[List[str], List[int]],
-    ) -> List[Dict[str, Any]]:
-        """
-        Search embeddings by their IDs.
-        """
-        raise NotImplementedError(
-            "search_by_id is not implemented for Weaviate yet "
-            "because search by vector returns metadata already."
-        )
 
     @staticmethod
     def __generate_node_label(

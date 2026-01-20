@@ -64,7 +64,7 @@ class PostgresClient(Database):
         except (ModuleNotFoundError, ImportError) as e:
             raise ValueError(
                 "psycopg is an optional dependency, ensure the library is installed."
-                "Please install using 'pip show \"psycopg[binary]\"' "
+                "Please install using 'pip install \"psycopg[binary]\"' "
             ) from e
 
         self.psycopg = psycopg
@@ -89,9 +89,9 @@ class PostgresClient(Database):
                 raise ValueError("connection_details must be either a string or a dict.")
 
         # Ensure the embeddings table exists
-        self.ensure_embeddings_table()
+        self.initialize_database()
 
-    def ensure_embeddings_table(self, **kwargs: Any) -> None:
+    def initialize_database(self, **kwargs: Any) -> None:
         """
         Ensure that the `embeddings` table exists.
         """
@@ -259,6 +259,7 @@ class PostgresClient(Database):
                     self.conn.commit()
                 return len(values)
         except self.psycopg.errors.UniqueViolation as e:
+            self.conn.rollback()
             if len(values) == 1:
                 logger.warn("Duplicate detected for extracted face and embedding.")
                 return 0
@@ -304,20 +305,6 @@ class PostgresClient(Database):
                         }
                     )
         return embeddings
-
-    def search_by_vector(
-        self,
-        vector: List[float],
-        model_name: str = "VGG-Face",
-        detector_backend: str = "opencv",
-        aligned: bool = True,
-        l2_normalized: bool = False,
-        limit: int = 10,
-    ) -> List[Dict[str, Any]]:
-        """
-        ANN search using the main vector (embedding).
-        """
-        raise NotImplementedError("ANN search is not natively supported in Postgres.")
 
     def search_by_id(
         self,
