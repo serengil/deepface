@@ -805,9 +805,15 @@ def __verify_signature(
             This is going to be used to sign the integrity of the datastore pickle file.
             If not provided, the datastore will not be signed.
     """
+    signature_path = datastore_path + ".ldsa"
     if credentials is None:
-        logger.debug("No credentials provided. Skipping signature verification.")
-        return
+        if not os.path.exists(signature_path):
+            logger.debug("No credentials provided. Skipping signature verification.")
+            return
+        raise ValueError(
+            f"Credentials not provided but signature file {signature_path} exists."
+            "Cannot verify the datastore without credentials."
+        )
 
     dsa = __build_dsa(credentials=credentials)
 
@@ -816,7 +822,6 @@ def __verify_signature(
     with open(datastore_path, "rb") as f:
         data: bytes = f.read()
 
-    signature_path = datastore_path + ".ldsa"
     if not os.path.exists(signature_path):
         raise ValueError(
             f"Signature file {signature_path} not found."

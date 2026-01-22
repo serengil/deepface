@@ -181,6 +181,23 @@ class TestSignature(unittest.TestCase):
             )
             self.__flush_datastore_and_signature()
 
+    def test_signed_datastore_with_no_credentials(self):
+        for algorithm_name in ALGORITHMS:
+            cs = LightDSA(algorithm_name=algorithm_name)
+
+            # this will create and sign the datastore
+            _ = DeepFace.find(img_path="dataset/img6.jpg", db_path=self.db_path, credentials=cs)
+
+            signature_path = f"{self.db_path}/{self.expected_ds}.ldsa"
+            with pytest.raises(
+                ValueError,
+                match=f"Credentials not provided but signature file {signature_path} exists.",
+            ):
+                _ = DeepFace.find(img_path="dataset/img7.jpg", db_path=self.db_path)
+
+            logger.info(f"✅ Signed datastore with no credentials test passed for {algorithm_name}")
+            self.__flush_datastore_and_signature()
+
     def test_custom_curves(self):
         for algorithm_name, form_name, curve_name in [
             # default configurations
