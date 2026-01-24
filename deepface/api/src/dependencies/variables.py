@@ -15,6 +15,8 @@ class Variables:
             conection_details = os.getenv("DEEPFACE_WEAVIATE_URI")
         elif self.database_type == "neo4j":
             conection_details = os.getenv("DEEPFACE_NEO4J_URI")
+        elif self.database_type == "pinecone":
+            conection_details = os.getenv("DEEPFACE_PINECONE_API_KEY")
         else:
             conection_details = None
 

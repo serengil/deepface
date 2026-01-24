@@ -16,6 +16,7 @@ from deepface.modules.database.pgvector import PGVectorClient
 from deepface.modules.database.mongo import MongoDbClient as MongoClient
 from deepface.modules.database.weaviate import WeaviateClient
 from deepface.modules.database.neo4j import Neo4jClient
+from deepface.modules.database.pinecone import PineconeClient
 
 from deepface.modules.representation import represent
 from deepface.modules.verification import (
@@ -72,7 +73,7 @@ def register(
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
         database_type (str): Type of database to register identities. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j', 'pgvector' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector', 'pinecone' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -84,6 +85,7 @@ def register(
             - DEEPFACE_MONGO_URI
             - DEEPFACE_WEAVIATE_URI
             - DEEPFACE_NEO4J_URI
+            - DEEPFACE_PINECONE_API_KEY
     Returns:
         result (dict): A dictionary containing registration results with following keys.
             - inserted (int): Number of embeddings successfully registered to the database.
@@ -187,7 +189,7 @@ def search(
         search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
             To use ann search, you must run build_index function first to create the index.
         database_type (str): Type of database to search identities. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j', 'pgvector' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector', 'pinecone' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -199,6 +201,7 @@ def search(
             - DEEPFACE_MONGO_URI
             - DEEPFACE_WEAVIATE_URI
             - DEEPFACE_NEO4J_URI
+            - DEEPFACE_PINECONE_API_KEY
     Returns:
         results (List[pd.DataFrame]):
             A list of pandas dataframes or a list of dicts. Each dataframe or dict corresponds
@@ -340,6 +343,7 @@ def search(
         "weaviate",
         "neo4j",
         "pgvector",
+        "pinecone",
     ]:  # use vector db
         for result in results:
             target_vector: List[float] = result["embedding"]
@@ -503,7 +507,7 @@ def build_index(
         max_neighbors_per_node (int): Maximum number of neighbors per node in the index
             (default is 32).
         database_type (str): Type of database to build index. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j', 'pgvector' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector', 'pinecone' (default is 'postgres').
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
         connection_details (dict or str): Connection details for the database.
@@ -515,8 +519,9 @@ def build_index(
             - DEEPFACE_MONGO_URI
             - DEEPFACE_WEAVIATE_URI
             - DEEPFACE_NEO4J_URI
+            - DEEPFACE_PINECONE_API_KEY
     """
-    if database_type in ["weaviate", "neo4j", "pgvector"]:
+    if database_type in ["weaviate", "neo4j", "pgvector", "pinecone"]:
         logger.info(f"{database_type} manages its own indexes. No need to build index manually.")
         return
 
@@ -687,7 +692,7 @@ def __connect_database(
     Connect to the specified database type
     Args:
         database_type (str): Type of database to connect. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j', 'pgvector' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector', 'pinecone' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -699,6 +704,7 @@ def __connect_database(
             - DEEPFACE_MONGO_URI
             - DEEPFACE_WEAVIATE_URI
             - DEEPFACE_NEO4J_URI
+            - DEEPFACE_PINECONE_API_KEY
     Returns:
         db_client (Database): An instance of the connected database client.
     """
@@ -727,6 +733,12 @@ def __connect_database(
     if database_type == "neo4j":
         neo4j_client = Neo4jClient(connection_details=connection_details, connection=connection)
         return neo4j_client
+
+    if database_type == "pinecone":
+        pinecone_client = PineconeClient(
+            connection_details=connection_details, connection=connection
+        )
+        return pinecone_client
 
     raise ValueError(f"Unsupported database type: {database_type}")
 
