@@ -22,7 +22,6 @@ _SCHEMA_CHECKED: Dict[str, bool] = {}
 class WeaviateClient(Database):
     """
     Weaviate client for storing and retrieving face embeddings and indices.
-    Similar interface to PostgresClient.
     """
 
     def __init__(
@@ -76,7 +75,7 @@ class WeaviateClient(Database):
         existing_schema = self.client.schema.get()
         existing_classes = {c["class"] for c in existing_schema.get("classes", [])}
 
-        class_name = self.__generate_node_label(
+        class_name = self.__generate_class_name(
             model_name=model_name,
             detector_backend=detector_backend,
             aligned=aligned,
@@ -132,7 +131,7 @@ class WeaviateClient(Database):
             aligned=embeddings[0]["aligned"],
             l2_normalized=embeddings[0]["l2_normalized"],
         )
-        class_name = self.__generate_node_label(
+        class_name = self.__generate_class_name(
             model_name=embeddings[0]["model_name"],
             detector_backend=embeddings[0]["detector_backend"],
             aligned=embeddings[0]["aligned"],
@@ -197,7 +196,7 @@ class WeaviateClient(Database):
         """
         Fetch all embeddings with filters.
         """
-        class_name = self.__generate_node_label(
+        class_name = self.__generate_class_name(
             model_name=model_name,
             detector_backend=detector_backend,
             aligned=aligned,
@@ -244,7 +243,7 @@ class WeaviateClient(Database):
         """
         ANN search using the main vector (embedding).
         """
-        class_name = self.__generate_node_label(
+        class_name = self.__generate_class_name(
             model_name=model_name,
             detector_backend=detector_backend,
             aligned=aligned,
@@ -288,7 +287,7 @@ class WeaviateClient(Database):
         self.client.close()
 
     @staticmethod
-    def __generate_node_label(
+    def __generate_class_name(
         model_name: str,
         detector_backend: str,
         aligned: bool,
