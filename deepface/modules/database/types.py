@@ -1,10 +1,21 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
 from abc import ABC, abstractmethod
 
 
 # pylint: disable=unnecessary-pass, too-many-positional-arguments
 class Database(ABC):
+    @abstractmethod
+    def __init__(
+        self,
+        connection_details: Optional[Union[str, Dict[str, Any]]] = None,
+        connection: Any = None,
+    ):
+        """
+        Initialize the database client with connection details or an existing connection.
+        """
+        pass
+
     @abstractmethod
     def initialize_database(self, **kwargs: Any) -> None:
         """

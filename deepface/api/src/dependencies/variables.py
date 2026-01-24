@@ -1,25 +1,20 @@
 # built-in dependencies
 import os
 
+# project dependencies
+from deepface.modules.database.inventory import database_inventory
+
 
 # pylint: disable=too-few-public-methods
 class Variables:
     def __init__(self) -> None:
         self.database_type = os.getenv("DEEPFACE_DATABASE_TYPE", "postgres").lower()
 
-        if self.database_type in ["postgres", "pgvector"]:
-            conection_details = os.getenv("DEEPFACE_POSTGRES_URI")
-        elif self.database_type == "mongo":
-            conection_details = os.getenv("DEEPFACE_MONGO_URI")
-        elif self.database_type == "weaviate":
-            conection_details = os.getenv("DEEPFACE_WEAVIATE_URI")
-        elif self.database_type == "neo4j":
-            conection_details = os.getenv("DEEPFACE_NEO4J_URI")
-        elif self.database_type == "pinecone":
-            conection_details = os.getenv("DEEPFACE_PINECONE_API_KEY")
-        else:
-            conection_details = None
+        if database_inventory.get(self.database_type) is None:
+            raise ValueError(f"Unsupported database type: {self.database_type}")
 
+        connection_string = database_inventory[self.database_type]["connection_string"]
+        conection_details = os.getenv(connection_string)
         self.conection_details = os.getenv("DEEPFACE_CONNECTION_DETAILS") or conection_details
 
         self.face_recognition_models = os.getenv("DEEPFACE_FACE_RECOGNITION_MODELS")

@@ -11,12 +11,7 @@ from numpy.typing import NDArray
 
 # project dependencies
 from deepface.modules.database.types import Database
-from deepface.modules.database.postgres import PostgresClient
-from deepface.modules.database.pgvector import PGVectorClient
-from deepface.modules.database.mongo import MongoDbClient as MongoClient
-from deepface.modules.database.weaviate import WeaviateClient
-from deepface.modules.database.neo4j import Neo4jClient
-from deepface.modules.database.pinecone import PineconeClient
+from deepface.modules.database.inventory import database_inventory
 
 from deepface.modules.representation import represent
 from deepface.modules.verification import (
@@ -267,7 +262,9 @@ def search(
         return_face=False,
     )
 
-    if search_method == "ann" and database_type in ["mongo", "postgres"]:  # use faiss
+    is_vector_db = database_inventory[database_type]["is_vector_db"]
+
+    if search_method == "ann" and is_vector_db is False:
         try:
             import faiss
         except ImportError as e:
@@ -339,12 +336,7 @@ def search(
             dfs.append(df)
         return dfs
 
-    elif search_method == "ann" and database_type in [
-        "weaviate",
-        "neo4j",
-        "pgvector",
-        "pinecone",
-    ]:  # use vector db
+    elif search_method == "ann" and is_vector_db is True:
         for result in results:
             target_vector: List[float] = result["embedding"]
             neighbours = db_client.search_by_vector(
@@ -521,7 +513,13 @@ def build_index(
             - DEEPFACE_NEO4J_URI
             - DEEPFACE_PINECONE_API_KEY
     """
-    if database_type in ["weaviate", "neo4j", "pgvector", "pinecone"]:
+
+    if database_inventory.get(database_type) is None:
+        raise ValueError(f"Unsupported database type: {database_type}")
+
+    is_vector_db = database_inventory[database_type]["is_vector_db"]
+
+    if is_vector_db is True:
         logger.info(f"{database_type} manages its own indexes. No need to build index manually.")
         return
 
@@ -708,39 +706,12 @@ def __connect_database(
     Returns:
         db_client (Database): An instance of the connected database client.
     """
-    if database_type == "postgres":
-        postgres_client = PostgresClient(
-            connection_details=connection_details, connection=connection
-        )
-        return postgres_client
 
-    if database_type == "pgvector":
-        pgvector_client = PGVectorClient(
-            connection_details=connection_details, connection=connection
-        )
-        return pgvector_client
+    if database_inventory.get(database_type) is None:
+        raise ValueError(f"Unsupported database type: {database_type}")
 
-    if database_type == "mongo":
-        mongo_client = MongoClient(connection_details=connection_details, connection=connection)
-        return mongo_client
-
-    if database_type == "weaviate":
-        weaviate_client = WeaviateClient(
-            connection_details=connection_details, connection=connection
-        )
-        return weaviate_client
-
-    if database_type == "neo4j":
-        neo4j_client = Neo4jClient(connection_details=connection_details, connection=connection)
-        return neo4j_client
-
-    if database_type == "pinecone":
-        pinecone_client = PineconeClient(
-            connection_details=connection_details, connection=connection
-        )
-        return pinecone_client
-
-    raise ValueError(f"Unsupported database type: {database_type}")
+    client_class = database_inventory[database_type]["client"]
+    return client_class(connection_details=connection_details, connection=connection)
 
 
 def __get_index(
