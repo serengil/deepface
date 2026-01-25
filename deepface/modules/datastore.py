@@ -1,8 +1,10 @@
 # built-in dependencies
+import os
 from typing import Any, Dict, IO, List, Union, Optional, cast
 import uuid
 import time
 import math
+import tempfile
 
 # 3rd party dependencies
 import pandas as pd
@@ -594,7 +596,9 @@ def build_index(
     toc = time.time()
     logger.info(f"Added {len(vectors)} embeddings to index in {toc - tic:.2f} seconds.")
 
-    index_path = f"/tmp/{model_name}_{detector_backend}_{align}_{l2_normalize}.faiss"
+    index_path = os.path.join(
+        tempfile.gettempdir(), f"{model_name}_{detector_backend}_{align}_{l2_normalize}.faiss"
+    )
 
     # now create index from scratch, then think how to load an index and add new vectors to it
     tic = time.time()
@@ -615,6 +619,10 @@ def build_index(
     )
     toc = time.time()
     logger.info(f"Upserted index to database in {toc - tic:.2f} seconds.")
+
+    # clean up temp file
+    if os.path.exists(index_path):
+        os.remove(index_path)
 
 
 def __get_embeddings(
