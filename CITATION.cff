@@ -6,23 +6,24 @@ authors:
     given-names: Sefik
 version: 1.0.0
 date-released: 2020-02-09
-doi: 10.17671/gazibtd.1399077
+doi: 10.35378/gujs.1794891
 url: https://github.com/serengil/deepface
 type: software
 preferred-citation:
   type: article
-  title: "A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"
+  title: "Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition"
   authors:
     - family-names: Serengil
-      given-names: Sefik
+      given-names: Sefik Ilkin
     - family-names: Ozpinar
       given-names: Alper
-  year: 2024
-  doi: 10.17671/gazibtd.1399077
-  url: https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077
-  journal: "Journal of Information Technologies"
-  volume: "17"
-  issue: "2"
-  start: "95"
-  end: "107"
+  year: 2026
+  doi: 10.35378/gujs.1794891
+  url: https://dergipark.org.tr/en/pub/gujs/article/1794891
+  journal: "Gazi University Journal of Science"
+  issue: "Advanced Online Publication"
+  # volume: "39"
+  # issue: "1"
+  # start: "xx"
+  # end: "yy"
   publisher: "Gazi University"
