@@ -7,7 +7,7 @@
 [![Pulls](https://img.shields.io/docker/pulls/serengil/deepface?logo=docker)](https://hub.docker.com/r/serengil/deepface)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
-[![DOI](http://img.shields.io/:DOI-10.17671/gazibtd.1399077-blue.svg?style=flat)](https://doi.org/10.17671/gazibtd.1399077)
+[![DOI](http://img.shields.io/:DOI-10.35378/gujs.1794891-blue.svg?style=flat)](https://doi.org/10.35378/gujs.1794891)
 
 [![Blog](https://img.shields.io/:blog-sefiks.com-blue.svg?style=flat&logo=wordpress)](https://sefiks.com)
 [![YouTube](https://img.shields.io/:youtube-@sefiks-red.svg?style=flat&logo=youtube)](https://www.youtube.com/@sefiks?sub_confirmation=1)
@@ -401,6 +401,23 @@ If you do like this work, then you can support it financially on [Patreon](https
 Please cite deepface in your publications if it helps your research.
 
 <details open>
+  <summary>S. I. Serengil and A. Ozpinar, <b>Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition</b>, <i>Gazi University Journal of Science</i>, no. Advanced Online Publication, 2026.</summary>
+
+  ```BibTeX
+  @article{serengil2026boosted,
+    title     =  {Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition},
+    author    =  {Serengil, Sefik Ilkin and Ozpinar, Alper},
+    journal   =  {Gazi University Journal of Science},
+    number    =  {Advanced Online Publication},
+    year      =  {2026},
+    doi       =  {10.35378/gujs.1794891},
+    url       =  {https://dergipark.org.tr/en/pub/gujs/article/1794891},
+    publisher =  {Gazi University}
+  }
+  ```
+</details>
+
+<details>
   <summary>S. Serengil and A. Ozpinar, <b>"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"</b>, <i>Journal of Information Technologies</i>, vol. 17, no. 2, pp. 95-107, 2024.</summary>
   
   ```BibTeX
