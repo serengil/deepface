@@ -401,14 +401,16 @@ If you do like this work, then you can support it financially on [Patreon](https
 Please cite deepface in your publications if it helps your research.
 
 <details open>
-  <summary>S. I. Serengil and A. Ozpinar, <b>Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition</b>, <i>Gazi University Journal of Science</i>, no. Advanced Online Publication, 2026.</summary>
+  <summary>S. I. Serengil and A. Ozpinar, <b>Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition</b>, <i>Gazi University Journal of Science</i>, vol. 39, no. 1, pp. 452-466, 2026.</summary>
 
   ```BibTeX
   @article{serengil2026boosted,
     title     =  {Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition},
     author    =  {Serengil, Sefik Ilkin and Ozpinar, Alper},
     journal   =  {Gazi University Journal of Science},
-    number    =  {Advanced Online Publication},
+    volume    =  {39},
+    number    =  {1},
+    pages     =  {452-466},
     year      =  {2026},
     doi       =  {10.35378/gujs.1794891},
     url       =  {https://dergipark.org.tr/en/pub/gujs/article/1794891},

@@ -21,9 +21,8 @@ preferred-citation:
   doi: 10.35378/gujs.1794891
   url: https://dergipark.org.tr/en/pub/gujs/article/1794891
   journal: "Gazi University Journal of Science"
-  issue: "Advanced Online Publication"
-  # volume: "39"
-  # issue: "1"
-  # start: "xx"
-  # end: "yy"
+  volume: "39"
+  issue: "1"
+  start: "452"
+  end: "466"
   publisher: "Gazi University"
