@@ -25,6 +25,10 @@
   <a href="https://trendshift.io/repositories/4227" target="_blank"><img src="https://trendshift.io/api/badge/repositories/4227" alt="serengil%2Fdeepface | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </div>
 
+<div align="center">
+  <a href="https://deepface.dev" target="_blank"><img src="https://img.shields.io/badge/Hosted-deepface.dev-00BFFF?style=flat&labelColor=555555" alt="Hosted | deepface.dev"/></a>
+</div>
+
 </div>
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-icon-labeled.png" width="200" height="240"></p>
@@ -56,6 +60,8 @@ Once you installed the library, then you will be able to import it and use its f
 ```python
 from deepface import DeepFace
 ```
+
+> 💡 Prefer not to install or manage infrastructure? You can use a managed API via [deepface.dev](https://deepface.dev).
 
 **Face Verification** - [`Demo`](https://youtu.be/KRCvkNCOphE)
 
@@ -333,6 +339,18 @@ $ curl -X POST http://localhost:5005/search \
 ```
 
 [`Here`](https://github.com/serengil/deepface/tree/master/deepface/api/postman), you can find a postman project to find out how these methods should be called.
+
+## Hosted DeepFace [![deepface.dev](https://img.shields.io/badge/-deepface.dev-00BFFF?style=flat&labelColor=0A0A0A&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDI1NiAyNTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%2BCiAgPHRpdGxlPmRlZXBmYWNlLmRldiBsb2dvPC90aXRsZT4KICA8cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjI0IiBmaWxsPSIjMEEwQTBBIi8%2BCgogIDxkZWZzPgogICAgPGZpbHRlciBpZD0ibmVvbi1nbG93IiB4PSItNTAlIiB5PSItNTAlIiB3aWR0aD0iMjAwJSIgaGVpZ2h0PSIyMDAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjQiIHJlc3VsdD0iYmx1ciIgLz4KICAgICAgPGZlTWVyZ2U%2BCiAgICAgICAgPGZlTWVyZ2VOb2RlIGluPSJibHVyIiAvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIgLz4KICAgICAgPC9mZU1lcmdlPgogICAgPC9maWx0ZXI%2BCiAgPC9kZWZzPgoKICA8dGV4dCB4PSI1MCUiIHk9IjUwJSIKICAgICAgICBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIgogICAgICAgIHRleHQtYW5jaG9yPSJtaWRkbGUiCiAgICAgICAgZmlsbD0iIzAwQkZGRiIKICAgICAgICBmb250LXNpemU9IjExMCIKICAgICAgICBmb250LXdlaWdodD0iNTAwIgogICAgICAgIGZvbnQtZmFtaWx5PSInRmlyYSBDb2RlJywgJ1JvYm90byBNb25vJywgdWktbW9ub3NwYWNlLCBTRk1vbm8tUmVndWxhciwgTWVubG8sIE1vbmFjbywgQ29uc29sYXMsICdMaWJlcmF0aW9uIE1vbm8nLCAnQ291cmllciBOZXcnLCBtb25vc3BhY2UiCiAgICAgICAgZmlsdGVyPSJ1cmwoI25lb24tZ2xvdykiPgogICAge2RmfQogIDwvdGV4dD4KPC9zdmc%2BCg%3D%3D)](https://deepface.dev)
+
+Don’t want to host and scale DeepFace yourself? [`deepface.dev`](https://deepface.dev)
+provides a managed API built on top of DeepFace.
+
+- One API for verification, embeddings, and vector comparison
+- Docs and machine-readable agent docs: [`docs.deepface.dev`](https://docs.deepface.dev)
+- MCP endpoint: `https://deepface.dev/mcp` using a dedicated MCP key
+- Usage-based pricing that scales from testing to production
+
+---
 
 **Encrypt Embeddings** - [`Demo with PHE`](https://youtu.be/8VCu39jFZ7k), [`Tutorial for PHE`](https://sefiks.com/2025/03/04/vector-similarity-search-with-partially-homomorphic-encryption-in-python/), [`Demo with FHE`](https://youtu.be/njjw0PEhH00), [`Tutorial for FHE`](https://sefiks.com/2021/12/01/homomorphic-facial-recognition-with-tenseal/)
 
