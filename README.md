@@ -398,6 +398,10 @@ DeepFace can also be used to compare a child's face to their parents' or relativ
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-scaled.jpg" width="90%"></p>
 
+## Limitations and Ethical Considerations
+
+This library, DeepFace, is a facial recognition tool. Users should be aware of the potential biases in face recognition systems, including but not limited to race, gender, age, and ethnicity biases. It is crucial to evaluate the model on diverse datasets and consider ethical implications of deployment. The performance may vary across different demographic groups, and misidentifications can have serious consequences. Developers should ensure transparency, obtain informed consent, and comply with local regulations when using this technology.
+
 ## Contribution
 
 Pull requests are more than welcome! If you are planning to contribute a large patch, please create an issue first to get any upfront questions or design decisions out of the way first.
