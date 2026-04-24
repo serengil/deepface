@@ -276,6 +276,57 @@ def search() -> Tuple[Dict[str, Any], int]:
     )
 
 
+@blueprint.route("/identify", methods=["POST"])
+def identify() -> Tuple[Dict[str, Any], int]:
+    """
+    1:1 face verification: compares the supplied `img` against the cached embedding
+    stored under `user_face_id` (registered via /register with img_name=user_face_id).
+    Returns:
+        { "verified": true,  "message": null }
+        { "verified": false, "message": "<reason>" }
+    """
+    # load injected variables and container
+    variables: Variables = blueprint.variables  # type: ignore[attr-defined]
+    container: Container = blueprint.container  # type: ignore[attr-defined]
+    if not container.auth_service.validate(request.headers):
+        return {"message": "Invalid or missing authentication token"}, 401
+
+    if variables.conection_details is None:
+        return {
+            "error": "Database connection details must be provided in `DEEPFACE_CONNECTION_DETAILS`"
+            " environment variables"
+        }, 500
+
+    input_args = (request.is_json and request.get_json()) or (
+        request.form and request.form.to_dict()
+    )
+
+    try:
+        img = extract_image_from_request("img")
+    except Exception as err:
+        return {"verified": False, "message": str(err)}, 400
+
+    user_face_id = input_args.get("user_face_id")
+    if not user_face_id:
+        return {"verified": False, "message": "user_face_id is required"}, 400
+
+    return service.identify(
+        img=img,
+        user_face_id=user_face_id,
+        model_name=input_args.get("model_name", "VGG-Face"),
+        detector_backend=input_args.get("detector_backend", "opencv"),
+        distance_metric=input_args.get("distance_metric", "cosine"),
+        enforce_detection=bool(input_args.get("enforce_detection", True)),
+        align=bool(input_args.get("align", True)),
+        l2_normalize=bool(input_args.get("l2_normalize", False)),
+        expand_percentage=int(input_args.get("expand_percentage", 0)),
+        normalization=input_args.get("normalization", "base"),
+        anti_spoofing=bool(input_args.get("anti_spoofing", False)),
+        database_type=variables.database_type,
+        connection_details=variables.conection_details,
+    )
+
+
 @blueprint.route("/build/index", methods=["POST"])
 def build_index() -> Tuple[Dict[str, Any], int]:
     # load injected variables and container
@@ -299,6 +350,31 @@ def build_index() -> Tuple[Dict[str, Any], int]:
         detector_backend=input_args.get("detector_backend", "opencv"),
         align=bool(input_args.get("align", True)),
         l2_normalize=bool(input_args.get("l2_normalize", False)),
+        database_type=variables.database_type,
+        connection_details=variables.conection_details,
+    )
+
+
+
+@blueprint.route("/faces/<img_name>", methods=["DELETE"])
+def delete_by_img_name(img_name: str) -> Tuple[Dict[str, Any], int]:
+    # load injected variables and container
+    variables: Variables = blueprint.variables  # type: ignore[attr-defined]
+    container: Container = blueprint.container  # type: ignore[attr-defined]
+    if not container.auth_service.validate(request.headers):
+        return {"message": "Invalid or missing authentication token"}, 401
+
+    if variables.conection_details is None:
+        return {
+            "error": "Database connection details must be provided in `DEEPFACE_CONNECTION_DETAILS`"
+                     " environment variables"
+        }, 500
+
+    if not img_name:
+        return {"exception": "img_name is required"}, 400
+
+    return service.delete_by_img_name(
+        img_name=img_name,
         database_type=variables.database_type,
         connection_details=variables.conection_details,
     )

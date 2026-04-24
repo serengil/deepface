@@ -127,6 +127,59 @@ class PostgresClient(Database):
         """Close the database connection."""
         self.conn.close()
 
+    def delete_by_img_name(self, img_name: str) -> int:
+        """
+        Delete every embedding stored under `img_name`.
+        Returns the number of rows removed.
+        """
+        query = "DELETE FROM embeddings WHERE img_name = %s"
+        with self.conn.cursor() as cur:
+            cur.execute(query, (img_name,))
+            deleted = cur.rowcount
+        self.conn.commit()
+        return int(deleted or 0)
+
+    def fetch_embedding_by_img_name(
+        self,
+        img_name: str,
+        model_name: str,
+        detector_backend: str,
+        aligned: bool,
+        l2_normalized: bool,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetch the single cached embedding stored under `img_name` (used by 1:1 identify).
+        Returns None if no embedding is registered for this img_name.
+        """
+        query = """
+            SELECT id, img_name, embedding
+            FROM embeddings
+            WHERE img_name = %s
+              AND model_name = %s
+              AND detector_backend = %s
+              AND aligned = %s
+              AND l2_normalized = %s
+            ORDER BY id ASC
+            LIMIT 1;
+        """
+        with self.conn.cursor() as cur:
+            cur.execute(
+                query,
+                (img_name, model_name, detector_backend, aligned, l2_normalized),
+            )
+            row = cur.fetchone()
+        if row is None:
+            return None
+        return {
+            "id": row[0],
+            "img_name": row[1],
+            "embedding": row[2],
+            "model_name": model_name,
+            "detector_backend": detector_backend,
+            "aligned": aligned,
+            "l2_normalized": l2_normalized,
+        }
+
     def upsert_embeddings_index(
         self,
         model_name: str,

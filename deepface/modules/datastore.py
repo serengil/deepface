@@ -625,6 +625,158 @@ def build_index(
         os.remove(index_path)
 
 
+def delete_by_img_name(
+    img_name: str,
+    database_type: str = "postgres",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+) -> Dict[str, Any]:
+    """
+    Delete registered face embeddings from the database by image name.
+    Args:
+        img_name (str): Image name identifier used during registration.
+        database_type (str): Type of database to delete from. Options: 'postgres', 'mongo',
+            'weaviate', 'neo4j', 'pgvector', 'pinecone' (default is 'postgres').
+        connection_details (dict or str): Connection details for the database.
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+
+        Note:
+            Instead of providing `connection` or `connection_details`, database connection
+            information can be supplied via environment variables:
+            - DEEPFACE_POSTGRES_URI
+            - DEEPFACE_MONGO_URI
+            - DEEPFACE_WEAVIATE_URI
+            - DEEPFACE_NEO4J_URI
+            - DEEPFACE_PINECONE_API_KEY
+    Returns:
+        result (dict): A dictionary with the following keys.
+            - deleted (int): Number of embeddings removed from the database.
+            - img_name (str): The image name identifier that was deleted.
+    """
+    db_client = __connect_database(
+        database_type=database_type,
+        connection_details=connection_details,
+        connection=connection,
+    )
+
+    deleted = db_client.delete_by_img_name(img_name=img_name)
+
+    if connection is None:
+        db_client.close()
+
+    return {"deleted": int(deleted), "img_name": img_name}
+
+
+def identify(
+    img: Union[str, NDArray[Any], IO[bytes]],
+    user_face_id: str,
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    distance_metric: str = "cosine",
+    enforce_detection: bool = True,
+    align: bool = True,
+    l2_normalize: bool = False,
+    expand_percentage: int = 0,
+    normalization: str = "base",
+    anti_spoofing: bool = False,
+    database_type: str = "postgres",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+) -> Dict[str, Any]:
+    """
+    1:1 face verification against a single registered identity.
+
+    Loads the cached embedding stored under `user_face_id` (matched against the
+    `img_name` column the embedding was registered with), computes an embedding for
+    the supplied image, and compares the two with the chosen distance metric.
+
+    Returns:
+        dict with keys:
+            - verified (bool): True iff distance <= threshold AND img has exactly one face.
+            - message (str | None): Reason when not verified, None when verified.
+    """
+    if l2_normalize is True and distance_metric == "euclidean":
+        distance_metric = "euclidean_l2"
+
+    threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
+
+    db_client = __connect_database(
+        database_type=database_type,
+        connection_details=connection_details,
+        connection=connection,
+    )
+
+    try:
+        cached = db_client.fetch_embedding_by_img_name(
+            img_name=user_face_id,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=align,
+            l2_normalized=l2_normalize,
+        )
+    finally:
+        if connection is None:
+            db_client.close()
+
+    if cached is None:
+        return {"verified": False, "message": f"user_face_id '{user_face_id}' not registered"}
+
+    try:
+        results = __get_embeddings(
+            img=img,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            enforce_detection=enforce_detection,
+            align=align,
+            anti_spoofing=anti_spoofing,
+            expand_percentage=expand_percentage,
+            normalization=normalization,
+            l2_normalize=l2_normalize,
+            return_face=False,
+        )
+    except ValueError as err:
+        return {"verified": False, "message": str(err)}
+
+    if len(results) == 0:
+        return {"verified": False, "message": "Face could not be detected in the supplied image"}
+
+    if len(results) > 1:
+        return {
+            "verified": False,
+            "message": f"Multiple faces detected in the supplied image (count={len(results)})",
+        }
+
+    target_embedding = cast(List[float], results[0]["embedding"])
+    cached_embedding = cast(List[float], cached["embedding"])
+
+    if distance_metric == "cosine":
+        distance = find_cosine_distance(cached_embedding, target_embedding)
+    elif distance_metric == "euclidean":
+        distance = find_euclidean_distance(cached_embedding, target_embedding)
+    elif distance_metric == "angular":
+        distance = find_angular_distance(cached_embedding, target_embedding)
+    elif distance_metric == "euclidean_l2":
+        distance = find_euclidean_distance(
+            find_l2_normalize(cached_embedding), find_l2_normalize(target_embedding)
+        )
+    else:
+        return {"verified": False, "message": f"Unsupported distance metric: {distance_metric}"}
+
+    verified = bool(distance <= threshold)
+
+    if verified:
+        return {"verified": True, "message": None}
+
+    return {
+        "verified": False,
+        "message": (
+            f"Face mismatch (distance={distance:.4f}, threshold={threshold:.4f}, "
+            f"metric={distance_metric})"
+        ),
+    }
+
+
 def __get_embeddings(
     img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
     model_name: str = "VGG-Face",
