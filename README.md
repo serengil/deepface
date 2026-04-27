@@ -398,6 +398,24 @@ DeepFace can also be used to compare a child's face to their parents' or relativ
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-scaled.jpg" width="90%"></p>
 
+## Limitations and Ethical Considerations
+
+DeepFace is a powerful face recognition and facial attribute analysis framework, but its use raises important ethical considerations that users should be aware of:
+
+- **Bias and Fairness**: The underlying models in DeepFace may exhibit biases related to race, gender, age, and ethnicity. These biases originate from the training datasets used to develop the models and can result in disparate accuracy rates across different demographic groups. Users should carefully evaluate and test model performance for their specific use case and population.
+
+- **Demographic Prediction Risks**: Features such as race/ethnicity and gender prediction can reinforce stereotypes and may not reflect the complexity of human identity. These classifications are limited by the categories used during training and should not be treated as definitive.
+
+- **Privacy Concerns**: Face recognition technology inherently involves the processing of biometric data, which is sensitive personal information. Users must ensure compliance with applicable privacy laws and regulations, and obtain proper consent before collecting or processing facial images.
+
+- **Potential for Misuse**: Face recognition technology can be misused for unauthorized surveillance, discrimination, or other harmful purposes. Developers and users should implement appropriate safeguards and consider the societal impact of their applications.
+
+- **Accuracy Limitations**: While the models achieve high accuracy in benchmark tests, real-world performance may vary significantly depending on image quality, lighting conditions, pose variations, and demographic factors. No face recognition system should be used as the sole basis for critical decisions.
+
+- **Responsible Use**: We encourage users to conduct thorough bias audits, implement fairness testing, and document the limitations of their deployments. Consider adopting responsible AI frameworks and guidelines when building applications with DeepFace.
+
+Users are strongly encouraged to review the [NIST Face Recognition Vendor Tests](https://www.nist.gov/programs-projects/face-recognition-vendor-test-frvt) and other research on algorithmic fairness before deploying face recognition systems in production.
+
 ## Contribution
 
 Pull requests are more than welcome! If you are planning to contribute a large patch, please create an issue first to get any upfront questions or design decisions out of the way first.
