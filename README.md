@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/serengil-deepface-badge.png)](https://mseep.ai/app/serengil-deepface)
+
 # deepface
 
 <div align="center">
