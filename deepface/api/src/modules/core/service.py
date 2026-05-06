@@ -210,3 +210,63 @@ def build_index(
         logger.error(str(err))
         logger.error(tb_str)
         return {"error": f"Exception while building index: {str(err)} - {tb_str}"}, 400
+
+
+
+def delete_by_img_name(
+    img_name: str,
+    database_type: str,
+    connection_details: str,
+) -> Tuple[Dict[str, Any], int]:
+    try:
+        result = DeepFace.delete_by_img_name(
+            img_name=img_name,
+            database_type=database_type,
+            connection_details=connection_details,
+        )
+        return result, 200
+    except Exception as err:
+        tb_str = traceback.format_exc()
+        logger.error(str(err))
+        logger.error(tb_str)
+        return {"error": f"Exception while deleting: {str(err)} - {tb_str}"}, 400
+
+
+def identify(
+    img: Union[str, NDArray[Any]],
+    user_face_id: str,
+    model_name: str,
+    detector_backend: str,
+    distance_metric: str,
+    enforce_detection: bool,
+    align: bool,
+    l2_normalize: bool,
+    expand_percentage: int,
+    normalization: str,
+    anti_spoofing: bool,
+    database_type: str,
+    connection_details: str,
+) -> Tuple[Dict[str, Any], int]:
+    try:
+        result = DeepFace.identify(
+            img=img,
+            user_face_id=user_face_id,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            distance_metric=distance_metric,
+            enforce_detection=enforce_detection,
+            align=align,
+            l2_normalize=l2_normalize,
+            expand_percentage=expand_percentage,
+            normalization=normalization,
+            anti_spoofing=anti_spoofing,
+            database_type=database_type,
+            connection_details=connection_details,
+        )
+        return result, 200
+    except Exception as err:
+        tb_str = traceback.format_exc()
+        logger.error(str(err))
+        logger.error(tb_str)
+        return {"verified": False, "message": f"Exception while identifying: {str(err)}"}, 400
+

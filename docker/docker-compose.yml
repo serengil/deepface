@@ -1,42 +1,38 @@
 services:
   postgres:
     image: postgres:15
-    container_name: postgres
+    container_name: deepface-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: deepface
       POSTGRES_USER: deepface_user
       POSTGRES_PASSWORD: deepface_pass
-    # network_mode: "host"
-    ports:
-      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d
-  pgvector:
-    image: pgvector/pgvector:pg15
-    container_name: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U deepface_user -d deepface"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  deepface:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: deepface
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ../deepface/api/.env
     environment:
-      POSTGRES_DB: deepface
-      POSTGRES_USER: deepface_user
-      POSTGRES_PASSWORD: deepface_pass
+      DEEPFACE_CONNECTION_DETAILS: postgresql://deepface_user:deepface_pass@postgres:5432/deepface
     ports:
-      - "5434:5432"
+      - "5005:5000"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./pgvector-init:/docker-entrypoint-initdb.d
-  weaviate:
-    image: semitechnologies/weaviate:latest
-    ports:
-      - "8080:8080"  # REST API / GraphQL Playground
-    environment:
-      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
-      DEFAULT_VECTORIZER_MODULE: "none"
-      ENABLE_MODULES: ""
-      PERSISTENCE_DATA_PATH: "./data"
-    volumes:
-      - ./weaviate_data:/var/lib/weaviate
+      - ${HOME}/.deepface/weights:/root/.deepface/weights
 
 volumes:
   postgres_data:
