@@ -416,79 +416,22 @@ If you do like this work, then you can support it financially on [Patreon](https
 
 ## Citation
 
-Please cite deepface in your publications if it helps your research.
+Please cite deepface in your publications if it helps your research. Here is its BibTex entry:
 
-<details open>
-  <summary>S. I. Serengil and A. Ozpinar, <b>Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition</b>, <i>Gazi University Journal of Science</i>, vol. 39, no. 1, pp. 452-466, 2026.</summary>
-
-  ```BibTeX
-  @article{serengil2026boosted,
-    title     =  {Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition},
-    author    =  {Serengil, Sefik Ilkin and Ozpinar, Alper},
-    journal   =  {Gazi University Journal of Science},
-    volume    =  {39},
-    number    =  {1},
-    pages     =  {452-466},
-    year      =  {2026},
-    doi       =  {10.35378/gujs.1794891},
-    url       =  {https://dergipark.org.tr/en/pub/gujs/article/1794891},
-    publisher =  {Gazi University}
-  }
-  ```
-</details>
-
-<details>
-  <summary>S. Serengil and A. Ozpinar, <b>"A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules"</b>, <i>Journal of Information Technologies</i>, vol. 17, no. 2, pp. 95-107, 2024.</summary>
-  
-  ```BibTeX
-  @article{serengil2024lightface,
-    title     = {A Benchmark of Facial Recognition Pipelines and Co-Usability Performances of Modules},
-    author    = {Serengil, Sefik and Ozpinar, Alper},
-    journal   = {Journal of Information Technologies},
-    volume    = {17},
-    number    = {2},
-    pages     = {95-107},
-    year      = {2024},
-    doi       = {10.17671/gazibtd.1399077},
-    url       = {https://dergipark.org.tr/en/pub/gazibtd/issue/84331/1399077},
-    publisher = {Gazi University}
-  }
-  ```
-</details>
-
-<details>
-  <summary>S. I. Serengil and A. Ozpinar, <b>"HyperExtended LightFace: A Facial Attribute Analysis Framework"</b>, <i>2021 International Conference on Engineering and Emerging Technologies (ICEET)</i>, 2021, pp. 1-4.</summary>
-  
-  ```BibTeX
-  @inproceedings{serengil2021lightface,
-    title        = {HyperExtended LightFace: A Facial Attribute Analysis Framework},
-    author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-    booktitle    = {2021 International Conference on Engineering and Emerging Technologies (ICEET)},
-    pages        = {1-4},
-    year         = {2021},
-    doi          = {10.1109/ICEET53442.2021.9659697},
-    url          = {https://ieeexplore.ieee.org/document/9659697},
-    organization = {IEEE}
-  }
-  ```
-</details>
-
-<details>
-  <summary>S. I. Serengil and A. Ozpinar, <b>"LightFace: A Hybrid Deep Face Recognition Framework"</b>, <i>2020 Innovations in Intelligent Systems and Applications Conference (ASYU)</i>, 2020, pp. 23-27.</summary>
-  
-  ```BibTeX
-  @inproceedings{serengil2020lightface,
-    title        = {LightFace: A Hybrid Deep Face Recognition Framework},
-    author       = {Serengil, Sefik Ilkin and Ozpinar, Alper},
-    booktitle    = {2020 Innovations in Intelligent Systems and Applications Conference (ASYU)},
-    pages        = {23-27},
-    year         = {2020},
-    doi          = {10.1109/ASYU50717.2020.9259802},
-    url          = {https://ieeexplore.ieee.org/document/9259802},
-    organization = {IEEE}
-  }
-  ```
-</details>
+```BibTeX
+@article{serengil2026boosted,
+  title     =  {Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition},
+  author    =  {Serengil, Sefik Ilkin and Ozpinar, Alper},
+  journal   =  {Gazi University Journal of Science},
+  volume    =  {39},
+  number    =  {1},
+  pages     =  {452-466},
+  year      =  {2026},
+  doi       =  {10.35378/gujs.1794891},
+  url       =  {https://dergipark.org.tr/en/pub/gujs/article/1794891},
+  publisher =  {Gazi University}
+}
+```
 
 Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
 
