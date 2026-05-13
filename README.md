@@ -6,30 +6,34 @@
 [![Stars](https://img.shields.io/github/stars/serengil/deepface?color=yellow&style=flat&label=%E2%AD%90%20stars)](https://github.com/serengil/deepface/stargazers)
 [![Pulls](https://img.shields.io/docker/pulls/serengil/deepface?logo=docker)](https://hub.docker.com/r/serengil/deepface)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
-[![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
+[![DeepFace Cloud](https://img.shields.io/badge/%E2%98%81%EF%B8%8F-deepface%20cloud-00BFFF?style=flat&labelColor=555555)](https://deepface.dev?source=deepface_repo)
 [![DOI](http://img.shields.io/:DOI-10.35378/gujs.1794891-blue.svg?style=flat)](https://doi.org/10.35378/gujs.1794891)
 
+<!--
+[![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
+-->
+
+<!--
 [![Blog](https://img.shields.io/:blog-sefiks.com-blue.svg?style=flat&logo=wordpress)](https://sefiks.com)
 [![YouTube](https://img.shields.io/:youtube-@sefiks-red.svg?style=flat&logo=youtube)](https://www.youtube.com/@sefiks?sub_confirmation=1)
 [![Twitter](https://img.shields.io/:follow-@serengil-blue.svg?style=flat&logo=x)](https://twitter.com/intent/user?screen_name=serengil)
+-->
 
+<!--
 [![Patreon](https://img.shields.io/:become-patron-f96854.svg?style=flat&logo=patreon)](https://www.patreon.com/serengil?repo=deepface)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/serengil?logo=GitHub&color=lightgray)](https://github.com/sponsors/serengil)
 [![Buy Me a Coffee](https://img.shields.io/badge/-buy_me_a%C2%A0coffee-gray?logo=buy-me-a-coffee)](https://buymeacoffee.com/serengil)
+-->
 
 <!--
 [![Hacker News](https://img.shields.io/badge/dynamic/json?color=orange&label=Hacker%20News&query=score&url=https%3A%2F%2Fhacker-news.firebaseio.com%2Fv0%2Fitem%2F46608519.json&logo=y-combinator)](https://news.ycombinator.com/item?id=46608519)
 -->
 
+<!-- 
 <div align="center">
   <a href="https://trendshift.io/repositories/4227" target="_blank"><img src="https://trendshift.io/api/badge/repositories/4227" alt="serengil%2Fdeepface | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </div>
-
-<br>
-
-<div align="center">
-  <a href="https://deepface.dev?source=deepface_repo" target="_blank"><img src="https://img.shields.io/badge/%E2%98%81%EF%B8%8F-deepface%20cloud-00BFFF?style=flat&labelColor=555555" alt="deepface cloud"/></a>
-</div>
+-->
 
 </div>
 
@@ -85,7 +89,7 @@ dfs: List[pd.DataFrame] = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/stock-6-v2.jpg" width="95%"></p>
 
-Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed [`search`](https://sefiks.com/2026/01/01/introducing-brand-new-face-recognition-in-deepface/) functionality where embeddings are explicitly registered and queried. Currently, [postgres](https://sefiks.com/2023/06/22/vector-similarity-search-in-postgresql/), [mongo](https://sefiks.com/2021/01/22/deep-face-recognition-with-mongodb/), [neo4j](https://sefiks.com/2021/04/03/deep-face-recognition-with-neo4j/), [pgvector](https://sefiks.com/2024/07/05/postgres-as-a-vector-database-billion-scale-vector-similarity-search-with-pgvector/), [pinecone](https://sefiks.com/2021/05/19/large-scale-face-recognition-with-pinecone-vector-database/) and weaviate are supported as backend databases.
+Here, the `find` function relies on a directory-based face datastore and stores embeddings on disk. Alternatively, DeepFace provides a database-backed [`search`](https://sefiks.com/2026/01/01/introducing-brand-new-face-recognition-in-deepface/) functionality where embeddings are explicitly registered and queried with [`approximate nearest neighbor`](https://sefiks.com/2023/12/31/a-step-by-step-approximate-nearest-neighbor-example-in-python-from-scratch/) support. Currently, [postgres](https://sefiks.com/2023/06/22/vector-similarity-search-in-postgresql/), [mongo](https://sefiks.com/2021/01/22/deep-face-recognition-with-mongodb/), [neo4j](https://sefiks.com/2021/04/03/deep-face-recognition-with-neo4j/), [pgvector](https://sefiks.com/2024/07/05/postgres-as-a-vector-database-billion-scale-vector-similarity-search-with-pgvector/), [pinecone](https://sefiks.com/2021/05/19/large-scale-face-recognition-with-pinecone-vector-database/) and weaviate are supported as backend databases.
 
 ```python
 # register an image into the database
@@ -93,13 +97,6 @@ DeepFace.register(img = "img1.jpg")
 
 # perform exact search
 dfs: List[pd.DataFrame] = DeepFace.search(img = "target.jpg")
-```
-
-If you want to perform [`approximate nearest neighbor`](https://sefiks.com/2023/12/31/a-step-by-step-approximate-nearest-neighbor-example-in-python-from-scratch/) search instead of exact search to achieve faster results on [large-scale databases](https://www.youtube.com/playlist?list=PLsS_1RYmYQQGSJu_Z3OVhXhGmZ86_zuIm), you can build an index beforehand and explicitly enable ANN search. Here, [Faiss](https://sefiks.com/2020/09/17/large-scale-face-recognition-with-facebook-faiss/) is used to index embeddings in postgres and mongo; whereas vector databases such as pgvector, weaviate, pinecone and neo4j handle indexing internally.
-
-```python
-# build index on registered embeddings (for postgres and mongo only)
-DeepFace.build_index()
 
 # perform approximate nearest neighbor search
 dfs: List[pd.DataFrame] = DeepFace.search(img = "target.jpg", search_method = "ann")
@@ -141,8 +138,6 @@ user
 │   │   ├── Bob.jpg
 ```
 
-If you intend to perform face verification or analysis tasks directly from your browser, [`deepface-react-ui`](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
-
 Here, you can also find some real time demos for various facial recognition models:
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/deepface-realtime.jpg" width="90%"></p>
@@ -158,21 +153,17 @@ Here, you can also find some real time demos for various facial recognition mode
 | Emotion              | Default  | [`Video`](https://youtu.be/Y7DfLvLKScs) |
 | Celebrity Look-Alike | Default  | [`Video`](https://youtu.be/RMgIKU1H8DY) |
 
+If you intend to perform face verification or analysis tasks directly from your browser, [`deepface-react-ui`](https://github.com/serengil/deepface-react-ui) is a separate repository built using ReactJS depending on deepface api.
+
 **Embeddings** - [`Tutorial`](https://sefiks.com/2025/06/28/what-are-vector-embeddings-and-why-they-matter-in-ai/), [`Demo`](https://youtu.be/OYialFo7Qo4)
 
-Face recognition models basically represent facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function.
+Face recognition models basically [represent](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) facial images as multi-dimensional vectors. Sometimes, you need those embedding vectors directly. DeepFace comes with a dedicated representation function.
 
 ```python
 embedding_objs: List[dict] = DeepFace.represent(img_path = "img.jpg")
 ```
 
-Embeddings can be [plotted](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) as below. Each slot is corresponding to a dimension value and dimension value is emphasized with colors. Similar to 2D barcodes, vertical dimension stores no information in the illustration.
-
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/embedding.jpg" width="95%"></p>
-
-In summary, the distance between vector embeddings of the same person should be smaller than that between embeddings of different people. When reduced to two-dimensional space, the clusters become clearly distinguishable.
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/facenet-pca.png" width="95%"></p>
 
 **Face recognition models** - [`Demo`](https://youtu.be/eKOZawGR3y0)
 
@@ -200,23 +191,7 @@ embeddings = DeepFace.represent(
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/model-portfolio-20240316.jpg" width="95%"></p>
 
-FaceNet, VGG-Face, ArcFace and Dlib are overperforming ones based on experiments - see [`BENCHMARKS`](https://github.com/serengil/deepface/tree/master/benchmarks) for more details. You can find the measured scores of various models in DeepFace and the reported scores from their original studies in the following table.
-
-| Model          | Measured Score | Declared Score     |
-| -------------- | -------------- | ------------------ |
-| Facenet512     | 98.4%          | 99.6%              |
-| Human-beings   | 97.5%          | 97.5%              |
-| Facenet        | 97.4%          | 99.2%              |
-| Dlib           | 96.8%          | 99.3 %             |
-| VGG-Face       | 96.7%          | 98.9%              |
-| ArcFace        | 96.7%          | 99.5%              |
-| GhostFaceNet   | 93.3%          | 99.7%              |
-| SFace          | 93.0%          | 99.5%              |
-| OpenFace       | 78.7%          | 92.9%              |
-| DeepFace       | 69.0%          | 97.3%              |
-| DeepID         | 66.5%          | 97.4%              |
-
-Conducting experiments with those models within DeepFace may reveal disparities compared to the original studies, owing to the adoption of distinct detection or normalization techniques. Furthermore, some models have been released solely with their backbones, lacking pre-trained weights. Thus, we are utilizing their re-implementations instead of the original pre-trained weights.
+See [`BENCHMARKS`](https://github.com/serengil/deepface/tree/master/benchmarks) for their accuracies.
 
 **Face Detection and Alignment** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
 
@@ -258,19 +233,15 @@ face_objs = DeepFace.extract_faces(
 )
 ```
 
-Face recognition models are actually CNN models and they expect standard sized inputs. So, resizing is required before representation. To avoid deformation, deepface adds black padding pixels according to the target size argument after detection and alignment.
-
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/detector-outputs-20240414.jpg" width="90%"></p>
 
-[RetinaFace](https://sefiks.com/2021/04/27/deep-face-detection-with-retinaface-in-python/) and [MtCnn](https://sefiks.com/2020/09/09/deep-face-detection-with-mtcnn-in-python/) seem to overperform in detection and alignment stages but they are much slower. If the speed of your pipeline is more important, then you should use opencv or ssd. On the other hand, if you consider the accuracy, then you should use retinaface or mtcnn.
-
-The performance of RetinaFace is very satisfactory even in the crowd as seen in the following illustration. Besides, it comes with an incredible facial landmark detection performance. Highlighted red points show some facial landmarks such as eyes, nose and mouth. That's why, alignment score of RetinaFace is high as well.
+RetinaFace overperforms among all face detection models in the portfolio.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/retinaface-results.jpeg" width="90%">
-<br><em>The Yellow Angels - Fenerbahce Women's Volleyball Team</em>
+<br><em>Running RetinaFace On The Yellow Angels - Fenerbahce Women's Volleyball Team</em>
 </p>
 
-You can find out more about RetinaFace on this [repo](https://github.com/serengil/retinaface).
+See [`BENCHMARKS`](https://github.com/serengil/deepface/tree/master/benchmarks) for their accuracies.
 
 **Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
@@ -310,12 +281,10 @@ dfs = DeepFace.find(
 DeepFace serves an API as well - see [`api folder`](https://github.com/serengil/deepface/tree/master/deepface/api/src) for more details. You can clone deepface source code and run the api with the following command. It will use gunicorn server to get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.
 
 ```shell
+# running the service directly
 cd scripts && ./service.sh
-```
 
-Alternatively, you can run the dockerized service.
-
-```shell
+# running the service via docker
 cd scripts && ./dockerize.sh
 ```
 
@@ -340,9 +309,7 @@ $ curl -X POST http://localhost:5005/search \
    -d '{"img":"img1.jpg", "model_name":"Facenet"}'
 ```
 
-[`Here`](https://github.com/serengil/deepface/tree/master/deepface/api/postman), you can find a postman project to find out how these methods should be called.
-
-**DeepFace Cloud**
+**DeepFace Cloud** - [`Demo`](https://youtu.be/5o7ezk0MMqM)
 
 Don’t want to host and scale DeepFace yourself? [`deepface.dev`](https://deepface.dev?source=deepface_repo) provides a managed API built on top of DeepFace.
 
@@ -351,45 +318,15 @@ Don’t want to host and scale DeepFace yourself? [`deepface.dev`](https://deepf
 - MCP endpoint: `https://deepface.dev/mcp` using a dedicated MCP key
 - Usage-based pricing that scales from testing to production
 
-**Encrypt Embeddings** - [`Demo with PHE`](https://youtu.be/8VCu39jFZ7k), [`Tutorial for PHE`](https://sefiks.com/2025/03/04/vector-similarity-search-with-partially-homomorphic-encryption-in-python/), [`Demo with FHE`](https://youtu.be/njjw0PEhH00), [`Tutorial for FHE`](https://sefiks.com/2021/12/01/homomorphic-facial-recognition-with-tenseal/)
-
-Vector embeddings, though not reversible, carry sensitive information like fingerprints, making their security crucial. Encrypting them prevents adversarial misuse. Traditional encryption (e.g., AES) is secure but unsuitable for cloud-based distance calculations.
-
-[Homomorphic encryption](https://youtu.be/3ejI0zNPMEQ) allows computations on encrypted data without revealing content—ideal for secure cloud processing. For example, the cloud can compute encrypted similarity without knowing the data, while only the key holder can decrypt the result. See the  [`LightPHE`](https://github.com/serengil/LightPHE) library for partially homomorphic encryption.
-
-```python
-from lightphe import LightPHE
-
-# build an additively homomorphic cryptosystem (e.g. Paillier) on-prem
-cs = LightPHE(algorithm_name = "Paillier", precision = 19)
-
-# define encrypted and plain vectors
-encrypted_alpha = DeepFace.represent("source.jpg", cryptosystem=cs)[0]["encrypted_embedding"]
-beta = DeepFace.represent("target.jpg")[0]["embedding"]
-
-# dot product of encrypted & plain embedding in cloud - private key not required
-encrypted_cosine_similarity = encrypted_alpha @ beta
-
-# decrypt similarity on-prem - private key required
-calculated_similarity = cs.decrypt(encrypted_cosine_similarity)[0]
-
-# verification
-print("same person" if calculated_similarity >= 1 - threshold else "different persons")
-```
-
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/refs/heads/master/icon/encrypt-embeddings.jpg" width="60%"></p>
-
-For stronger privacy, fully homomorphic encryption enables dot product computations between encrypted embeddings, but it's far more computationally intensive. Explore [`CipherFace`](https://github.com/serengil/cipherface) for FHE-based approaches.
-
 ### Extended Applications
 
-DeepFace can also be used for fun and insightful applications such as
+DeepFace isn't only for facial recognition, it can also be used for fun and insightful applications such as
 
 **Find Your Celebrity Look-Alike** - [`Demo`](https://youtu.be/jaxkEn-Kieo), [`Real-Time Demo`](https://youtu.be/RMgIKU1H8DY), [`Tutorial`](https://sefiks.com/2019/05/05/celebrity-look-alike-face-recognition-with-deep-learning-in-keras/)
 
 DeepFace can analyze your facial features and match them with celebrities, letting you discover which famous personality you resemble the most.
 
-<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/celebrity-look-alike.jpg" width="55%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/celebrity-look-alike-2.jpg" width="55%"></p>
 
 **Find Which Parent a Child Look More** - [`Demo`](https://youtu.be/nza4tmi9vhE), [`Tutorial`](https://sefiks.com/2022/12/22/decide-whom-your-child-looks-like-with-facial-recognition-mommy-or-daddy/)
 
@@ -397,17 +334,11 @@ DeepFace can also be used to compare a child's face to their parents' or relativ
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-scaled.jpg" width="90%"></p>
 
-## Contribution
-
-Pull requests are more than welcome! If you are planning to contribute a large patch, please create an issue first to get any upfront questions or design decisions out of the way first.
-
-Before creating a PR, you should run the unit tests and linting locally by running `make test && make lint` command. Once a PR sent, GitHub test workflow will be run automatically and unit test and linting jobs will be available in [GitHub actions](https://github.com/serengil/deepface/actions) before approval.
-
 ## Support
 
 There are many ways to support a project - starring⭐️ the GitHub repo is just one 🙏 It really helps the project get discovered by more people.
 
-If you do like this work, then you can support it financially on [Patreon](https://www.patreon.com/serengil?repo=deepface), [GitHub Sponsors](https://github.com/sponsors/serengil) or [Buy Me a Coffee](https://buymeacoffee.com/serengil).
+If you do like this work, you can also support it financially on [Patreon](https://www.patreon.com/serengil?repo=deepface), [GitHub Sponsors](https://github.com/sponsors/serengil) or [Buy Me a Coffee](https://buymeacoffee.com/serengil).
 
 <a href="https://www.patreon.com/serengil?repo=deepface">
 <img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/patreon.png" width="30%">
