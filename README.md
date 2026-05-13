@@ -331,6 +331,28 @@ DeepFace can also be used to compare a child's face to their parents' or relativ
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-scaled.jpg" width="90%"></p>
 
+## Limitations and Ethical Considerations
+
+Face recognition and facial attribute analysis technologies raise significant ethical concerns that users of this library should be aware of:
+
+- **Demographic Bias**: Face recognition models may perform unevenly across different demographic groups, including variations by race, gender, and age. Studies have shown that some models exhibit higher error rates for underrepresented populations. Users should evaluate model performance across the specific demographic groups relevant to their use case.
+
+- **Racial and Ethnic Classification**: The race/ethnicity prediction feature classifies faces into broad categories (asian, white, middle eastern, indian, latino, black). These categories are reductive and do not capture the full spectrum of human diversity. Race is a social construct, and automated racial classification can reinforce harmful stereotypes.
+
+- **Privacy and Consent**: Face recognition can be used to identify individuals without their knowledge or consent. Users must ensure compliance with applicable privacy laws (e.g., GDPR, BIPA, CCPA) and obtain proper consent before collecting or processing biometric data.
+
+- **Surveillance and Civil Liberties**: The deployment of face recognition in surveillance systems poses risks to civil liberties, including freedom of expression and assembly. Users should carefully consider the societal impact of deploying this technology in surveillance contexts.
+
+- **Misidentification Consequences**: False positives in face verification can lead to wrongful identification with serious consequences in law enforcement, border control, and security applications. Human oversight should always accompany automated face recognition decisions in high-stakes scenarios.
+
+- **Gender Binary Assumption**: The gender prediction feature assumes a binary classification (male/female), which does not account for non-binary and gender-diverse identities. This limitation can result in erasure and misclassification of transgender and non-binary individuals.
+
+- **Responsible Use**: This library should not be used for purposes that discriminate against individuals or groups based on protected characteristics. Users are encouraged to conduct bias audits, implement fairness assessments, and ensure transparency in how face recognition results are used.
+
+For further reading on ethical considerations in face recognition, see:
+- [Gender Shades: Intersectional Accuracy Disparities in Commercial Gender Classification](https://proceedings.mlr.press/v81/buolamwini18a.html) (Buolamwini & Gebru, 2018)
+- [Face Recognition Technologies and the Evolving Legal Landscape](https://www.nist.gov/programs-projects/face-recognition-vendor-test-frvt-part-3-demographic-effects)
+
 ## Support
 
 There are many ways to support a project - starring⭐️ the GitHub repo is just one 🙏 It really helps the project get discovered by more people.
