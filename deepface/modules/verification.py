@@ -249,6 +249,7 @@ def __extract_faces_and_embeddings(
     expand_percentage: int = 0,
     normalization: str = "base",
     anti_spoofing: bool = False,
+    l2_normalize: bool = False,
 ) -> Tuple[List[List[float]], List[Dict[str, Any]]]:
     """
     Extract facial areas and find corresponding embeddings for given image
@@ -283,6 +284,7 @@ def __extract_faces_and_embeddings(
             detector_backend="skip",
             align=align,
             normalization=normalization,
+            l2_normalize=l2_normalize,
         )
         # already extracted face given, safe to access its 1st item
         img_embedding_obj = cast(List[Dict[str, Any]], img_embedding_obj)

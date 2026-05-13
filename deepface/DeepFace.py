@@ -30,6 +30,7 @@ from deepface.modules import (
     preprocessing,
     datastore,
 )
+from deepface.modules.verification_backends import create_verification_backend
 from deepface import __version__
 
 logger = Logger()
@@ -173,6 +174,138 @@ def verify(
         threshold=threshold,
         anti_spoofing=anti_spoofing,
     )
+
+
+def verify_identity(
+    img_path: Union[str, NDArray[Any], IO[bytes], List[float]],
+    identity: str,
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    distance_metric: str = "cosine",
+    enforce_detection: bool = True,
+    align: bool = True,
+    normalization: str = "base",
+    l2_normalize: bool = False,
+    threshold: Optional[float] = None,
+    vector_store: str = "milvus",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+    anti_spoofing: bool = False,
+    **kwargs: Any,
+) -> Dict[str, Any]:
+    """
+    Verify an identity using a vector database.
+    This is a 1:1 verification against a stored identity embedding.
+
+    Args:
+        img_path: Query image path, numpy array, file object, or pre-calculated embedding
+        identity: Unique identity identifier (must exist in vector store)
+        model_name: Face recognition model
+        detector_backend: Face detector backend
+        distance_metric: Distance metric ('cosine', 'euclidean', etc.)
+        enforce_detection: Enforce face detection
+        align: Align faces
+        normalization: Image normalization
+        l2_normalize: L2 normalize embedding
+        threshold: Verification threshold (uses default if None)
+        vector_store: Vector store type ('milvus', 'local')
+        connection_details: Connection config (uri string or dict)
+        connection: Existing vector store connection
+        anti_spoofing: Enable anti-spoofing check
+
+    Returns:
+        Verification result dict with keys:
+        - verified (bool)
+        - distance (float)
+        - threshold (float)
+        - confidence (float)
+        - model (str)
+        - identity (str)
+        - time (float)
+    """
+    backend_config: Dict[str, Any] = {
+        'store_type': vector_store,
+        'store_config': connection_details if isinstance(connection_details, dict) else {'uri': connection_details}
+    }
+
+    backend = create_verification_backend('vector', backend_config)
+    backend.connect()
+
+    try:
+        result = backend.verify(
+            img1_path=img_path,
+            identity=identity,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            distance_metric=distance_metric,
+            enforce_detection=enforce_detection,
+            align=align,
+            normalization=normalization,
+            l2_normalize=l2_normalize,
+            threshold=threshold,
+            anti_spoofing=anti_spoofing,
+            **kwargs,
+        )
+    finally:
+        backend.close()
+
+    return result
+
+
+def register_identity(
+    img_path: Union[str, NDArray[Any], IO[bytes], List[float]],
+    identity: str,
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    align: bool = True,
+    normalization: str = "base",
+    l2_normalize: bool = False,
+    vector_store: str = "milvus",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+    **kwargs: Any,
+) -> Dict[str, Any]:
+    """
+    Register an identity in a vector store for future verification.
+
+    Args:
+        img_path: Image path, numpy array, file object, or pre-calculated embedding
+        identity: Unique identity identifier
+        model_name: Face recognition model
+        detector_backend: Face detector backend
+        align: Align faces
+        normalization: Image normalization
+        l2_normalize: L2 normalize embedding
+        vector_store: Vector store type ('milvus', 'local')
+        connection_details: Connection config
+        connection: Existing vector store connection
+
+    Returns:
+        Registration result dict with keys: registered, identity, embedding_id, model
+    """
+    backend_config: Dict[str, Any] = {
+        'store_type': vector_store,
+        'store_config': connection_details if isinstance(connection_details, dict) else {'uri': connection_details}
+    }
+
+    backend = create_verification_backend('vector', backend_config)
+    backend.connect()
+
+    try:
+        result = backend.register(
+            img_path=img_path,
+            identity=identity,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            align=align,
+            normalization=normalization,
+            l2_normalize=l2_normalize,
+            **kwargs,
+        )
+    finally:
+        backend.close()
+
+    return result
 
 
 def analyze(
