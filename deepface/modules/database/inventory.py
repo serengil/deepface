@@ -2,13 +2,13 @@
 from typing import TypedDict, Type, Dict
 
 # project dependencies
-from deepface.modules.database.types import Database
 from deepface.modules.database.postgres import PostgresClient
 from deepface.modules.database.pgvector import PGVectorClient
 from deepface.modules.database.mongo import MongoDbClient as MongoClient
 from deepface.modules.database.weaviate import WeaviateClient
 from deepface.modules.database.neo4j import Neo4jClient
 from deepface.modules.database.pinecone import PineconeClient
+from deepface.modules.database.milvus import MilvusClient
 
 
 class DatabaseSpec(TypedDict):
@@ -47,5 +47,10 @@ database_inventory: Dict[str, DatabaseSpec] = {
         "is_vector_db": True,
         "connection_string": "DEEPFACE_PINECONE_API_KEY",
         "client": PineconeClient,
+    },
+    "milvus": {
+        "is_vector_db": True,
+        "connection_string": "DEEPFACE_MILVUS_URI",
+        "client": MilvusClient,
     },
 }
