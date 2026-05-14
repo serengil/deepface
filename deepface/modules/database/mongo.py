@@ -312,3 +312,100 @@ class MongoDbClient(Database):
             )
 
         return results
+
+    def search_by_identity(
+        self,
+        identity: str,
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        align: bool = True,
+        l2_normalize: bool = False,
+        limit: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        query = {
+            "img_name": identity,
+            "model_name": model_name,
+            "detector_backend": detector_backend,
+            "aligned": align,
+            "l2_normalized": l2_normalize,
+        }
+        projection = {"_id": 1, "sequence": 1, "img_name": 1, "embedding": 1}
+        cursor = self.embeddings.find(query, projection).limit(limit if limit else 0)
+        results = []
+        for doc in cursor:
+            meta = {
+                "img_name": doc["img_name"],
+                "model_name": model_name,
+                "detector_backend": detector_backend,
+                "aligned": align,
+                "l2_normalized": l2_normalize,
+            }
+            results.append(
+                {
+                    "id": doc["sequence"],
+                    "embedding": doc["embedding"],
+                    "metadata": meta,
+                }
+            )
+        return results
+
+    def count(
+        self,
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        aligned: Optional[bool] = None,
+        l2_normalized: Optional[bool] = None,
+    ) -> int:
+        query = {}
+        if model_name is not None:
+            query["model_name"] = model_name
+        if detector_backend is not None:
+            query["detector_backend"] = detector_backend
+        if aligned is not None:
+            query["aligned"] = aligned
+        if l2_normalized is not None:
+            query["l2_normalized"] = l2_normalized
+        return self.embeddings.count_documents(query)
+
+    def delete(
+        self,
+        ids: List[int],
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        if not ids:
+            return False
+        query: Dict[str, Any] = {"sequence": {"$in": ids}}
+        if model_name is not None:
+            query["model_name"] = model_name
+        if detector_backend is not None:
+            query["detector_backend"] = detector_backend
+        query["aligned"] = align
+        query["l2_normalized"] = l2_normalize
+        result = self.embeddings.delete_many(query)
+        return result.deleted_count > 0
+
+    def update(
+        self,
+        id: int,
+        embedding: Optional[List[float]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        model_name: str = "",
+        detector_backend: str = "",
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        update_doc: Dict[str, Any] = {}
+        if embedding is not None:
+            update_doc["embedding"] = embedding
+        if metadata:
+            for k, v in metadata.items():
+                if k in ("img_name", "model_name", "detector_backend", "aligned", "l2_normalized", "face", "face_hash", "embedding_hash"):
+                    update_doc[k] = v
+        if not update_doc:
+            return False
+        query = {"sequence": id, "model_name": model_name, "detector_backend": detector_backend, "aligned": align, "l2_normalized": l2_normalize}
+        result = self.embeddings.update_one(query, {"$set": update_doc})
+        return result.modified_count > 0

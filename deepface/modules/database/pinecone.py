@@ -232,6 +232,114 @@ class PineconeClient(Database):
         """Pinecone client does not require explicit closure"""
         return
 
+    def search_by_identity(
+        self,
+        identity: str,
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        align: bool = True,
+        l2_normalize: bool = False,
+        limit: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        index_name = self.__generate_index_name(model_name, detector_backend, align, l2_normalize)
+        self.initialize_database(model_name=model_name, detector_backend=detector_backend, aligned=align, l2_normalized=l2_normalize)
+        index = self.client.Index(index_name)
+        dim = self.__get_dimension(model_name)
+        dummy_vector = [0.0] * dim
+        filter_expr = {"img_name": {"$eq": identity}}
+        query_limit = limit if limit is not None else 100
+        results = index.query(vector=dummy_vector, top_k=query_limit, filter=filter_expr, include_metadata=True, include_values=True)
+        out = []
+        for match in results.matches:
+            meta = match.metadata or {}
+            out.append({
+                "id": match.id,
+                "embedding": match.values,
+                "metadata": {
+                    "img_name": meta.get("img_name"),
+                    "model_name": model_name,
+                    "detector_backend": detector_backend,
+                    "aligned": align,
+                    "l2_normalized": l2_normalize,
+                },
+            })
+        return out
+
+    def count(
+        self,
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        align: Optional[bool] = None,
+        l2_normalize: Optional[bool] = None,
+    ) -> int:
+        total = 0
+        if (
+            model_name is not None
+            and detector_backend is not None
+            and align is not None
+            and l2_normalize is not None
+        ):
+            index_name = self.__generate_index_name(model_name, detector_backend, align, l2_normalize)
+            self.initialize_database(model_name=model_name, detector_backend=detector_backend, aligned=align, l2_normalized=l2_normalize)
+            index = self.client.Index(index_name)
+            stats = index.describe_index_stats()
+            total = stats.get("total_vector_count", 0)
+        else:
+            for index_name in self.client.list_indexes().names:
+                index = self.client.Index(index_name)
+                stats = index.describe_index_stats()
+                total += stats.get("total_vector_count", 0)
+        return total
+
+    def delete(
+        self,
+        ids: List[int],
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        if not ids:
+            return False
+        if model_name is None or detector_backend is None:
+            return False
+        index_name = self.__generate_index_name(model_name, detector_backend, align, l2_normalize)
+        self.initialize_database(model_name=model_name, detector_backend=detector_backend, aligned=align, l2_normalized=l2_normalize)
+        index = self.client.Index(index_name)
+        str_ids = [str(i) for i in ids]
+        index.delete(ids=str_ids)
+        return True
+
+    def update(
+        self,
+        id: int,
+        embedding: Optional[List[float]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        model_name: str = "",
+        detector_backend: str = "",
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        if not model_name or not detector_backend:
+            return False
+        index_name = self.__generate_index_name(model_name, detector_backend, align, l2_normalize)
+        self.initialize_database(model_name=model_name, detector_backend=detector_backend, aligned=align, l2_normalized=l2_normalize)
+        index = self.client.Index(index_name)
+        vector_id = str(id)
+        upsert_vector = {
+            "id": vector_id,
+            "values": embedding if embedding is not None else [],
+            "metadata": metadata or {},
+        }
+        index.upsert(vectors=[upsert_vector])
+        return True
+
+    @staticmethod
+    def __get_dimension(model_name: str) -> int:
+        """Get embedding dimension for a given model."""
+        model = build_model(task="facial_recognition", model_name=model_name)
+        return model.output_shape
+
     @staticmethod
     def __generate_index_name(
         model_name: str,

@@ -372,9 +372,6 @@ class PGVectorClient(Database):
         aligned: bool,
         l2_normalized: bool,
     ) -> str:
-        """
-        Generate postgres table name based on parameters.
-        """
         class_name_attributes = [
             model_name.replace("-", ""),
             detector_backend,
@@ -382,3 +379,130 @@ class PGVectorClient(Database):
             "Norm" if l2_normalized else "Raw",
         ]
         return "Embeddings_" + "_".join(class_name_attributes).lower()
+
+    def search_by_identity(
+        self,
+        identity: str,
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        aligned: bool = True,
+        l2_normalized: bool = False,
+        limit: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        table_name = self.__generate_table_name(
+            model_name, detector_backend, aligned, l2_normalized
+        )
+        query = f"""
+            SELECT id, img_name, embedding
+            FROM {table_name}
+            WHERE img_name = %s
+            ORDER BY id ASC
+        """
+        if limit is not None:
+            query += f" LIMIT %s"
+            params = (identity, limit)
+        else:
+            params = (identity,)
+
+        results: List[Dict[str, Any]] = []
+        with self.conn.cursor() as cur:
+            cur.execute(query, params)
+            rows = cur.fetchall()
+            for r in rows:
+                results.append(
+                    {
+                        "id": r[0],
+                        "embedding": list(r[2]),
+                        "metadata": {
+                            "img_name": r[1],
+                            "model_name": model_name,
+                            "detector_backend": detector_backend,
+                            "aligned": aligned,
+                            "l2_normalized": l2_normalized,
+                        },
+                    }
+                )
+        return results
+
+    def count(
+        self,
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        aligned: Optional[bool] = None,
+        l2_normalized: Optional[bool] = None,
+    ) -> int:
+        if (
+            model_name is not None
+            and detector_backend is not None
+            and aligned is not None
+            and l2_normalized is not None
+        ):
+            table_name = self.__generate_table_name(
+                model_name, detector_backend, aligned, l2_normalized
+            )
+            query = f"SELECT COUNT(*) FROM {table_name}"
+            with self.conn.cursor() as cur:
+                cur.execute(query)
+                count = cur.fetchone()[0]
+            return count
+        else:
+            # Count across all tables? Might be heavy; return 0
+            return 0
+
+    def delete(
+        self,
+        ids: List[int],
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        if not ids:
+            return False
+        if model_name is None or detector_backend is None:
+            return False
+        table_name = self.__generate_table_name(
+            model_name, detector_backend, align, l2_normalize
+        )
+        query = f"DELETE FROM {table_name} WHERE id = ANY(%s) RETURNING id"
+        with self.conn.cursor() as cur:
+            cur.execute(query, (ids,))
+            deleted = cur.rowcount
+            self.conn.commit()
+        return deleted > 0
+
+    def update(
+        self,
+        id: int,
+        embedding: Optional[List[float]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        model_name: str = "",
+        detector_backend: str = "",
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        if not model_name or not detector_backend:
+            return False
+        table_name = self.__generate_table_name(
+            model_name, detector_backend, align, l2_normalize
+        )
+        set_parts = []
+        params = []
+        if embedding is not None:
+            set_parts.append("embedding = %s")
+            params.append(embedding)
+        if metadata:
+            for k, v in metadata.items():
+                if k in ("img_name", "model_name", "detector_backend", "aligned", "l2_normalized", "face", "face_hash", "embedding_hash"):
+                    set_parts.append(f"{k} = %s")
+                    params.append(v)
+        if not set_parts:
+            return False
+        params.append(id)
+        query = f"UPDATE {table_name} SET {', '.join(set_parts)} WHERE id = %s AND model_name = %s AND detector_backend = %s AND aligned = %s AND l2_normalized = %s"
+        params.extend([model_name, detector_backend, align, l2_normalize])
+        with self.conn.cursor() as cur:
+            cur.execute(query, tuple(params))
+            updated = cur.rowcount > 0
+            self.conn.commit()
+        return updated

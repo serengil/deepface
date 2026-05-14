@@ -109,3 +109,66 @@ class Database(ABC):
             f"{self.__class__.__name__} does not require storing embeddings index."
             " Because it handles indexing internally."
         )
+
+    def search_by_identity(
+        self,
+        identity: str,
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        align: bool = True,
+        l2_normalize: bool = False,
+        limit: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Retrieve embeddings for a specific identity.
+        Returns list of dicts with 'id', 'embedding', 'metadata'.
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support search_by_identity."
+        )
+
+    def count(
+        self,
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        aligned: Optional[bool] = None,
+        l2_normalized: Optional[bool] = None,
+    ) -> int:
+        """
+        Count embeddings matching filter criteria.
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support count."
+        )
+
+    def delete(
+        self,
+        ids: List[int],
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        """
+        Delete embeddings by IDs.
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support delete."
+        )
+
+    def update(
+        self,
+        id: int,
+        embedding: Optional[List[float]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        model_name: str = "",
+        detector_backend: str = "",
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        """
+        Update embedding and/or metadata for a given ID.
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support update."
+        )

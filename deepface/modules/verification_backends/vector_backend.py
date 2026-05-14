@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Dict, Any, Optional, Union, List, cast
+from typing import Dict, Any, Optional, Union, List
 import time
 
 # 3rd party dependencies
@@ -14,7 +14,8 @@ from deepface.modules.verification import (
     __extract_faces_and_embeddings as extract_faces_and_embeddings,
 )
 from deepface.modules.verification_backends.base import VerificationBackend
-from deepface.modules.vectorstores.factory import create_vector_store
+from deepface.modules.database.inventory import database_inventory
+from deepface.modules.database.types import Database
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -23,18 +24,23 @@ logger = Logger()
 class VectorVerificationBackend(VerificationBackend):
     """
     Vector database-based verification backend.
-    Uses vector stores for identity lookup and verification.
+    Uses Database clients for identity lookup and verification.
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         super().__init__(config)
-        self.vector_store = None
+        self.db_client: Optional[Database] = None
         self.store_type = self.config.get('store_type', 'milvus')
         self.store_config = self.config.get('store_config', {})
 
     def connect(self) -> None:
-        self.vector_store = create_vector_store(self.store_type, self.store_config)
-        self.vector_store.connect()
+        if self.store_type not in database_inventory:
+            raise ValueError(f"Unsupported verification backend store type: {self.store_type}")
+        client_class = database_inventory[self.store_type]["client"]
+        self.db_client = client_class(
+            connection_details=self.store_config,
+            connection=self.config.get('connection')
+        )
 
     def register(
         self,
@@ -48,16 +54,15 @@ class VectorVerificationBackend(VerificationBackend):
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """
-        Register an identity by generating embedding and storing in vector DB.
+        Register an identity by generating embedding and storing in database.
         """
-        # Generate embedding
+        from deepface.modules import representation
+
         if isinstance(img_path, list):
-            # Pre-calculated embedding
             embedding = img_path
-            facial_area = None
+            face = None
         else:
-            # Extract face and generate embedding
-            img_objs = extract_faces_and_embeddings(
+            results = representation.represent(
                 img_path=img_path,
                 model_name=model_name,
                 detector_backend=detector_backend,
@@ -65,37 +70,50 @@ class VectorVerificationBackend(VerificationBackend):
                 align=align,
                 normalization=normalization,
                 anti_spoofing=kwargs.get("anti_spoofing", False),
+                l2_normalize=l2_normalize,
+                return_face=True,
             )
-            if not img_objs:
+            if not results:
                 raise ValueError("No face detected in the image")
-            embedding = img_objs[0][0]  # (embeddings, facial_areas)
-            facial_area = img_objs[1][0]
+            result = results[0] if isinstance(results, list) else results
+            embedding = result["embedding"]
+            face = result.get("face")
 
-        # Store in vector DB
-        metadata = {
-            "identity": identity,
-            "img_name": str(img_path) if not isinstance(img_path, list) else "precalculated",
+        # Build embedding record
+        record: Dict[str, Any] = {
+            "id": None,
+            "img_name": identity,
+            "face": face,
             "model_name": model_name,
             "detector_backend": detector_backend,
+            "embedding": embedding,
             "aligned": align,
             "l2_normalized": l2_normalize,
-            "normalization": normalization,
-            "facial_area": facial_area,
         }
 
-        ids = self.vector_store.register(
-            embeddings=[embedding],
-            metadata=[metadata],
-            model_name=model_name,
-            detector_backend=detector_backend,
-            align=align,
-            l2_normalize=l2_normalize,
-        )
+        inserted = self.db_client.insert_embeddings([record])
+        logger.debug(f"Inserted {inserted} embedding(s)")
+
+        # Attempt to retrieve assigned ID after insertion
+        embedding_id = None
+        try:
+            id_results = self.db_client.search_by_identity(
+                identity=identity,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                align=align,
+                l2_normalize=l2_normalize,
+                limit=1,
+            )
+            if id_results:
+                embedding_id = id_results[0]["id"]
+        except NotImplementedError:
+            pass
 
         return {
             "registered": True,
             "identity": identity,
-            "embedding_id": ids[0] if ids else None,
+            "embedding_id": embedding_id,
             "model": model_name,
         }
 
@@ -113,10 +131,7 @@ class VectorVerificationBackend(VerificationBackend):
         threshold: Optional[float] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Verify identity using vector database.
-        Either img2_path (direct comparison) or identity (stored comparison) must be provided.
-        """
+        l2_normalize = kwargs.get("l2_normalize", False)
         tic = time.time()
 
         # Generate query embedding
@@ -131,13 +146,25 @@ class VectorVerificationBackend(VerificationBackend):
                 align=align,
                 normalization=normalization,
                 anti_spoofing=kwargs.get("anti_spoofing", False),
+                l2_normalize=l2_normalize,
             )
             if not img_objs:
                 raise ValueError("No face detected in query image")
             query_embedding = img_objs[0][0]
 
-        # Handle direct image comparison (from vector backend)
-        if identity is None and img2_path is not None:
+        if identity is not None:
+            record = self.get_identity_embedding(
+                identity=identity,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                align=align,
+                normalization=normalization,
+                l2_normalize=l2_normalize,
+            )
+            if record is None:
+                raise ValueError(f"Identity '{identity}' not found in database")
+            stored_embedding = record["embedding"]
+        elif img2_path is not None:
             if isinstance(img2_path, list):
                 stored_embedding = img2_path
             else:
@@ -149,23 +176,17 @@ class VectorVerificationBackend(VerificationBackend):
                     align=align,
                     normalization=normalization,
                     anti_spoofing=kwargs.get("anti_spoofing", False),
+                    l2_normalize=l2_normalize,
                 )
                 if not img_objs2:
                     raise ValueError("No face detected in second image")
                 stored_embedding = img_objs2[0][0]
-        elif identity is not None:
-            # Fetch identity embedding from vector store
-            record = self.get_identity_embedding(
-                identity=identity,
-                model_name=model_name,
-                detector_backend=detector_backend,
-                align=align,
-                normalization=normalization,
-                l2_normalize=kwargs.get("l2_normalize", False),
-            )
-            if record is None:
-                raise ValueError(f"Identity '{identity}' not found in database")
-            stored_embedding = record["embedding"]
+
+                if len(query_embedding) != len(stored_embedding):
+                    raise ValueError(
+                        f"Embedding dimension mismatch: query has {len(query_embedding)} dims, "
+                        f"second image has {len(stored_embedding)} dims."
+                    )
         else:
             raise ValueError("Either img2_path or identity must be provided")
 
@@ -202,10 +223,7 @@ class VectorVerificationBackend(VerificationBackend):
         normalization: str = "base",
         l2_normalize: bool = False,
     ) -> Optional[Dict[str, Any]]:
-        """
-        Retrieve stored embedding(s) for an identity from vector store.
-        """
-        results = self.vector_store.search_by_identity(
+        results = self.db_client.search_by_identity(
             identity=identity,
             model_name=model_name,
             detector_backend=detector_backend,
@@ -213,10 +231,8 @@ class VectorVerificationBackend(VerificationBackend):
             l2_normalize=l2_normalize,
             limit=1,
         )
-
         if not results:
             return None
-
         best = results[0]
         return {
             "id": best["id"],
@@ -234,14 +250,24 @@ class VectorVerificationBackend(VerificationBackend):
         normalization: str = "base",
         l2_normalize: bool = False,
     ) -> bool:
-        """
-        Delete all embeddings for an identity.
-        Note: Requires vector store to support metadata-based deletion.
-        """
-        # For now, we cannot easily delete by identity filter without ID
-        # Future enhancement: vector stores that support metadata filter delete
-        logger.warning("Delete by identity requires vector store metadata filtering support")
-        return False
+        results = self.db_client.search_by_identity(
+            identity=identity,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            align=align,
+            l2_normalize=l2_normalize,
+            limit=None,
+        )
+        if not results:
+            return False
+        ids = [r["id"] for r in results]
+        return self.db_client.delete(
+            ids=ids,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            align=align,
+            l2_normalize=l2_normalize,
+        )
 
     def list_identities(
         self,
@@ -249,26 +275,44 @@ class VectorVerificationBackend(VerificationBackend):
         detector_backend: Optional[str] = None,
     ) -> List[str]:
         """
-        List all unique identities.
-        Requires vector store scan; not efficient for large DBs.
+        List all unique identities (img_name) for given model/detector.
         """
-        # This is a placeholder - efficient implementation depends on vector store
-        identities = set()
-        # Cannot easily enumerate all without full scan
-        return list(identities)
+        # Since Database does not have a generic distinct method, we implement a fallback by scanning.
+        if model_name and detector_backend:
+            identities = set()
+            for align in [True, False]:
+                for l2 in [True, False]:
+                    try:
+                        records = self.db_client.fetch_all_embeddings(
+                            model_name=model_name,
+                            detector_backend=detector_backend,
+                            aligned=align,
+                            l2_normalized=l2,
+                        )
+                        for rec in records:
+                            img_name = rec.get("img_name")
+                            if img_name:
+                                identities.add(img_name)
+                    except Exception:
+                        continue
+            return list(identities)
+        return []
 
     def count(
         self,
         model_name: Optional[str] = None,
         detector_backend: Optional[str] = None,
     ) -> int:
-        """
-        Count total embeddings.
-        """
+        total = 0
         if model_name and detector_backend:
-            return self.vector_store.count(model_name, detector_backend, True, False)  # rough estimate
-        return 0
+            for align in [True, False]:
+                for l2 in [True, False]:
+                    try:
+                        total += self.db_client.count(model_name, detector_backend, align, l2)
+                    except Exception:
+                        continue
+        return total
 
     def close(self) -> None:
-        if self.vector_store:
-            self.vector_store.close()
+        if self.db_client:
+            self.db_client.close()

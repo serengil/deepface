@@ -314,6 +314,120 @@ class Neo4jClient(Database):
 
         return out
 
+    def search_by_identity(
+        self,
+        identity: str,
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        align: bool = True,
+        l2_normalize: bool = False,
+        limit: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        node_label = self.__generate_node_label(model_name, detector_backend, align, l2_normalize)
+        self.initialize_database(model_name=model_name, detector_backend=detector_backend, aligned=align, l2_normalized=l2_normalize)
+        query = f"""
+        MATCH (n:{node_label})
+        WHERE n.img_name = $identity
+        RETURN
+          elementId(n) AS id,
+          n.img_name AS img_name,
+          n.embedding AS embedding
+        """
+        if limit is not None:
+            query += f" LIMIT {limit}"
+        with self.conn.session() as session:
+            result = session.run(query, identity=identity)
+            out = []
+            for r in result:
+                out.append({
+                    "id": r["id"],
+                    "embedding": r["embedding"],
+                    "metadata": {
+                        "img_name": r["img_name"],
+                        "model_name": model_name,
+                        "detector_backend": detector_backend,
+                        "aligned": align,
+                        "l2_normalized": l2_normalize,
+                    },
+                })
+        return out
+
+    def count(
+        self,
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        align: Optional[bool] = None,
+        l2_normalize: Optional[bool] = None,
+    ) -> int:
+        # If all params given, use specific node label
+        if (
+            model_name is not None
+            and detector_backend is not None
+            and align is not None
+            and l2_normalize is not None
+        ):
+            node_label = self.__generate_node_label(model_name, detector_backend, align, l2_normalize)
+            query = f"MATCH (n:{node_label}) RETURN count(n) AS cnt"
+            with self.conn.session() as session:
+                result = session.run(query).single()
+                return result["cnt"] if result else 0
+        else:
+            return 0
+
+    def delete(
+        self,
+        ids: List[int],
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        if not ids:
+            return False
+        if model_name is None or detector_backend is None:
+            return False
+        node_label = self.__generate_node_label(model_name, detector_backend, align, l2_normalize)
+        # Neo4j delete by element id; ids here are integer? elementId returns string; our ID might be elementId or custom.
+        # We'll treat ids as elementId strings.
+        query = f"MATCH (n:{node_label}) WHERE elementId(n) IN $ids DELETE n"
+        with self.conn.session() as session:
+            result = session.run(query, ids=[str(i) for i in ids])
+            count = result.consume().counters.nodes_deleted
+        return count > 0
+
+    def update(
+        self,
+        id: int,
+        embedding: Optional[List[float]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        model_name: str = "",
+        detector_backend: str = "",
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        if not model_name or not detector_backend:
+            return False
+        node_label = self.__generate_node_label(model_name, detector_backend, align, l2_normalize)
+        set_parts = []
+        params: Dict[str, Any] = {}
+        if embedding is not None:
+            set_parts.append("n.embedding = $embedding")
+            params["embedding"] = embedding
+        if metadata:
+            for k, v in metadata.items():
+                if k in ("img_name", "model_name", "detector_backend", "aligned", "l2_normalized"):
+                    set_parts.append(f"n.{k} = ${k}")
+                    params[k] = v
+        if not set_parts:
+            return False
+        set_clause = ", ".join(set_parts)
+        query = f"MATCH (n:{node_label}) WHERE elementId(n) = $id SET {set_clause}"
+        params["id"] = str(id)  # elementId is string
+        with self.conn.session() as session:
+            result = session.run(query, **params)
+            summary = result.consume()
+            return summary.counters.properties_set > 0
+
     def __is_gds_installed(self) -> bool:
         """
         Check if the Graph Data Science (GDS) plugin is installed in the Neo4j database.

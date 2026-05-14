@@ -338,3 +338,146 @@ class PostgresClient(Database):
                 )
 
         return results
+
+    def search_by_identity(
+        self,
+        identity: str,
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        align: bool = True,
+        l2_normalize: bool = False,
+        limit: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Retrieve embeddings for a specific identity (img_name).
+        """
+        query = """
+            SELECT id, img_name, embedding
+            FROM embeddings
+            WHERE img_name = %s
+              AND model_name = %s
+              AND detector_backend = %s
+              AND aligned = %s
+              AND l2_normalized = %s
+            ORDER BY id ASC
+        """
+        params = [identity, model_name, detector_backend, align, l2_normalize]
+
+        results: List[Dict[str, Any]] = []
+        with self.conn.cursor() as cur:
+            cur.execute(query, tuple(params))
+            rows = cur.fetchall()
+            for r in rows:
+                results.append(
+                    {
+                        "id": r[0],
+                        "embedding": list(r[2]),
+                        "metadata": {
+                            "img_name": r[1],
+                            "model_name": model_name,
+                            "detector_backend": detector_backend,
+                            "aligned": align,
+                            "l2_normalized": l2_normalize,
+                        },
+                    }
+                )
+                if limit is not None and len(results) >= limit:
+                    break
+        return results
+
+    def count(
+        self,
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        aligned: Optional[bool] = None,
+        l2_normalized: Optional[bool] = None,
+    ) -> int:
+        query_parts = ["1=1"]
+        params = []
+        if model_name is not None:
+            query_parts.append("model_name = %s")
+            params.append(model_name)
+        if detector_backend is not None:
+            query_parts.append("detector_backend = %s")
+            params.append(detector_backend)
+        if aligned is not None:
+            query_parts.append("aligned = %s")
+            params.append(aligned)
+        if l2_normalized is not None:
+            query_parts.append("l2_normalized = %s")
+            params.append(l2_normalized)
+
+        where_clause = " AND ".join(query_parts)
+        query = f"SELECT COUNT(*) FROM embeddings WHERE {where_clause}"
+
+        with self.conn.cursor() as cur:
+            cur.execute(query, tuple(params))
+            count = cur.fetchone()[0]
+        return count
+
+    def delete(
+        self,
+        ids: List[int],
+        model_name: Optional[str] = None,
+        detector_backend: Optional[str] = None,
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        if not ids:
+            return False
+        # Delete by ids; optionally filter by other params in case ids not unique across configurations.
+        query = "DELETE FROM embeddings WHERE id = ANY(%s)"
+        # If additional filters provided, add them
+        params = [ids]
+        conditions = ["id = ANY(%s)"]
+        if model_name is not None:
+            conditions.append("model_name = %s")
+            params.append(model_name)
+        if detector_backend is not None:
+            conditions.append("detector_backend = %s")
+            params.append(detector_backend)
+        conditions.append("aligned = %s")
+        params.append(align)
+        conditions.append("l2_normalized = %s")
+        params.append(l2_normalize)
+        where_clause = " AND ".join(conditions)
+        query = f"DELETE FROM embeddings WHERE {where_clause} RETURNING id"
+
+        with self.conn.cursor() as cur:
+            cur.execute(query, tuple(params))
+            deleted = cur.rowcount
+            self.conn.commit()
+        return deleted > 0
+
+    def update(
+        self,
+        id: int,
+        embedding: Optional[List[float]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        model_name: str = "",
+        detector_backend: str = "",
+        align: bool = True,
+        l2_normalize: bool = False,
+    ) -> bool:
+        # Build update query
+        set_parts = []
+        params = []
+        if embedding is not None:
+            set_parts.append("embedding = %s")
+            params.append(embedding)
+        if metadata is not None:
+            for key, value in metadata.items():
+                if key in ("img_name", "model_name", "detector_backend", "aligned", "l2_normalized", "face", "face_hash", "embedding_hash"):
+                    set_parts.append(f"{key} = %s")
+                    params.append(value)
+        if not set_parts:
+            return False
+        params.append(id)
+        # Also include filter params for model_name, detector_backend, aligned, l2_normalized to ensure updating correct config
+        query = f"UPDATE embeddings SET {', '.join(set_parts)} WHERE id = %s AND model_name = %s AND detector_backend = %s AND aligned = %s AND l2_normalized = %s"
+        params.extend([model_name, detector_backend, align, l2_normalize])
+        with self.conn.cursor() as cur:
+            cur.execute(query, tuple(params))
+            updated = cur.rowcount > 0
+            self.conn.commit()
+        return updated
