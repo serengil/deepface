@@ -296,9 +296,6 @@ def find(
     anti_spoofing: bool = False,
     batched: bool = False,
     credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None,
-    db_backend: str = "local",
-    connection_details: Optional[Union[Dict[str, Any], str]] = None,
-    connection: Any = None,
 ) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
     """
     Identify individuals in a database. This is a stateful facial recognition function.
