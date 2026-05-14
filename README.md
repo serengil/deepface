@@ -363,6 +363,25 @@ Please cite deepface in your publications if it helps your research. Here is its
 
 Also, if you use deepface in your GitHub projects, please add `deepface` in the `requirements.txt`.
 
+## Limitations and Ethical Considerations
+
+Face recognition technology, including DeepFace, carries significant ethical implications that users and developers should carefully consider:
+
+- **Demographic Bias**: Face recognition models may exhibit differential accuracy across demographic groups, including but not limited to race, gender, and age. This can lead to unfair or discriminatory outcomes, particularly in high-stakes applications such as law enforcement or hiring. Users should evaluate model performance across diverse populations before deployment.
+
+- **Privacy Concerns**: The collection, storage, and processing of facial biometric data raise serious privacy issues. Unauthorized surveillance, tracking, or identification of individuals without consent is unethical and may be illegal in many jurisdictions. Always obtain informed consent and comply with applicable privacy regulations (e.g., GDPR, BIPA).
+
+- **Misuse Potential**: This library can be misused for invasive surveillance, harassment, stalking, or other harmful purposes. Developers and users bear responsibility to ensure the technology is applied ethically and lawfully.
+
+- **Consent and Transparency**: Individuals whose facial data is being collected or analyzed should be informed and provide consent wherever possible. Transparency about how face recognition is used is essential for maintaining trust.
+
+- **Accuracy and False Positives**: No face recognition system is perfect. False positives (incorrectly matching two different individuals) and false negatives (failing to match the same individual) can have serious consequences. Results should always be reviewed by humans in critical decision-making contexts.
+
+- **Regulatory Compliance**: Users are responsible for ensuring their use of this technology complies with all applicable local, national, and international laws and regulations regarding biometric data processing and face recognition.
+
+We encourage all users to refer to the [NIST Face Recognition Vendor Test](https://www.nist.gov/programs-projects/face-recognition-vendor-test-frvt) and the [ACM Statement on Algorithmic Transparency and Accountability](https://www.acm.org/binaries/content/assets/public-policy/2017_usacm_statement_algorithms.pdf) for further guidance on responsible use.
+
+
 ## Licence
 
 DeepFace is licensed under the MIT License - see [`LICENSE`](https://github.com/serengil/deepface/blob/master/LICENSE) for more details.
