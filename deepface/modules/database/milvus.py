@@ -36,8 +36,8 @@ class MilvusClient(Database):
         if connection is not None:
             self.client = connection
         else:
-            self.conn_details = connection_details or os.environ.get("DEEPFACE_MILVUS_URI", "http://localhost:19530")
-            if not isinstance(self.conn_details, str):
+            self.conn_details = connection_details or os.environ.get("DEEPFACE_MILVUS_URI")
+            if not self.conn_details or not isinstance(self.conn_details, str):
                 raise ValueError(
                     "Milvus URI must be provided as a string in connection_details "
                     "or via DEEPFACE_MILVUS_URI environment variable."
