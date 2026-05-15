@@ -70,7 +70,7 @@ def register(
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
         database_type (str): Type of database to register identities. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j', 'pgvector', 'pinecone' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector', 'pinecone', 'milvus' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -83,6 +83,7 @@ def register(
             - DEEPFACE_WEAVIATE_URI
             - DEEPFACE_NEO4J_URI
             - DEEPFACE_PINECONE_API_KEY
+            - DEEPFACE_MILVUS_URI
     Returns:
         result (dict): A dictionary containing registration results with following keys.
             - inserted (int): Number of embeddings successfully registered to the database.
@@ -186,7 +187,7 @@ def search(
         search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
             To use ann search, you must run build_index function first to create the index.
         database_type (str): Type of database to search identities. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j', 'pgvector', 'pinecone' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector', 'pinecone', 'milvus' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -199,6 +200,7 @@ def search(
             - DEEPFACE_WEAVIATE_URI
             - DEEPFACE_NEO4J_URI
             - DEEPFACE_PINECONE_API_KEY
+            - DEEPFACE_MILVUS_URI
     Returns:
         results (List[pd.DataFrame]):
             A list of pandas dataframes or a list of dicts. Each dataframe or dict corresponds
@@ -501,7 +503,7 @@ def build_index(
         max_neighbors_per_node (int): Maximum number of neighbors per node in the index
             (default is 32).
         database_type (str): Type of database to build index. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j', 'pgvector', 'pinecone' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector', 'pinecone', 'milvus' (default is 'postgres').
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
         connection_details (dict or str): Connection details for the database.
@@ -514,6 +516,7 @@ def build_index(
             - DEEPFACE_WEAVIATE_URI
             - DEEPFACE_NEO4J_URI
             - DEEPFACE_PINECONE_API_KEY
+            - DEEPFACE_MILVUS_URI
     """
 
     if database_inventory.get(database_type) is None:
@@ -698,7 +701,7 @@ def __connect_database(
     Connect to the specified database type
     Args:
         database_type (str): Type of database to connect. Options: 'postgres', 'mongo',
-            'weaviate', 'neo4j', 'pgvector', 'pinecone' (default is 'postgres').
+            'weaviate', 'neo4j', 'pgvector', 'pinecone', 'milvus' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
         connection (Any): Existing database connection object. If provided, this connection
             will be used instead of creating a new one.
@@ -711,6 +714,7 @@ def __connect_database(
             - DEEPFACE_WEAVIATE_URI
             - DEEPFACE_NEO4J_URI
             - DEEPFACE_PINECONE_API_KEY
+            - DEEPFACE_MILVUS_URI
     Returns:
         db_client (Database): An instance of the connected database client.
     """
