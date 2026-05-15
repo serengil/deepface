@@ -332,6 +332,28 @@ DeepFace can also be used to compare a child's face to their parents' or relativ
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-scaled.jpg" width="90%"></p>
 
+## Limitations and Ethical Considerations
+
+DeepFace is a lightweight face recognition and facial attribute analysis framework built for research and development purposes. Users should be aware of the following limitations and ethical considerations when using this library:
+
+### Bias and Fairness
+- Face recognition and facial attribute analysis models may exhibit biases across demographic groups, including but not limited to race, gender, age, and ethnicity. These biases can originate from the training data used to develop the underlying models.
+- The race/ethnicity classification feature (asian, white, middle eastern, indian, latino, black) and gender prediction feature are approximations and should not be used as definitive identifiers. Misclassification can cause harm, especially in sensitive applications.
+- Accuracy metrics reported for individual models may not be uniformly representative across all demographic subgroups.
+
+### Responsible Use
+- Face recognition technology has significant implications for privacy, surveillance, and civil liberties. This library should not be used for unauthorized surveillance, tracking, or any purpose that violates individual privacy rights or applicable laws.
+- Users must ensure compliance with local regulations, including GDPR, BIPA, and other biometric data protection laws, before deploying face recognition systems in production.
+
+### Intended Use
+- DeepFace is intended for educational and research purposes. It is not designed or tested for use in high-stakes decision-making systems such as law enforcement, border control, employment screening, or financial services without rigorous independent evaluation.
+
+### Model Limitations
+- The accuracy of face verification and recognition depends on image quality, lighting conditions, pose variations, and occlusions. Results should not be treated as conclusive without additional validation.
+- Age estimation has a mean absolute error of approximately ±4.65 years and may vary significantly across age groups and demographics.
+
+By using DeepFace, you acknowledge these limitations and agree to use the library responsibly and ethically.
+
 ## Support
 
 There are many ways to support a project - starring⭐️ the GitHub repo is just one 🙏 It really helps the project get discovered by more people.
