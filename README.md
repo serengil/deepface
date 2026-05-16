@@ -10,39 +10,13 @@
 
 [![DeepFace Cloud](https://img.shields.io/badge/%E2%98%81%EF%B8%8F-deepface%20cloud-00BFFF?style=flat&labelColor=555555)](https://deepface.dev?source=deepface_repo)
 
-<!--
-[![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
--->
-
-<!--
-[![Blog](https://img.shields.io/:blog-sefiks.com-blue.svg?style=flat&logo=wordpress)](https://sefiks.com)
-[![YouTube](https://img.shields.io/:youtube-@sefiks-red.svg?style=flat&logo=youtube)](https://www.youtube.com/@sefiks?sub_confirmation=1)
-[![Twitter](https://img.shields.io/:follow-@serengil-blue.svg?style=flat&logo=x)](https://twitter.com/intent/user?screen_name=serengil)
--->
-
-<!--
-[![Patreon](https://img.shields.io/:become-patron-f96854.svg?style=flat&logo=patreon)](https://www.patreon.com/serengil?repo=deepface)
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/serengil?logo=GitHub&color=lightgray)](https://github.com/sponsors/serengil)
-[![Buy Me a Coffee](https://img.shields.io/badge/-buy_me_a%C2%A0coffee-gray?logo=buy-me-a-coffee)](https://buymeacoffee.com/serengil)
--->
-
-<!--
-[![Hacker News](https://img.shields.io/badge/dynamic/json?color=orange&label=Hacker%20News&query=score&url=https%3A%2F%2Fhacker-news.firebaseio.com%2Fv0%2Fitem%2F46608519.json&logo=y-combinator)](https://news.ycombinator.com/item?id=46608519)
--->
-
-<!-- 
-<div align="center">
-  <a href="https://trendshift.io/repositories/4227" target="_blank"><img src="https://trendshift.io/api/badge/repositories/4227" alt="serengil%2Fdeepface | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</div>
--->
-
 </div>
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/deepface-icon-labeled.png" width="200" height="240"></p>
 
 DeepFace is a lightweight [face recognition](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and facial attribute analysis ([age](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [gender](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [emotion](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) and [race](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/)) framework for python. It is a hybrid face recognition framework wrapping **state-of-the-art** models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/), [`FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/), [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/), [`ArcFace`](https://sefiks.com/2020/12/14/deep-face-recognition-with-arcface-in-keras-and-python/), [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/), `SFace`, `GhostFaceNet`, `Buffalo_L`.
 
-[A modern face recognition pipeline](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 5 common stages: [detect](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [normalize](https://sefiks.com/2020/11/20/facial-landmarks-for-face-recognition-with-dlib/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). While DeepFace handles all these common stages in the background, you don’t need to acquire in-depth knowledge about all the processes behind it. You can just call its verification, find or analysis function with a single line of code.
+[A modern face recognition pipeline](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 5 common stages: [detect](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [normalize](https://sefiks.com/2020/11/20/facial-landmarks-for-face-recognition-with-dlib/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). While DeepFace handles all these common stages in the background, you don't need to acquire in-depth knowledge about all the processes behind it. You can just call its verification, find or analysis function with a single line of code.
 
 [`Experiments`](https://github.com/serengil/deepface/tree/master/benchmarks) show that **human beings have 97.53% accuracy** on facial recognition tasks whereas those models already reached and passed that accuracy level.
 
@@ -146,7 +120,7 @@ Here, you can also find some real time demos for various models:
 | Facial Recognition   | FaceNet  | [`Video`](https://youtu.be/vB1I5vWgTQg) |
 | Facial Recognition   | VGG-Face | [`Video`](https://youtu.be/tSU_lNi0gQQ) |
 | Facial Recognition   | OpenFace | [`Video`](https://youtu.be/-4z2sL6wzP8) |
-| Age & Gender         | Default  | [`Video`](https://youtu.be/tFI7vZn3P7E) |
+| Age & Gender         | Default  | [`Video`](https://youtu.be/tFI7vNi0P7E) |
 | Race & Ethnicity     | Default  | [`Video`](https://youtu.be/-ztiy5eJha8) |
 | Emotion              | Default  | [`Video`](https://youtu.be/Y7DfLvLKScs) |
 | Celebrity Look-Alike | Default  | [`Video`](https://youtu.be/RMgIKU1H8DY) |
@@ -291,25 +265,20 @@ cd scripts && ./dockerize.sh
 Face verification, facial attribute analysis, vector representation and register & search functions are covered in the API. The API accepts images as file uploads (via form data), or as exact image paths, URLs, or base64-encoded strings (via either JSON or form data).
 
 ```shell
-$ curl -X POST http://localhost:5005/represent \
-   -d '{"model_name":"Facenet", "img":"img1.jpg"}'
+$ curl -X POST http://localhost:5005/represent    -d '{"model_name":"Facenet", "img":"img1.jpg"}'
 
-$ curl -X POST http://localhost:5005/verify \
-   -d '{"img1":"img1.jpg", "img2":"img3.jpg"}'
+$ curl -X POST http://localhost:5005/verify    -d '{"img1":"img1.jpg", "img2":"img3.jpg"}'
 
-$ curl -X POST http://localhost:5005/analyze \
-   -d '{"img": "img2.jpg", "actions": ["age", "gender"]}'
+$ curl -X POST http://localhost:5005/analyze    -d '{"img": "img2.jpg", "actions": ["age", "gender"]}'
 
-$ curl -X POST http://localhost:5005/register \
-   -d '{"model_name":"Facenet", "img":"img18.jpg"}'
+$ curl -X POST http://localhost:5005/register    -d '{"model_name":"Facenet", "img":"img18.jpg"}'
 
-$ curl -X POST http://localhost:5005/search \
-   -d '{"img":"img1.jpg", "model_name":"Facenet"}'
+$ curl -X POST http://localhost:5005/search    -d '{"img":"img1.jpg", "model_name":"Facenet"}'
 ```
 
 **DeepFace Cloud** - [`Demo`](https://youtu.be/5o7ezk0MMqM)
 
-Don’t want to host and scale DeepFace yourself? [`deepface.dev`](https://deepface.dev?source=deepface_repo) provides a managed API built on top of DeepFace.
+Don't want to host and scale DeepFace yourself? [`deepface.dev`](https://deepface.dev?source=deepface_repo) provides a managed API built on top of DeepFace.
 
 - One API for verification, embeddings, and vector comparison
 - Docs and machine-readable agent docs: [`docs.deepface.dev`](https://docs.deepface.dev?source=deepface_repo)
@@ -331,6 +300,23 @@ DeepFace can analyze your facial features and match them with celebrities, letti
 DeepFace can also be used to compare a child's face to their parents' or relatives' faces to determine which one the child resembles more.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-scaled.jpg" width="90%"></p>
+## Limitations and Ethical Considerations
+
+Face recognition and facial attribute analysis technologies raise significant ethical concerns that users and developers should be aware of:
+
+- **Demographic Bias**: The underlying models wrapped by DeepFace (e.g., VGG-Face, FaceNet, ArcFace) were trained on datasets that may not be demographically representative. This can result in **differential accuracy across racial, gender, and age groups**, leading to higher false positive or false negative rates for underrepresented populations. Community issues have highlighted biases towards specific racial groups (see related issues in this repository).
+
+- **Race and Ethnicity Prediction**: The race/ethnicity prediction feature classifies individuals into broad categories (asian, white, middle eastern, indian, latino, black) which are social constructs. These categories do not capture the full spectrum of human diversity and can reinforce harmful stereotypes. This feature should be used with extreme caution and never for discriminatory purposes.
+
+- **Surveillance and Privacy**: Face recognition technology can be used for mass surveillance without consent. Users must ensure compliance with privacy laws (e.g., GDPR, BIPA) and obtain proper consent when collecting and processing biometric data.
+
+- **Misidentification Risks**: Even state-of-the-art models can produce incorrect results. In high-stakes scenarios (e.g., law enforcement, security), misidentification can have serious consequences. Always incorporate human oversight and do not rely solely on automated face recognition results.
+
+- **Consent and Data Rights**: Training data for face recognition models may include images collected without explicit consent. Users should consider the provenance of training data and respect individuals' rights to privacy and data protection.
+
+- **Responsible Use**: DeepFace should not be used for any purpose that discriminates against individuals or groups based on race, gender, age, or other protected characteristics. Developers integrating this library should implement appropriate safeguards and conduct fairness assessments.
+
+We encourage the community to contribute to reducing bias and improving the ethical documentation of this project. If you identify bias-related issues or have suggestions for improvement, please open an issue or submit a pull request.
 
 ## Support
 
@@ -344,7 +330,7 @@ If you do like this work, you can also support it financially on [Patreon](https
 
 ## Citation
 
-Please cite deepface in your publications if it helps your research. Here is its BibTex entry:
+Please cite deepface in your publications if it helps your research. Here is its BibTeX entry:
 
 ```BibTeX
 @article{serengil2026boosted,
