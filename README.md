@@ -42,7 +42,7 @@
 
 DeepFace is a lightweight [face recognition](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and facial attribute analysis ([age](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [gender](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [emotion](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) and [race](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/)) framework for python. It is a hybrid face recognition framework wrapping **state-of-the-art** models: [`VGG-Face`](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/), [`FaceNet`](https://sefiks.com/2018/09/03/face-recognition-with-facenet-in-keras/), [`OpenFace`](https://sefiks.com/2019/07/21/face-recognition-with-openface-in-keras/), [`DeepFace`](https://sefiks.com/2020/02/17/face-recognition-with-facebook-deepface-in-keras/), [`DeepID`](https://sefiks.com/2020/06/16/face-recognition-with-deepid-in-keras/), [`ArcFace`](https://sefiks.com/2020/12/14/deep-face-recognition-with-arcface-in-keras-and-python/), [`Dlib`](https://sefiks.com/2020/07/11/face-recognition-with-dlib-in-python/), `SFace`, `GhostFaceNet`, `Buffalo_L`.
 
-[A modern face recognition pipeline](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 5 common stages: [detect](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [normalize](https://sefiks.com/2020/11/20/facial-landmarks-for-face-recognition-with-dlib/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). While DeepFace handles all these common stages in the background, you don’t need to acquire in-depth knowledge about all the processes behind it. You can just call its verification, find or analysis function with a single line of code.
+[A modern face recognition pipeline](https://sefiks.com/2020/05/01/a-gentle-introduction-to-face-recognition-in-deep-learning/) consists of 5 common stages: [detect](https://sefiks.com/2020/08/25/deep-face-detection-with-opencv-in-python/), [align](https://sefiks.com/2020/02/23/face-alignment-for-face-recognition-in-python-within-opencv/), [normalize](https://sefiks.com/2020/11/20/facial-landmarks-for-face-recognition-with-dlib/), [represent](https://sefiks.com/2018/08/06/deep-face-recognition-with-keras/) and [verify](https://sefiks.com/2020/05/22/fine-tuning-the-threshold-in-face-recognition/). While DeepFace handles all these common stages in the background, you don't need to acquire in-depth knowledge about all the processes behind it. You can just call its verification, find or analysis function with a single line of code.
 
 [`Experiments`](https://github.com/serengil/deepface/tree/master/benchmarks) show that **human beings have 97.53% accuracy** on facial recognition tasks whereas those models already reached and passed that accuracy level.
 
@@ -309,7 +309,7 @@ $ curl -X POST http://localhost:5005/search \
 
 **DeepFace Cloud** - [`Demo`](https://youtu.be/5o7ezk0MMqM)
 
-Don’t want to host and scale DeepFace yourself? [`deepface.dev`](https://deepface.dev?source=deepface_repo) provides a managed API built on top of DeepFace.
+Don't want to host and scale DeepFace yourself? [`deepface.dev`](https://deepface.dev?source=deepface_repo) provides a managed API built on top of DeepFace.
 
 - One API for verification, embeddings, and vector comparison
 - Docs and machine-readable agent docs: [`docs.deepface.dev`](https://docs.deepface.dev?source=deepface_repo)
@@ -331,6 +331,26 @@ DeepFace can analyze your facial features and match them with celebrities, letti
 DeepFace can also be used to compare a child's face to their parents' or relatives' faces to determine which one the child resembles more.
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-scaled.jpg" width="90%"></p>
+
+## Limitations and Ethical Considerations
+
+Face recognition and facial attribute analysis technologies raise significant ethical concerns that users of DeepFace should be aware of:
+
+- **Demographic Bias**: The models wrapped by DeepFace may exhibit varying accuracy across different demographic groups, including race, gender, and age. For example, some models trained on datasets that are not demographically balanced may perform less accurately for underrepresented groups. Users should evaluate model performance on their specific target populations before deployment.
+
+- **Privacy and Consent**: Face recognition can be used to identify individuals without their knowledge or consent. Users must ensure compliance with applicable privacy laws and regulations (e.g., GDPR, BIPA, CCPA) and obtain appropriate consent before collecting or processing biometric data.
+
+- **Surveillance and Civil Liberties**: The use of face recognition in surveillance contexts raises serious civil liberties concerns. DeepFace should not be used for mass surveillance or any application that could infringe on individuals' rights to privacy, freedom of movement, or freedom of assembly.
+
+- **Race and Ethnicity Prediction**: The race/ethnicity prediction feature should be used with caution. Racial categorization is a social construct, and automated race classification can reinforce harmful stereotypes or be misused for discriminatory purposes.
+
+- **Fairness in Critical Applications**: DeepFace should not be used as the sole basis for decisions that significantly impact individuals' lives, such as hiring, law enforcement, border control, or financial services, without rigorous fairness audits and human oversight.
+
+- **Data Representation**: The training datasets used for the underlying models may not be representative of all populations. Users should be aware of potential biases in the training data and their impact on model outputs.
+
+- **Responsible Disclosure**: If you discover biases or fairness issues in DeepFace's models, please report them responsibly via GitHub issues to help improve the library for everyone.
+
+For further reading on responsible AI practices in face recognition, refer to resources such as the [NIST Face Recognition Vendor Test](https://pages.nist.gov/frvt/reports/1frvt/nist_frvt_report.pdf) and the [ACM FAT/CC Conference proceedings](https://facctconference.org/).
 
 ## Support
 
