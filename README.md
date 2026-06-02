@@ -189,6 +189,29 @@ embeddings = DeepFace.represent(
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/model-portfolio-20240316.jpg" width="95%"></p>
 
+## Model Accuracy Summary
+
+The table below summarizes the **best accuracy achieved** by each recognition model 
+across all detector and distance metric configurations, tested on the LFW dataset. 
+Human-level accuracy on the same dataset is **97.5%**. See 
+[benchmarks](https://github.com/serengil/deepface/tree/master/benchmarks) for full results.
+
+This table below shows the summarized best accuracy from the benchmarks(See 
+[benchmarks](https://github.com/serengil/deepface/tree/master/benchmarks)). Here we are comparing the models accuracy with human level accuracy.
+
+|     Model    | Best Accuracy | Beats Human-Level (97.5%) |
+|--------------|---------------|---------------------------|
+| Facenet512   | 98.4% | Yes |
+| Facenet      | 97.4% | Yes |
+| VGG-Face     | 96.7% | No |
+| ArcFace      | 96.7% | No |
+| Dlib         | 96.8% | No |
+| GhostFaceNet | 93.3% | No |
+| SFace        | 93.0% | No |
+| OpenFace     | 78.7% | No |
+| DeepFace     | 69.0% | No |
+| DeepID       | 66.5% | No |
+
 See [`BENCHMARKS`](https://github.com/serengil/deepface/tree/master/benchmarks) for their accuracies.
 
 **Face Detection and Alignment** - [`Demo`](https://youtu.be/GZ2p2hj2H5k)
