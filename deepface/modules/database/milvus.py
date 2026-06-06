@@ -157,7 +157,7 @@ class MilvusClient(Database):
             model_name, detector_backend, aligned, l2_normalized
         )
 
-        search_params = {
+        search_params: Dict[str, Any] = {
             "metric_type": "COSINE" if l2_normalized else "L2",
             "params": {}
         }
