@@ -24,13 +24,13 @@ class MilvusClient(Database):
         connection: Any = None,
     ):
         try:
-            from pymilvus import MilvusClient, DataType
+            from pymilvus import MilvusClient as _MilvusClient, DataType
         except (ModuleNotFoundError, ImportError) as e:
             raise ValueError(
                 "pymilvus is an optional dependency. Install with 'pip install pymilvus'"
             ) from e
 
-        self.MilvusClient = MilvusClient
+        self.MilvusClient = _MilvusClient
         self.DataType = DataType
 
         if connection is not None:
@@ -70,7 +70,9 @@ class MilvusClient(Database):
             enable_dynamic_field=True
         )
         schema.add_field(field_name="id", datatype=self.DataType.INT64, is_primary=True)
-        schema.add_field(field_name="embedding", datatype=self.DataType.FLOAT_VECTOR, dim=dimensions)
+        schema.add_field(
+            field_name="embedding", datatype=self.DataType.FLOAT_VECTOR, dim=dimensions
+        )
 
         index_params = self.client.prepare_index_params()
         index_params.add_index(
