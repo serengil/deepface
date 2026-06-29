@@ -8,8 +8,7 @@
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![DOI](http://img.shields.io/:DOI-10.35378/gujs.1794891-blue.svg?style=flat)](https://doi.org/10.35378/gujs.1794891)
 
-[![DeepFace Cloud](https://img.shields.io/badge/%E2%98%81%EF%B8%8F-deepface%20cloud-00BFFF?style=flat&labelColor=555555)](https://deepface.dev?source=deepface_repo)
-[![Hacker News](https://img.shields.io/badge/dynamic/json?color=orange&label=Hacker%20News&query=score&url=https%3A%2F%2Fhacker-news.firebaseio.com%2Fv0%2Fitem%2F48321158.json&logo=y-combinator)](https://news.ycombinator.com/item?id=48321158)
+[![DeepFace Cloud](https://img.shields.io/badge/%E2%98%81-deepface%20cloud-blue?style=for-the-badge)](https://deepface.dev?source=deepface_repo)
 
 <!--
 [![Tests](https://github.com/serengil/deepface/actions/workflows/tests.yml/badge.svg)](https://github.com/serengil/deepface/actions/workflows/tests.yml)
