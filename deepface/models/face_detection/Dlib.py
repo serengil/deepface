@@ -11,7 +11,7 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-WEIGHTS_URL = "http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2"
+WEIGHTS_URL = "https://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2"
 
 
 class DlibClient(Detector):
