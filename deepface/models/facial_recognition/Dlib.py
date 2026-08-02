@@ -13,7 +13,7 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # pylint: disable=too-few-public-methods
-WEIGHT_URL = "http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2"
+WEIGHT_URL = "https://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2"
 
 
 class DlibClient(FacialRecognition):
