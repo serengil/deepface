@@ -24,3 +24,4 @@ python-dotenv==1.0.1
 # neo4j==5.1.0
 # pgvector==0.3.6
 # pinecone==5.4.2
+# qdrant-client==1.19.0
