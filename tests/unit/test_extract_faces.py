@@ -99,6 +99,18 @@ def test_numpy_input():
         logger.info(f"✅ extract_faces for {detector} backend with numpy input test is done")
 
 
+def test_normalized_numpy_input_is_not_normalized_twice():
+    img = np.ones((100, 100, 3), dtype=np.float32)
+
+    faces = DeepFace.extract_faces(
+        img_path=img,
+        detector_backend="skip",
+        enforce_detection=False,
+    )
+
+    assert faces[0]["face"].max() == 1
+
+
 def test_backends_for_enforced_detection_with_non_facial_inputs():
     black_img = np.zeros([224, 224, 3])
     for detector in detectors:
