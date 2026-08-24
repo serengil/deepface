@@ -10,7 +10,7 @@ from numpy.typing import NDArray
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.modules.exceptions import UnimplementedError
 
-
+# mypy: disable-error-code=attr-defined
 class OpenCvClient(Detector):
     """
     Class to cover common face detection functionalitiy for OpenCv backend
