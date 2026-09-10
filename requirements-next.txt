@@ -1,0 +1,14 @@
+requests>=2.27.1
+numpy>=1.14.0
+pandas>=0.23.4
+gdown>=3.10.1
+tqdm>=4.30.0
+Pillow>=5.2.0
+opencv-python>=4.5.5.64
+Flask>=1.1.2
+flask_cors>=4.0.1
+fire>=0.4.0
+gunicorn>=20.1.0
+lightphe>=0.0.15
+lightdsa>=0.0.3
+python-dotenv>=1.0.1
