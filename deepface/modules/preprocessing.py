@@ -6,16 +6,6 @@ import numpy as np
 from numpy.typing import NDArray
 import cv2
 
-# project dependencies
-from deepface.commons import package_utils
-
-
-tf_major_version = package_utils.get_tf_major_version()
-if tf_major_version == 1:
-    from keras.preprocessing import image
-elif tf_major_version == 2:
-    from tensorflow.keras.preprocessing import image
-
 
 def normalize_input(img: NDArray[Any], normalization: str = "base") -> NDArray[Any]:
     """Normalize input image.
@@ -112,8 +102,9 @@ def resize_image(img: NDArray[Any], target_size: Tuple[int, int]) -> NDArray[Any
     if img.shape[0:2] != target_size:
         img = cv2.resize(img, target_size)
 
-    # make it 4-dimensional how ML models expect
-    img = image.img_to_array(img)
+    # make it 4-dimensional how ML models expect. this is what keras'
+    # img_to_array does, deepface does not import keras for it anymore
+    img = np.asarray(img, dtype=np.float32)
     img = np.expand_dims(img, axis=0)
 
     if img.max() > 1:

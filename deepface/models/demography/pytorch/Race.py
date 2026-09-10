@@ -7,6 +7,7 @@ from numpy.typing import NDArray
 
 # project dependencies
 from deepface.commons import weight_utils
+from deepface.models.demography.DemographyUtils import RACE_LABELS
 from deepface.models.demography.pytorch.TorchDemography import (
     TorchDemography,
     VggFaceClassifier,
@@ -20,7 +21,7 @@ WEIGHTS_URL = (
     "https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.pth"
 )
 # Labels for the ethnic phenotypes that can be detected by the model.
-labels = ["asian", "indian", "black", "white", "middle eastern", "latino hispanic"]
+labels = RACE_LABELS
 
 CLASSES = 6
 

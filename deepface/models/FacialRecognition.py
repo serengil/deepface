@@ -10,23 +10,25 @@ from numpy.typing import NDArray
 from deepface.commons import package_utils
 from deepface.modules.exceptions import InvalidEmbeddingsShapeError
 
-tf_version = package_utils.get_tf_major_version()
-if tf_version == 2:
-    from tensorflow.keras.models import Model
-else:
-    from keras.models import Model
+# keras is imported within forward on purpose - a model of another backend overwrites
+# forward, so importing keras here would force tensorflow onto pytorch users
 
 # Notice that all facial recognition models must be inherited from this class
 
 
 # pylint: disable=too-few-public-methods
 class FacialRecognition(ABC):
-    model: Union[Model, Any]
+    model: Any
     model_name: str
     input_shape: Tuple[int, int]
     output_shape: int
 
     def forward(self, img: NDArray[Any]) -> Union[List[float], List[List[float]]]:
+        if package_utils.get_tf_major_version() == 2:
+            from tensorflow.keras.models import Model
+        else:
+            from keras.models import Model
+
         if not isinstance(self.model, Model):
             raise ValueError(
                 "You must overwrite forward method if it is not a keras model,"

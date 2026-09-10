@@ -10,12 +10,13 @@ from torch import nn, Tensor
 
 # project dependencies
 from deepface.commons import weight_utils
+from deepface.models.demography.DemographyUtils import EMOTION_LABELS
 from deepface.models.demography.pytorch.TorchDemography import TorchDemography
 from deepface.models.facial_recognition.pytorch.TorchFacialRecognition import load_model_weights
 from deepface.commons.logger import Logger
 
 # Labels for the emotions that can be detected by the model.
-labels = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
+labels = EMOTION_LABELS
 
 logger = Logger()
 

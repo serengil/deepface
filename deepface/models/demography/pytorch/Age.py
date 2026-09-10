@@ -8,6 +8,7 @@ import torch
 
 # project dependencies
 from deepface.commons import weight_utils
+from deepface.models.demography.DemographyUtils import find_apparent_age
 from deepface.models.demography.pytorch.TorchDemography import (
     TorchDemography,
     VggFaceClassifier,
@@ -49,9 +50,6 @@ class ApparentAgeClient(TorchDemography):
             np.ndarray (age_classes,) if single image,
             np.ndarray (n, age_classes) if batched images.
         """
-        # import the helper here to avoid circular import issue
-        from deepface.models.demography.Age import find_apparent_age
-
         # Preprocessing input image or image list.
         imgs = self._preprocess_batch_or_single_input(img)
 

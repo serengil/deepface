@@ -7,6 +7,7 @@ from numpy.typing import NDArray
 
 # project dependencies
 from deepface.commons import weight_utils
+from deepface.models.demography.DemographyUtils import GENDER_LABELS
 from deepface.models.demography.pytorch.TorchDemography import (
     TorchDemography,
     VggFaceClassifier,
@@ -21,7 +22,7 @@ WEIGHTS_URL = (
 )
 
 # Labels for the genders that can be detected by the model.
-labels = ["Woman", "Man"]
+labels = GENDER_LABELS
 
 CLASSES = 2
 

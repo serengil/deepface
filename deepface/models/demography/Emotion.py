@@ -9,6 +9,7 @@ import cv2
 # project dependencies
 from deepface.commons import package_utils, weight_utils
 from deepface.models.Demography import Demography
+from deepface.models.demography.DemographyUtils import EMOTION_LABELS
 from deepface.commons.logger import Logger
 
 # dependency configuration
@@ -29,7 +30,7 @@ else:
     )
 
 # Labels for the emotions that can be detected by the model.
-labels = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
+labels = EMOTION_LABELS
 
 logger = Logger()
 

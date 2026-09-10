@@ -9,6 +9,7 @@ from numpy.typing import NDArray
 from deepface.models.facial_recognition import VGGFace
 from deepface.commons import package_utils, weight_utils
 from deepface.models.Demography import Demography
+from deepface.models.demography.DemographyUtils import GENDER_LABELS
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -31,7 +32,7 @@ WEIGHTS_URL = (
 )
 
 # Labels for the genders that can be detected by the model.
-labels = ["Woman", "Man"]
+labels = GENDER_LABELS
 
 
 # pylint: disable=too-few-public-methods

@@ -3,17 +3,35 @@ from typing import List, Any
 
 # 3rd party dependencies
 from numpy.typing import NDArray
-from retinaface import RetinaFace as rf
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
+
+# retina-face is an optional dependency requiring tensorflow, it is imported within the
+# methods below on purpose - deepface may well be running on pytorch
 
 
 # pylint: disable=too-few-public-methods
 class RetinaFaceClient(Detector):
     def __init__(self) -> None:
         """RetinaFace face detector model initialization"""
-        self.model = rf.build_model()
+        self.model = self.import_retinaface().build_model()
+
+    @staticmethod
+    def import_retinaface() -> Any:
+        """
+        Import retina-face, enforcing it to be installed if it is not yet
+        Returns:
+            rf (module): retinaface.RetinaFace
+        """
+        try:
+            from retinaface import RetinaFace as rf
+        except ModuleNotFoundError as err:
+            raise ValueError(
+                "You must install retina-face with `pip install retina-face` command "
+                "to use the retinaface face detector. Notice that it requires tensorflow."
+            ) from err
+        return rf
 
     def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
@@ -27,7 +45,7 @@ class RetinaFaceClient(Detector):
         """
         resp: List[FacialAreaRegion] = []
 
-        obj = rf.detect_faces(img, model=self.model, threshold=0.9)
+        obj = self.import_retinaface().detect_faces(img, model=self.model, threshold=0.9)
 
         if not isinstance(obj, dict):
             return resp

@@ -1,6 +1,6 @@
 # built-in dependencies
 import os
-from typing import Optional
+from typing import Any, Dict, List, Optional, Union
 import zipfile
 import bz2
 
@@ -8,16 +8,9 @@ import bz2
 import gdown
 
 # project dependencies
-from deepface.commons import folder_utils, package_utils
+from deepface.commons import folder_utils
 from deepface.commons.logger import Logger
 from deepface.modules.exceptions import UnimplementedError
-
-
-tf_version = package_utils.get_tf_major_version()
-if tf_version == 1:
-    from keras.models import Sequential
-else:
-    from tensorflow.keras.models import Sequential
 
 logger = Logger()
 
@@ -78,14 +71,14 @@ def download_weights_if_necessary(
     return target_file
 
 
-def load_model_weights(model: Sequential, weight_file: str) -> Sequential:
+def load_model_weights(model: Any, weight_file: str) -> Any:
     """
-    Load pre-trained weights for a given model
+    Load pre-trained weights for a given keras model
     Args:
-        model (keras.models.Sequential): pre-built model
+        model (keras.models.Model): pre-built model
         weight_file (str): exact path of pre-trained weights
     Returns:
-        model (keras.models.Sequential): pre-built model with
+        model (keras.models.Model): pre-built model with
             updated weights
     """
     try:
@@ -101,112 +94,76 @@ def load_model_weights(model: Sequential, weight_file: str) -> Sequential:
     return model
 
 
+# where the weight urls of each model live. a model is skipped when it is not
+# implemented for the backend engine in use, and the file name is the last part of the
+# url unless it is overwritten here
+WEIGHT_SOURCES = [
+    # facial recognition
+    ("facial_recognition", "VGG-Face", ["WEIGHTS_URL"]),
+    ("facial_recognition", "Facenet", ["FACENET128_WEIGHTS", "FACENET512_WEIGHTS"]),
+    ("facial_recognition", "OpenFace", ["WEIGHTS_URL"]),
+    ("facial_recognition", "DeepFace", ["WEIGHTS_URL"]),
+    ("facial_recognition", "ArcFace", ["WEIGHTS_URL"]),
+    ("facial_recognition", "DeepID", ["WEIGHTS_URL"]),
+    ("facial_recognition", "SFace", ["WEIGHTS_URL"]),
+    ("facial_recognition", "GhostFaceNet", ["WEIGHTS_URL"]),
+    ("facial_recognition", "Dlib", ["WEIGHT_URL"]),
+    # demography
+    ("facial_attribute", "Age", ["WEIGHTS_URL"]),
+    ("facial_attribute", "Gender", ["WEIGHTS_URL"]),
+    ("facial_attribute", "Race", ["WEIGHTS_URL"]),
+    ("facial_attribute", "Emotion", ["WEIGHTS_URL"]),
+    # spoofing
+    ("spoofing", "Fasnet", ["FIRST_WEIGHTS_URL", "SECOND_WEIGHTS_URL"]),
+    # face detection
+    ("face_detector", "ssd", ["MODEL_URL", "WEIGHTS_URL"]),
+    ("face_detector", "yunet", ["WEIGHTS_URL"]),
+    ("face_detector", "dlib", ["WEIGHTS_URL"]),
+    ("face_detector", "centerface", ["WEIGHTS_URL"]),
+]
+
+# models whose weight file is not named after its url
+WEIGHT_FILE_NAMES = {
+    ("facial_recognition", "GhostFaceNet"): {
+        "tensorflow": "ghostfacenet_v1.h5",
+        "pytorch": "ghostfacenet_v1.pth",
+    },
+}
+
+
 def download_all_models_in_one_shot() -> None:
     """
-    Download all model weights in one shot
+    Download all model weights in one shot. Models that are not implemented for the
+    backend engine in use are skipped.
     """
 
-    # import model weights from module here to avoid circular import issue
-    from deepface.models.facial_recognition.VGGFace import WEIGHTS_URL as VGGFACE_WEIGHTS
-    from deepface.models.facial_recognition.Facenet import FACENET128_WEIGHTS, FACENET512_WEIGHTS
-    from deepface.models.facial_recognition.OpenFace import WEIGHTS_URL as OPENFACE_WEIGHTS
-    from deepface.models.facial_recognition.FbDeepFace import WEIGHTS_URL as FBDEEPFACE_WEIGHTS
-    from deepface.models.facial_recognition.ArcFace import WEIGHTS_URL as ARCFACE_WEIGHTS
-    from deepface.models.facial_recognition.DeepID import WEIGHTS_URL as DEEPID_WEIGHTS
-    from deepface.models.facial_recognition.SFace import WEIGHTS_URL as SFACE_WEIGHTS
-    from deepface.models.facial_recognition.GhostFaceNet import WEIGHTS_URL as GHOSTFACENET_WEIGHTS
-    from deepface.models.facial_recognition.Dlib import WEIGHT_URL as DLIB_FR_WEIGHTS
-    from deepface.models.demography.Age import WEIGHTS_URL as AGE_WEIGHTS
-    from deepface.models.demography.Gender import WEIGHTS_URL as GENDER_WEIGHTS
-    from deepface.models.demography.Race import WEIGHTS_URL as RACE_WEIGHTS
-    from deepface.models.demography.Emotion import WEIGHTS_URL as EMOTION_WEIGHTS
-    from deepface.models.spoofing.FasNet import (
-        FIRST_WEIGHTS_URL as FASNET_1ST_WEIGHTS,
-        SECOND_WEIGHTS_URL as FASNET_2ND_WEIGHTS,
-    )
-    from deepface.models.face_detection.Ssd import (
-        MODEL_URL as SSD_MODEL,
-        WEIGHTS_URL as SSD_WEIGHTS,
-    )
+    # import here to avoid circular import issue
+    import importlib
+    from deepface.commons import backend_utils
+    from deepface.modules import modeling
     from deepface.models.face_detection.Yolo import YoloModel
-    from deepface.models.face_detection.YuNet import WEIGHTS_URL as YUNET_WEIGHTS
-    from deepface.models.face_detection.Dlib import WEIGHTS_URL as DLIB_FD_WEIGHTS
-    from deepface.models.face_detection.CenterFace import WEIGHTS_URL as CENTERFACE_WEIGHTS
 
-    WEIGHTS = [
-        # facial recognition
-        VGGFACE_WEIGHTS,
-        FACENET128_WEIGHTS,
-        FACENET512_WEIGHTS,
-        OPENFACE_WEIGHTS,
-        FBDEEPFACE_WEIGHTS,
-        ARCFACE_WEIGHTS,
-        DEEPID_WEIGHTS,
-        SFACE_WEIGHTS,
-        {
-            "filename": "ghostfacenet_v1.h5",
-            "url": GHOSTFACENET_WEIGHTS,
-        },
-        DLIB_FR_WEIGHTS,
-        # demography
-        AGE_WEIGHTS,
-        GENDER_WEIGHTS,
-        RACE_WEIGHTS,
-        EMOTION_WEIGHTS,
-        # spoofing
-        FASNET_1ST_WEIGHTS,
-        FASNET_2ND_WEIGHTS,
-        # face detection
-        SSD_MODEL,
-        SSD_WEIGHTS,
-        {
-            "filename": YoloModel.V8N.value[0],
-            "url": YoloModel.V8N.value[1],
-        },
-        {
-            "filename": YoloModel.V8M.value[0],
-            "url": YoloModel.V8M.value[1],
-        },
-        {
-            "filename": YoloModel.V8L.value[0],
-            "url": YoloModel.V8L.value[1],
-        },
-        {
-            "filename": YoloModel.V11N.value[0],
-            "url": YoloModel.V11N.value[1],
-        },
-        {
-            "filename": YoloModel.V11S.value[0],
-            "url": YoloModel.V11S.value[1],
-        },
-        {
-            "filename": YoloModel.V11M.value[0],
-            "url": YoloModel.V11M.value[1],
-        },
-        {
-            "filename": YoloModel.V11L.value[0],
-            "url": YoloModel.V11L.value[1],
-        },
-        {
-            "filename": YoloModel.V12N.value[0],
-            "url": YoloModel.V12N.value[1],
-        },
-        {
-            "filename": YoloModel.V12S.value[0],
-            "url": YoloModel.V12S.value[1],
-        },
-        {
-            "filename": YoloModel.V12M.value[0],
-            "url": YoloModel.V12M.value[1],
-        },
-        {
-            "filename": YoloModel.V12L.value[0],
-            "url": YoloModel.V12L.value[1],
-        },
-        YUNET_WEIGHTS,
-        DLIB_FD_WEIGHTS,
-        CENTERFACE_WEIGHTS,
-    ]
+    backend = backend_utils.get_backend_engine()
+
+    WEIGHTS: List[Union[str, Dict[str, str]]] = []
+
+    for task, model_name, attributes in WEIGHT_SOURCES:
+        try:
+            model_class = modeling.get_model_class(task=task, model_name=model_name)
+        except UnimplementedError:
+            logger.info(f"{task}/{model_name} is not available for {backend}, skipping it")
+            continue
+
+        module = importlib.import_module(model_class.__module__)
+        file_name = WEIGHT_FILE_NAMES.get((task, model_name), {}).get(backend)
+
+        for attribute in attributes:
+            url = getattr(module, attribute)
+            WEIGHTS.append({"filename": file_name, "url": url} if file_name else url)
+
+    # yolo detectors keep their file names next to their urls
+    for model in YoloModel:
+        WEIGHTS.append({"filename": model.value[0], "url": model.value[1]})
 
     for i in WEIGHTS:
         if isinstance(i, str):

@@ -8,6 +8,7 @@ from numpy.typing import NDArray
 from deepface.models.facial_recognition import VGGFace
 from deepface.commons import package_utils, weight_utils
 from deepface.models.Demography import Demography
+from deepface.models.demography.DemographyUtils import RACE_LABELS
 from deepface.commons.logger import Logger
 
 # pylint: disable=line-too-long
@@ -26,7 +27,7 @@ WEIGHTS_URL = (
     "https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5"
 )
 # Labels for the ethnic phenotypes that can be detected by the model.
-labels = ["asian", "indian", "black", "white", "middle eastern", "latino hispanic"]
+labels = RACE_LABELS
 
 logger = Logger()
 

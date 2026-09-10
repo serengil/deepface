@@ -1,5 +1,5 @@
 # stdlib dependencies
-from typing import List, Union, Any, cast
+from typing import List, Union, Any
 
 # 3rd party dependencies
 import numpy as np
@@ -7,6 +7,7 @@ from numpy.typing import NDArray
 
 # project dependencies
 from deepface.models.facial_recognition import VGGFace
+from deepface.models.demography.DemographyUtils import find_apparent_age
 from deepface.commons import package_utils, weight_utils
 from deepface.models.Demography import Demography
 from deepface.commons.logger import Logger
@@ -98,19 +99,3 @@ def load_model(
     age_model = weight_utils.load_model_weights(model=age_model, weight_file=weight_file)
 
     return age_model
-
-
-def find_apparent_age(age_predictions: NDArray[Any]) -> np.float64:
-    """
-    Find apparent age prediction from a given probas of ages
-    Args:
-        age_predictions (age_classes,)
-    Returns:
-        apparent_age (float)
-    """
-    assert (
-        len(age_predictions.shape) == 1
-    ), f"Input should be a list of predictions, not batched. Got shape: {age_predictions.shape}"
-    output_indexes = np.arange(0, 101)
-    apparent_age = cast(np.float64, np.sum(age_predictions * output_indexes))
-    return apparent_age
