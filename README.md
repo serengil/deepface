@@ -58,7 +58,7 @@ $ pip install deepface[tensorflow]
 # $ pip install deepface[pytorch]
 ```
 
-When both backends are installed, deepface runs on tensorflow. You may enforce the one to be used with the `DEEPFACE_BACKEND_ENGINE` environment variable:
+When both tensorflow and pytorch backends are installed, you may enforce the one to be used with the `DEEPFACE_BACKEND_ENGINE` environment variable:
 
 ```shell
 $ export DEEPFACE_BACKEND_ENGINE=pytorch

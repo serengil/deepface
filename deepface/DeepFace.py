@@ -35,6 +35,26 @@ from deepface import __version__
 logger = Logger()
 
 # -----------------------------------
+# warn users about upcoming changes in backend installation.
+
+if "_DEPRECATION_WARNING_SHOWN" not in globals():
+    global _DEPRECATION_WARNING_SHOWN
+    _DEPRECATION_WARNING_SHOWN = True
+    logger.warn(
+        "\n"
+        + "=" * 70 + "\n"
+        " ⚠️ DEPRECATION WARNING:\n"
+        " Running 'pip install deepface' alone will no longer be sufficient and will\n"
+        " NOT install a default backend in an upcoming major release.\n\n"
+        " Currently, TensorFlow is included by default, but this behavior is deprecated.\n"
+        " Please explicitly specify your preferred backend engine when installing:\n\n"
+        "   -> pip install deepface[tensorflow]\n"
+        "   -> pip install deepface[pytorch]\n\n"
+        " Otherwise, you will encounter 'module not found' errors.\n"
+        + "=" * 70 + "\n"
+    )
+
+# -----------------------------------
 # configurations for dependencies
 
 warnings.filterwarnings("ignore")
