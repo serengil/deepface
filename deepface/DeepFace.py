@@ -38,7 +38,7 @@ logger = Logger()
 # warn users about upcoming changes in backend installation.
 
 if "_DEPRECATION_WARNING_SHOWN" not in globals():
-    global _DEPRECATION_WARNING_SHOWN
+    global _DEPRECATION_WARNING_SHOWN # pylint: disable=global-at-module-level
     _DEPRECATION_WARNING_SHOWN = True
     logger.warn(
         "\n"
