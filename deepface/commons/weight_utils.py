@@ -124,9 +124,9 @@ WEIGHT_SOURCES = [
 
 # models whose weight file is not named after its url
 WEIGHT_FILE_NAMES = {
+    # its tensorflow weights are served by their author, under a different name
     ("facial_recognition", "GhostFaceNet"): {
         "tensorflow": "ghostfacenet_v1.h5",
-        "pytorch": "ghostfacenet_v1.pth",
     },
 }
 

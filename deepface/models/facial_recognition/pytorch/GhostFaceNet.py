@@ -17,7 +17,9 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # pylint: disable=line-too-long
-WEIGHTS_URL = "https://github.com/HamadYA/GhostFaceNets/releases/download/v1.2/GhostFaceNet_W1.3_S1_ArcFace.pth"
+WEIGHTS_URL = (
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/ghostfacenet_v1.pth"
+)
 
 # batch normalizations keep keras' defaults, whose momentum is pytorch's complement
 BN_EPS = 0.001
