@@ -4,8 +4,20 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-with open("requirements.txt", "r", encoding="utf-8") as f:
-    requirements = f.read().split("\n")
+def parse_requirements(file_name):
+    """Read a requirements file, skipping its blank lines and comments"""
+    with open(file_name, "r", encoding="utf-8") as f:
+        lines = [line.strip() for line in f]
+    return [line for line in lines if line and not line.startswith("#")]
+
+
+requirements = parse_requirements("requirements.txt")
+
+# deepface runs either on tensorflow or on pytorch, and neither of them is a base
+# requirement. `pip install deepface[tensorflow]` and `pip install deepface[pytorch]`
+# install the backend engine you want, without dragging the other one in.
+tensorflow_requirements = parse_requirements("requirements_tf.txt")
+pytorch_requirements = parse_requirements("requirements_pytorch.txt")
 
 with open("package_info.json", "r", encoding="utf-8") as f:
     package_info = json.load(f)
@@ -19,7 +31,18 @@ setuptools.setup(
         "A Lightweight Face Recognition and Facial Attribute Analysis Framework"
         " (Age, Gender, Emotion, Race) for Python"
     ),
-    data_files=[("", ["README.md", "requirements.txt", "package_info.json"])],
+    data_files=[
+        (
+            "",
+            [
+                "README.md",
+                "requirements.txt",
+                "requirements_tf.txt",
+                "requirements_pytorch.txt",
+                "package_info.json",
+            ],
+        )
+    ],
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/serengil/deepface",
@@ -35,4 +58,8 @@ setuptools.setup(
     python_requires=">=3.7",
     license="MIT",
     install_requires=requirements,
+    extras_require={
+        "tensorflow": tensorflow_requirements,
+        "pytorch": pytorch_requirements,
+    },
 )
