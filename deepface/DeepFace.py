@@ -46,7 +46,7 @@ if "_DEPRECATION_WARNING_SHOWN" not in globals():
         " ⚠️ DEPRECATION WARNING:\n"
         " Running 'pip install deepface' alone will no longer be sufficient and will\n"
         " NOT install a default backend in an upcoming major release.\n\n"
-        " Currently, TensorFlow is included by default, but this behavior is deprecated.\n"
+        " Currently, TensorFlow is included by default, but this behavior will be deprecated.\n"
         " Please explicitly specify your preferred backend engine when installing:\n\n"
         "   -> pip install deepface[tensorflow]\n"
         "   -> pip install deepface[pytorch]\n\n"
