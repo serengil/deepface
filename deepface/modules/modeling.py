@@ -2,7 +2,7 @@ from __future__ import annotations
 
 # built-in dependencies
 import importlib
-from typing import Any, Dict, Final, TypedDict
+from typing import TYPE_CHECKING, Any, Dict, Final, TypedDict
 
 # project dependencies
 from deepface.commons import backend_utils
@@ -13,7 +13,8 @@ from deepface.modules.exceptions import UnimplementedError
 # import tensorflow and pytorch both, whereas deepface runs on one of them - see
 # deepface.commons.backend_utils for the way the backend engine is picked.
 
-cached_models: Dict[str, Dict[str, Any]] = {}
+if TYPE_CHECKING:
+    cached_models: Dict[str, Dict[str, Any]] = {}
 
 # a model that does not depend on a backend engine, e.g. an opencv or an onnx one,
 # is registered with this key and is available whichever engine deepface runs on
@@ -166,7 +167,7 @@ def build_model(task: str, model_name: str) -> Any:
     if task not in AVAILABLE_MODELS.keys():
         raise UnimplementedError(f"unimplemented task - {task}")
 
-    if not cached_models:
+    if "cached_models" not in globals():
         cached_models = {current_task: {} for current_task in AVAILABLE_MODELS.keys()}
 
     if cached_models[task].get(model_name) is None:
