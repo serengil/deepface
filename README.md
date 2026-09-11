@@ -241,6 +241,18 @@ RetinaFace overperforms among all face detection models in the portfolio.
 
 See [`BENCHMARKS`](https://github.com/serengil/deepface/tree/master/benchmarks) for their accuracies.
 
+**Recognizing Children's Faces**
+
+Face recognition is harder on children than adults, and accuracy drops further the younger the child is - published child-face benchmarks report false non-match rates going from well under 1% for adults up past 6% for ages 1-4, and true accept rates around 30% for infants under 6 months versus 65% for toddlers near age 3. No model choice fully offsets this, and none of the models in this library have been benchmarked against children's faces specifically - the [`BENCHMARKS`](https://github.com/serengil/deepface/tree/master/benchmarks) here are LFW-based (adults only).
+
+That said, if you need to recognize children's faces:
+
+- Prefer `Buffalo_L` as `model_name`. It wraps InsightFace's ResNet-50 model trained on WebFace600K, which is architecturally the closest match in this library to the ResNet-50 angular-margin models (ArcFace, AdaFace) that score best in independent children's face benchmarks. Note that the `ArcFace` model bundled in this library is a smaller, older ResNet-34 model and not the same weights those benchmarks used. `Facenet512` is a reasonable fallback if you cannot take the extra `insightface` dependency that `Buffalo_L` requires.
+- Use a strong detector such as `retinaface` or `yunet` - children's faces are often smaller and more off-angle in frame, and detection/alignment quality matters more for accuracy than model choice does.
+- Re-tune the `threshold` argument on your own labeled child face pairs rather than relying on this library's default thresholds, which were calibrated on adult (LFW) data and will not reflect the right operating point for children.
+- Plan to re-enroll children periodically. Their faces change faster than adults', so a stored embedding goes stale in months rather than years regardless of which model produced it.
+- If your population isn't demographically uniform, validate accuracy per subgroup - published results show accuracy gaps by race and gender that compound with the age effect.
+
 **Face Anti Spoofing** - [`Demo`](https://youtu.be/UiK1aIjOBlQ)
 
 DeepFace also includes an anti-spoofing analysis module to understand given image is real or fake. To activate this feature, set the `anti_spoofing` argument to True in any DeepFace tasks.
