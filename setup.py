@@ -37,6 +37,8 @@ setuptools.setup(
             [
                 "README.md",
                 "requirements.txt",
+                # TODO: use requirements_base.txt instead of requirements.txt in the next release, and remove requirements.txt from the package. This is a breaking change, so it should be done in a major release.
+                # "requirements_base.txt",
                 "requirements_tf.txt",
                 "requirements_pytorch.txt",
                 "package_info.json",
