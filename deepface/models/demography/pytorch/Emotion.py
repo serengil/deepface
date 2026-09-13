@@ -74,7 +74,7 @@ class EmotionClient(TorchDemography):
 
 
 # pylint: disable=too-many-instance-attributes
-class EmotionModel(nn.Module):
+class EmotionModel(nn.Module):  # type: ignore[misc]
     """
     Facial expression model classifying 48x48 grayscale faces into 7 emotions.
     Every convolution and pooling is unpadded, as they are in the tensorflow backend.

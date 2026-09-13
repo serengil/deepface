@@ -58,7 +58,7 @@ class FaceNet512dClient(TorchFacialRecognition):
         self.model = load_facenet512d_model().to(self.device)
 
 
-class ConvBn(nn.Module):
+class ConvBn(nn.Module):  # type: ignore[misc]
     """
     Convolution without bias, followed by a batch normalization and a relu activation.
     Gamma of the batch normalization is not learned, it is kept as 1 - as scale=False
@@ -91,7 +91,7 @@ class ConvBn(nn.Module):
         return cast(Tensor, self.relu(self.bn(self.conv(x))))
 
 
-class Block35(nn.Module):
+class Block35(nn.Module):  # type: ignore[misc]
     """
     35x35 grid sized inception-resnet-A block
     """
@@ -118,7 +118,7 @@ class Block35(nn.Module):
         return cast(Tensor, self.relu(x + self.scale * self.up(mixed)))
 
 
-class Block17(nn.Module):
+class Block17(nn.Module):  # type: ignore[misc]
     """
     17x17 grid sized inception-resnet-B block
     """
@@ -141,7 +141,7 @@ class Block17(nn.Module):
         return cast(Tensor, self.relu(x + self.scale * self.up(mixed)))
 
 
-class Block8(nn.Module):
+class Block8(nn.Module):  # type: ignore[misc]
     """
     8x8 grid sized inception-resnet-C block. The last one of the network is not activated
     and does not scale its residual down.
@@ -168,7 +168,7 @@ class Block8(nn.Module):
         return x
 
 
-class Mixed6a(nn.Module):
+class Mixed6a(nn.Module):  # type: ignore[misc]
     """
     Reduction-A block shrinking 35x35 grids into 17x17 ones
     """
@@ -187,7 +187,7 @@ class Mixed6a(nn.Module):
         return torch.cat([self.branch_0(x), self.branch_1(x), self.branch_2(x)], dim=1)
 
 
-class Mixed7a(nn.Module):
+class Mixed7a(nn.Module):  # type: ignore[misc]
     """
     Reduction-B block shrinking 17x17 grids into 8x8 ones
     """
@@ -216,7 +216,7 @@ class Mixed7a(nn.Module):
 
 
 # pylint: disable=too-many-instance-attributes
-class InceptionResNetV1(nn.Module):
+class InceptionResNetV1(nn.Module):  # type: ignore[misc]
     """
     InceptionResNetV1 model heavily inspired from
     github.com/davidsandberg/facenet/blob/master/src/models/inception_resnet_v1.py

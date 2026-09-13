@@ -60,7 +60,7 @@ class TorchDemography(Demography):
         return cast(NDArray[Any], predictions)
 
 
-class VggFaceClassifier(nn.Module):
+class VggFaceClassifier(nn.Module):  # type: ignore[misc]
     """
     Classifier built on top of the VGG-Face trunk, the way the age, gender and race
     models are built in the tensorflow backend. Its classifier is fed with the fc7

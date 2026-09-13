@@ -22,7 +22,7 @@ def _get_new_box(
     y = bbox[1]
     box_w = bbox[2]
     box_h = bbox[3]
-    scale = min((src_h - 1) / box_h, min((src_w - 1) / box_w, scale))
+    scale = min((src_h - 1) / box_h, (src_w - 1) / box_w, scale)
     new_width = box_w * scale
     new_height = box_h * scale
     center_x, center_y = box_w / 2 + x, box_h / 2 + y

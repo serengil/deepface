@@ -51,7 +51,7 @@ def batch_norm(num_features: int) -> nn.BatchNorm2d:
 
 
 # pylint: disable=too-many-instance-attributes
-class Block(nn.Module):
+class Block(nn.Module):  # type: ignore[misc]
     """
     Pre-activation residual unit. Its layers are named after the tensorflow backend,
     e.g. conv_1 stands for the conv2X_blockY_1_conv layer there.
@@ -110,7 +110,7 @@ def stack(in_channels: int, filters: int, blocks: int, stride: int = 2) -> nn.Se
     return nn.Sequential(*units)
 
 
-class ResNet34(nn.Module):
+class ResNet34(nn.Module):  # type: ignore[misc]
     """
     ResNet34 backbone of ArcFace
     """
@@ -135,7 +135,7 @@ class ResNet34(nn.Module):
         return cast(Tensor, self.conv5(x))
 
 
-class ArcFaceModel(nn.Module):
+class ArcFaceModel(nn.Module):  # type: ignore[misc]
     """
     Final ArcFace model being used for finding embeddings.
 

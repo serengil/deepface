@@ -59,7 +59,7 @@ class VggFaceClient(TorchFacialRecognition):
 
 
 # pylint: disable=too-many-instance-attributes
-class VggFaceBaseModel(nn.Module):
+class VggFaceBaseModel(nn.Module):  # type: ignore[misc]
     """
     Base model of VGG-Face being used for classification - not to find embeddings.
     It was trained to classify 2622 identities.
@@ -156,7 +156,7 @@ class VggFaceBaseModel(nn.Module):
         return torch.softmax(torch.flatten(x, start_dim=1), dim=1)
 
 
-class VggFaceDescriptor(nn.Module):
+class VggFaceDescriptor(nn.Module):  # type: ignore[misc]
     """
     Final VGG-Face model being used for finding embeddings.
 

@@ -170,6 +170,7 @@ def build_model(task: str, model_name: str) -> Any:
     if "cached_models" not in globals():
         cached_models = {current_task: {} for current_task in AVAILABLE_MODELS.keys()}
 
+    # pylint: disable=possibly-used-before-assignment
     if cached_models[task].get(model_name) is None:
         cached_models[task][model_name] = get_model_class(task=task, model_name=model_name)()
 

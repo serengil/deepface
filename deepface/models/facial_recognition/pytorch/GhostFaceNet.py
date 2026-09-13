@@ -87,7 +87,7 @@ def same_padding(x: Tensor, kernel_size: int, stride: int) -> Tensor:
     )
 
 
-class ConvBn(nn.Module):
+class ConvBn(nn.Module):  # type: ignore[misc]
     """
     Convolution without bias, followed by a batch normalization and an optional prelu.
     Setting depthwise applies the convolution per channel as keras' DepthwiseConv2D does.
@@ -128,7 +128,7 @@ class ConvBn(nn.Module):
         return x
 
 
-class SqueezeExcite(nn.Module):
+class SqueezeExcite(nn.Module):  # type: ignore[misc]
     """
     Squeeze and excitation block gating the channels with a hard sigmoid
     """
@@ -146,7 +146,7 @@ class SqueezeExcite(nn.Module):
         return cast(Tensor, x * se)
 
 
-class GhostModule(nn.Module):
+class GhostModule(nn.Module):  # type: ignore[misc]
     """
     Ghost module generating half of its feature maps with a pointwise convolution and
     the other half cheaply, with a depthwise convolution over the first half.
@@ -165,7 +165,7 @@ class GhostModule(nn.Module):
         return torch.cat([primary, self.cheap(primary)], dim=1)
 
 
-class GhostBottleneck(nn.Module):
+class GhostBottleneck(nn.Module):  # type: ignore[misc]
     """
     Ghost bottleneck - expanding ghost module, optional downsampling depthwise convolution,
     optional squeeze and excitation, projecting ghost module and an optional shortcut.
@@ -219,7 +219,7 @@ class GhostBottleneck(nn.Module):
         return cast(Tensor, residual + x)
 
 
-class GhostFaceNetV1(nn.Module):
+class GhostFaceNetV1(nn.Module):  # type: ignore[misc]
     """
     GhostFaceNetV1 model. Refactored from
         github.com/HamadYA/GhostFaceNets/blob/main/backbones/ghost_model.py
