@@ -38,7 +38,10 @@ AVAILABLE_MODELS: Final[AvailableModels] = {
             TENSORFLOW: "deepface.models.facial_recognition.VGGFace.VggFaceClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.VGGFace.VggFaceClient",
         },
-        "OpenFace": {TENSORFLOW: "deepface.models.facial_recognition.OpenFace.OpenFaceClient"},
+        "OpenFace": {
+            TENSORFLOW: "deepface.models.facial_recognition.OpenFace.OpenFaceClient",
+            PYTORCH: "deepface.models.facial_recognition.pytorch.OpenFace.OpenFaceClient",
+        },
         "Facenet": {
             TENSORFLOW: "deepface.models.facial_recognition.Facenet.FaceNet128dClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.Facenet.FaceNet128dClient",
@@ -47,8 +50,14 @@ AVAILABLE_MODELS: Final[AvailableModels] = {
             TENSORFLOW: "deepface.models.facial_recognition.Facenet.FaceNet512dClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.Facenet.FaceNet512dClient",
         },
-        "DeepFace": {TENSORFLOW: "deepface.models.facial_recognition.FbDeepFace.DeepFaceClient"},
-        "DeepID": {TENSORFLOW: "deepface.models.facial_recognition.DeepID.DeepIdClient"},
+        "DeepFace": {
+            TENSORFLOW: "deepface.models.facial_recognition.FbDeepFace.DeepFaceClient",
+            PYTORCH: "deepface.models.facial_recognition.pytorch.FbDeepFace.DeepFaceClient",
+        },
+        "DeepID": {
+            TENSORFLOW: "deepface.models.facial_recognition.DeepID.DeepIdClient",
+            PYTORCH: "deepface.models.facial_recognition.pytorch.DeepID.DeepIdClient",
+        },
         "Dlib": {ANY: "deepface.models.facial_recognition.Dlib.DlibClient"},
         "ArcFace": {
             TENSORFLOW: "deepface.models.facial_recognition.ArcFace.ArcFaceClient",
