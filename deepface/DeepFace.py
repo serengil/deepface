@@ -1,7 +1,6 @@
 # common dependencies
 import os
 import warnings
-import logging
 from typing import Any, Dict, IO, List, Union, Optional, Sequence, Tuple, cast, Callable
 
 # this has to be set before importing tensorflow
@@ -13,12 +12,11 @@ os.environ["TF_USE_LEGACY_KERAS"] = "1"
 from numpy.typing import NDArray
 
 import pandas as pd
-import tensorflow as tf
 from lightphe import LightPHE
 from lightdsa import LightDSA
 
 # package dependencies
-from deepface.commons import package_utils, folder_utils
+from deepface.commons import backend_utils, package_utils, folder_utils
 from deepface.commons.logger import Logger
 from deepface.modules import (
     modeling,
@@ -37,16 +35,40 @@ from deepface import __version__
 logger = Logger()
 
 # -----------------------------------
-# configurations for dependencies
+# warn users about upcoming changes in backend installation.
 
-# users should install tf_keras package if they are using tf 2.16 or later versions
-package_utils.validate_for_keras3()
+if "_DEPRECATION_WARNING_SHOWN" not in globals():
+    global _DEPRECATION_WARNING_SHOWN # pylint: disable=global-at-module-level
+    _DEPRECATION_WARNING_SHOWN = True
+    logger.warn(
+        "\n"
+        + "=" * 70 + "\n"
+        " ⚠️ DEPRECATION WARNING:\n"
+        " Running 'pip install deepface' alone will no longer be sufficient and will\n"
+        " NOT install a default backend in an upcoming major release.\n\n"
+        " Currently, TensorFlow is included by default, but this behavior will be deprecated.\n"
+        " Please explicitly specify your preferred backend engine when installing:\n\n"
+        "   -> pip install deepface[tensorflow]\n"
+        "   -> pip install deepface[pytorch]\n\n"
+        " Otherwise, you will encounter 'module not found' errors.\n"
+        + "=" * 70 + "\n"
+    )
+
+# -----------------------------------
+# configurations for dependencies
 
 warnings.filterwarnings("ignore")
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-tf_version = package_utils.get_tf_major_version()
-if tf_version == 2:
-    tf.get_logger().setLevel(logging.ERROR)
+
+# deepface runs either on tensorflow or on pytorch, and it does not import the one it
+# does not run on. see deepface.commons.backend_utils for the way that is decided.
+backend_engine = backend_utils.get_backend_engine()
+logger.debug(f"deepface will run on {backend_engine}")
+
+if backend_engine == backend_utils.TENSORFLOW:
+    # users should install tf_keras package if they are using tf 2.16 or later versions
+    package_utils.validate_for_keras3()
+    package_utils.configure_tensorflow_logging()
 # -----------------------------------
 
 # create required folders if necessary to store model weights

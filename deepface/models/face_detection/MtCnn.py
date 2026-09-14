@@ -4,10 +4,12 @@ import warnings
 
 # 3rd party dependencies
 from numpy.typing import NDArray
-from mtcnn import MTCNN
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion
+
+# mtcnn is an optional dependency requiring keras, it is imported within __init__ on
+# purpose - deepface may well be running on pytorch
 
 
 # pylint: disable=too-few-public-methods
@@ -17,6 +19,14 @@ class MtCnnClient(Detector):
     """
 
     def __init__(self) -> None:
+        try:
+            from mtcnn import MTCNN
+        except ModuleNotFoundError as err:
+            raise ValueError(
+                "You must install mtcnn with `pip install mtcnn` command "
+                "to use the mtcnn face detector. Notice that it requires keras."
+            ) from err
+
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", ResourceWarning)
             self.model = MTCNN()

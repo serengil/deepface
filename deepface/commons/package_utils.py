@@ -1,11 +1,12 @@
 # built-in dependencies
 import hashlib
-
-# 3rd party dependencies
-import tensorflow as tf
+import logging
 
 # package dependencies
 from deepface.commons.logger import Logger
+
+# tensorflow is imported within the functions below on purpose, importing it here would
+# force it onto users running deepface on pytorch
 
 logger = Logger()
 
@@ -16,6 +17,8 @@ def get_tf_major_version() -> int:
     Returns
         major_version (int)
     """
+    import tensorflow as tf
+
     return int(tf.__version__.split(".", maxsplit=1)[0])
 
 
@@ -25,10 +28,17 @@ def get_tf_minor_version() -> int:
     Returns
         minor_version (int)
     """
+    import tensorflow as tf
+
     return int(tf.__version__.split(".", maxsplit=-1)[1])
 
 
 def validate_for_keras3() -> None:
+    """
+    Ensure tf_keras is available when tensorflow needs it
+    """
+    import tensorflow as tf
+
     tf_major = get_tf_major_version()
     tf_minor = get_tf_minor_version()
 
@@ -47,6 +57,16 @@ def validate_for_keras3() -> None:
             "tf-keras package. Please run `pip install tf-keras` "
             "or downgrade your tensorflow."
         ) from err
+
+
+def configure_tensorflow_logging() -> None:
+    """
+    Silence tensorflow, it is noisy with its own warnings
+    """
+    import tensorflow as tf
+
+    if get_tf_major_version() == 2:
+        tf.get_logger().setLevel(logging.ERROR)
 
 
 def find_file_hash(file_path: str, hash_algorithm: str = "sha256") -> str:

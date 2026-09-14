@@ -51,7 +51,11 @@ DeepFace is a lightweight [face recognition](https://sefiks.com/2018/08/06/deep-
 The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well.
 
 ```shell
-$ pip install deepface
+# to run deepface on tensorflow
+$ pip install deepface[tensorflow]
+
+# or to run deepface on pytorch
+# $ pip install deepface[pytorch]
 ```
 
 Alternatively, you can also install deepface from its source code. Source code may have new features not published in pip release yet.
@@ -59,7 +63,7 @@ Alternatively, you can also install deepface from its source code. Source code m
 ```shell
 $ git clone https://github.com/serengil/deepface.git
 $ cd deepface
-$ pip install -e .
+$ pip install -e .[tensorflow]  # or pip install -e .[pytorch]
 ```
 
 Once you installed the library, then you will be able to import it and use its functionalities.
@@ -347,7 +351,7 @@ If you do like this work, you can also support it financially on [Patreon](https
 Please cite deepface in your publications if it helps your research. Here is its BibTex entry:
 
 ```BibTeX
-@article{serengil2026boosted,
+@article{deepface,
   title     =  {Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition},
   author    =  {Serengil, Sefik Ilkin and Ozpinar, Alper},
   journal   =  {Gazi University Journal of Science},

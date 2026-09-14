@@ -31,13 +31,13 @@ def test_sanitize_landmarks():
         confidence=0.9
     )
     landmarks = sanitize_landmarks(region, width, height)
-    logger.info(f"Sanitized landmarks: {landmarks}")
+    logger.debug(f"Sanitized landmarks: {landmarks}")
     assert landmarks["left_eye"] is None
     assert landmarks["right_eye"] is None
     assert landmarks["nose"] == (30, 30)
     assert landmarks["mouth_left"] is None
     assert landmarks["mouth_right"] is None
-    logger.info("Test passed: Invalid landmarks are sanitized to None.")
+    logger.debug("Test passed: Invalid landmarks are sanitized to None.")
 
 def test_extract_faces_sanitizes_landmarks(monkeypatch):
     img = np.zeros((100, 100, 3), dtype=np.uint8)
