@@ -58,12 +58,6 @@ $ pip install deepface[tensorflow]
 # $ pip install deepface[pytorch]
 ```
 
-When both tensorflow and pytorch backends are installed, you may enforce the one to be used with the `DEEPFACE_BACKEND_ENGINE` environment variable:
-
-```shell
-$ export DEEPFACE_BACKEND_ENGINE=pytorch
-```
-
 Alternatively, you can also install deepface from its source code. Source code may have new features not published in pip release yet.
 
 ```shell
@@ -357,7 +351,7 @@ If you do like this work, you can also support it financially on [Patreon](https
 Please cite deepface in your publications if it helps your research. Here is its BibTex entry:
 
 ```BibTeX
-@article{serengil2026boosted,
+@article{deepface,
   title     =  {Boosted LightFace: A Hybrid DNN and GBM Model for Boosted Facial Recognition},
   author    =  {Serengil, Sefik Ilkin and Ozpinar, Alper},
   journal   =  {Gazi University Journal of Science},
