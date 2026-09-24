@@ -304,6 +304,58 @@ class PGVectorClient(Database):
                     )
         return embeddings
 
+    def fetch_embedding(
+        self,
+        identity_id: Union[str, int],
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        aligned: bool = True,
+        l2_normalized: bool = False,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetch a single embedding record with its vector from PostgreSQL. Criteria arguments
+            are required to find the table storing the record.
+        Args:
+            identity_id (str or int): ID of the record to fetch.
+            model_name (str): Name of the facial recognition model.
+            detector_backend (str): Name of the face detector backend.
+            aligned (bool): Whether the faces are aligned.
+            l2_normalized (bool): Whether the embeddings are L2 normalized.
+        Returns:
+            Optional[Dict[str, Any]]: Embedding record, or None if no record found for given id.
+        """
+        table_name = self.__generate_table_name(
+            model_name, detector_backend, aligned, l2_normalized
+        )
+
+        query = f"""
+            SELECT id, img_name, model_name, detector_backend, aligned, l2_normalized, embedding
+            FROM {table_name}
+            WHERE id = %s;
+        """
+
+        try:
+            with self.conn.cursor() as cur:
+                cur.execute(query, (identity_id,))
+                r = cur.fetchone()
+        except self.psycopg.errors.UndefinedTable:
+            # no identity registered for the given criteria yet
+            self.conn.rollback()
+            return None
+
+        if r is None:
+            return None
+
+        return {
+            "id": r[0],
+            "img_name": r[1],
+            "model_name": r[2],
+            "detector_backend": r[3],
+            "aligned": r[4],
+            "l2_normalized": r[5],
+            "embedding": list(r[6]),
+        }
+
     def search_by_vector(
         self,
         vector: List[float],

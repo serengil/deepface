@@ -231,6 +231,55 @@ class WeaviateClient(Database):
             )
         return embeddings
 
+    def fetch_embedding(
+        self,
+        identity_id: Union[str, int],
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        aligned: bool = True,
+        l2_normalized: bool = False,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetch a single embedding record with its vector from Weaviate. Criteria arguments are
+            required to find the class storing the record.
+        Args:
+            identity_id (str or int): uuid of the object to fetch.
+            model_name (str): Name of the model.
+            detector_backend (str): Name of the detector backend.
+            aligned (bool): Whether the faces are aligned.
+            l2_normalized (bool): Whether the embeddings are L2 normalized.
+        Returns:
+            Optional[Dict[str, Any]]: Embedding record, or None if no record found for given id.
+        """
+        class_name = self.__generate_class_name(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=aligned,
+            l2_normalized=l2_normalized,
+        )
+
+        obj = self.client.data_object.get_by_id(
+            str(identity_id),
+            class_name=class_name,
+            with_vector=True,
+        )
+
+        if not obj:
+            return None
+
+        properties = obj.get("properties", {})
+
+        return {
+            "id": obj.get("id"),
+            "img_name": properties.get("img_name"),
+            "model_name": properties.get("model_name"),
+            "detector_backend": properties.get("detector_backend"),
+            "aligned": properties.get("aligned"),
+            "l2_normalized": properties.get("l2_normalized"),
+            # embedding is stored both as a property and as the vector of the object
+            "embedding": properties.get("embedding") or obj.get("vector"),
+        }
+
     def search_by_vector(
         self,
         vector: List[float],

@@ -242,6 +242,64 @@ class Neo4jClient(Database):
 
         return out
 
+    def fetch_embedding(
+        self,
+        identity_id: Union[str, int],
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        aligned: bool = True,
+        l2_normalized: bool = False,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetch a single embedding record with its vector from Neo4j. Criteria arguments are
+            required to find the node label storing the record.
+        Args:
+            identity_id (str or int): ID of the node to fetch.
+            model_name (str): Name of the model.
+            detector_backend (str): Name of the detector backend.
+            aligned (bool): Whether the faces are aligned.
+            l2_normalized (bool): Whether the embeddings are L2 normalized.
+        Returns:
+            Optional[Dict[str, Any]]: Embedding record, or None if no record found for given id.
+        """
+        node_label = self.__generate_node_label(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=aligned,
+            l2_normalized=l2_normalized,
+        )
+
+        query = f"""
+        MATCH (n:{node_label})
+        WHERE n.embedding IS NOT NULL
+        AND coalesce(n.id, elementId(n)) = $identity_id
+        RETURN
+          coalesce(n.id, elementId(n)) AS id,
+          n.img_name AS img_name,
+          n.model_name AS model_name,
+          n.detector_backend AS detector_backend,
+          n.aligned AS aligned,
+          n.l2_normalized AS l2_normalized,
+          n.embedding AS embedding
+        LIMIT 1
+        """
+
+        with self.conn.session() as session:
+            record = session.run(query, identity_id=identity_id).single()
+
+        if record is None:
+            return None
+
+        return {
+            "id": record["id"],
+            "img_name": record["img_name"],
+            "model_name": record["model_name"],
+            "detector_backend": record["detector_backend"],
+            "aligned": record["aligned"],
+            "l2_normalized": record["l2_normalized"],
+            "embedding": record["embedding"],
+        }
+
     def search_by_vector(
         self,
         vector: List[float],

@@ -306,6 +306,52 @@ class PostgresClient(Database):
                     )
         return embeddings
 
+    # criteria arguments are not required, because all embeddings are stored in a single table
+    # pylint: disable=unused-argument
+    def fetch_embedding(
+        self,
+        identity_id: Union[str, int],
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        aligned: bool = True,
+        l2_normalized: bool = False,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetch a single embedding record with its vector from PostgreSQL. Criteria arguments
+            are ignored, because a single table stores the embeddings of all criteria, and
+            the record itself carries the criteria that it was registered with.
+        Args:
+            identity_id (str or int): ID of the record to fetch.
+            model_name (str): Name of the model. Ignored.
+            detector_backend (str): Name of the detector backend. Ignored.
+            aligned (bool): Whether the embeddings are aligned. Ignored.
+            l2_normalized (bool): Whether the embeddings are L2 normalized. Ignored.
+        Returns:
+            Optional[Dict[str, Any]]: Embedding record, or None if no record found for given id.
+        """
+        query = """
+            SELECT id, img_name, model_name, detector_backend, aligned, l2_normalized, embedding
+            FROM embeddings
+            WHERE id = %s;
+        """
+
+        with self.conn.cursor() as cur:
+            cur.execute(query, (identity_id,))
+            r = cur.fetchone()
+
+        if r is None:
+            return None
+
+        return {
+            "id": r[0],
+            "img_name": r[1],
+            "model_name": r[2],
+            "detector_backend": r[3],
+            "aligned": r[4],
+            "l2_normalized": r[5],
+            "embedding": r[6],
+        }
+
     def search_by_id(
         self,
         ids: Union[List[str], List[int]],

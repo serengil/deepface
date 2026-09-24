@@ -94,6 +94,25 @@ class Database(ABC):
             " Because search by vector returns metadata already."
         )
 
+    def fetch_embedding(
+        self,
+        identity_id: Union[str, int],
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        aligned: bool = True,
+        l2_normalized: bool = False,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetch a single embedding record with its vector by its ID. Returns None if no
+            record found for the given ID. Databases storing each criteria set in its own
+            table, collection, index or node label require the criteria to locate the
+            record, while databases storing everything in a single table may ignore them
+            and return the criteria that the record was registered with.
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not implement fetch_embedding method."
+        )
+
     def upsert_embeddings_index(
         self,
         model_name: str,
