@@ -156,6 +156,56 @@ class QdrantClient(Database):
             for hit in results.points
         ]
 
+    def fetch_embedding(
+        self,
+        identity_id: Union[str, int],
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        aligned: bool = True,
+        l2_normalized: bool = False,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetch a single embedding record with its vector from Qdrant. Criteria arguments are
+            required to find the collection storing the record, and they are returned back
+            because collection stores no criteria information.
+        Args:
+            identity_id (str or int): ID of the point to fetch.
+            model_name (str): Name of the model.
+            detector_backend (str): Name of the detector backend.
+            aligned (bool): Whether the faces are aligned.
+            l2_normalized (bool): Whether the embeddings are L2 normalized.
+        Returns:
+            Optional[Dict[str, Any]]: Embedding record, or None if no record found for given id.
+        """
+        collection_name = self.__generate_collection_name(
+            model_name, detector_backend, aligned, l2_normalized
+        )
+
+        if not self._client.collection_exists(collection_name):
+            return None
+
+        records = self._client.retrieve(
+            collection_name=collection_name,
+            ids=[identity_id],
+            with_vectors=True,
+            with_payload=True,
+        )
+
+        if not records:
+            return None
+
+        record = records[0]
+
+        return {
+            "id": record.id,
+            "img_name": (record.payload or {}).get("img_name"),
+            "model_name": model_name,
+            "detector_backend": detector_backend,
+            "aligned": aligned,
+            "l2_normalized": l2_normalized,
+            "embedding": record.vector,
+        }
+
     def fetch_all_embeddings(
         self,
         model_name: str,

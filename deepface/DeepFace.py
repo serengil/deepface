@@ -930,6 +930,120 @@ def search(
     )
 
 
+def identify(
+    img: Union[str, NDArray[Any], IO[bytes]],
+    identity_id: Union[str, int],
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    distance_metric: str = "cosine",
+    enforce_detection: bool = True,
+    align: bool = True,
+    l2_normalize: bool = False,
+    expand_percentage: int = 0,
+    normalization: str = "base",
+    anti_spoofing: bool = False,
+    database_type: str = "postgres",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+) -> Dict[str, Any]:
+    """
+    Verify given image against a single identity registered in the database.
+
+    While search function compares the given image against all identities in the database
+        in O(n), this function pulls the embedding of the given id only and compares the
+        given image against that identity in O(1).
+
+    Args:
+        img (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. This must be a single image, batch of images is
+            not allowed. That single image may still have many faces, then the closest face
+            to the given identity is used.
+        identity_id (str or int): ID of the embedding record in the database to compare
+            the given image against. IDs are returned by the search function.
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
+            'centerface' or 'skip' (default is opencv).
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Set to False to avoid the exception for low-resolution images (default is True).
+        align (bool): Flag to enable face alignment (default is True).
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+        normalization (string): Normalize the input image before feeding it to the model.
+            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+        database_type (str): Type of database storing the identities. Options: 'postgres',
+            'mongo', 'weaviate', 'neo4j', 'pgvector', 'pinecone', 'milvus', 'qdrant'
+            (default is 'postgres').
+        connection_details (dict or str): Connection details for the database.
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+
+        Note:
+            Instead of providing `connection` or `connection_details`, database connection
+            information can be supplied via environment variables:
+            - DEEPFACE_POSTGRES_URI
+            - DEEPFACE_MONGO_URI
+            - DEEPFACE_WEAVIATE_URI
+            - DEEPFACE_NEO4J_URI
+            - DEEPFACE_PINECONE_API_KEY
+            - DEEPFACE_MILVUS_URI
+            - DEEPFACE_QDRANT_URI
+    Returns:
+        result (dict): A dictionary containing verification results.
+
+        - 'verified' (bool): Indicates whether the given image and the identity in the database
+            represent the same person (True) or different persons (False).
+
+        - 'distance' (float): The distance measure between the face vectors.
+            A lower distance indicates higher similarity.
+
+        - 'threshold' (float): The maximum threshold used for verification.
+            If the distance is below this threshold, the images are considered a match.
+
+        - 'confidence' (float): Confidence score indicating the likelihood that the images
+            represent the same person. The score is between 0 and 100, where higher values
+            indicate greater confidence in the verification result.
+
+        - 'model' (str): The chosen face recognition model.
+
+        - 'detector_backend' (str): The chosen face detector backend.
+
+        - 'similarity_metric' (str): The chosen similarity metric for measuring distances.
+
+        - 'id': ID of the identity in the database.
+
+        - 'img_name' (str): Name of the image file of the identity in the database.
+
+        - 'facial_areas' (dict): Rectangular regions of interest for faces.
+            - 'img1': region of interest for the given image.
+            - 'img2': None, because facial area of the identity is not stored in database.
+
+        - 'time' (float): Time taken for the identification process in seconds.
+    """
+    return datastore.identify(
+        img=img,
+        identity_id=identity_id,
+        model_name=model_name,
+        detector_backend=detector_backend,
+        distance_metric=distance_metric,
+        enforce_detection=enforce_detection,
+        align=align,
+        l2_normalize=l2_normalize,
+        expand_percentage=expand_percentage,
+        normalization=normalization,
+        anti_spoofing=anti_spoofing,
+        database_type=database_type,
+        connection_details=connection_details,
+        connection=connection,
+    )
+
+
 def build_index(
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",

@@ -20,6 +20,7 @@ from deepface.modules.verification import (
     find_angular_distance,
     find_cosine_distance,
     find_euclidean_distance,
+    find_distance,
     l2_normalize as find_l2_normalize,
     find_threshold,
     find_confidence,
@@ -477,6 +478,219 @@ def search(
 
     else:
         raise ValueError(f"Unsupported search method: {search_method}")
+
+
+def identify(
+    img: Union[str, NDArray[Any], IO[bytes]],
+    identity_id: Union[str, int],
+    model_name: str = "VGG-Face",
+    detector_backend: str = "opencv",
+    distance_metric: str = "cosine",
+    enforce_detection: bool = True,
+    align: bool = True,
+    l2_normalize: bool = False,
+    expand_percentage: int = 0,
+    normalization: str = "base",
+    anti_spoofing: bool = False,
+    database_type: str = "postgres",
+    connection_details: Optional[Union[Dict[str, Any], str]] = None,
+    connection: Any = None,
+) -> Dict[str, Any]:
+    """
+    Verify given image against a single identity stored in the database. Unlike search
+        function, this does not scan the whole database. It pulls the embedding of the
+        given id only, so it runs in O(1) instead of O(n).
+    Args:
+        img (str or np.ndarray or IO[bytes]): The exact path to the image, a numpy array
+            in BGR format, a file object that supports at least `.read` and is opened in binary
+            mode, or a base64 encoded image. This must be a single image, batch of images is
+            not allowed. That single image may still have many faces.
+        identity_id (str or int): ID of the embedding record in the database to compare
+            the given image against.
+        model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
+            OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
+        detector_backend (string): face detector backend. Options: 'opencv', 'retinaface',
+            'mtcnn', 'ssd', 'dlib', 'mediapipe', 'yolov8n', 'yolov8m', 'yolov8l', 'yolov11n',
+            'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
+            'centerface' or 'skip' (default is opencv).
+        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
+            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+            Set to False to avoid the exception for low-resolution images (default is True).
+        align (bool): Flag to enable face alignment (default is True).
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        expand_percentage (int): expand detected facial area with a percentage (default is 0).
+        normalization (string): Normalize the input image before feeding it to the model.
+            Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
+        anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
+        database_type (str): Type of database storing the identities. Options: 'postgres',
+            'mongo', 'weaviate', 'neo4j', 'pgvector', 'pinecone', 'milvus', 'qdrant'
+            (default is 'postgres').
+        connection_details (dict or str): Connection details for the database.
+        connection (Any): Existing database connection object. If provided, this connection
+            will be used instead of creating a new one.
+
+        Note:
+            Instead of providing `connection` or `connection_details`, database connection
+            information can be supplied via environment variables:
+            - DEEPFACE_POSTGRES_URI
+            - DEEPFACE_MONGO_URI
+            - DEEPFACE_WEAVIATE_URI
+            - DEEPFACE_NEO4J_URI
+            - DEEPFACE_PINECONE_API_KEY
+            - DEEPFACE_MILVUS_URI
+            - DEEPFACE_QDRANT_URI
+    Returns:
+        result (dict): A dictionary containing verification results with following keys.
+            - 'verified' (bool): Indicates whether the given image and the identity in the
+                database represent the same person (True) or different persons (False).
+            - 'distance' (float): The distance measure between the face vectors. A lower
+                distance indicates higher similarity.
+            - 'threshold' (float): The maximum threshold used for verification. If the distance
+                is below this threshold, the images are considered a match.
+            - 'confidence' (float): Confidence score indicating the likelihood that the images
+                represent the same person. The score is between 0 and 100, where higher values
+                indicate greater confidence in the verification result.
+            - 'model' (str): The chosen face recognition model.
+            - 'detector_backend' (str): The chosen face detector backend.
+            - 'similarity_metric' (str): The chosen similarity metric for measuring distances.
+            - 'id': ID of the identity in the database.
+            - 'img_name' (str): Name of the image file of the identity in the database.
+            - 'facial_areas' (dict): Rectangular regions of interest for faces.
+                - 'img1': region of interest for the given image.
+                - 'img2': None, because facial area of the identity is not stored in database.
+            - 'time' (float): Time taken for the identification process in seconds.
+    """
+    tic = time.time()
+
+    # a single image is expected, while that image may still have many faces
+    num_of_images = (
+        len(img)
+        if isinstance(img, list)
+        else img.shape[0] if isinstance(img, np.ndarray) and img.ndim == 4 else 1
+    )
+    if num_of_images > 1:
+        raise ValueError(
+            f"identify function expects a single image, but {num_of_images} images are given."
+            " Please call it once for each image."
+        )
+
+    threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
+
+    db_client = __connect_database(
+        database_type=database_type,
+        connection_details=connection_details,
+        connection=connection,
+    )
+
+    try:
+        # criteria are required by databases storing each criteria set in its own
+        # table, collection, index or node label
+        source_embedding_record = db_client.fetch_embedding(
+            identity_id=identity_id,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=align,
+            l2_normalized=l2_normalize,
+        )
+    finally:
+        # Close the database connection if it was created internally
+        if connection is None:
+            db_client.close()
+
+    if source_embedding_record is None:
+        raise ValueError(f"No embedding found in the database for {identity_id=}.")
+
+    # criteria are available only if the database stores them along with the embedding
+    registered_model_name = source_embedding_record.get("model_name")
+    registered_detector_backend = source_embedding_record.get("detector_backend")
+    registered_aligned = source_embedding_record.get("aligned")
+    registered_l2_normalized = source_embedding_record.get("l2_normalized")
+
+    # distances of embeddings coming from different models or normalizations are not comparable
+    if registered_model_name is not None and registered_model_name != model_name:
+        raise ValueError(
+            f"Embedding of {identity_id=} was registered with"
+            f" {registered_model_name} model while {model_name} is requested."
+        )
+
+    if registered_l2_normalized is not None and bool(registered_l2_normalized) != l2_normalize:
+        raise ValueError(
+            f"Embedding of {identity_id=} was registered with"
+            f" l2_normalize={registered_l2_normalized} while {l2_normalize} is requested."
+        )
+
+    if (
+        registered_detector_backend is not None
+        and registered_detector_backend != detector_backend
+    ) or (registered_aligned is not None and bool(registered_aligned) != align):
+        logger.warn(
+            f"Embedding of {identity_id=} was registered with"
+            f" detector_backend={registered_detector_backend} and"
+            f" align={registered_aligned} while {detector_backend} and"
+            f" {align} are requested. This may affect the distance calculation."
+        )
+
+    results = __get_embeddings(
+        img=img,
+        model_name=model_name,
+        detector_backend=detector_backend,
+        enforce_detection=enforce_detection,
+        align=align,
+        anti_spoofing=anti_spoofing,
+        expand_percentage=expand_percentage,
+        normalization=normalization,
+        l2_normalize=l2_normalize,
+        return_face=False,
+    )
+
+    # if given image has many faces, then find the closest one to the identity
+    min_distance, min_idx = float("inf"), None
+    for idx, result in enumerate(results):
+        distance = float(
+            cast(
+                np.float64,
+                find_distance(
+                    source_embedding_record["embedding"],
+                    result["embedding"],
+                    distance_metric,
+                ),
+            )
+        )
+        if distance < min_distance:
+            min_distance, min_idx = distance, idx
+
+    verified = bool(min_distance <= threshold)
+    facial_area = None if min_idx is None else results[min_idx].get("facial_area", None)
+
+    # database drivers may return numpy scalars, while payload must have core python types
+    identity = source_embedding_record["id"]
+    if isinstance(identity, np.generic):
+        identity = identity.item()
+
+    toc = time.time()
+
+    return {
+        "verified": verified,
+        "distance": float(min_distance),
+        "threshold": float(threshold),
+        "confidence": float(
+            find_confidence(
+                distance=min_distance,
+                model_name=model_name,
+                distance_metric=distance_metric,
+                verified=verified,
+            )
+        ),
+        "model": model_name,
+        "detector_backend": detector_backend,
+        "similarity_metric": distance_metric,
+        "id": identity,
+        "img_name": str(source_embedding_record["img_name"]),
+        # facial area of the identity is not stored in the database
+        "facial_areas": {"img1": facial_area, "img2": None},
+        "time": round(toc - tic, 2),
+    }
 
 
 def build_index(
