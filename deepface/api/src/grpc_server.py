@@ -25,7 +25,7 @@ from deepface.api.src.dependencies.container import Container
 from deepface.commons.logger import Logger
 
 try:
-    from deepface.api.proto import deepface_pb2, deepface_pb2_grpc
+    from deepface.api.proto import deepface_pb2, deepface_pb2_grpc  # type: ignore[attr-defined]
 except ImportError as import_err:
     raise ImportError(
         "gRPC stubs not found. Run `make grpc` in the root of the repo to generate them."
