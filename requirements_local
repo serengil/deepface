@@ -25,3 +25,5 @@ python-dotenv==1.0.1
 # pgvector==0.3.6
 # pinecone==5.4.2
 # qdrant-client==1.19.0
+# grpcio==1.62.3
+# grpcio-tools==1.62.3

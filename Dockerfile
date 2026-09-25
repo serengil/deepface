@@ -56,6 +56,13 @@ RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org lightgbm==2.3.1
 
 # -----------------------------------
+# if you plan to serve deepface over grpc, then activate these lines to generate grpc stubs
+# also activate grpc dependencies from requirements_local
+# COPY ./Makefile /app/Makefile
+# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org grpcio==1.62.3 grpcio-tools==1.62.3
+# RUN make grpc
+
+# -----------------------------------
 # environment variables
 ENV PYTHONUNBUFFERED=1
 
@@ -63,5 +70,7 @@ ENV PYTHONUNBUFFERED=1
 # run the app (re-configure port if necessary)
 WORKDIR /app/deepface/api/src
 EXPOSE 5000
+# activate this line if you plan to serve deepface over grpc
+# EXPOSE 50051
 # CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]
 ENTRYPOINT [ "sh", "entrypoint.sh" ]
