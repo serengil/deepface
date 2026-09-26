@@ -151,7 +151,9 @@ user
 │   ├── Alice
 │   │   ├── Alice1.jpg
 │   │   ├── Alice2.jpg
-│   ├── Bob1.jpg
+│   ├── Bob.jpg
+│   ├── Charlie
+│   │   ├── Charlie.jpg
 ```
 
 Here, you can also find some real time demos for various models:
@@ -321,6 +323,37 @@ $ curl -X POST http://localhost:5005/register \
 
 $ curl -X POST http://localhost:5005/search \
    -d '{"img":"img1.jpg", "model_name":"Facenet"}'
+```
+
+**gRPC API**
+
+DeepFace can be served over gRPC as well. It covers the same functions as the REST API, and its contract is defined in [`deepface.proto`](https://github.com/serengil/deepface/tree/master/deepface/api/proto/deepface.proto).
+
+```shell
+# generate stubs from proto file
+$ make grpc
+
+# run the grpc server
+$ make grpc-server
+```
+
+Images can be sent either as raw bytes of an image file, or as exact image paths, URLs or base64-encoded strings.
+<!--If `DEEPFACE_AUTH_TOKEN` is set, pass it as `metadata=[("authorization", "Bearer <token>")]` in each call.-->
+
+```python
+import grpc
+from google.protobuf.json_format import MessageToDict
+from deepface.api.proto import deepface_pb2, deepface_pb2_grpc
+
+stub = deepface_pb2_grpc.DeepFaceServiceStub(grpc.insecure_channel("localhost:50051"))
+
+with open("img1.jpg", "rb") as f:
+  img1 = deepface_pb2.Image(content=f.read())
+with open("img2.jpg", "rb") as f:
+  img2 = deepface_pb2.Image(content=f.read())
+
+response = stub.Verify(deepface_pb2.VerifyRequest(img1=img1, img2=img2))
+result = MessageToDict(response.result)
 ```
 
 **DeepFace Cloud** - [`Demo`](https://youtu.be/5o7ezk0MMqM)

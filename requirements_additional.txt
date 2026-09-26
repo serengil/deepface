@@ -10,3 +10,5 @@ tf-keras
 typing-extensions
 pydantic
 albumentations
+grpcio>=1.48.0
+grpcio-tools>=1.48.0

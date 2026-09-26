@@ -1,0 +1,99 @@
+// gRPC interface of DeepFace API. It mirrors the endpoints of the REST API.
+// Python stubs are auto-generated from this file and not stored in git.
+// Run `make grpc` in the root of the repo to generate them.
+syntax = "proto3";
+
+package deepface;
+
+import "google/protobuf/struct.proto";
+
+service DeepFaceService {
+  rpc Represent(RepresentRequest) returns (DeepFaceResponse);
+  rpc Verify(VerifyRequest) returns (DeepFaceResponse);
+  rpc Analyze(AnalyzeRequest) returns (DeepFaceResponse);
+  rpc Register(RegisterRequest) returns (DeepFaceResponse);
+  rpc Search(SearchRequest) returns (DeepFaceResponse);
+  rpc BuildIndex(BuildIndexRequest) returns (DeepFaceResponse);
+}
+
+message Image {
+  oneof source {
+    // raw bytes of an encoded image file (e.g. jpg, png)
+    bytes content = 1;
+    // exact image path, url or base64 encoded image
+    string path = 2;
+  }
+}
+
+// unset optional fields fall back to the same defaults as the REST API
+message RepresentRequest {
+  Image img = 1;
+  optional string model_name = 2;
+  optional string detector_backend = 3;
+  optional bool enforce_detection = 4;
+  optional bool align = 5;
+  optional bool anti_spoofing = 6;
+  optional int32 max_faces = 7;
+}
+
+message VerifyRequest {
+  Image img1 = 1;
+  Image img2 = 2;
+  optional string model_name = 3;
+  optional string detector_backend = 4;
+  optional string distance_metric = 5;
+  optional bool enforce_detection = 6;
+  optional bool align = 7;
+  optional bool anti_spoofing = 8;
+}
+
+message AnalyzeRequest {
+  Image img = 1;
+  // any of age, gender, emotion and race. all of them if empty.
+  repeated string actions = 2;
+  optional string detector_backend = 3;
+  optional bool enforce_detection = 4;
+  optional bool align = 5;
+  optional bool anti_spoofing = 6;
+}
+
+message RegisterRequest {
+  Image img = 1;
+  optional string img_name = 2;
+  optional string model_name = 3;
+  optional string detector_backend = 4;
+  optional bool enforce_detection = 5;
+  optional bool align = 6;
+  optional bool l2_normalize = 7;
+  optional int32 expand_percentage = 8;
+  optional string normalization = 9;
+  optional bool anti_spoofing = 10;
+}
+
+message SearchRequest {
+  Image img = 1;
+  optional string model_name = 2;
+  optional string detector_backend = 3;
+  optional bool enforce_detection = 4;
+  optional bool align = 5;
+  optional string distance_metric = 6;
+  optional bool l2_normalize = 7;
+  optional string search_method = 8;
+  optional int32 expand_percentage = 9;
+  optional string normalization = 10;
+  optional bool anti_spoofing = 11;
+  optional bool similarity_search = 12;
+  optional int32 k = 13;
+}
+
+message BuildIndexRequest {
+  optional string model_name = 1;
+  optional string detector_backend = 2;
+  optional bool align = 3;
+  optional bool l2_normalize = 4;
+}
+
+// result has the same structure as the json body returned by the REST API
+message DeepFaceResponse {
+  google.protobuf.Struct result = 1;
+}
