@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "deepface",
+      "credentials": [{ "accessKey": "deepface_user", "secretKey": "deepface_pass" }],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}
