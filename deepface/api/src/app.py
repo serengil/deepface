@@ -1,10 +1,20 @@
 # 3rd parth dependencies
+import numpy as np
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
+from flask.json.provider import DefaultJSONProvider
 
 # load environment variables from .env first things first
 load_dotenv()
+
+class NumpyJSONProvider(DefaultJSONProvider):
+    def default(self, o):
+        if isinstance(o, np.generic):
+            return o.item()
+        elif isinstance(o, np.ndarray):
+            return o.tolist()
+        return super(NumpyJSONProvider, self).default(o)
 
 
 # pylint: disable=wrong-import-position
@@ -22,6 +32,7 @@ logger = Logger()
 def create_app() -> Flask:
     app = Flask(__name__)
     CORS(app)
+    app.json = NumpyJSONProvider(app)
 
     variables = Variables()
     container = Container(variables=variables)
