@@ -1,5 +1,4 @@
 # built-in dependencies
-import os
 import pickle
 from typing import List, Union, Optional, Dict, Any, Set, IO, cast, Tuple, Callable
 import time
@@ -15,10 +14,10 @@ from lightdsa import LightDSA
 # project dependencies
 from deepface.commons import image_utils
 from deepface.modules import representation, detection, verification
+from deepface.modules.filestore import FileStore, build_file_store
 
 from deepface.modules.exceptions import (
     ImgNotFound,
-    PathNotFound,
     EmptyDatasource,
     SpoofDetected,
     DimensionMismatchError,
@@ -57,7 +56,11 @@ def find(
             include information for each detected face.
 
         db_path (string): Path to the folder containing image files. All detected faces
-            in the database will be considered in the decision-making process.
+            in the database will be considered in the decision-making process. Besides a local
+            folder, it can be an S3 location (s3://bucket/prefix) or an FTP location
+            (ftp://user:password@host:port/path). The representations pickle is stored
+            in the same location. S3 credentials and endpoint are resolved by boto3, e.g. with
+            AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_ENDPOINT_URL environment variables.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
@@ -151,8 +154,7 @@ def find(
 
     tic = time.time()
 
-    if not os.path.isdir(db_path):
-        raise PathNotFound(f"Passed path {db_path} does not exist!")
+    store = build_file_store(db_path)
 
     img, _ = image_utils.load_image(img_path)
     if img is None:
@@ -174,7 +176,7 @@ def find(
     file_name = "_".join(file_parts) + ".pkl"
     file_name = file_name.replace("-", "").lower()
 
-    datastore_path = os.path.join(db_path, file_name)
+    datastore_path = store.join(file_name)
     representations = []
 
     # required columns for representations
@@ -189,11 +191,13 @@ def find(
     }
 
     # Ensure the proper datastore file exists
-    if not os.path.exists(datastore_path):
-        __save_representations(datastore_path=datastore_path, credentials=credentials)
+    if not store.exists(datastore_path):
+        __save_representations(store=store, datastore_path=datastore_path, credentials=credentials)
 
     # Load the representations from the existing datastore
-    representations = __load_representations(datastore_path=datastore_path, credentials=credentials)
+    representations = __load_representations(
+        store=store, datastore_path=datastore_path, credentials=credentials
+    )
 
     # check each item of representations list has required keys
     for i, current_representation in enumerate(representations):
@@ -205,7 +209,7 @@ def find(
             )
 
     # Get the list of images on storage
-    storage_images = set(image_utils.yield_images(path=db_path))
+    storage_images = set(store.list_images())
 
     if len(storage_images) == 0 and refresh_database is True:
         raise EmptyDatasource(f"No item found in {db_path}")
@@ -235,7 +239,7 @@ def find(
             if identity in old_images:
                 continue
             alpha_hash = current_representation["hash"]
-            beta_hash = image_utils.find_image_hash(identity)
+            beta_hash = store.find_hash(identity)
             if alpha_hash != beta_hash:
                 logger.debug(f"Even though {identity} represented before, it's replaced later.")
                 replaced_images.add(identity)
@@ -259,6 +263,7 @@ def find(
     # find representations for new images
     if len(new_images) > 0:
         representations += __find_bulk_embeddings(
+            store=store,
             employees=new_images,
             model_name=model_name,
             detector_backend=detector_backend,
@@ -272,7 +277,10 @@ def find(
 
     if must_save_pickle:
         __save_representations(
-            datastore_path=datastore_path, representations=representations, credentials=credentials
+            store=store,
+            datastore_path=datastore_path,
+            representations=representations,
+            credentials=credentials,
         )
         if not silent:
             logger.info(f"There are now {len(representations)} representations in {file_name}")
@@ -416,6 +424,7 @@ def find(
 
 
 def __find_bulk_embeddings(
+    store: FileStore,
     employees: Set[str],
     model_name: str = "VGG-Face",
     detector_backend: str = "opencv",
@@ -429,6 +438,8 @@ def __find_bulk_embeddings(
     Find embeddings of a list of images
 
     Args:
+        store (FileStore): file store where images live
+
         employees (list): list of exact image paths
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
@@ -458,13 +469,13 @@ def __find_bulk_embeddings(
         desc="Finding representations",
         disable=silent,
     ):
-        file_hash = image_utils.find_image_hash(employee)
+        file_hash = store.find_hash(employee)
 
         try:
             img_objs: List[Dict[str, Any]] = cast(
                 List[Dict[str, Any]],
                 detection.extract_faces(
-                    img_path=employee,
+                    img_path=store.load_image(employee),
                     detector_backend=detector_backend,
                     grayscale=False,
                     enforce_detection=enforce_detection,
@@ -701,6 +712,7 @@ def find_batched(
 
 
 def __save_representations(
+    store: FileStore,
     datastore_path: str,
     representations: Optional[List[Dict[str, Any]]] = None,
     credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None,
@@ -709,25 +721,29 @@ def __save_representations(
     Save representations to a pickle file
 
     Args:
+        store (FileStore): file store where the pickle file lives
         datastore_path (str): path to the pickle file
         representations (list): list of representations to be saved
         credentials (LightDSA or dict): public - private key pair as LightDSA object or dictionary.
             This is going to be used to sign the integrity of the datastore pickle file.
             If not provided, the datastore will not be signed.
     """
-    with open(datastore_path, "wb") as f:
-        pickle.dump(representations or [], f, pickle.HIGHEST_PROTOCOL)
+    data = pickle.dumps(representations or [], pickle.HIGHEST_PROTOCOL)
+    store.write_bytes(datastore_path, data)
 
-    __sign_datastore(datastore_path=datastore_path, credentials=credentials)
+    __sign_datastore(store=store, datastore_path=datastore_path, data=data, credentials=credentials)
 
 
 def __load_representations(
-    datastore_path: str, credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None
+    store: FileStore,
+    datastore_path: str,
+    credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None,
 ) -> List[Dict[str, Any]]:
     """
     Load representations from a pickle file
 
     Args:
+        store (FileStore): file store where the pickle file lives
         datastore_path (str): path to the pickle file
         credentials (LightDSA or dict): public - private key pair as LightDSA object or dictionary.
             This is going to be used to sign the integrity of the datastore pickle file.
@@ -735,10 +751,13 @@ def __load_representations(
     Returns:
         representations (list): list of loaded representations
     """
-    __verify_signature(datastore_path=datastore_path, credentials=credentials)
+    data = store.read_bytes(datastore_path)
 
-    with open(datastore_path, "rb") as f:
-        representations = pickle.load(f)
+    __verify_signature(
+        store=store, datastore_path=datastore_path, data=data, credentials=credentials
+    )
+
+    representations = pickle.loads(data)
 
     if not isinstance(representations, list) or not all(
         isinstance(x, dict) for x in representations
@@ -773,12 +792,17 @@ def __build_dsa(credentials: Union[LightDSA, Dict[str, Any]]) -> LightDSA:
 
 
 def __sign_datastore(
-    datastore_path: str, credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None
+    store: FileStore,
+    datastore_path: str,
+    data: bytes,
+    credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None,
 ) -> None:
     """
     Sign the datastore pickle file
     Args:
+        store (FileStore): file store where the pickle file lives
         datastore_path (str): path to the pickle file
+        data (bytes): content of the pickle file
         credentials (LightDSA or dict): public - private key pair as LightDSA object or dictionary.
             This is going to be used to sign the integrity of the datastore pickle file.
             If not provided, the datastore will not be signed.
@@ -789,31 +813,32 @@ def __sign_datastore(
 
     dsa = __build_dsa(credentials=credentials)
 
-    with open(datastore_path, "rb") as f:
-        data: bytes = f.read()
-
     signature = dsa.sign(message=data)
-    with open(datastore_path + ".ldsa", "w", encoding="utf-8") as f:
-        f.write(repr(signature))
+    store.write_bytes(datastore_path + ".ldsa", repr(signature).encode("utf-8"))
 
     logger.debug(f"Datastore pickle {datastore_path} signed successfully.")
 
 
 def __verify_signature(
-    datastore_path: str, credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None
+    store: FileStore,
+    datastore_path: str,
+    data: bytes,
+    credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None,
 ) -> None:
     """
     Verify the signature of a datastore pickle file
 
     Args:
+        store (FileStore): file store where the pickle file lives
         datastore_path (str): path to the pickle file
+        data (bytes): content of the pickle file
         credentials (LightDSA or dict): public - private key pair as LightDSA object or dictionary.
             This is going to be used to sign the integrity of the datastore pickle file.
             If not provided, the datastore will not be signed.
     """
     signature_path = datastore_path + ".ldsa"
     if credentials is None:
-        if not os.path.exists(signature_path):
+        if not store.exists(signature_path):
             logger.debug("No credentials provided. Skipping signature verification.")
             return
         raise ValueError(
@@ -825,17 +850,13 @@ def __verify_signature(
 
     algorithm_name = dsa.algorithm_name
 
-    with open(datastore_path, "rb") as f:
-        data: bytes = f.read()
-
-    if not os.path.exists(signature_path):
+    if not store.exists(signature_path):
         raise ValueError(
             f"Signature file {signature_path} not found."
             "You may need to re-create the pickle by deleting the existing one."
         )
 
-    with open(signature_path, "r", encoding="utf-8") as f:
-        signature_unified = f.read()
+    signature_unified = store.read_bytes(signature_path).decode("utf-8")
 
     try:
         signature: Union[Tuple[int, int], Tuple[Tuple[int, int], int], int] = ast.literal_eval(

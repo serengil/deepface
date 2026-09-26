@@ -331,7 +331,11 @@ def find(
             faces, the result will include information for each detected face.
 
         db_path (string): Path to the folder containing image files. All detected faces
-            in the database will be considered in the decision-making process.
+            in the database will be considered in the decision-making process. Besides a local
+            folder, it can be an S3 location (s3://bucket/prefix) or an FTP location
+            (ftp://user:password@host:port/path). The representations pickle is stored
+            in the same location. S3 credentials and endpoint are resolved by boto3, e.g. with
+            AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_ENDPOINT_URL environment variables.
 
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).

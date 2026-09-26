@@ -86,7 +86,7 @@ result: dict = DeepFace.verify(img1_path = "img1.jpg", img2_path = "img2.jpg")
 
 **Face recognition** - [`Tutorial`](https://sefiks.com/2026/01/01/introducing-brand-new-face-recognition-in-deepface/), [`Demo`](https://youtu.be/Hrjp-EStM_s)
 
-[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. DeepFace provides an out-of-the-box `find` function that searches for the identity of an input image within a specified database path.
+[Face recognition](https://sefiks.com/2020/05/25/large-scale-face-recognition-for-deep-learning/) requires applying face verification many times. DeepFace provides an out-of-the-box `find` function that searches for the identity of an input image within a specified folder, s3 or ftp.
 
 ```python
 dfs: List[pd.DataFrame] = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_db")

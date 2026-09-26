@@ -1,0 +1,34 @@
+# file stores to be used as db_path in DeepFace.find
+#   s3:  s3://deepface/<prefix> with AWS_ENDPOINT_URL=http://localhost:8333,
+#        AWS_ACCESS_KEY_ID=deepface_user, AWS_SECRET_ACCESS_KEY=deepface_pass
+#   ftp: ftp://deepface_user:deepface_pass@localhost:2121/ftp/deepface_user/<path>
+services:
+  s3:
+    # s3 compatible object storage
+    image: chrislusf/seaweedfs:latest
+    container_name: s3
+    restart: unless-stopped
+    command: server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+    ports:
+      - "8333:8333"  # S3 API
+    volumes:
+      - s3_data:/data
+      - ./seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+  ftp:
+    image: delfer/alpine-ftp-server:latest
+    container_name: ftp
+    restart: unless-stopped
+    environment:
+      USERS: "deepface_user|deepface_pass|/ftp/deepface_user"
+      ADDRESS: localhost
+      MIN_PORT: 21000
+      MAX_PORT: 21010
+    ports:
+      - "2121:21"
+      - "21000-21010:21000-21010"  # passive mode data ports
+    volumes:
+      - ftp_data:/ftp/deepface_user
+
+volumes:
+  s3_data:
+  ftp_data:
