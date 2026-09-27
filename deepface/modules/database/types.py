@@ -113,6 +113,23 @@ class Database(ABC):
             f"{self.__class__.__name__} does not implement fetch_embedding method."
         )
 
+    def link_verified_identities(
+        self,
+        clusters: List[List[str]],
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        aligned: bool = True,
+        l2_normalized: bool = False,
+        batch_size: int = 100,
+    ) -> int:
+        """
+        Store relationships between records verified as the same person. Each cluster is
+            the list of record ids matched to one face in a search.
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support storing relationships."
+        )
+
     def upsert_embeddings_index(
         self,
         model_name: str,

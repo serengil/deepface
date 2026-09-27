@@ -803,6 +803,10 @@ def register(
             - DEEPFACE_PINECONE_API_KEY
             - DEEPFACE_MILVUS_URI
             - DEEPFACE_QDRANT_URI
+
+        Note:
+            For graph databases (neo4j), age, gender, emotion and race of each face are
+            also predicted and stored as properties of the face.
     Returns:
         result (dict): A dictionary containing registration results with following keys.
             - inserted (int): Number of embeddings successfully registered to the database.

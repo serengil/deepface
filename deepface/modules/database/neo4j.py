@@ -3,7 +3,8 @@ import os
 import json
 import hashlib
 import struct
-from typing import Any, Dict, Optional, List, Union
+from typing import Any, Dict, Optional, List, Tuple, Union
+from itertools import combinations
 from urllib.parse import urlparse
 
 
@@ -109,9 +110,20 @@ class Neo4jClient(Database):
             REQUIRE (n.face_hash, n.embedding_hash) IS UNIQUE;
         """
 
+        attribute_queries = [
+            f"""
+            CREATE INDEX {node_label}_{attribute}_idx IF NOT EXISTS
+            FOR (n:{node_label})
+            ON (n.{attribute});
+            """
+            for attribute in ("age", "gender", "emotion", "race")
+        ]
+
         with self.conn.session() as session:
             session.execute_write(lambda tx: tx.run(index_query))
             session.execute_write(lambda tx: tx.run(uniq_query))
+            for attribute_query in attribute_queries:
+                session.execute_write(lambda tx, q=attribute_query: tx.run(q))
 
         _SCHEMA_CHECKED[node_label] = True
         logger.debug(f"Neo4j index {node_label} ensured.")
@@ -148,40 +160,180 @@ class Neo4jClient(Database):
           n.detector_backend = r.detector_backend,
           n.aligned = r.aligned,
           n.l2_normalized = r.l2_normalized
+        // set attributes on match too, to fill faces registered before attributes were stored.
+        // attributes are null if they could not be matched to the face, keep stored ones then.
+        SET
+          n.age = coalesce(r.age, n.age),
+          n.gender = coalesce(r.gender, n.gender),
+          n.emotion = coalesce(r.emotion, n.emotion),
+          n.race = coalesce(r.race, n.race)
         RETURN count(*) AS processed
         """
 
+        rows = []
+        for e in embeddings:
+            face_json = json.dumps(e["face"].tolist())
+            face_hash = hashlib.sha256(face_json.encode()).hexdigest()
+            embedding_bytes = struct.pack(f'{len(e["embedding"])}d', *e["embedding"])
+            embedding_hash = hashlib.sha256(embedding_bytes).hexdigest()
+
+            rows.append(
+                {
+                    "face_hash": face_hash,
+                    "embedding_hash": embedding_hash,
+                    "img_name": e["img_name"],
+                    "embedding": e["embedding"],
+                    # "face": e["face"].tolist(),
+                    # "face_shape": list(e["face"].shape),
+                    "model_name": e.get("model_name"),
+                    "detector_backend": e.get("detector_backend"),
+                    "aligned": bool(e.get("aligned", True)),
+                    "l2_normalized": bool(e.get("l2_normalized", False)),
+                    "age": e.get("age"),
+                    "gender": e.get("gender"),
+                    "emotion": e.get("emotion"),
+                    "race": e.get("race"),
+                }
+            )
+
         total = 0
         with self.conn.session() as session:
-            for i in range(0, len(embeddings), batch_size):
-                batch = embeddings[i : i + batch_size]
-                rows = []
-                for e in batch:
-                    face_json = json.dumps(e["face"].tolist())
-                    face_hash = hashlib.sha256(face_json.encode()).hexdigest()
-                    embedding_bytes = struct.pack(f'{len(e["embedding"])}d', *e["embedding"])
-                    embedding_hash = hashlib.sha256(embedding_bytes).hexdigest()
-
-                    rows.append(
-                        {
-                            "face_hash": face_hash,
-                            "embedding_hash": embedding_hash,
-                            "img_name": e["img_name"],
-                            "embedding": e["embedding"],
-                            # "face": e["face"].tolist(),
-                            # "face_shape": list(e["face"].shape),
-                            "model_name": e.get("model_name"),
-                            "detector_backend": e.get("detector_backend"),
-                            "aligned": bool(e.get("aligned", True)),
-                            "l2_normalized": bool(e.get("l2_normalized", False)),
-                        }
-                    )
-
+            for i in range(0, len(rows), batch_size):
                 processed = session.execute_write(
-                    lambda tx, q=query, r=rows: int(tx.run(q, rows=r).single()["processed"])
+                    lambda tx, q=query, r=rows[i : i + batch_size]: int(
+                        tx.run(q, rows=r).single()["processed"]
+                    )
                 )
                 total += processed
 
+        self.__link_co_occurring_faces(
+            node_label=node_label,
+            rows=rows,
+            img_indexes=[e.get("img_index") for e in embeddings],
+            batch_size=batch_size,
+        )
+
+        return total
+
+    def __link_co_occurring_faces(
+        self,
+        node_label: str,
+        rows: List[Dict[str, Any]],
+        img_indexes: List[Optional[int]],
+        batch_size: int = 100,
+    ) -> int:
+        """
+        Connect faces detected in the same source image with APPEARS_WITH relationships.
+            Relationship is stored once per pair, from the node with the smaller key to the
+            other one, so that re-registering the same image does not duplicate it.
+        Args:
+            node_label (str): Node label storing the faces.
+            rows (List[Dict[str, Any]]): Inserted rows having face_hash and embedding_hash.
+            img_indexes (List[Optional[int]]): Source image index of each row. Rows without
+                an index are not linked.
+            batch_size (int): Number of relationships to merge per transaction.
+        Returns:
+            int: Number of face pairs processed.
+        """
+        groups: Dict[int, List[Tuple[str, str]]] = {}
+        for row, img_index in zip(rows, img_indexes):
+            if img_index is None:
+                continue
+            groups.setdefault(img_index, []).append((row["face_hash"], row["embedding_hash"]))
+
+        pairs = set()
+        for keys in groups.values():
+            for src, dst in combinations(sorted(set(keys)), 2):
+                pairs.add((src, dst))
+
+        if not pairs:
+            return 0
+
+        query = f"""
+        UNWIND $pairs AS p
+        MATCH (a:{node_label} {{face_hash: p.src_face_hash, embedding_hash: p.src_embedding_hash}})
+        MATCH (b:{node_label} {{face_hash: p.dst_face_hash, embedding_hash: p.dst_embedding_hash}})
+        MERGE (a)-[:APPEARS_WITH]->(b)
+        RETURN count(*) AS processed
+        """
+
+        payload = [
+            {
+                "src_face_hash": src[0],
+                "src_embedding_hash": src[1],
+                "dst_face_hash": dst[0],
+                "dst_embedding_hash": dst[1],
+            }
+            for src, dst in sorted(pairs)
+        ]
+
+        return self.__run_in_batches(query=query, payload=payload, batch_size=batch_size)
+
+    def link_verified_identities(
+        self,
+        clusters: List[List[str]],
+        model_name: str = "VGG-Face",
+        detector_backend: str = "opencv",
+        aligned: bool = True,
+        l2_normalized: bool = False,
+        batch_size: int = 100,
+    ) -> int:
+        """
+        Connect nodes verified as the same person with VERIFIED relationships. Each cluster
+            is the list of node ids matched to one face in a search, and every pair within a
+            cluster is connected. Relationship is stored once per pair, from the node with the
+            smaller id to the other one, so that repeated searches do not duplicate it.
+        Args:
+            clusters (List[List[str]]): Lists of node ids verified as the same person.
+            model_name (str): Name of the model.
+            detector_backend (str): Name of the detector backend.
+            aligned (bool): Whether the faces are aligned.
+            l2_normalized (bool): Whether the embeddings are L2 normalized.
+            batch_size (int): Number of relationships to merge per transaction.
+        Returns:
+            int: Number of node pairs processed.
+        """
+        node_label = self.__generate_node_label(
+            model_name=model_name,
+            detector_backend=detector_backend,
+            aligned=aligned,
+            l2_normalized=l2_normalized,
+        )
+
+        pairs = set()
+        for cluster in clusters:
+            for src, dst in combinations(sorted(set(cluster)), 2):
+                pairs.add((src, dst))
+
+        if not pairs:
+            return 0
+
+        query = f"""
+        UNWIND $pairs AS p
+        MATCH (a:{node_label}) WHERE elementId(a) = p.src
+        MATCH (b:{node_label}) WHERE elementId(b) = p.dst
+        MERGE (a)-[:VERIFIED]->(b)
+        RETURN count(*) AS processed
+        """
+
+        payload = [{"src": src, "dst": dst} for src, dst in sorted(pairs)]
+
+        return self.__run_in_batches(query=query, payload=payload, batch_size=batch_size)
+
+    def __run_in_batches(
+        self, query: str, payload: List[Dict[str, Any]], batch_size: int = 100
+    ) -> int:
+        """
+        Run an UNWIND $pairs query over the payload in batches, one transaction per batch.
+        """
+        total = 0
+        with self.conn.session() as session:
+            for i in range(0, len(payload), batch_size):
+                total += session.execute_write(
+                    lambda tx, q=query, p=payload[i : i + batch_size]: int(
+                        tx.run(q, pairs=p).single()["processed"]
+                    )
+                )
         return total
 
     def fetch_all_embeddings(
