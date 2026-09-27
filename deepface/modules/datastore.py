@@ -1,10 +1,11 @@
 # built-in dependencies
 import os
-from typing import Any, Dict, IO, List, Union, Optional, cast
+from typing import Any, Dict, IO, List, Tuple, Union, Optional, cast
 import uuid
 import time
 import math
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 
 # 3rd party dependencies
 import pandas as pd
@@ -16,6 +17,8 @@ from deepface.modules.database.types import Database
 from deepface.modules.database.inventory import database_inventory
 
 from deepface.modules.representation import represent
+from deepface.modules.demography import analyze
+from deepface.commons import image_utils
 from deepface.modules.verification import (
     find_angular_distance,
     find_cosine_distance,
@@ -29,6 +32,13 @@ from deepface.commons.logger import Logger
 
 
 logger = Logger()
+
+# facial attributes predicted and stored while registering to graph databases
+FACIAL_ATTRIBUTES = ["age", "gender", "emotion", "race"]
+
+# links verified identities in the background, so that search does not wait for it.
+# single worker serializes writes to avoid lock contention on the same relationships.
+_LINK_EXECUTOR = ThreadPoolExecutor(max_workers=1, thread_name_prefix="deepface-link")
 
 
 # pylint: disable=too-many-positional-arguments, no-else-return
@@ -86,6 +96,10 @@ def register(
             - DEEPFACE_PINECONE_API_KEY
             - DEEPFACE_MILVUS_URI
             - DEEPFACE_QDRANT_URI
+
+        Note:
+            For graph databases (neo4j), age, gender, emotion and race of each face are
+            also predicted and stored as properties of the face.
     Returns:
         result (dict): A dictionary containing registration results with following keys.
             - inserted (int): Number of embeddings successfully registered to the database.
@@ -96,8 +110,21 @@ def register(
         connection=connection,
     )
 
+    # graph databases store facial attributes as properties of face nodes
+    attributes: List[str] = (
+        FACIAL_ATTRIBUTES if database_inventory[database_type]["is_graph_db"] is True else []
+    )
+
+    sources = __split_images(img)
+
+    # load images once, file objects may not be readable twice by recognition and analysis
+    model_input: Any = img
+    if attributes:
+        sources_loaded = [image_utils.load_image(source)[0] for source in sources]
+        model_input = sources_loaded if len(sources) > 1 else sources_loaded[0]
+
     results = __get_embeddings(
-        img=img,
+        img=model_input,
         model_name=model_name,
         detector_backend=detector_backend,
         enforce_detection=enforce_detection,
@@ -109,17 +136,35 @@ def register(
         return_face=True,
     )
 
+    if attributes:
+        __assign_attributes(
+            results=results,
+            images=sources_loaded,
+            attributes=attributes,
+            detector_backend=detector_backend,
+            enforce_detection=enforce_detection,
+            align=align,
+            expand_percentage=expand_percentage,
+            anti_spoofing=anti_spoofing,
+        )
+
+    # faces detected in the same image share the same identifier
+    img_identifiers: Dict[int, str] = {}
     embedding_records: List[Dict[str, Any]] = []
     for result in results:
-        img_identifier = img_name or (
-            img
-            if isinstance(img, str) and img.endswith((".jpg", ".jpeg", ".png"))
-            else str(uuid.uuid4())
-        )
+        img_index = result["img_index"]
+        if img_index not in img_identifiers:
+            source = sources[img_index]
+            img_identifiers[img_index] = img_name or (
+                source
+                if isinstance(source, str) and source.endswith((".jpg", ".jpeg", ".png"))
+                else str(uuid.uuid4())
+            )
 
         embedding_record = {
             "id": None,
-            "img_name": img_identifier,
+            "img_name": img_identifiers[img_index],
+            "img_index": img_index,
             "face": result["face"],
             "model_name": model_name,
             "detector_backend": detector_backend,
@@ -127,6 +172,9 @@ def register(
             "aligned": align,
             "l2_normalized": l2_normalize,
         }
+        for attribute in FACIAL_ATTRIBUTES:
+            if attribute in result:
+                embedding_record[attribute] = result[attribute]
         embedding_records.append(embedding_record)
 
     inserted = db_client.insert_embeddings(embedding_records, batch_size=100)
@@ -323,7 +371,7 @@ def search(
                     ),
                 }
 
-                if similarity_search is False and verified:
+                if similarity_search is True or verified:
                     instances.append(instance)
 
             if len(instances) == 0:
@@ -387,7 +435,7 @@ def search(
                     ),
                 }
 
-                if similarity_search is False and verified:
+                if similarity_search is True or verified:
                     instances.append(instance)
 
             if len(instances) > 0:
@@ -397,6 +445,15 @@ def search(
                     df = df.nsmallest(k, "distance")
                 dfs.append(df)
 
+        __link_verified_identities(
+            db_client=db_client,
+            database_type=database_type,
+            dfs=dfs,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            align=align,
+            l2_normalize=l2_normalize,
+        )
         return dfs
 
     elif search_method == "exact":
@@ -474,6 +531,15 @@ def search(
 
             dfs.append(df)
 
+        __link_verified_identities(
+            db_client=db_client,
+            database_type=database_type,
+            dfs=dfs,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            align=align,
+            l2_normalize=l2_normalize,
+        )
         return dfs
 
     else:
@@ -900,13 +966,151 @@ def __get_embeddings(
     if len(results) == 0:
         raise ValueError("No embeddings were detected in the provided image(s).")
 
+    # img_index keeps track of which input image each face was detected in
     flat_results: List[Dict[str, Any]] = []
-    for result in results:
+    for idx, result in enumerate(results):
         if isinstance(result, dict):
-            flat_results.append(result)
+            flat_results.append({**result, "img_index": 0})
         elif isinstance(result, list):
-            flat_results.extend(result)
+            flat_results.extend({**face, "img_index": idx} for face in result)
     return flat_results
+
+
+def __split_images(
+    img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
+) -> List[Any]:
+    """
+    Split the input of register into single images, in the same order that represent
+        processes them.
+    Args:
+        img (str or np.ndarray or IO[bytes] or list): single image or batch of images.
+    Returns:
+        images (list): list of single images.
+    """
+    if isinstance(img, list):
+        return img
+    if isinstance(img, np.ndarray) and img.ndim == 4:
+        return [img[i] for i in range(img.shape[0])]
+    return [img]
+
+
+def __assign_attributes(
+    results: List[Dict[str, Any]],
+    images: List[NDArray[Any]],
+    attributes: List[str],
+    detector_backend: str,
+    enforce_detection: bool,
+    align: bool,
+    expand_percentage: int,
+    anti_spoofing: bool,
+) -> None:
+    """
+    Predict facial attributes of each image and assign them to the faces found by represent
+        in place. Analysis detects faces on its own, so its faces are matched to the faces
+        of represent by their facial areas.
+    Args:
+        results (List[Dict[str, Any]]): flattened represent results having img_index.
+        images (List[np.ndarray]): loaded images, in the order of img_index.
+        attributes (List[str]): attributes to predict. Options: 'age', 'gender', 'emotion',
+            'race'.
+        detector_backend (string): face detector backend.
+        enforce_detection (boolean): If no face is detected in an image, raise an exception.
+        align (bool): Flag to enable face alignment.
+        expand_percentage (int): expand detected facial area with a percentage.
+        anti_spoofing (boolean): Flag to enable anti spoofing.
+    """
+
+    def area_key(area: Dict[str, Any]) -> Tuple[Any, ...]:
+        return (area.get("x"), area.get("y"), area.get("w"), area.get("h"))
+
+    for img_index, image in enumerate(images):
+        faces = [result for result in results if result["img_index"] == img_index]
+        if not faces:
+            continue
+
+        analyses = cast(
+            List[Dict[str, Any]],
+            analyze(
+                img_path=image,
+                actions=attributes,
+                enforce_detection=enforce_detection,
+                detector_backend=detector_backend,
+                align=align,
+                expand_percentage=expand_percentage,
+                silent=True,
+                anti_spoofing=anti_spoofing,
+            ),
+        )
+        analyses_by_area = {area_key(analysis["region"]): analysis for analysis in analyses}
+
+        for face in faces:
+            analysis = analyses_by_area.get(area_key(face["facial_area"]))
+            # skip detector reports the whole image with different dummy areas
+            if analysis is None and len(faces) == 1 and len(analyses) == 1:
+                analysis = analyses[0]
+            if analysis is None:
+                logger.warn(
+                    f"Could not match facial attributes to the face at {face['facial_area']}"
+                    f" in image {img_index}, storing it without attributes."
+                )
+                continue
+
+            if "age" in attributes:
+                face["age"] = int(analysis["age"])
+            # store dominant label of categorical attributes
+            for attribute in ("gender", "emotion", "race"):
+                if attribute in attributes:
+                    face[attribute] = analysis[f"dominant_{attribute}"]
+
+
+def __link_verified_identities(
+    db_client: Database,
+    database_type: str,
+    dfs: List[pd.DataFrame],
+    model_name: str,
+    detector_backend: str,
+    align: bool,
+    l2_normalize: bool,
+) -> None:
+    """
+    Store relationships between identities verified as the same person in a search,
+        if the database is a graph database. Only rows within the threshold are linked,
+        so similarity search results are not considered as the same person. Linking runs
+        in the background, so search returns without waiting for it.
+    Args:
+        db_client (Database): An instance of the connected database client.
+        database_type (str): Type of the database.
+        dfs (List[pd.DataFrame]): Search results, one dataframe per detected face.
+        model_name (str): Model for face recognition.
+        detector_backend (string): face detector backend.
+        align (bool): Flag to enable face alignment.
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+    """
+    if database_inventory[database_type]["is_graph_db"] is False:
+        return
+
+    clusters = [
+        df[df["distance"] <= df["threshold"]]["id"].tolist() for df in dfs if not df.empty
+    ]
+
+    if not any(len(cluster) > 1 for cluster in clusters):
+        return
+
+    def link() -> None:
+        # search results are already returned, so only log if linking fails
+        try:
+            linked = db_client.link_verified_identities(
+                clusters=clusters,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                aligned=align,
+                l2_normalized=l2_normalize,
+            )
+            logger.debug(f"Linked {linked} verified identity pairs in {database_type}.")
+        except Exception as err:  # pylint: disable=broad-except
+            logger.warn(f"Could not link verified identities in {database_type}: {err}")
+
+    _LINK_EXECUTOR.submit(link)
 
 
 def __connect_database(

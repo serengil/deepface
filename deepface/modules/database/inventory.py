@@ -15,6 +15,7 @@ from deepface.modules.database.qdrant import QdrantClient
 
 class DatabaseSpec(TypedDict):
     is_vector_db: bool
+    is_graph_db: bool
     connection_string: str
     client: Type["Database"]
 
@@ -22,41 +23,49 @@ class DatabaseSpec(TypedDict):
 database_inventory: Dict[str, DatabaseSpec] = {
     "postgres": {
         "is_vector_db": False,
+        "is_graph_db": False,
         "connection_string": "DEEPFACE_POSTGRES_URI",
         "client": PostgresClient,
     },
     "mongo": {
         "is_vector_db": False,
+        "is_graph_db": False,
         "connection_string": "DEEPFACE_MONGO_URI",
         "client": MongoClient,
     },
     "weaviate": {
         "is_vector_db": True,
+        "is_graph_db": False,
         "connection_string": "DEEPFACE_WEAVIATE_URI",
         "client": WeaviateClient,
     },
     "neo4j": {
         "is_vector_db": True,
+        "is_graph_db": True,
         "connection_string": "DEEPFACE_NEO4J_URI",
         "client": Neo4jClient,
     },
     "pgvector": {
         "is_vector_db": True,
+        "is_graph_db": False,
         "connection_string": "DEEPFACE_POSTGRES_URI",
         "client": PGVectorClient,
     },
     "pinecone": {
         "is_vector_db": True,
+        "is_graph_db": False,
         "connection_string": "DEEPFACE_PINECONE_API_KEY",
         "client": PineconeClient,
     },
     "milvus": {
         "is_vector_db": True,
+        "is_graph_db": False,
         "connection_string": "DEEPFACE_MILVUS_URI",
         "client": MilvusClient,
     },
     "qdrant": {
         "is_vector_db": True,
+        "is_graph_db": False,
         "connection_string": "DEEPFACE_QDRANT_URI",
         "client": QdrantClient,
     },
