@@ -110,20 +110,9 @@ class Neo4jClient(Database):
             REQUIRE (n.face_hash, n.embedding_hash) IS UNIQUE;
         """
 
-        attribute_queries = [
-            f"""
-            CREATE INDEX {node_label}_{attribute}_idx IF NOT EXISTS
-            FOR (n:{node_label})
-            ON (n.{attribute});
-            """
-            for attribute in ("age", "gender", "emotion", "race")
-        ]
-
         with self.conn.session() as session:
             session.execute_write(lambda tx: tx.run(index_query))
             session.execute_write(lambda tx: tx.run(uniq_query))
-            for attribute_query in attribute_queries:
-                session.execute_write(lambda tx, q=attribute_query: tx.run(q))
 
         _SCHEMA_CHECKED[node_label] = True
         logger.debug(f"Neo4j index {node_label} ensured.")
@@ -159,14 +148,11 @@ class Neo4jClient(Database):
           n.model_name = r.model_name,
           n.detector_backend = r.detector_backend,
           n.aligned = r.aligned,
-          n.l2_normalized = r.l2_normalized
-        // set attributes on match too, to fill faces registered before attributes were stored.
-        // attributes are null if they could not be matched to the face, keep stored ones then.
-        SET
-          n.age = coalesce(r.age, n.age),
-          n.gender = coalesce(r.gender, n.gender),
-          n.emotion = coalesce(r.emotion, n.emotion),
-          n.race = coalesce(r.race, n.race)
+          n.l2_normalized = r.l2_normalized,
+          n.age = r.age,
+          n.gender = r.gender,
+          n.emotion = r.emotion,
+          n.race = r.race
         RETURN count(*) AS processed
         """
 

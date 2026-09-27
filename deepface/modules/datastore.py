@@ -5,6 +5,7 @@ import uuid
 import time
 import math
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 
 # 3rd party dependencies
 import pandas as pd
@@ -34,6 +35,10 @@ logger = Logger()
 
 # facial attributes predicted and stored while registering to graph databases
 FACIAL_ATTRIBUTES = ["age", "gender", "emotion", "race"]
+
+# links verified identities in the background, so that search does not wait for it.
+# single worker serializes writes to avoid lock contention on the same relationships.
+_LINK_EXECUTOR = ThreadPoolExecutor(max_workers=1, thread_name_prefix="deepface-link")
 
 
 # pylint: disable=too-many-positional-arguments, no-else-return
@@ -1070,7 +1075,8 @@ def __link_verified_identities(
     """
     Store relationships between identities verified as the same person in a search,
         if the database is a graph database. Only rows within the threshold are linked,
-        so similarity search results are not considered as the same person.
+        so similarity search results are not considered as the same person. Linking runs
+        in the background, so search returns without waiting for it.
     Args:
         db_client (Database): An instance of the connected database client.
         database_type (str): Type of the database.
@@ -1087,18 +1093,24 @@ def __link_verified_identities(
         df[df["distance"] <= df["threshold"]]["id"].tolist() for df in dfs if not df.empty
     ]
 
-    # search results are already computed, so do not fail the search if linking fails
-    try:
-        linked = db_client.link_verified_identities(
-            clusters=clusters,
-            model_name=model_name,
-            detector_backend=detector_backend,
-            aligned=align,
-            l2_normalized=l2_normalize,
-        )
-        logger.debug(f"Linked {linked} verified identity pairs in {database_type}.")
-    except Exception as err:  # pylint: disable=broad-except
-        logger.warn(f"Could not link verified identities in {database_type}: {err}")
+    if not any(len(cluster) > 1 for cluster in clusters):
+        return
+
+    def link() -> None:
+        # search results are already returned, so only log if linking fails
+        try:
+            linked = db_client.link_verified_identities(
+                clusters=clusters,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                aligned=align,
+                l2_normalized=l2_normalize,
+            )
+            logger.debug(f"Linked {linked} verified identity pairs in {database_type}.")
+        except Exception as err:  # pylint: disable=broad-except
+            logger.warn(f"Could not link verified identities in {database_type}: {err}")
+
+    _LINK_EXECUTOR.submit(link)
 
 
 def __connect_database(
