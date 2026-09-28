@@ -6,6 +6,7 @@ import bz2
 
 # 3rd party dependencies
 import gdown
+import requests  # type: ignore[import-untyped]
 
 # project dependencies
 from deepface.commons import folder_utils
@@ -20,13 +21,15 @@ ALLOWED_COMPRESS_TYPES = ["zip", "bz2"]
 
 
 def download_weights_if_necessary(
-    file_name: str, source_url: str, compress_type: Optional[str] = None
+    file_name: str, source_url: Union[str, List[str]], compress_type: Optional[str] = None
 ) -> str:
     """
     Download the weights of a pre-trained model from external source if not downloaded yet.
     Args:
         file_name (str): target file name with extension
-        source_url (url): source url to be downloaded
+        source_url (str or list of str): source url to be downloaded. if a list is given,
+            the urls are tried in order and the next one is used as a backup when
+            downloading from the previous one fails
         compress_type (optional str): compress type e.g. zip or bz2
     Returns
         target_file (str): exact path for the target file
@@ -42,19 +45,37 @@ def download_weights_if_necessary(
     if compress_type is not None and compress_type not in ALLOWED_COMPRESS_TYPES:
         raise UnimplementedError(f"unimplemented compress type - {compress_type}")
 
-    try:
-        logger.info(f"🔗 {file_name} will be downloaded from {source_url} to {target_file}...")
+    source_urls = [source_url] if isinstance(source_url, str) else list(source_url)
+    if len(source_urls) == 0:
+        raise ValueError(f"no source url is given to download {file_name}")
 
-        if compress_type is None:
-            gdown.download(source_url, target_file, quiet=False)
-        elif compress_type is not None and compress_type in ALLOWED_COMPRESS_TYPES:
-            gdown.download(source_url, f"{target_file}.{compress_type}", quiet=False)
+    output = target_file if compress_type is None else f"{target_file}.{compress_type}"
 
-    except Exception as err:
+    last_err: Optional[Exception] = None
+    for idx, url in enumerate(source_urls):
+        try:
+            logger.info(f"🔗 {file_name} will be downloaded from {url} to {target_file}...")
+            ensure_source_is_reachable(url)
+            gdown.download(url, output, quiet=False)
+            last_err = None
+            break
+        except Exception as err:  # pylint: disable=broad-except
+            last_err = err
+            # do not let a partially downloaded file be used by the next attempt
+            if os.path.isfile(output):
+                os.remove(output)
+            if idx < len(source_urls) - 1:
+                logger.warn(
+                    f"Downloading {file_name} from {url} failed ({err}). "
+                    f"Trying the backup source {source_urls[idx + 1]}..."
+                )
+
+    if last_err is not None:
         raise ValueError(
-            f"⛓️‍💥 An exception occurred while downloading {file_name} from {source_url}. "
+            f"⛓️‍💥 An exception occurred while downloading {file_name} from "
+            f"{', '.join(source_urls)}. "
             f"Consider downloading it manually to {target_file}."
-        ) from err
+        ) from last_err
 
     # uncompress downloaded file
     if compress_type == "zip":
@@ -69,6 +90,20 @@ def download_weights_if_necessary(
         logger.info(f"{target_file}.bz2 unzipped")
 
     return target_file
+
+
+def ensure_source_is_reachable(url: str) -> None:
+    """
+    gdown does not raise for http errors of non google drive urls, and saves the error
+    page (e.g. "Not Found") as if it were the weight file. check the status in advance
+    to fail fast, so that the backup source can be tried.
+    Args:
+        url (str): source url to be downloaded
+    """
+    response = requests.head(url, allow_redirects=True, timeout=30)
+    # some servers do not allow head requests, let gdown decide for them
+    if response.status_code >= 400 and response.status_code != 405:
+        raise ValueError(f"{url} responded with status code {response.status_code}")
 
 
 def load_model_weights(model: Any, weight_file: str) -> Any:
@@ -145,7 +180,7 @@ def download_all_models_in_one_shot() -> None:
 
     backend = backend_utils.get_backend_engine()
 
-    WEIGHTS: List[Union[str, Dict[str, str]]] = []
+    WEIGHTS: List[Union[str, List[str], Dict[str, Any]]] = []
 
     for task, model_name, attributes in WEIGHT_SOURCES:
         try:
@@ -166,10 +201,12 @@ def download_all_models_in_one_shot() -> None:
         WEIGHTS.append({"filename": model.value[0], "url": model.value[1]})
 
     for i in WEIGHTS:
-        if isinstance(i, str):
+        compress_type = None
+        if isinstance(i, (str, list)):
             url = i
-            filename = i.split("/")[-1]
-            compress_type = None
+            # backup sources serve the same file, so the name comes from the primary one
+            primary_url = i if isinstance(i, str) else i[0]
+            filename = primary_url.split("/")[-1]
             # if compressed file will be downloaded, get rid of its extension
             if filename.endswith(tuple(ALLOWED_COMPRESS_TYPES)):
                 for ext in ALLOWED_COMPRESS_TYPES:

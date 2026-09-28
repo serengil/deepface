@@ -1,3 +1,6 @@
+# built-in dependencies
+from typing import List, Union
+
 # project dependencies
 from deepface.commons import package_utils, weight_utils
 from deepface.models.FacialRecognition import FacialRecognition
@@ -34,9 +37,10 @@ else:
 
 # pylint: disable=line-too-long
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_keras_weights.h5"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_keras_weights.h5",
+    "https://huggingface.co/serengil/deepface/resolve/main/deepid_keras_weights.h5",
+]
 
 
 # pylint: disable=too-few-public-methods
@@ -52,8 +56,8 @@ class DeepIdClient(FacialRecognition):
         self.output_shape = 160
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> Model:
     """
     Construct DeepId model, download its weights and load

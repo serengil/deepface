@@ -17,9 +17,10 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.pth"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/gender_model_weights.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/gender_model_weights.pth",
+]
 
 # Labels for the genders that can be detected by the model.
 labels = GENDER_LABELS
@@ -75,8 +76,8 @@ def base_model() -> GenderModel:
     return GenderModel()
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> GenderModel:
     """
     Construct gender model, download its weights and load

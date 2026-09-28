@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Optional, cast
+from typing import List, Optional, Union, cast
 
 # 3rd party dependencies
 import torch
@@ -15,9 +15,10 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.pth"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/arcface_weights.pth",
+]
 
 # batch normalizations are configured as they were in the tensorflow backend, keras'
 # momentum is the complement of pytorch's one
@@ -177,8 +178,8 @@ def base_model() -> ArcFaceModel:
     return ArcFaceModel()
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> ArcFaceModel:
     """
     Construct ArcFace model, download its weights and load

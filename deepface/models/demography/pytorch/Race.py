@@ -17,9 +17,10 @@ from deepface.commons.logger import Logger
 
 # pylint: disable=line-too-long
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.pth"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/race_model_single_batch.pth",
+]
 # Labels for the ethnic phenotypes that can be detected by the model.
 labels = RACE_LABELS
 
@@ -77,8 +78,8 @@ def base_model() -> RaceModel:
     return RaceModel()
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> RaceModel:
     """
     Construct race model, download its weights and load

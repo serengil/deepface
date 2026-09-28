@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, List, cast
+from typing import Any, List, Union, cast
 
 # 3rd party dependencies
 from numpy.typing import NDArray
@@ -19,9 +19,10 @@ logger = Logger()
 
 # ---------------------------------------
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.pth"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/vgg_face_weights.pth",
+]
 
 
 # pylint: disable=too-few-public-methods
@@ -182,8 +183,8 @@ def base_model() -> VggFaceBaseModel:
     return VggFaceBaseModel()
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> VggFaceDescriptor:
     """
     Final VGG-Face model being used for finding embeddings

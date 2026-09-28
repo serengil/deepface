@@ -18,9 +18,10 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/age_model_weights.pth"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/age_model_weights.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/age_model_weights.pth",
+]
 
 # the model predicts a probability for each age in [0, 100]
 CLASSES = 101
@@ -81,8 +82,8 @@ def base_model() -> AgeModel:
     return AgeModel()
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> AgeModel:
     """
     Construct age model, download its weights and load
