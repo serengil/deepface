@@ -363,14 +363,14 @@ def find_angular_distance(
         source_norm = np.linalg.norm(source_representation)
         test_norm = np.linalg.norm(test_representation)
         similarity = dot_product / (source_norm * test_norm)
-        distances = np.arccos(similarity) / np.pi
+        distances = np.arccos(np.clip(similarity, -1.0, 1.0)) / np.pi
         return cast(np.float64, distances)
     elif source_representation.ndim == 2 and test_representation.ndim == 2:
         # list of embeddings (batch)
         source_normed = l2_normalize(source_representation, axis=1)  # (N, D)
         test_normed = l2_normalize(test_representation, axis=1)  # (M, D)
         similarity = np.dot(test_normed, source_normed.T)  # (M, N)
-        distances = np.arccos(similarity) / np.pi
+        distances = np.arccos(np.clip(similarity, -1.0, 1.0)) / np.pi
         return cast(NDArray[Any], distances)
     else:
         raise ValueError(
