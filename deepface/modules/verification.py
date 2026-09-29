@@ -23,6 +23,10 @@ from deepface.modules.exceptions import (
 
 logger = Logger()
 
+# Target size of each difference tile, excluding output and norm temporaries.
+# At least two embedding pairs are processed even if they exceed this budget.
+_EUCLIDEAN_DISTANCE_BATCH_BYTES = 8 * 1024 * 1024
+
 # pylint: disable=too-many-positional-arguments, no-else-return
 def verify(
     img1_path: Union[str, NDArray[Any], List[float], IO[bytes]],
@@ -404,11 +408,59 @@ def find_euclidean_distance(
         return cast(np.float64, distances)
     # Batch embeddings case (2D arrays)
     elif source_representation.ndim == 2 and test_representation.ndim == 2:
-        diff = (
-            source_representation[None, :, :] - test_representation[:, None, :]
-        )  # (N, D) - (M, D)  = (M, N, D)
-        distances = np.linalg.norm(diff, axis=2)  # (M, N)
-        return cast(NDArray[Any], distances)
+        num_source, num_test = source_representation.shape[0], test_representation.shape[0]
+        if (
+            num_source == 0
+            or num_test == 0
+            or source_representation.shape[1] == 0
+            or test_representation.shape[1] == 0
+        ):
+            # Preserve empty-result shapes and NumPy's dtype/broadcasting rules.
+            diff = source_representation[None, :, :] - test_representation[:, None, :]
+            return cast(NDArray[Any], np.linalg.norm(diff, axis=2))
+
+        dtype = np.result_type(source_representation.dtype, test_representation.dtype)
+        distance_dtype = np.linalg.norm(np.zeros(1, dtype=dtype)).dtype
+        batch_distances = np.empty((num_test, num_source), dtype=distance_dtype)
+
+        # A tiny broadcast probe preserves the full operation's reduction layout.
+        # Changing the contiguous axis can change NumPy's floating-point sum order.
+        probe = source_representation[None, :2, :2] - test_representation[:2, None, :2]
+        feature_contiguous = probe.strides[-1] == probe.itemsize
+
+        # Direct subtraction avoids cancellation for near-identical embeddings.
+        # Tile both batch axes rather than allocating the full (M, N, D) tensor.
+        dimensions = max(source_representation.shape[1], test_representation.shape[1])
+        bytes_per_pair = dimensions * max(dtype.itemsize, distance_dtype.itemsize)
+        pairs_per_batch = max(2, _EUCLIDEAN_DISTANCE_BATCH_BYTES // bytes_per_pair)
+        source_batch_size = min(num_source, pairs_per_batch)
+        test_batch_size = max(1, pairs_per_batch // source_batch_size)
+
+        for test_start in range(0, num_test, test_batch_size):
+            test_end = min(test_start + test_batch_size, num_test)
+            for source_start in range(0, num_source, source_batch_size):
+                source_end = min(source_start + source_batch_size, num_source)
+                test_count = test_end - test_start
+                source_count = source_end - source_start
+                # A singleton F-order tile otherwise makes the feature axis contiguous.
+                padded_source_count = (
+                    2 if not feature_contiguous and test_count * source_count == 1 else source_count
+                )
+                diff = np.empty(
+                    (test_count, padded_source_count, dimensions),
+                    dtype=dtype,
+                    order="C" if feature_contiguous else "F",
+                )
+                np.subtract(
+                    source_representation[None, source_start:source_end, :],
+                    test_representation[test_start:test_end, None, :],
+                    out=diff,
+                )
+                batch_distances[test_start:test_end, source_start:source_end] = np.linalg.norm(
+                    diff, axis=2
+                )[:, :source_count]
+                del diff
+        return cast(NDArray[Any], batch_distances)
     else:
         raise ValueError(
             f"Embeddings must be 1D or 2D, but received "
