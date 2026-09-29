@@ -224,7 +224,9 @@ def search(
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Set to False to avoid the exception for low-resolution images (default is True).
         align (bool): Flag to enable face alignment (default is True).
-        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization).
+            Exact search uses the 'euclidean_l2' metric and threshold when this is True
+            and distance_metric is 'euclidean'.
         expand_percentage (int): expand detected facial area with a percentage (default is 0).
         normalization (string): Normalize the input image before feeding it to the model.
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
@@ -289,7 +291,7 @@ def search(
                 f"{'vectors are L2-norm' if l2_normalize else 'vectors are not L2-norm'}."
             )
             distance_metric = new_distance_metric
-    elif search_method != "exact":
+    elif search_method == "exact":
         if l2_normalize is True and distance_metric == "euclidean":
             logger.warn(
                 "Overwriting distance_metric to 'euclidean_l2' since vectors are L2 normalized."
@@ -584,7 +586,9 @@ def identify(
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Set to False to avoid the exception for low-resolution images (default is True).
         align (bool): Flag to enable face alignment (default is True).
-        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+        l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization).
+            Uses the 'euclidean_l2' metric and threshold when this is True
+            and distance_metric is 'euclidean'.
         expand_percentage (int): expand detected facial area with a percentage (default is 0).
         normalization (string): Normalize the input image before feeding it to the model.
             Options: base, raw, Facenet, Facenet2018, VGGFace, VGGFace2, ArcFace (default is base).
@@ -640,6 +644,12 @@ def identify(
             f"identify function expects a single image, but {num_of_images} images are given."
             " Please call it once for each image."
         )
+
+    if l2_normalize is True and distance_metric == "euclidean":
+        logger.warn(
+            "Overwriting distance_metric to 'euclidean_l2' since vectors are L2 normalized."
+        )
+        distance_metric = "euclidean_l2"
 
     threshold = find_threshold(model_name=model_name, distance_metric=distance_metric)
 
