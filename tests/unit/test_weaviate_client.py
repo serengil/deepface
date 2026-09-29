@@ -353,11 +353,28 @@ def test_v3_connection_is_rejected(connectors):
         WeaviateClient(connection=v3_client)
 
 
-def build_client(existing_hashes=(), failed_objects=()):
+def build_client(
+    existing_hashes=(),
+    failed_objects=(),
+    connection_details=None,
+    multi_tenancy=False,
+    quantizer=None,
+    server_version="1.39.0",
+    tenant_exists=True,
+):
     connection = MagicMock(spec=weaviate.WeaviateClient)
     connection.collections = MagicMock()
     connection.collections.exists.return_value = True
-    collection = connection.collections.use.return_value
+    connection.get_meta.return_value = {"version": server_version}
+    base_collection = connection.collections.use.return_value
+    base_collection.config.get.return_value = SimpleNamespace(
+        multi_tenancy_config=SimpleNamespace(enabled=multi_tenancy),
+        vector_index_config=SimpleNamespace(quantizer=quantizer),
+    )
+    # with_tenant returns the same mock, so assertions work with or without a tenant
+    base_collection.with_tenant.return_value = base_collection
+    base_collection.tenants.exists.return_value = tenant_exists
+    collection = base_collection
 
     def fetch_objects(filters, return_properties, limit):
         objects = [
@@ -368,7 +385,8 @@ def build_client(existing_hashes=(), failed_objects=()):
     collection.query.fetch_objects.side_effect = fetch_objects
     collection.batch.failed_objects = list(failed_objects)
     batcher = collection.batch.fixed_size.return_value.__enter__.return_value
-    return WeaviateClient(connection=connection), collection, batcher
+    client = WeaviateClient(connection_details=connection_details, connection=connection)
+    return client, collection, batcher
 
 
 def embedding_record(value):
@@ -665,3 +683,204 @@ def test_legacy_channel_options_defaults_then_grpc_config():
         ("grpc.default_authority", "g.internal"),
     ]
     assert options[3:] == [("grpc.keepalive_time_ms", 10000)]
+
+
+def test_tenant_and_quantization_from_connection_details(connectors):
+    client = WeaviateClient(
+        {"url": "http://localhost:8080", "tenant": "acme", "quantization": "RQ"}
+    )
+    assert (client.tenant, client.quantization) == ("acme", "rq")
+    assert connectors["custom"].called
+
+
+def test_tenant_and_quantization_from_env(connectors, monkeypatch):
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_TENANT", "site-7")
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_QUANTIZATION", "bq")
+    client = WeaviateClient("http://localhost:8080")
+    assert (client.tenant, client.quantization) == ("site-7", "bq")
+
+
+def test_tenant_with_existing_connection():
+    client, _, _ = build_client(connection_details={"tenant": "acme"}, multi_tenancy=True)
+    assert client.tenant == "acme"
+
+
+@pytest.mark.parametrize("tenant", ["has space", "a" * 65, "semi;colon", "ümlaut"])
+def test_invalid_tenant(connectors, tenant):
+    with pytest.raises(ValueError, match="Invalid Weaviate tenant name"):
+        WeaviateClient({"url": "http://localhost:8080", "tenant": tenant})
+
+
+def test_invalid_quantization(connectors):
+    with pytest.raises(ValueError, match="Unsupported Weaviate quantization"):
+        WeaviateClient({"url": "http://localhost:8080", "quantization": "lvq"})
+
+
+def test_default_creates_collection_without_tenancy_or_quantizer():
+    client, _, _ = build_client()
+    client.client.collections.exists.return_value = False
+    client.initialize_database(model_name="Facenet", detector_backend="opencv")
+    schema = client.client.collections.create_from_dict.call_args.args[0]
+    assert "multiTenancyConfig" not in schema
+    assert schema["vectorIndexConfig"] == {"distance": "l2-squared"}
+    client.client.get_meta.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "quantization, expected",
+    [
+        ("rq", {"rq": {"enabled": True, "bits": 8}}),
+        ("rq-8", {"rq": {"enabled": True, "bits": 8}}),
+        ("rq-1", {"rq": {"enabled": True, "bits": 1}}),
+        ("bq", {"bq": {"enabled": True}}),
+        ("sq", {"sq": {"enabled": True}}),
+        ("pq", {"pq": {"enabled": True}}),
+        ("none", {"skipDefaultQuantization": True}),
+    ],
+)
+def test_quantization_is_set_on_create(quantization, expected):
+    client, _, _ = build_client(connection_details={"quantization": quantization})
+    client.client.collections.exists.return_value = False
+    client.initialize_database(model_name="Facenet", detector_backend="opencv", l2_normalized=True)
+    schema = client.client.collections.create_from_dict.call_args.args[0]
+    assert schema["vectorIndexConfig"] == {"distance": "cosine", **expected}
+
+
+@pytest.mark.parametrize(
+    "quantization, server_version", [("rq", "1.31.4"), ("rq-1", "1.32.9"), ("sq", "1.25.0")]
+)
+def test_quantization_requires_server_version(quantization, server_version):
+    client, _, _ = build_client(
+        connection_details={"quantization": quantization}, server_version=server_version
+    )
+    client.client.collections.exists.return_value = False
+    with pytest.raises(ValueError, match="requires Weaviate"):
+        client.initialize_database(model_name="Facenet", detector_backend="opencv")
+    client.client.collections.create_from_dict.assert_not_called()
+
+
+def test_existing_collection_with_other_quantizer_warns(monkeypatch):
+    warnings = []
+    monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
+    bq = type("_BQConfig", (), {})()
+    client, _, _ = build_client(connection_details={"quantization": "rq"}, quantizer=bq)
+    client.initialize_database(model_name="Facenet", detector_backend="opencv")
+    client.client.collections.create_from_dict.assert_not_called()
+    assert len(warnings) == 1 and "'bq'" in warnings[0]
+
+
+def test_existing_collection_with_same_quantizer_does_not_warn(monkeypatch):
+    warnings = []
+    monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
+    rq = type("_RQConfig", (), {"bits": 8})()
+    client, _, _ = build_client(connection_details={"quantization": "rq-8"}, quantizer=rq)
+    client.initialize_database(model_name="Facenet", detector_backend="opencv")
+    assert not warnings
+
+
+def test_tenant_creates_multi_tenant_collection():
+    client, _, _ = build_client(connection_details={"tenant": "acme"})
+    client.client.collections.exists.return_value = False
+    client.initialize_database(model_name="Facenet", detector_backend="opencv")
+    schema = client.client.collections.create_from_dict.call_args.args[0]
+    assert schema["multiTenancyConfig"] == {
+        "enabled": True,
+        "autoTenantCreation": True,
+        "autoTenantActivation": True,
+    }
+
+
+def test_tenancy_requires_server_version():
+    client, _, _ = build_client(connection_details={"tenant": "acme"}, server_version="1.24.9")
+    client.client.collections.exists.return_value = False
+    with pytest.raises(ValueError, match="multi-tenancy requires Weaviate 1.25"):
+        client.initialize_database(model_name="Facenet", detector_backend="opencv")
+
+
+def test_tenant_on_single_tenant_collection_is_rejected():
+    client, _, _ = build_client(connection_details={"tenant": "acme"}, multi_tenancy=False)
+    with pytest.raises(ValueError, match="created without multi-tenancy"):
+        client.initialize_database(model_name="Facenet", detector_backend="opencv")
+
+
+def test_multi_tenant_collection_requires_tenant():
+    client, _, _ = build_client(multi_tenancy=True)
+    with pytest.raises(ValueError, match="a tenant is required"):
+        client.initialize_database(model_name="Facenet", detector_backend="opencv")
+
+
+def test_operations_are_scoped_to_tenant():
+    client, collection, batcher = build_client(
+        connection_details={"tenant": "acme"}, multi_tenancy=True
+    )
+    client.insert_embeddings([embedding_record(1)])
+    client.search_by_vector([0.0, 1.0], model_name="Facenet", detector_backend="opencv")
+    client.fetch_all_embeddings("Facenet", "opencv", True, False)
+    client.fetch_embedding("00000000-0000-0000-0000-000000000001", "Facenet", "opencv")
+    assert collection.with_tenant.call_count == 4
+    assert {c.args for c in collection.with_tenant.call_args_list} == {("acme",)}
+    assert batcher.add_object.call_count == 1
+
+
+def test_new_tenant_skips_existing_check_and_reads_return_empty():
+    client, collection, batcher = build_client(
+        connection_details={"tenant": "new"}, multi_tenancy=True, tenant_exists=False
+    )
+    assert client.insert_embeddings([embedding_record(1)]) == 1
+    collection.query.fetch_objects.assert_not_called()
+    assert batcher.add_object.call_count == 1
+    assert not client.search_by_vector([0.0], model_name="Facenet", detector_backend="opencv")
+    assert not client.fetch_all_embeddings("Facenet", "opencv", True, False)
+    assert client.fetch_embedding("00000000-0000-0000-0000-000000000001", "Facenet") is None
+    collection.query.near_vector.assert_not_called()
+
+
+def test_tenant_and_quantization_from_env_uri_json(connectors, monkeypatch):
+    monkeypatch.setenv(
+        "DEEPFACE_WEAVIATE_URI",
+        json.dumps({"url": "http://localhost:8080", "tenant": "acme", "quantization": "bq"}),
+    )
+    client = WeaviateClient()
+    assert (client.tenant, client.quantization) == ("acme", "bq")
+
+
+def test_tenant_from_env_uri_json_with_existing_connection(monkeypatch):
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_URI", json.dumps({"url": "x", "tenant": "acme"}))
+    client, _, _ = build_client(multi_tenancy=True)
+    assert client.tenant == "acme"
+
+
+def test_invalid_options_do_not_open_a_connection(connectors):
+    with pytest.raises(ValueError, match="Invalid Weaviate tenant name"):
+        WeaviateClient({"url": "http://localhost:8080", "tenant": "bad name"})
+    with pytest.raises(ValueError, match="Unsupported Weaviate quantization"):
+        WeaviateClient({"url": "http://localhost:8080", "quantization": "lvq"})
+    connectors["custom"].assert_not_called()
+
+
+@pytest.mark.parametrize("tenant", ["", "   "])
+def test_explicit_empty_tenant_is_rejected(connectors, tenant):
+    with pytest.raises(ValueError, match="tenant is empty"):
+        WeaviateClient({"url": "http://localhost:8080", "tenant": tenant})
+
+
+def test_ids_are_scoped_to_tenant():
+    ids = []
+    for details in [None, {"tenant": "acme"}, {"tenant": "globex"}]:
+        client, _, batcher = build_client(connection_details=details, multi_tenancy=bool(details))
+        client.insert_embeddings([embedding_record(1)])
+        ids.append(batcher.add_object.call_args.kwargs["uuid"])
+    assert len(set(ids)) == 3
+
+
+def test_fetch_embedding_checks_tenancy_mode():
+    client, _, _ = build_client(multi_tenancy=True)
+    with pytest.raises(ValueError, match="a tenant is required"):
+        client.fetch_embedding("00000000-0000-0000-0000-000000000001", model_name="Facenet")
+
+
+def test_quantization_none_skips_version_check():
+    client, _, _ = build_client(connection_details={"quantization": "none"}, server_version="")
+    client.client.collections.exists.return_value = False
+    client.initialize_database(model_name="Facenet", detector_backend="opencv")
+    client.client.get_meta.assert_not_called()
