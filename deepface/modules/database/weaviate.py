@@ -6,22 +6,52 @@ import struct
 import base64
 import uuid
 import math
-from typing import Any, Dict, Optional, List, Union
+from typing import Any, Dict, Optional, List, Set, Tuple, Union
+from urllib.parse import urlparse
 
 # project dependencies
+from deepface import __version__
 from deepface.modules.database.types import Database
 from deepface.commons.logger import Logger
 
 logger = Logger()
 
+# Weaviate uses this header to learn which integrations talk to it
+INTEGRATION_HEADER = "X-Weaviate-Client-Integration"
+INTEGRATION_NAME = f"deepface/{__version__}"
 
-_SCHEMA_CHECKED: Dict[str, bool] = {}
+DEFAULT_HTTP_PORT = 8080
+DEFAULT_GRPC_PORT = 50051
+CLOUD_HOST_SUFFIXES = (".weaviate.cloud", ".weaviate.network")
+DEPLOYMENTS = ("custom", "cloud", "local")
 
+# keys accepted in connection_details. Names follow the weaviate client's connect_to_* helpers.
+CONNECTION_KEYS = {
+    "url",
+    "deployment",
+    "api_key",
+    "auth",
+    "headers",
+    "http_host",
+    "http_port",
+    "http_secure",
+    "grpc_host",
+    "grpc_port",
+    "grpc_secure",
+    "skip_init_checks",
+    "timeout",
+    "proxies",
+    "trust_env",
+    "connection_config",
+    "grpc_config",
+    "additional_config",
+}
 
 # pylint: disable=too-many-positional-arguments
 class WeaviateClient(Database):
     """
     Weaviate client for storing and retrieving face embeddings and indices.
+    Requires weaviate-client v4, which talks to Weaviate over REST and gRPC.
     """
 
     def __init__(
@@ -34,46 +64,38 @@ class WeaviateClient(Database):
         except (ModuleNotFoundError, ImportError) as e:
             raise ValueError(
                 "weaviate-client is an optional dependency. "
-                "Install with 'pip install weaviate-client'"
+                "Install with 'pip install \"weaviate-client>=4.16.0\"'"
             ) from e
 
         self.weaviate = weaviate
 
+        if not hasattr(weaviate, "WeaviateClient"):
+            raise ValueError(
+                "weaviate-client v4 is required, but an older version is installed. "
+                "Upgrade with 'pip install -U \"weaviate-client>=4.16.0\"'"
+            )
+
         if connection is not None:
+            if not isinstance(connection, weaviate.WeaviateClient):
+                raise ValueError(
+                    "connection must be a weaviate.WeaviateClient created with weaviate-client"
+                    " v4 (e.g. weaviate.connect_to_local()). weaviate.Client from v3 is no"
+                    " longer supported."
+                )
             self.client = connection
-            # URL key for _WEAVIATE_CHECKED; fallback if client has no URL
-            self.url = getattr(connection, "url", str(id(connection)))
         else:
-            self.conn_details = connection_details or os.environ.get("DEEPFACE_WEAVIATE_URL")
-            if isinstance(self.conn_details, str):
-                self.url = self.conn_details
-                self.api_key = os.getenv("WEAVIATE_API_KEY")
-            elif isinstance(self.conn_details, dict):
-                self.url = self.conn_details.get("url")
-                self.api_key = self.conn_details.get("api_key") or os.getenv("WEAVIATE_API_KEY")
-            else:
-                raise ValueError("connection_details must be a string or dict with 'url'.")
-
-            if not self.url:
-                raise ValueError("Weaviate URL not provided in connection_details.")
-
-            client_config = {"url": self.url}
-            if getattr(self, "api_key", None):
-                client_config["auth_client_secret"] = self.weaviate.AuthApiKey(api_key=self.api_key)
-
-            self.client = self.weaviate.Client(**client_config)
+            self.conn_details = resolve_connection_details(connection_details)
+            self.client = connect(self.conn_details)
 
     def initialize_database(self, **kwargs: Any) -> None:
         """
-        Ensure Weaviate schemas exist for embeddings using both cosine and L2 (euclidean).
+        Ensure the Weaviate collection for the given criteria exists. Collections storing
+            l2 normalized embeddings use cosine distance, others use l2-squared.
         """
         model_name = kwargs.get("model_name", "VGG-Face")
         detector_backend = kwargs.get("detector_backend", "opencv")
         aligned = kwargs.get("aligned", True)
         l2_normalized = kwargs.get("l2_normalized", False)
-
-        existing_schema = self.client.schema.get()
-        existing_classes = {c["class"] for c in existing_schema.get("classes", [])}
 
         class_name = self.__generate_class_name(
             model_name=model_name,
@@ -82,23 +104,23 @@ class WeaviateClient(Database):
             l2_normalized=l2_normalized,
         )
 
-        if _SCHEMA_CHECKED.get(class_name):
-            logger.debug("Weaviate schema already checked, skipping.")
+        # not cached, so a collection dropped outside deepface is created again
+        if self.client.collections.exists(class_name):
+            logger.debug(f"Weaviate collection {class_name} already exists.")
             return
 
-        if class_name in existing_classes:
-            logger.debug(f"Weaviate class {class_name} already exists.")
-            return
+        vector_index_config: Dict[str, Any] = {
+            "distance": "cosine" if l2_normalized else "l2-squared",
+        }
+        if os.getenv("WEAVIATE_HNSW_M"):
+            vector_index_config["maxConnections"] = int(os.environ["WEAVIATE_HNSW_M"])
 
-        self.client.schema.create_class(
+        self.client.collections.create_from_dict(
             {
                 "class": class_name,
                 "vectorIndexType": "hnsw",
                 "vectorizer": "none",
-                "vectorIndexConfig": {
-                    "M": int(os.getenv("WEAVIATE_HNSW_M", "16")),
-                    "distance": "cosine" if l2_normalized else "l2-squared",
-                },
+                "vectorIndexConfig": vector_index_config,
                 "properties": [
                     {"name": "img_name", "dataType": ["text"]},
                     {"name": "face", "dataType": ["blob"]},
@@ -115,12 +137,14 @@ class WeaviateClient(Database):
             }
         )
 
-        logger.debug(f"Weaviate class {class_name} created successfully.")
-        _SCHEMA_CHECKED[class_name] = True
+        logger.debug(f"Weaviate collection {class_name} created successfully.")
 
     def insert_embeddings(self, embeddings: List[Dict[str, Any]], batch_size: int = 100) -> int:
         """
-        Insert multiple embeddings into Weaviate using batch API.
+        Insert multiple embeddings into Weaviate using the batch API. Embeddings already
+            stored in the collection are skipped.
+        Returns:
+            inserted (int): number of embeddings actually inserted.
         """
         if not embeddings:
             raise ValueError("No embeddings to insert.")
@@ -137,38 +161,23 @@ class WeaviateClient(Database):
             aligned=embeddings[0]["aligned"],
             l2_normalized=embeddings[0]["l2_normalized"],
         )
+        collection = self.client.collections.use(class_name)
 
-        with self.client.batch as batcher:
-            batcher.batch_size = batch_size
-            batcher.timeout_retries = 3
-            for e in embeddings:
-                face_json = json.dumps(e["face"].tolist())
-                face_hash = hashlib.sha256(face_json.encode()).hexdigest()
-                embedding_bytes = struct.pack(f'{len(e["embedding"])}d', *e["embedding"])
-                embedding_hash = hashlib.sha256(embedding_bytes).hexdigest()
+        records: Dict[str, Dict[str, Any]] = {}
+        for e in embeddings:
+            face_json = json.dumps(e["face"].tolist())
+            face_hash = hashlib.sha256(face_json.encode()).hexdigest()
+            embedding_bytes = struct.pack(f'{len(e["embedding"])}d', *e["embedding"])
+            embedding_hash = hashlib.sha256(embedding_bytes).hexdigest()
 
-                # Check if embedding already exists
-                query = (
-                    self.client.query.get(class_name, ["embedding_hash"])
-                    .with_where(
-                        {
-                            "path": ["embedding_hash"],
-                            "operator": "Equal",
-                            "valueText": embedding_hash,
-                        }
-                    )
-                    .with_limit(1)
-                    .do()
-                )
-                existing = query.get("data", {}).get("Get", {}).get(class_name, [])
-                if existing:
-                    logger.warn(
-                        f"Embedding with hash {embedding_hash} already exists in {class_name}."
-                    )
-                    continue
+            if embedding_hash in records:
+                logger.warn(f"Embedding with hash {embedding_hash} is duplicated in the input.")
+                continue
 
-                uid = str(uuid.uuid4())
-                properties = {
+            records[embedding_hash] = {
+                "uuid": str(uuid.uuid5(uuid.NAMESPACE_OID, f"{face_hash}:{embedding_hash}")),
+                "vector": e["embedding"],
+                "properties": {
                     "img_name": e["img_name"],
                     "face": base64.b64encode(e["face"].tobytes()).decode("utf-8"),
                     "face_shape": list(e["face"].shape),
@@ -179,11 +188,32 @@ class WeaviateClient(Database):
                     "embedding": e["embedding"],  # optional
                     "face_hash": face_hash,
                     "embedding_hash": embedding_hash,
-                }
+                },
+            }
 
-                batcher.add_data_object(properties, class_name, vector=e["embedding"], uuid=uid)
+        for embedding_hash in self.__find_existing_hashes(collection, list(records.keys())):
+            logger.warn(f"Embedding with hash {embedding_hash} already exists in {class_name}.")
+            del records[embedding_hash]
 
-        return len(embeddings)
+        if not records:
+            return 0
+
+        with collection.batch.fixed_size(batch_size=batch_size) as batcher:
+            for record in records.values():
+                batcher.add_object(
+                    properties=record["properties"],
+                    vector=record["vector"],
+                    uuid=record["uuid"],
+                )
+
+        failed_objects = collection.batch.failed_objects
+        if failed_objects:
+            raise ValueError(
+                f"Failed to insert {len(failed_objects)} of {len(records)} embeddings into"
+                f" {class_name}. First error: {failed_objects[0].message}"
+            )
+
+        return len(records)
 
     def fetch_all_embeddings(
         self,
@@ -208,21 +238,18 @@ class WeaviateClient(Database):
             aligned=aligned,
             l2_normalized=l2_normalized,
         )
-
-        results = (
-            self.client.query.get(class_name, ["img_name", "embedding"])
-            .with_additional(["id"])
-            .do()
-        )
-        data = results.get("data", {}).get("Get", {}).get(class_name, [])
+        collection = self.client.collections.use(class_name)
 
         embeddings = []
-        for r in data:
+        for obj in collection.iterator(
+            return_properties=["img_name", "embedding"],
+            cache_size=batch_size,
+        ):
             embeddings.append(
                 {
-                    "id": r.get("_additional", {}).get("id"),
-                    "img_name": r["img_name"],
-                    "embedding": r["embedding"],
+                    "id": str(obj.uuid),
+                    "img_name": obj.properties["img_name"],
+                    "embedding": obj.properties["embedding"],
                     "model_name": model_name,
                     "detector_backend": detector_backend,
                     "aligned": aligned,
@@ -258,26 +285,34 @@ class WeaviateClient(Database):
             l2_normalized=l2_normalized,
         )
 
-        obj = self.client.data_object.get_by_id(
-            str(identity_id),
-            class_name=class_name,
-            with_vector=True,
-        )
-
-        if not obj:
+        # weaviate object ids are uuids, so any other id cannot be registered here
+        try:
+            uuid.UUID(str(identity_id))
+        except ValueError:
             return None
 
-        properties = obj.get("properties", {})
+        if not self.client.collections.exists(class_name):
+            return None
+
+        obj = self.client.collections.use(class_name).query.fetch_object_by_id(
+            str(identity_id),
+            include_vector=True,
+        )
+
+        if obj is None:
+            return None
+
+        properties = obj.properties
 
         return {
-            "id": obj.get("id"),
+            "id": str(obj.uuid),
             "img_name": properties.get("img_name"),
             "model_name": properties.get("model_name"),
             "detector_backend": properties.get("detector_backend"),
             "aligned": properties.get("aligned"),
             "l2_normalized": properties.get("l2_normalized"),
             # embedding is stored both as a property and as the vector of the object
-            "embedding": properties.get("embedding") or obj.get("vector"),
+            "embedding": properties.get("embedding") or obj.vector.get("default"),
         }
 
     def search_by_vector(
@@ -292,6 +327,8 @@ class WeaviateClient(Database):
         """
         ANN search using the main vector (embedding).
         """
+        from weaviate.classes.query import MetadataQuery
+
         class_name = self.__generate_class_name(
             model_name=model_name,
             detector_backend=detector_backend,
@@ -305,35 +342,58 @@ class WeaviateClient(Database):
             l2_normalized=l2_normalized,
         )
 
-        query = self.client.query.get(class_name, ["img_name", "embedding"])
-        query = (
-            query.with_near_vector({"vector": vector})
-            .with_limit(limit)
-            .with_additional(["id", "distance"])
+        response = self.client.collections.use(class_name).query.near_vector(
+            near_vector=vector,
+            limit=limit,
+            return_properties=["img_name", "embedding"],
+            return_metadata=MetadataQuery(distance=True),
         )
-        results = query.do()
 
-        data = results.get("data", {}).get("Get", {}).get(class_name, [])
-
-        return [
-            {
-                "id": r.get("_additional", {}).get("id"),
-                "img_name": r["img_name"],
-                "embedding": r["embedding"],
-                "distance": (
-                    r.get("_additional", {}).get("distance")
-                    if l2_normalized
-                    else math.sqrt(r.get("_additional", {}).get("distance"))
-                ),
-            }
-            for r in data
-        ]
+        results = []
+        for obj in response.objects:
+            distance = obj.metadata.distance or 0.0
+            results.append(
+                {
+                    "id": str(obj.uuid),
+                    "img_name": obj.properties["img_name"],
+                    "embedding": obj.properties["embedding"],
+                    # l2-squared distance is converted to euclidean distance
+                    "distance": distance if l2_normalized else math.sqrt(max(distance, 0.0)),
+                }
+            )
+        return results
 
     def close(self) -> None:
         """
         Close the Weaviate client connection.
         """
         self.client.close()
+
+    @staticmethod
+    def __find_existing_hashes(collection: Any, embedding_hashes: List[str]) -> Set[str]:
+        """
+        Find which embedding hashes are already stored in the collection.
+        """
+        from weaviate.classes.query import Filter
+
+        existing: Set[str] = set()
+        chunk_size = 100
+        for i in range(0, len(embedding_hashes), chunk_size):
+            remaining = set(embedding_hashes[i : i + chunk_size])
+            # a hash may be stored more than once, so query again until no new hash is found
+            while remaining:
+                response = collection.query.fetch_objects(
+                    filters=Filter.by_property("embedding_hash").contains_any(list(remaining)),
+                    return_properties=["embedding_hash"],
+                    limit=len(remaining),
+                )
+                found = {obj.properties["embedding_hash"] for obj in response.objects}
+                found &= remaining
+                if not found:
+                    break
+                existing |= found
+                remaining -= found
+        return existing
 
     @staticmethod
     def __generate_class_name(
@@ -352,3 +412,277 @@ class WeaviateClient(Database):
             "Norm" if l2_normalized else "Raw",
         ]
         return "Embeddings_" + "_".join(class_name_attributes).lower()
+
+
+def resolve_connection_details(
+    connection_details: Optional[Union[str, Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    """
+    Normalize connection details into a dict, applying environment variable fallbacks.
+    Args:
+        connection_details (str or dict): a Weaviate URL, a JSON object string, or a dict
+            whose keys are listed in CONNECTION_KEYS. Falls back to DEEPFACE_WEAVIATE_URI.
+    Returns:
+        details (dict): connection details.
+    """
+    if connection_details is None:
+        connection_details = os.getenv("DEEPFACE_WEAVIATE_URI") or os.getenv(
+            "DEEPFACE_WEAVIATE_URL"
+        )
+
+    details: Dict[str, Any]
+    if isinstance(connection_details, dict):
+        details = dict(connection_details)
+    elif isinstance(connection_details, str) and connection_details.strip().startswith("{"):
+        parsed = json.loads(connection_details)
+        if not isinstance(parsed, dict):
+            raise ValueError("Weaviate connection details JSON must be an object.")
+        details = parsed
+    elif isinstance(connection_details, str) and connection_details.strip():
+        details = {"url": connection_details.strip()}
+    elif connection_details is None:
+        raise ValueError(
+            "Weaviate connection details not provided. Pass connection_details or set"
+            " DEEPFACE_WEAVIATE_URI."
+        )
+    else:
+        raise ValueError("connection_details must be a string or dict with 'url'.")
+
+    unknown = set(details.keys()) - CONNECTION_KEYS
+    if unknown:
+        raise ValueError(
+            f"Unknown Weaviate connection option(s): {sorted(unknown)}."
+            f" Valid options are: {sorted(CONNECTION_KEYS)}"
+        )
+
+    env_fallbacks = {
+        "grpc_port": os.getenv("DEEPFACE_WEAVIATE_GRPC_PORT"),
+        "skip_init_checks": os.getenv("DEEPFACE_WEAVIATE_SKIP_INIT_CHECKS"),
+        "timeout": os.getenv("DEEPFACE_WEAVIATE_TIMEOUT"),
+    }
+    for key, value in env_fallbacks.items():
+        if value and key not in details:
+            details[key] = value
+
+    if "api_key" not in details and "auth" not in details and os.getenv("WEAVIATE_API_KEY"):
+        details["api_key"] = os.getenv("WEAVIATE_API_KEY")
+
+    deployment = details.get("deployment") or infer_deployment(details)
+    if deployment == "embedded":
+        raise ValueError("Embedded Weaviate is not supported by deepface.")
+    if deployment not in DEPLOYMENTS:
+        raise ValueError(f"deployment must be one of {DEPLOYMENTS}, got {deployment!r}.")
+    details["deployment"] = deployment
+
+    if deployment != "local" and not details.get("url") and not details.get("http_host"):
+        raise ValueError("Weaviate URL not provided in connection_details.")
+
+    return details
+
+
+def infer_deployment(details: Dict[str, Any]) -> str:
+    """
+    Infer the deployment type from the connection details.
+    """
+    url = details.get("url")
+    if url:
+        host = urlparse(url if "://" in url else f"https://{url}").hostname or ""
+        if host.endswith(CLOUD_HOST_SUFFIXES):
+            return "cloud"
+    return "custom"
+
+
+def connect(details: Dict[str, Any]) -> Any:
+    """
+    Connect to Weaviate with one of the weaviate client's connect_to_* helpers.
+    Args:
+        details (dict): connection details returned by resolve_connection_details.
+    Returns:
+        client (weaviate.WeaviateClient): connected client.
+    """
+    import weaviate
+
+    common: Dict[str, Any] = {
+        "headers": build_headers(details.get("headers")),
+        "additional_config": build_additional_config(details),
+        "skip_init_checks": parse_bool(details.get("skip_init_checks", False)),
+        "auth_credentials": build_auth(details),
+    }
+    deployment = details["deployment"]
+
+    if deployment == "cloud":
+        if common["auth_credentials"] is None:
+            raise ValueError("Weaviate Cloud requires an API key or auth credentials.")
+        return weaviate.connect_to_weaviate_cloud(cluster_url=details["url"], **common)
+
+    http_host, http_port, http_secure = parse_http_endpoint(details)
+
+    if common["auth_credentials"] is not None and not http_secure and not is_local(http_host):
+        logger.warn(
+            f"Weaviate credentials are sent to {http_host} without TLS. Use an https url"
+            " or set http_secure to protect them."
+        )
+
+    if deployment == "local":
+        return weaviate.connect_to_local(
+            host=http_host,
+            port=http_port,
+            grpc_port=int(details.get("grpc_port", DEFAULT_GRPC_PORT)),
+            **common,
+        )
+
+    return weaviate.connect_to_custom(
+        http_host=http_host,
+        http_port=http_port,
+        http_secure=http_secure,
+        grpc_host=details.get("grpc_host") or http_host,
+        grpc_port=int(details.get("grpc_port", DEFAULT_GRPC_PORT)),
+        grpc_secure=parse_bool(details.get("grpc_secure", http_secure)),
+        **common,
+    )
+
+
+def parse_http_endpoint(details: Dict[str, Any]) -> Tuple[str, int, bool]:
+    """
+    Resolve http host, port and secure flag from the url and the explicit overrides.
+    """
+    host, port, secure = "localhost", DEFAULT_HTTP_PORT, False
+    url = details.get("url")
+    if url:
+        parsed = urlparse(url if "://" in url else f"http://{url}")
+        secure = parsed.scheme == "https"
+        host = parsed.hostname or host
+        port = parsed.port or (443 if secure else DEFAULT_HTTP_PORT)
+
+    secure = parse_bool(details.get("http_secure", secure))
+    host = details.get("http_host") or host
+    port = int(details.get("http_port", port))
+    return host, port, secure
+
+
+def is_local(host: str) -> bool:
+    """
+    Check if a host is the local machine, where plain http does not expose credentials.
+    """
+    return host in ("localhost", "127.0.0.1", "::1") or host.endswith(".localhost")
+
+
+def build_headers(extra_headers: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    """
+    Build request headers, always including the integration header.
+    """
+    headers = dict(extra_headers or {})
+    headers.setdefault(INTEGRATION_HEADER, INTEGRATION_NAME)
+    return headers
+
+
+def build_auth(details: Dict[str, Any]) -> Any:
+    """
+    Build weaviate auth credentials from connection details.
+    Supported forms of the auth option:
+        - {"api_key": ...}
+        - {"access_token": ..., "expires_in": ..., "refresh_token": ...} (bearer token)
+        - {"client_secret": ..., "scope": ...} (OIDC client credentials)
+        - {"username": ..., "password": ..., "scope": ...} (OIDC resource owner password)
+        - an object created with weaviate.classes.init.Auth
+    """
+    from weaviate.classes.init import Auth
+
+    auth = details.get("auth")
+    if auth is not None and details.get("api_key"):
+        raise ValueError("Pass either api_key or auth in connection_details, not both.")
+    if auth is None:
+        api_key = details.get("api_key")
+        return Auth.api_key(api_key) if api_key else None
+
+    if not isinstance(auth, dict):
+        return auth
+
+    if "api_key" in auth:
+        return Auth.api_key(auth["api_key"])
+    if "access_token" in auth:
+        return Auth.bearer_token(
+            access_token=auth["access_token"],
+            expires_in=int(auth.get("expires_in", 60)),
+            refresh_token=auth.get("refresh_token"),
+        )
+    if "client_secret" in auth:
+        return Auth.client_credentials(
+            client_secret=auth["client_secret"],
+            scope=auth.get("scope"),
+        )
+    if "username" in auth and "password" in auth:
+        return Auth.client_password(
+            username=auth["username"],
+            password=auth["password"],
+            scope=auth.get("scope"),
+        )
+    raise ValueError(
+        "auth must contain one of 'api_key', 'access_token', 'client_secret'"
+        " or 'username' and 'password'."
+    )
+
+
+def build_additional_config(details: Dict[str, Any]) -> Any:
+    """
+    Build weaviate AdditionalConfig from timeout, proxies, trust_env, connection_config
+        and grpc_config options. A ready AdditionalConfig passed as additional_config
+        is used as is.
+    """
+    from weaviate.classes.init import AdditionalConfig
+    from weaviate.config import ConnectionConfig
+
+    if details.get("additional_config") is not None:
+        return details["additional_config"]
+
+    kwargs: Dict[str, Any] = {}
+    if details.get("timeout") is not None:
+        kwargs["timeout"] = build_timeout(details["timeout"])
+    if details.get("proxies") is not None:
+        kwargs["proxies"] = details["proxies"]
+    if details.get("trust_env") is not None:
+        kwargs["trust_env"] = parse_bool(details["trust_env"])
+    if details.get("connection_config") is not None:
+        kwargs["connection"] = ConnectionConfig(**details["connection_config"])
+    if details.get("grpc_config") is not None:
+        try:
+            from weaviate.config import GrpcConfig
+        except ImportError as e:
+            raise ValueError("grpc_config requires a newer weaviate-client version.") from e
+        kwargs["grpc_config"] = GrpcConfig(**details["grpc_config"])
+
+    return AdditionalConfig(**kwargs) if kwargs else None
+
+
+def build_timeout(timeout: Any) -> Any:
+    """
+    Build weaviate Timeout from a number (query and insert timeout), a list or comma
+        separated string of init, query and insert timeouts, or a dict with any of
+        init, query, insert and stream keys.
+    """
+    from weaviate.classes.init import Timeout
+
+    if isinstance(timeout, Timeout):
+        return timeout
+    if isinstance(timeout, dict):
+        return Timeout(**timeout)
+    if isinstance(timeout, str):
+        timeout = [float(value) for value in timeout.split(",")]
+        if len(timeout) == 1:
+            timeout = timeout[0]
+    if isinstance(timeout, (list, tuple)):
+        if len(timeout) != 3:
+            raise ValueError("timeout list must contain init, query and insert timeouts.")
+        return Timeout(init=timeout[0], query=timeout[1], insert=timeout[2])
+    if isinstance(timeout, (int, float)):
+        return Timeout(query=timeout, insert=timeout)
+    raise ValueError(f"Unsupported timeout value: {timeout!r}")
+
+
+def parse_bool(value: Any) -> bool:
+    """
+    Parse a boolean from a bool or a string such as 'true', '1', 'yes'.
+    """
+    if isinstance(value, str):
+        return value.strip().lower() in ("1", "true", "yes", "on")
+    return bool(value)

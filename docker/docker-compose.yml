@@ -27,9 +27,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./pgvector-init:/docker-entrypoint-initdb.d
   weaviate:
-    image: semitechnologies/weaviate:latest
+    image: cr.weaviate.io/semitechnologies/weaviate:1.39.7
     ports:
-      - "8080:8080"  # REST API / GraphQL Playground
+      - "8080:8080"  # REST API
+      - "50051:50051"  # gRPC API, used by weaviate-client v4
     environment:
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
       DEFAULT_VECTORIZER_MODULE: "none"

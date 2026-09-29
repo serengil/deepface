@@ -125,6 +125,40 @@ _ = DeepFace.build_index()
 dfs: List[pd.DataFrame] = DeepFace.search(img = "target.jpg", search_method = "ann")
 ```
 
+<details>
+<summary>Connecting to Weaviate</summary>
+
+The weaviate backend uses [weaviate-client](https://pypi.org/project/weaviate-client/) v4 (`pip install "weaviate-client>=4.16.0"`), which talks to Weaviate over REST and gRPC, and needs Weaviate 1.27 or newer. Pass a url, or a dict with any of the options below. The same dict can be given as a JSON string, e.g. in `DEEPFACE_CONNECTION_DETAILS` for the API.
+
+```python
+# self-hosted, gRPC on the default port 50051
+DeepFace.register(img = "img1.jpg", database_type = "weaviate", connection_details = "http://localhost:8080")
+
+# Weaviate Cloud
+DeepFace.register(
+  img = "img1.jpg",
+  database_type = "weaviate",
+  connection_details = {"url": "https://my-cluster.weaviate.cloud", "api_key": "..."},
+)
+
+# custom deployment
+DeepFace.register(
+  img = "img1.jpg",
+  database_type = "weaviate",
+  connection_details = {
+    "url": "https://weaviate.example.com",
+    "grpc_host": "grpc.weaviate.example.com",
+    "grpc_port": 443,
+    "auth": {"client_secret": "...", "scope": "openid"},  # or api_key, access_token, username/password
+    "timeout": {"init": 5, "query": 60, "insert": 120},
+    "skip_init_checks": False,
+  },
+)
+```
+
+Other options: `deployment` (`custom`, `cloud` or `local`, inferred from the url), `http_host`, `http_port`, `http_secure`, `grpc_secure`, `headers`, `proxies`, `trust_env`, `connection_config`, `grpc_config` and `additional_config`. `DEEPFACE_WEAVIATE_URI`, `WEAVIATE_API_KEY`, `DEEPFACE_WEAVIATE_GRPC_PORT`, `DEEPFACE_WEAVIATE_TIMEOUT` and `DEEPFACE_WEAVIATE_SKIP_INIT_CHECKS` environment variables are used when the matching option is not given. You can also pass your own `weaviate.WeaviateClient` as `connection`.
+</details>
+
 **Facial Attribute Analysis** - [`Demo`](https://youtu.be/GT2UeN85BdA)
 
 DeepFace also comes with a strong facial attribute analysis module including [`age`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`gender`](https://sefiks.com/2019/02/13/apparent-age-and-gender-prediction-in-keras/), [`facial expression`](https://sefiks.com/2018/01/01/facial-expression-recognition-with-keras/) (including angry, fear, neutral, sad, disgust, happy and surprise) and [`race`](https://sefiks.com/2019/11/11/race-and-ethnicity-prediction-in-keras/) (including asian, white, middle eastern, indian, latino and black) predictions.

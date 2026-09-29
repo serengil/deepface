@@ -1,0 +1,432 @@
+# built-in dependencies
+import json
+from types import SimpleNamespace
+from unittest.mock import MagicMock
+
+# 3rd party dependencies
+import numpy as np
+import pytest
+
+# project dependencies
+from deepface import __version__
+from deepface.modules.database import weaviate as weaviate_module
+from deepface.modules.database.weaviate import WeaviateClient, resolve_connection_details
+
+weaviate = pytest.importorskip("weaviate")
+
+# pylint: disable=redefined-outer-name, unused-argument, protected-access
+
+INTEGRATION = {"X-Weaviate-Client-Integration": f"deepface/{__version__}"}
+
+
+@pytest.fixture(autouse=True)
+def clean_env(monkeypatch):
+    for key in [
+        "DEEPFACE_WEAVIATE_URI",
+        "DEEPFACE_WEAVIATE_URL",
+        "WEAVIATE_API_KEY",
+        "DEEPFACE_WEAVIATE_GRPC_PORT",
+        "DEEPFACE_WEAVIATE_SKIP_INIT_CHECKS",
+        "DEEPFACE_WEAVIATE_TIMEOUT",
+        "WEAVIATE_HNSW_M",
+    ]:
+        monkeypatch.delenv(key, raising=False)
+
+
+@pytest.fixture
+def connectors(monkeypatch):
+    mocks = {
+        "custom": MagicMock(name="connect_to_custom"),
+        "cloud": MagicMock(name="connect_to_weaviate_cloud"),
+        "local": MagicMock(name="connect_to_local"),
+    }
+    monkeypatch.setattr(weaviate, "connect_to_custom", mocks["custom"])
+    monkeypatch.setattr(weaviate, "connect_to_weaviate_cloud", mocks["cloud"])
+    monkeypatch.setattr(weaviate, "connect_to_local", mocks["local"])
+    return mocks
+
+
+def test_url_string_connects_to_custom(connectors):
+    WeaviateClient("http://weaviate.internal:8081")
+    kwargs = connectors["custom"].call_args.kwargs
+    assert kwargs["http_host"] == "weaviate.internal"
+    assert kwargs["http_port"] == 8081
+    assert kwargs["http_secure"] is False
+    assert kwargs["grpc_host"] == "weaviate.internal"
+    assert kwargs["grpc_port"] == 50051
+    assert kwargs["grpc_secure"] is False
+    assert kwargs["headers"] == INTEGRATION
+    assert kwargs["auth_credentials"] is None
+    assert kwargs["additional_config"] is None
+    assert kwargs["skip_init_checks"] is False
+
+
+def test_https_url_defaults_to_port_443_and_secure_grpc(connectors):
+    WeaviateClient("https://weaviate.example.com")
+    kwargs = connectors["custom"].call_args.kwargs
+    assert kwargs["http_port"] == 443
+    assert kwargs["http_secure"] is True
+    assert kwargs["grpc_secure"] is True
+
+
+def test_url_without_scheme(connectors):
+    WeaviateClient("localhost:8080")
+    kwargs = connectors["custom"].call_args.kwargs
+    assert (kwargs["http_host"], kwargs["http_port"], kwargs["http_secure"]) == (
+        "localhost",
+        8080,
+        False,
+    )
+
+
+def test_custom_overrides(connectors):
+    WeaviateClient(
+        {
+            "url": "https://api.example.com",
+            "grpc_host": "grpc.example.com",
+            "grpc_port": 443,
+            "grpc_secure": True,
+            "http_port": 8443,
+            "skip_init_checks": True,
+            "headers": {"X-Proxy-Token": "abc"},
+        }
+    )
+    kwargs = connectors["custom"].call_args.kwargs
+    assert kwargs["http_host"] == "api.example.com"
+    assert kwargs["http_port"] == 8443
+    assert kwargs["grpc_host"] == "grpc.example.com"
+    assert kwargs["grpc_port"] == 443
+    assert kwargs["grpc_secure"] is True
+    assert kwargs["skip_init_checks"] is True
+    assert kwargs["headers"] == {"X-Proxy-Token": "abc", **INTEGRATION}
+
+
+def test_http_host_without_url(connectors):
+    WeaviateClient({"http_host": "10.0.0.5", "http_port": 9000, "grpc_port": 9001})
+    kwargs = connectors["custom"].call_args.kwargs
+    assert (kwargs["http_host"], kwargs["http_port"]) == ("10.0.0.5", 9000)
+    assert (kwargs["grpc_host"], kwargs["grpc_port"]) == ("10.0.0.5", 9001)
+
+
+def test_user_can_override_integration_header(connectors):
+    WeaviateClient({"url": "http://localhost:8080", "headers": {**INTEGRATION, "a": "b"}})
+    assert connectors["custom"].call_args.kwargs["headers"] == {**INTEGRATION, "a": "b"}
+    WeaviateClient(
+        {"url": "http://localhost:8080", "headers": {"X-Weaviate-Client-Integration": "my-app/1"}}
+    )
+    headers = connectors["custom"].call_args.kwargs["headers"]
+    assert headers == {"X-Weaviate-Client-Integration": "my-app/1"}
+
+
+@pytest.mark.parametrize(
+    "url",
+    ["https://abc123.c0.europe-west3.gcp.weaviate.cloud", "abc123.weaviate.network"],
+)
+def test_cloud_url_connects_to_cloud(connectors, url):
+    WeaviateClient({"url": url, "api_key": "secret"})
+    connectors["custom"].assert_not_called()
+    kwargs = connectors["cloud"].call_args.kwargs
+    assert kwargs["cluster_url"] == url
+    assert kwargs["auth_credentials"] == weaviate.classes.init.Auth.api_key("secret")
+    assert kwargs["headers"] == INTEGRATION
+
+
+def test_cloud_requires_credentials(connectors):
+    with pytest.raises(ValueError, match="requires an API key"):
+        WeaviateClient("https://abc123.weaviate.cloud")
+
+
+def test_explicit_cloud_deployment_on_custom_domain(connectors):
+    WeaviateClient({"url": "https://vectors.mycompany.com", "deployment": "cloud", "api_key": "k"})
+    assert connectors["cloud"].called
+
+
+def test_local_deployment(connectors):
+    WeaviateClient({"deployment": "local", "http_port": 8099, "grpc_port": 50099})
+    kwargs = connectors["local"].call_args.kwargs
+    assert kwargs["host"] == "localhost"
+    assert kwargs["port"] == 8099
+    assert kwargs["grpc_port"] == 50099
+    assert kwargs["headers"] == INTEGRATION
+
+
+def test_embedded_is_not_supported(connectors):
+    with pytest.raises(ValueError, match="Embedded Weaviate is not supported"):
+        WeaviateClient({"deployment": "embedded"})
+
+
+def test_unknown_deployment(connectors):
+    with pytest.raises(ValueError, match="deployment must be one of"):
+        WeaviateClient({"url": "http://localhost:8080", "deployment": "serverless"})
+
+
+def test_unknown_option_is_rejected(connectors):
+    with pytest.raises(ValueError, match="Unknown Weaviate connection option"):
+        WeaviateClient({"url": "http://localhost:8080", "grpcport": 50051})
+
+
+def test_missing_url(connectors):
+    with pytest.raises(ValueError, match="URL not provided"):
+        WeaviateClient({"api_key": "k"})
+    with pytest.raises(ValueError, match="connection details not provided"):
+        WeaviateClient()
+
+
+def test_json_string(connectors):
+    WeaviateClient(json.dumps({"url": "http://localhost:18080", "grpc_port": 15051}))
+    kwargs = connectors["custom"].call_args.kwargs
+    assert (kwargs["http_port"], kwargs["grpc_port"]) == (18080, 15051)
+
+
+def test_json_string_must_be_object():
+    with pytest.raises(ValueError):
+        resolve_connection_details("{not json")
+
+
+def test_documented_env_var_takes_precedence(connectors, monkeypatch):
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_URI", "http://documented:8080")
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_URL", "http://legacy:8080")
+    WeaviateClient()
+    assert connectors["custom"].call_args.kwargs["http_host"] == "documented"
+
+
+def test_legacy_env_var_still_works(connectors, monkeypatch):
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_URL", "http://legacy:8080")
+    WeaviateClient()
+    assert connectors["custom"].call_args.kwargs["http_host"] == "legacy"
+
+
+def test_scalar_env_fallbacks(connectors, monkeypatch):
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_URI", "http://localhost:8080")
+    monkeypatch.setenv("WEAVIATE_API_KEY", "env-key")
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_GRPC_PORT", "15051")
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_SKIP_INIT_CHECKS", "true")
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_TIMEOUT", "5,60,120")
+    WeaviateClient()
+    kwargs = connectors["custom"].call_args.kwargs
+    assert kwargs["grpc_port"] == 15051
+    assert kwargs["skip_init_checks"] is True
+    assert kwargs["auth_credentials"] == weaviate.classes.init.Auth.api_key("env-key")
+    timeout = kwargs["additional_config"].timeout
+    assert (timeout.init, timeout.query, timeout.insert) == (5, 60, 120)
+
+
+def test_explicit_options_win_over_env(connectors, monkeypatch):
+    monkeypatch.setenv("WEAVIATE_API_KEY", "env-key")
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_GRPC_PORT", "15051")
+    WeaviateClient({"url": "http://localhost:8080", "api_key": "explicit", "grpc_port": 1})
+    kwargs = connectors["custom"].call_args.kwargs
+    assert kwargs["grpc_port"] == 1
+    assert kwargs["auth_credentials"] == weaviate.classes.init.Auth.api_key("explicit")
+
+
+@pytest.mark.parametrize(
+    "auth, expected",
+    [
+        ({"api_key": "k"}, lambda Auth: Auth.api_key("k")),
+        (
+            {"access_token": "at", "expires_in": 120, "refresh_token": "rt"},
+            lambda Auth: Auth.bearer_token(access_token="at", expires_in=120, refresh_token="rt"),
+        ),
+        (
+            {"client_secret": "cs", "scope": ["openid"]},
+            lambda Auth: Auth.client_credentials(client_secret="cs", scope=["openid"]),
+        ),
+        (
+            {"username": "u", "password": "p", "scope": "offline_access"},
+            lambda Auth: Auth.client_password(username="u", password="p", scope="offline_access"),
+        ),
+    ],
+)
+def test_auth_variants(connectors, auth, expected):
+    WeaviateClient({"url": "http://localhost:8080", "auth": auth})
+    Auth = weaviate.classes.init.Auth
+    assert connectors["custom"].call_args.kwargs["auth_credentials"] == expected(Auth)
+
+
+def test_auth_object_is_passed_through(connectors):
+    credentials = weaviate.classes.init.Auth.client_password(username="u", password="p")
+    WeaviateClient({"url": "http://localhost:8080", "auth": credentials})
+    assert connectors["custom"].call_args.kwargs["auth_credentials"] is credentials
+
+
+def test_invalid_auth(connectors):
+    with pytest.raises(ValueError, match="auth must contain"):
+        WeaviateClient({"url": "http://localhost:8080", "auth": {"token": "x"}})
+
+
+@pytest.mark.parametrize(
+    "timeout, expected",
+    [
+        (45, (2, 45, 45)),
+        ([3, 40, 100], (3, 40, 100)),
+        ({"init": 4, "query": 50}, (4, 50, 90)),
+        ("12", (2, 12, 12)),
+        ("1,2,3", (1, 2, 3)),
+    ],
+)
+def test_timeout_forms(connectors, timeout, expected):
+    WeaviateClient({"url": "http://localhost:8080", "timeout": timeout})
+    t = connectors["custom"].call_args.kwargs["additional_config"].timeout
+    assert (t.init, t.query, t.insert) == expected
+
+
+def test_invalid_timeout(connectors):
+    with pytest.raises(ValueError, match="init, query and insert"):
+        WeaviateClient({"url": "http://localhost:8080", "timeout": [1, 2]})
+
+
+def test_additional_config_options(connectors):
+    WeaviateClient(
+        {
+            "url": "http://localhost:8080",
+            "proxies": "http://proxy:3128",
+            "trust_env": "true",
+            "connection_config": {"session_pool_connections": 7},
+        }
+    )
+    config = connectors["custom"].call_args.kwargs["additional_config"]
+    assert config.proxies == "http://proxy:3128"
+    assert config.trust_env is True
+    assert config.connection.session_pool_connections == 7
+
+
+def test_ready_additional_config_is_passed_through(connectors):
+    config = weaviate.classes.init.AdditionalConfig(trust_env=True)
+    WeaviateClient({"url": "http://localhost:8080", "additional_config": config})
+    assert connectors["custom"].call_args.kwargs["additional_config"] is config
+
+
+def test_v4_connection_is_accepted(connectors):
+    connection = MagicMock(spec=weaviate.WeaviateClient)
+    client = WeaviateClient(connection=connection)
+    assert client.client is connection
+    connectors["custom"].assert_not_called()
+
+
+def test_v3_connection_is_rejected(connectors):
+    v3_client = SimpleNamespace(schema=object(), query=object())
+    with pytest.raises(ValueError, match="weaviate.Client from v3 is no longer supported"):
+        WeaviateClient(connection=v3_client)
+
+
+def build_client(existing_hashes=(), failed_objects=()):
+    connection = MagicMock(spec=weaviate.WeaviateClient)
+    connection.collections = MagicMock()
+    connection.collections.exists.return_value = True
+    collection = connection.collections.use.return_value
+
+    def fetch_objects(filters, return_properties, limit):
+        objects = [
+            SimpleNamespace(properties={"embedding_hash": h}) for h in existing_hashes
+        ][:limit]
+        return SimpleNamespace(objects=objects)
+
+    collection.query.fetch_objects.side_effect = fetch_objects
+    collection.batch.failed_objects = list(failed_objects)
+    batcher = collection.batch.fixed_size.return_value.__enter__.return_value
+    return WeaviateClient(connection=connection), collection, batcher
+
+
+def embedding_record(value):
+    return {
+        "img_name": f"img{value}.jpg",
+        "face": np.full((2, 2, 3), value, dtype=np.float64),
+        "model_name": "Facenet",
+        "detector_backend": "opencv",
+        "aligned": True,
+        "l2_normalized": False,
+        "embedding": [float(value), 1.0],
+    }
+
+
+def embedding_hash(value):
+    import hashlib
+    import struct
+
+    return hashlib.sha256(struct.pack("2d", float(value), 1.0)).hexdigest()
+
+
+def test_insert_skips_existing_and_duplicate_embeddings():
+    client, collection, batcher = build_client(existing_hashes=[embedding_hash(1)])
+    records = [embedding_record(1), embedding_record(2), embedding_record(2), embedding_record(3)]
+
+    inserted = client.insert_embeddings(records, batch_size=50)
+
+    assert inserted == 2
+    collection.batch.fixed_size.assert_called_once_with(batch_size=50)
+    added = [call.kwargs for call in batcher.add_object.call_args_list]
+    assert [a["properties"]["img_name"] for a in added] == ["img2.jpg", "img3.jpg"]
+    assert added[0]["vector"] == [2.0, 1.0]
+    assert added[0]["properties"]["embedding_hash"] == embedding_hash(2)
+    # deterministic ids make retries idempotent
+    client_again, _, batcher_again = build_client()
+    client_again.insert_embeddings([embedding_record(2)])
+    assert batcher_again.add_object.call_args.kwargs["uuid"] == added[0]["uuid"]
+
+
+def test_insert_returns_zero_when_everything_exists():
+    client, _, batcher = build_client(existing_hashes=[embedding_hash(1)])
+    assert client.insert_embeddings([embedding_record(1)]) == 0
+    batcher.add_object.assert_not_called()
+
+
+def test_insert_raises_on_failed_objects():
+    failed = [SimpleNamespace(message="vector lengths don't match")]
+    client, _, _ = build_client(failed_objects=failed)
+    with pytest.raises(ValueError, match="vector lengths don't match"):
+        client.insert_embeddings([embedding_record(1)])
+
+
+def test_hnsw_m_env_maps_to_max_connections(monkeypatch):
+    monkeypatch.setenv("WEAVIATE_HNSW_M", "48")
+    client, _, _ = build_client()
+    client.client.collections.exists.return_value = False
+    client.initialize_database(model_name="Facenet", detector_backend="opencv")
+    schema = client.client.collections.create_from_dict.call_args.args[0]
+    assert schema["class"] == "Embeddings_facenet_opencv_aligned_raw"
+    assert schema["vectorIndexConfig"] == {"distance": "l2-squared", "maxConnections": 48}
+
+
+@pytest.mark.parametrize("identity_id", [17, "17", "not-a-uuid"])
+def test_fetch_embedding_with_non_uuid_id_returns_none(identity_id):
+    client, collection, _ = build_client()
+    assert client.fetch_embedding(identity_id, model_name="Facenet") is None
+    collection.query.fetch_object_by_id.assert_not_called()
+
+
+def test_api_key_and_auth_are_exclusive(connectors):
+    with pytest.raises(ValueError, match="either api_key or auth"):
+        WeaviateClient({"url": "http://localhost:8080", "api_key": "k", "auth": {"api_key": "k"}})
+
+
+def test_env_api_key_does_not_conflict_with_auth(connectors, monkeypatch):
+    monkeypatch.setenv("WEAVIATE_API_KEY", "env-key")
+    WeaviateClient({"url": "http://localhost:8080", "auth": {"access_token": "at"}})
+    credentials = connectors["custom"].call_args.kwargs["auth_credentials"]
+    assert credentials == weaviate.classes.init.Auth.bearer_token(access_token="at")
+
+
+@pytest.mark.parametrize(
+    "url, warned",
+    [
+        ("http://weaviate.internal:8080", True),
+        ("https://weaviate.internal", False),
+        ("http://localhost:8080", False),
+        ("http://127.0.0.1:8080", False),
+    ],
+)
+def test_credentials_over_plain_http_warn(connectors, monkeypatch, url, warned):
+    warnings = []
+    monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
+    WeaviateClient({"url": url, "api_key": "s3cr3t-value"})
+    assert bool(warnings) is warned
+    # the warning names the host, never the credentials
+    assert all("s3cr3t-value" not in w for w in warnings)
+
+
+def test_no_warning_without_credentials(connectors, monkeypatch):
+    warnings = []
+    monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
+    WeaviateClient("http://weaviate.internal:8080")
+    assert not warnings
