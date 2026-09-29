@@ -663,3 +663,40 @@ def test_landmarks_are_raw_python_types(monkeypatch):
             assert all(isinstance(coord, int) for coord in value)
         else:
             assert isinstance(value, int)
+
+
+def test_numpy_types_in_response_are_serializable(monkeypatch):
+    from deepface.api.src.modules.core import service
+
+    fake_result = {
+        "verified": np.bool_(True),
+        "distance": np.float32(0.25),
+        "threshold": np.float64(0.68),
+        "facial_areas": {"img1": {"x": np.int64(10), "left_eye": (np.int32(1), np.int32(2))}},
+        "embedding": np.array([0.1, 0.2], dtype=np.float32),
+    }
+    monkeypatch.setattr(service.DeepFace, "verify", lambda **kwargs: fake_result)
+
+    app = create_app()
+    app.config["TESTING"] = True
+    client = app.test_client()
+    response = client.post(
+        "/verify",
+        json={"img1": "dataset/img1.jpg", "img2": "dataset/img2.jpg"},
+    )
+
+    assert response.status_code == 200
+    result = response.json
+    assert result["verified"] is True
+    assert abs(result["distance"] - 0.25) < 1e-6
+    assert result["facial_areas"]["img1"]["x"] == 10
+    assert result["facial_areas"]["img1"]["left_eye"] == [1, 2]
+    assert len(result["embedding"]) == 2
+
+    native = service.to_native(fake_result)
+    assert type(native["distance"]) is float
+    assert type(native["facial_areas"]["img1"]["x"]) is int
+    assert type(native["embedding"]) is list
+    left_eye = native["facial_areas"]["img1"]["left_eye"]
+    assert left_eye == (1, 2)
+    assert all(type(coord) is int for coord in left_eye)
