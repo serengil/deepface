@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Tuple, Union, cast
+from typing import List, Tuple, Union, cast
 
 # 3rd party dependencies
 import torch
@@ -16,12 +16,14 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # pylint:disable=line-too-long
-FACENET128_WEIGHTS = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.pth"
-)
-FACENET512_WEIGHTS = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.pth"
-)
+FACENET128_WEIGHTS = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/facenet_weights.pth",
+]
+FACENET512_WEIGHTS = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/facenet512_weights.pth",
+]
 
 # batch normalizations are configured as they were in the tensorflow backend. keras' momentum
 # is the complement of pytorch's one, and scale=False means gamma is not learned but kept as 1.
@@ -288,8 +290,8 @@ class InceptionResNetV1(nn.Module):  # type: ignore[misc]
         return cast(Tensor, self.bottleneck_bn(x))
 
 
-def load_facenet128d_model(
-    url: str = FACENET128_WEIGHTS,
+def load_facenet128d_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = FACENET128_WEIGHTS,
 ) -> InceptionResNetV1:
     """
     Construct FaceNet-128d model, download weights and then load weights
@@ -305,8 +307,8 @@ def load_facenet128d_model(
     return load_model_weights(model=model, weight_file=weight_file)
 
 
-def load_facenet512d_model(
-    url: str = FACENET512_WEIGHTS,
+def load_facenet512d_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = FACENET512_WEIGHTS,
 ) -> InceptionResNetV1:
     """
     Construct FaceNet-512d model, download its weights and load

@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any
+from typing import Any, List, Union
 
 # 3rd party dependencies
 from numpy.typing import NDArray
@@ -46,12 +46,14 @@ else:
     from tensorflow.keras import backend as K
 
 # pylint:disable=line-too-long
-FACENET128_WEIGHTS = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.h5"
-)
-FACENET512_WEIGHTS = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.h5"
-)
+FACENET128_WEIGHTS = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet_weights.h5",
+    "https://huggingface.co/serengil/deepface/resolve/main/facenet_weights.h5",
+]
+FACENET512_WEIGHTS = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/facenet512_weights.h5",
+    "https://huggingface.co/serengil/deepface/resolve/main/facenet512_weights.h5",
+]
 
 # --------------------------------
 
@@ -1668,8 +1670,8 @@ def InceptionResNetV1(dimension: int = 128) -> Model:
     return model
 
 
-def load_facenet128d_model(
-    url: str = FACENET128_WEIGHTS,
+def load_facenet128d_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = FACENET128_WEIGHTS,
 ) -> Model:
     """
     Construct FaceNet-128d model, download weights and then load weights
@@ -1688,8 +1690,8 @@ def load_facenet128d_model(
     return model
 
 
-def load_facenet512d_model(
-    url: str = FACENET512_WEIGHTS,
+def load_facenet512d_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = FACENET512_WEIGHTS,
 ) -> Model:
     """
     Construct FaceNet-512d model, download its weights and load

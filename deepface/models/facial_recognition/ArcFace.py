@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any
+from typing import Any, List, Union
 
 # project dependencies
 from deepface.commons import package_utils, weight_utils
@@ -43,9 +43,10 @@ else:
         Dense,
     )
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.h5"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/arcface_weights.h5",
+    "https://huggingface.co/serengil/deepface/resolve/main/arcface_weights.h5",
+]
 
 
 # pylint: disable=too-few-public-methods
@@ -61,8 +62,8 @@ class ArcFaceClient(FacialRecognition):
         self.output_shape = 512
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> Model:
     """
     Construct ArcFace model, download its weights and load

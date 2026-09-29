@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import cast
+from typing import List, Union, cast
 
 # 3rd party dependencies
 import torch
@@ -17,9 +17,10 @@ logger = Logger()
 
 # pylint: disable=line-too-long
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_weights.pth"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/deepid_weights.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/deepid_weights.pth",
+]
 
 
 # pylint: disable=too-few-public-methods
@@ -78,8 +79,8 @@ class DeepIdNet(nn.Module):  # type: ignore[misc]
         return cast(Tensor, self.relu(fc11 + fc12))
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> DeepIdNet:
     """
     Construct DeepId model, download its weights and load

@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Tuple, Union, cast
+from typing import List, Tuple, Union, cast
 
 # 3rd party dependencies
 import torch
@@ -16,9 +16,10 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.pth"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/openface_weights.pth",
+]
 
 # batch normalizations are configured as they were in the tensorflow backend. keras' momentum
 # is the complement of pytorch's one.
@@ -257,8 +258,8 @@ class OpenFaceNet(nn.Module):  # type: ignore[misc]
         return cast(Tensor, x * torch.rsqrt(squared_sum))
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> OpenFaceNet:
     """
     Construct OpenFace model, download its weights and load

@@ -36,7 +36,10 @@ logger = Logger()
 
 # pylint: disable=line-too-long, disable=too-few-public-methods
 
-WEIGHTS_URL = "https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5"
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5",
+    "https://huggingface.co/serengil/deepface/resolve/main/facial_expression_model_weights.h5",
+]
 
 
 class EmotionClient(Demography):
@@ -84,8 +87,8 @@ class EmotionClient(Demography):
         return predictions
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> Sequential:
     """
     Consruct emotion model, download and load weights

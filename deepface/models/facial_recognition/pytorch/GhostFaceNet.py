@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Optional, cast
+from typing import List, Optional, Union, cast
 
 # 3rd party dependencies
 import torch
@@ -17,9 +17,10 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # pylint: disable=line-too-long
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/ghostfacenet_v1.pth"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/ghostfacenet_v1.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/ghostfacenet_v1.pth",
+]
 
 # batch normalizations keep keras' defaults, whose momentum is pytorch's complement
 BN_EPS = 0.001
@@ -286,8 +287,8 @@ def base_model() -> GhostFaceNetV1:
     return GhostFaceNetV1()
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> GhostFaceNetV1:
     """
     Construct GhostFaceNet model, download its weights and load

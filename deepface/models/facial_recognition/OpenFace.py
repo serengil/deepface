@@ -1,3 +1,6 @@
+# built-in dependencies
+from typing import List, Union
+
 # 3rd party dependencies
 import tensorflow as tf
 
@@ -24,9 +27,10 @@ else:
 
 # pylint: disable=unnecessary-lambda
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5",
+    "https://huggingface.co/serengil/deepface/resolve/main/openface_weights.h5",
+]
 
 # ---------------------------------------
 
@@ -44,8 +48,8 @@ class OpenFaceClient(FacialRecognition):
         self.output_shape = 128
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> Model:
     """
     Consturct OpenFace model, download its weights and load

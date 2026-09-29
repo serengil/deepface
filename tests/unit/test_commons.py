@@ -53,6 +53,14 @@ def test_loading_broken_weights():
     logger.info("✅ test loading broken weight file is done")
 
 
+@pytest.fixture(autouse=True)
+def mock_requests_head():
+    # sources are checked with a head request before being downloaded with gdown
+    with mock.patch("requests.head") as mocked:
+        mocked.return_value.status_code = 200
+        yield mocked
+
+
 @mock.patch("deepface.commons.folder_utils.get_deepface_home")  # Update with your actual module
 @mock.patch("gdown.download")  # Mocking gdown's download function
 @mock.patch("os.path.isfile")  # Mocking os.path.isfile
@@ -151,6 +159,129 @@ class TestDownloadWeightFeature:
         mock_bz2file.assert_not_called()
 
         logger.info("✅ test download weights with no compression is done")
+
+    def test_download_weights_if_necessary_backup_source(
+        self,
+        mock_open: MagicMock,
+        mock_zipfile: MagicMock,
+        mock_bz2file: MagicMock,
+        mock_makedir: MagicMock,
+        mock_isfile: MagicMock,
+        mock_gdown: MagicMock,
+        mock_get_deepface_home: MagicMock,
+    ):
+        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
+        mock_isfile.return_value = False
+
+        file_name = "model_weights.h5"
+        source_urls = [
+            "http://example.com/model_weights.h5",
+            "http://backup.example.com/model_weights.h5",
+        ]
+
+        # primary source fails, backup one succeeds
+        mock_gdown.side_effect = [Exception("Download failed!"), None]
+
+        result = weight_utils.download_weights_if_necessary(file_name, source_urls)
+
+        expected_path = os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
+        assert result == expected_path
+        assert mock_gdown.call_args_list == [
+            mock.call(source_urls[0], expected_path, quiet=False),
+            mock.call(source_urls[1], expected_path, quiet=False),
+        ]
+
+        logger.info("✅ test download weights from backup source is done")
+
+    def test_download_weights_if_necessary_backup_source_when_primary_not_found(
+        self,
+        mock_open: MagicMock,
+        mock_zipfile: MagicMock,
+        mock_bz2file: MagicMock,
+        mock_makedir: MagicMock,
+        mock_isfile: MagicMock,
+        mock_gdown: MagicMock,
+        mock_get_deepface_home: MagicMock,
+        mock_requests_head: MagicMock,
+    ):
+        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
+        mock_isfile.return_value = False
+
+        file_name = "model_weights.h5"
+        source_urls = [
+            "http://example.com/model_weights.h5",
+            "http://backup.example.com/model_weights.h5",
+        ]
+
+        # gdown does not raise for 404, so the primary source must be skipped before it
+        not_found, found = MagicMock(status_code=404), MagicMock(status_code=200)
+        mock_requests_head.side_effect = [not_found, found]
+
+        weight_utils.download_weights_if_necessary(file_name, source_urls)
+
+        expected_path = os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
+        mock_gdown.assert_called_once_with(source_urls[1], expected_path, quiet=False)
+
+        logger.info("✅ test download weights from backup source when primary is not found done")
+
+    def test_download_weights_if_necessary_primary_source_first(
+        self,
+        mock_open: MagicMock,
+        mock_zipfile: MagicMock,
+        mock_bz2file: MagicMock,
+        mock_makedir: MagicMock,
+        mock_isfile: MagicMock,
+        mock_gdown: MagicMock,
+        mock_get_deepface_home: MagicMock,
+    ):
+        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
+        mock_isfile.return_value = False
+
+        file_name = "model_weights.h5"
+        source_urls = [
+            "http://example.com/model_weights.h5",
+            "http://backup.example.com/model_weights.h5",
+        ]
+
+        weight_utils.download_weights_if_necessary(file_name, source_urls)
+
+        # backup source must not be touched when the primary one succeeds
+        expected_path = os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
+        mock_gdown.assert_called_once_with(source_urls[0], expected_path, quiet=False)
+
+        logger.info("✅ test download weights from primary source is done")
+
+    def test_download_weights_if_necessary_all_sources_fail(
+        self,
+        mock_open: MagicMock,
+        mock_zipfile: MagicMock,
+        mock_bz2file: MagicMock,
+        mock_makedir: MagicMock,
+        mock_isfile: MagicMock,
+        mock_gdown: MagicMock,
+        mock_get_deepface_home: MagicMock,
+    ):
+        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
+        mock_isfile.return_value = False
+
+        file_name = "model_weights.h5"
+        source_urls = [
+            "http://example.com/model_weights.h5",
+            "http://backup.example.com/model_weights.h5",
+        ]
+
+        mock_gdown.side_effect = Exception("Download failed!")
+
+        with pytest.raises(
+            ValueError,
+            match=f"⛓️‍💥 An exception occurred while downloading {file_name} from "
+            f"{source_urls[0]}, {source_urls[1]}.",
+        ):
+            weight_utils.download_weights_if_necessary(file_name, source_urls)
+
+        assert mock_gdown.call_count == 2
+
+        logger.info("✅ test download weights while all sources fail is done")
 
     def test_download_weights_if_necessary_zip(
         self,

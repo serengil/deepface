@@ -14,8 +14,14 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # pylint: disable=line-too-long, too-few-public-methods, nested-min-max
-FIRST_WEIGHTS_URL = "https://github.com/serengil/deepface_models/releases/download/v1.0/2.7_80x80_MiniFASNetV2.h5"
-SECOND_WEIGHTS_URL = "https://github.com/serengil/deepface_models/releases/download/v1.0/4_0_0_80x80_MiniFASNetV1SE.h5"
+FIRST_WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/2.7_80x80_MiniFASNetV2.h5",
+    "https://huggingface.co/serengil/deepface/resolve/main/2.7_80x80_MiniFASNetV2.h5",
+]
+SECOND_WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/4_0_0_80x80_MiniFASNetV1SE.h5",
+    "https://huggingface.co/serengil/deepface/resolve/main/4_0_0_80x80_MiniFASNetV1SE.h5",
+]
 
 
 class Fasnet:

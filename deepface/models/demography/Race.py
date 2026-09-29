@@ -23,9 +23,10 @@ else:
     from tensorflow.keras.models import Model, Sequential
     from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 
-WEIGHTS_URL = (
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5"
-)
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5",
+    "https://huggingface.co/serengil/deepface/resolve/main/race_model_single_batch.h5",
+]
 # Labels for the ethnic phenotypes that can be detected by the model.
 labels = RACE_LABELS
 
@@ -62,8 +63,8 @@ class RaceClient(Demography):
         return predictions
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> Model:
     """
     Construct race model, download its weights and load
