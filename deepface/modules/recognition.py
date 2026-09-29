@@ -311,7 +311,7 @@ def find(
     )
 
     pretuned_threshold = verification.find_threshold(model_name, distance_metric)
-    target_threshold = threshold or pretuned_threshold
+    target_threshold = pretuned_threshold if threshold is None else threshold
 
     if batched:
         return find_batched(

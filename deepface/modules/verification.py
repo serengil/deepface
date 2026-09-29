@@ -215,7 +215,7 @@ def verify(
     # find the face pair with minimum distance
     pretuned_threshold = find_threshold(model_name, distance_metric)
 
-    threshold = threshold or pretuned_threshold
+    threshold = pretuned_threshold if threshold is None else threshold
     distance = float(min_distance)
     confidence = find_confidence(
         distance=distance,
