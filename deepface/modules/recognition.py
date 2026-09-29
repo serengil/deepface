@@ -306,6 +306,7 @@ def find(
             align=align,
             expand_percentage=expand_percentage,
             anti_spoofing=anti_spoofing,
+            color_face="bgr",  # `represent` expects images in bgr format.
         ),
     )
 
