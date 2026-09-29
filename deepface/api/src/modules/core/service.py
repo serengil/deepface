@@ -3,6 +3,7 @@ import traceback
 from typing import Optional, Union, Dict, Any, Tuple, List
 
 # 3rd party dependencies
+import numpy as np
 from numpy.typing import NDArray
 
 # project dependencies
@@ -13,6 +14,24 @@ logger = Logger()
 
 
 # pylint: disable=broad-except, too-many-positional-arguments
+
+
+def to_native(obj: Any) -> Any:
+    """
+    Recursively converts numpy types in a response into core python types
+    so that the response is json serializable regardless of the flask version.
+    """
+    if isinstance(obj, dict):
+        return {to_native(key): to_native(value) for key, value in obj.items()}
+    if isinstance(obj, list):
+        return [to_native(item) for item in obj]
+    if isinstance(obj, tuple):
+        return tuple(to_native(item) for item in obj)
+    if isinstance(obj, np.ndarray):
+        return to_native(obj.tolist())
+    if isinstance(obj, np.generic):
+        return obj.item()
+    return obj
 
 
 def represent(
@@ -36,7 +55,7 @@ def represent(
             max_faces=max_faces,
         )
         result["results"] = embedding_objs
-        return result, 200
+        return to_native(result), 200
     except Exception as err:
         tb_str = traceback.format_exc()
         logger.error(str(err))
@@ -65,7 +84,7 @@ def verify(
             enforce_detection=enforce_detection,
             anti_spoofing=anti_spoofing,
         )
-        return obj, 200
+        return to_native(obj), 200
     except Exception as err:
         tb_str = traceback.format_exc()
         logger.error(str(err))
@@ -93,7 +112,7 @@ def analyze(
             anti_spoofing=anti_spoofing,
         )
         result["results"] = demographies
-        return result, 200
+        return to_native(result), 200
     except Exception as err:
         tb_str = traceback.format_exc()
         logger.error(str(err))
@@ -116,23 +135,21 @@ def register(
     connection_details: str,
 ) -> Tuple[Dict[str, Any], int]:
     try:
-        return (
-            DeepFace.register(
-                img=img,
-                img_name=img_name,
-                model_name=model_name,
-                detector_backend=detector_backend,
-                enforce_detection=enforce_detection,
-                align=align,
-                l2_normalize=l2_normalize,
-                expand_percentage=expand_percentage,
-                normalization=normalization,
-                anti_spoofing=anti_spoofing,
-                database_type=database_type,
-                connection_details=connection_details,
-            ),
-            200,
+        obj = DeepFace.register(
+            img=img,
+            img_name=img_name,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            enforce_detection=enforce_detection,
+            align=align,
+            l2_normalize=l2_normalize,
+            expand_percentage=expand_percentage,
+            normalization=normalization,
+            anti_spoofing=anti_spoofing,
+            database_type=database_type,
+            connection_details=connection_details,
         )
+        return to_native(obj), 200
     except Exception as err:
         tb_str = traceback.format_exc()
         logger.error(str(err))
@@ -178,7 +195,7 @@ def search(
         )
 
         result["results"] = [df.to_dict(orient="records") for df in dfs]
-        return result, 200
+        return to_native(result), 200
 
     except Exception as err:
         tb_str = traceback.format_exc()
