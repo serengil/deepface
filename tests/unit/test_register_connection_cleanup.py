@@ -133,3 +133,78 @@ def test_repeated_failures_release_every_owned_client(monkeypatch, storage):
             datastore.register("synthetic.png", detector_backend="skip")
     assert len(clients) == 20
     assert all(client.closed == 1 for client in clients)
+
+@pytest.mark.parametrize("owned", [False, True])
+def test_batch_graph_registration_preserves_nondefault_options(storage, monkeypatch, owned):
+    sources = ["first.png", "second.png"]
+    images = [np.zeros((2, 2, 3)), np.ones((2, 2, 3))]
+    loaded = []
+    calls = {}
+
+    def load_image(source):
+        loaded.append(source)
+        return images[sources.index(source)], source
+
+    def represent(**kwargs):
+        calls["represent"] = kwargs
+        return [
+            [{"embedding": [1.0, 0.0], "face": image}]
+            for image in images
+        ]
+
+    def assign_attributes(**kwargs):
+        calls["attributes"] = kwargs
+        for result in kwargs["results"]:
+            result["age"] = 30 + result["img_index"]
+
+    monkeypatch.setattr(datastore.image_utils, "load_image", load_image)
+    monkeypatch.setattr(datastore, "represent", represent)
+    monkeypatch.setattr(datastore, "__assign_attributes", assign_attributes)
+    result = datastore.register(
+        sources,
+        model_name="Facenet512",
+        detector_backend="skip",
+        enforce_detection=False,
+        align=False,
+        l2_normalize=True,
+        expand_percentage=7,
+        normalization="Facenet",
+        anti_spoofing=True,
+        database_type="neo4j",
+        connection=None if owned else object(),
+    )
+    assert result == {"inserted": 2}
+    assert storage.closed == int(owned)
+    assert loaded == sources
+    represented = calls["represent"].copy()
+    model_input = represented.pop("img_path")
+    assert all(actual is expected for actual, expected in zip(model_input, images))
+    assert represented == {
+        "model_name": "Facenet512",
+        "detector_backend": "skip",
+        "enforce_detection": False,
+        "align": False,
+        "anti_spoofing": True,
+        "expand_percentage": 7,
+        "normalization": "Facenet",
+        "l2_normalize": True,
+        "return_face": True,
+    }
+    attributes = calls["attributes"].copy()
+    results = attributes.pop("results")
+    assigned_images = attributes.pop("images")
+    assert all(actual is expected for actual, expected in zip(assigned_images, images))
+    assert [item["img_index"] for item in results] == [0, 1]
+    assert attributes == {
+        "attributes": datastore.FACIAL_ATTRIBUTES,
+        "detector_backend": "skip",
+        "enforce_detection": False,
+        "align": False,
+        "expand_percentage": 7,
+        "anti_spoofing": True,
+    }
+    assert [item["img_name"] for item in storage.inserted] == sources
+    assert [item["age"] for item in storage.inserted] == [30, 31]
+    assert all(item["aligned"] is False for item in storage.inserted)
+    assert all(item["l2_normalized"] is True for item in storage.inserted)
+

@@ -111,81 +111,112 @@ def register(
     )
 
     try:
-        # graph databases store facial attributes as properties of face nodes
-        attributes: List[str] = (
-            FACIAL_ATTRIBUTES if database_inventory[database_type]["is_graph_db"] is True else []
-        )
-
-        sources = __split_images(img)
-
-        # load images once, file objects may not be readable twice by recognition and analysis
-        model_input: Any = img
-        if attributes:
-            sources_loaded = [image_utils.load_image(source)[0] for source in sources]
-            model_input = sources_loaded if len(sources) > 1 else sources_loaded[0]
-
-        results = __get_embeddings(
-            img=model_input,
+        return __register(
+            db_client=db_client,
+            img=img,
+            img_name=img_name,
             model_name=model_name,
             detector_backend=detector_backend,
             enforce_detection=enforce_detection,
             align=align,
-            anti_spoofing=anti_spoofing,
+            l2_normalize=l2_normalize,
             expand_percentage=expand_percentage,
             normalization=normalization,
-            l2_normalize=l2_normalize,
-            return_face=True,
+            anti_spoofing=anti_spoofing,
+            database_type=database_type,
         )
-
-        if attributes:
-            __assign_attributes(
-                results=results,
-                images=sources_loaded,
-                attributes=attributes,
-                detector_backend=detector_backend,
-                enforce_detection=enforce_detection,
-                align=align,
-                expand_percentage=expand_percentage,
-                anti_spoofing=anti_spoofing,
-            )
-
-        # faces detected in the same image share the same identifier
-        img_identifiers: Dict[int, str] = {}
-        embedding_records: List[Dict[str, Any]] = []
-        for result in results:
-            img_index = result["img_index"]
-            if img_index not in img_identifiers:
-                source = sources[img_index]
-                img_identifiers[img_index] = img_name or (
-                    source
-                    if isinstance(source, str) and source.endswith((".jpg", ".jpeg", ".png"))
-                    else str(uuid.uuid4())
-                )
-
-            embedding_record = {
-                "id": None,
-                "img_name": img_identifiers[img_index],
-                "img_index": img_index,
-                "face": result["face"],
-                "model_name": model_name,
-                "detector_backend": detector_backend,
-                "embedding": result["embedding"],
-                "aligned": align,
-                "l2_normalized": l2_normalize,
-            }
-            for attribute in FACIAL_ATTRIBUTES:
-                if attribute in result:
-                    embedding_record[attribute] = result[attribute]
-            embedding_records.append(embedding_record)
-
-        inserted = db_client.insert_embeddings(embedding_records, batch_size=100)
-        logger.debug(f"Successfully registered {inserted} embeddings to the database.")
-
-        return {"inserted": inserted}
     finally:
         # Caller-supplied connections remain owned by the caller.
         if connection is None:
             db_client.close()
+
+
+def __register(
+    db_client: Database,
+    img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
+    img_name: Optional[str],
+    model_name: str,
+    detector_backend: str,
+    enforce_detection: bool,
+    align: bool,
+    l2_normalize: bool,
+    expand_percentage: int,
+    normalization: str,
+    anti_spoofing: bool,
+    database_type: str,
+) -> Dict[str, Any]:
+    """Register identities using a database client managed by the caller."""
+    # graph databases store facial attributes as properties of face nodes
+    attributes: List[str] = (
+        FACIAL_ATTRIBUTES if database_inventory[database_type]["is_graph_db"] is True else []
+    )
+
+    sources = __split_images(img)
+
+    # load images once, file objects may not be readable twice by recognition and analysis
+    model_input: Any = img
+    if attributes:
+        sources_loaded = [image_utils.load_image(source)[0] for source in sources]
+        model_input = sources_loaded if len(sources) > 1 else sources_loaded[0]
+
+    results = __get_embeddings(
+        img=model_input,
+        model_name=model_name,
+        detector_backend=detector_backend,
+        enforce_detection=enforce_detection,
+        align=align,
+        anti_spoofing=anti_spoofing,
+        expand_percentage=expand_percentage,
+        normalization=normalization,
+        l2_normalize=l2_normalize,
+        return_face=True,
+    )
+
+    if attributes:
+        __assign_attributes(
+            results=results,
+            images=sources_loaded,
+            attributes=attributes,
+            detector_backend=detector_backend,
+            enforce_detection=enforce_detection,
+            align=align,
+            expand_percentage=expand_percentage,
+            anti_spoofing=anti_spoofing,
+        )
+
+    # faces detected in the same image share the same identifier
+    img_identifiers: Dict[int, str] = {}
+    embedding_records: List[Dict[str, Any]] = []
+    for result in results:
+        img_index = result["img_index"]
+        if img_index not in img_identifiers:
+            source = sources[img_index]
+            img_identifiers[img_index] = img_name or (
+                source
+                if isinstance(source, str) and source.endswith((".jpg", ".jpeg", ".png"))
+                else str(uuid.uuid4())
+            )
+
+        embedding_record = {
+            "id": None,
+            "img_name": img_identifiers[img_index],
+            "img_index": img_index,
+            "face": result["face"],
+            "model_name": model_name,
+            "detector_backend": detector_backend,
+            "embedding": result["embedding"],
+            "aligned": align,
+            "l2_normalized": l2_normalize,
+        }
+        for attribute in FACIAL_ATTRIBUTES:
+            if attribute in result:
+                embedding_record[attribute] = result[attribute]
+        embedding_records.append(embedding_record)
+
+    inserted = db_client.insert_embeddings(embedding_records, batch_size=100)
+    logger.debug(f"Successfully registered {inserted} embeddings to the database.")
+
+    return {"inserted": inserted}
 
 
 def search(
