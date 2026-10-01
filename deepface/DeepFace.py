@@ -349,8 +349,9 @@ def find(
             returns a scalar distance. With batched=True, it receives gallery embeddings
             of shape (N, D) first and query embeddings of shape (M, D) second, and must
             return a distance matrix of shape (M, N). Rows correspond to query faces;
-            columns correspond to gallery entries. Scalar-only callables require
-            batched=False. An explicit threshold is required for custom callables.
+            columns correspond to gallery entries. Scalar-only callables such as
+            scipy.spatial.distance.euclidean require batched=False. An explicit threshold
+            is required for custom callables, as they have no pre-tuned threshold.
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Set to False to avoid the exception for low-resolution images (default is True).
@@ -432,6 +433,27 @@ def find(
             - 'confidence': Confidence score indicating the likelihood that the images
                     represent the same person. The score is between 0 and 100, where higher values
                     indicate greater confidence in the verification result.
+
+    Example:
+        A custom Euclidean callback that supports both scalar and batched inputs:
+
+        ```python
+        import numpy as np
+        from deepface import DeepFace
+
+        def custom_euclidean(alpha, beta):
+            if alpha.ndim == 1 and beta.ndim == 1:
+                return np.linalg.norm(alpha - beta)
+            return np.linalg.norm(beta[:, None, :] - alpha[None, :, :], axis=2)
+
+        results = DeepFace.find(
+            img_path="img1.jpg",
+            db_path="C:/my_db",
+            distance_metric=custom_euclidean,
+            threshold=10.0,  # Choose a threshold appropriate to your metric and application.
+            batched=True,
+        )
+        ```
     """
     return recognition.find(
         img_path=img_path,
