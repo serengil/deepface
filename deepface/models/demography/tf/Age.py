@@ -2,18 +2,20 @@
 from typing import List, Union, Any
 
 # 3rd party dependencies
+import numpy as np
 from numpy.typing import NDArray
 
 # project dependencies
-from deepface.models.facial_recognition import VGGFace
+from deepface.models.facial_recognition.tf import VGGFace
+from deepface.models.demography.DemographyUtils import find_apparent_age
 from deepface.commons import package_utils, weight_utils
 from deepface.models.Demography import Demography
-from deepface.models.demography.DemographyUtils import RACE_LABELS
 from deepface.commons.logger import Logger
 
-# pylint: disable=line-too-long
+logger = Logger()
 
 # dependency configurations
+
 tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
@@ -24,57 +26,61 @@ else:
     from tensorflow.keras.layers import Convolution2D, Flatten, Activation
 
 WEIGHTS_URL = [
-    "https://github.com/serengil/deepface_models/releases/download/v1.0/race_model_single_batch.h5",
-    "https://huggingface.co/serengil/deepface/resolve/main/race_model_single_batch.h5",
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/age_model_weights.h5",
+    "https://huggingface.co/serengil/deepface/resolve/main/age_model_weights.h5",
 ]
-# Labels for the ethnic phenotypes that can be detected by the model.
-labels = RACE_LABELS
-
-logger = Logger()
 
 
 # pylint: disable=too-few-public-methods
-class RaceClient(Demography):
+class ApparentAgeClient(Demography):
     """
-    Race model class
+    Age model class
     """
 
     def __init__(self) -> None:
         self.model = load_model()
-        self.model_name = "Race"
+        self.model_name = "Age"
 
-    def predict(self, img: Union[NDArray[Any], List[NDArray[Any]]]) -> NDArray[Any]:
+    def predict(
+        self, img: Union[NDArray[Any], List[NDArray[Any]]]
+    ) -> Union[np.float64, NDArray[Any]]:
         """
-        Predict race probabilities for single or multiple faces
+        Predict apparent age(s) for single or multiple faces
         Args:
             img: Single image as np.ndarray (224, 224, 3) or
                 List of images as List[np.ndarray] or
                 Batch of images as np.ndarray (n, 224, 224, 3)
         Returns:
-            np.ndarray (n, n_races)
-            where n_races is the number of race categories
+            np.ndarray (age_classes,) if single image,
+            np.ndarray (n, age_classes) if batched images.
         """
         # Preprocessing input image or image list.
         imgs = self._preprocess_batch_or_single_input(img)
 
-        # Prediction
-        predictions = self._predict_internal(imgs)
+        # Prediction from 3 channels image
+        age_predictions = self._predict_internal(imgs)
 
-        return predictions
+        # Calculate apparent ages
+        if len(age_predictions.shape) == 1:  # Single prediction list
+            return find_apparent_age(age_predictions)
+
+        return np.array([find_apparent_age(age_prediction) for age_prediction in age_predictions])
 
 
 def load_model(  # pylint: disable=dangerous-default-value
     url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> Model:
     """
-    Construct race model, download its weights and load
+    Construct age model, download its weights and load
+    Returns:
+        model (Model)
     """
 
     model = VGGFace.base_model()
 
     # --------------------------
 
-    classes = 6
+    classes = 101
     base_model_output = Sequential()
     base_model_output = Convolution2D(classes, (1, 1), name="predictions")(model.layers[-4].output)
     base_model_output = Flatten()(base_model_output)
@@ -82,15 +88,15 @@ def load_model(  # pylint: disable=dangerous-default-value
 
     # --------------------------
 
-    race_model = Model(inputs=model.inputs, outputs=base_model_output)
+    age_model = Model(inputs=model.inputs, outputs=base_model_output)
 
     # --------------------------
 
     # load weights
     weight_file = weight_utils.download_weights_if_necessary(
-        file_name="race_model_single_batch.h5", source_url=url
+        file_name="age_model_weights.h5", source_url=url
     )
 
-    race_model = weight_utils.load_model_weights(model=race_model, weight_file=weight_file)
+    age_model = weight_utils.load_model_weights(model=age_model, weight_file=weight_file)
 
-    return race_model
+    return age_model

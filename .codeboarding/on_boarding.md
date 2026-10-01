@@ -126,7 +126,7 @@ This component is responsible for the lifecycle management of all deep learning 
 
 - <a href="https://github.com/serengil/deepface/blob/master/deepface/models/FacialRecognition.py#L15-L47" target="_blank" rel="noopener noreferrer">`deepface.models.FacialRecognition` (15:47)</a>
 
-- <a href="https://github.com/serengil/deepface/blob/master/deepface/models/spoofing/FasNet.py#L1-L1000" target="_blank" rel="noopener noreferrer">`deepface.models.spoofing.FasNet` (1:1000)</a>
+- <a href="https://github.com/serengil/deepface/blob/master/deepface/models/spoofing/tf/FasNet.py#L1-L1000" target="_blank" rel="noopener noreferrer">`deepface.models.spoofing.tf.FasNet` (1:1000)</a>
 
 
 

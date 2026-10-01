@@ -7,6 +7,9 @@ test-tf:
 test-pytorch:
 	DEEPFACE_BACKEND_ENGINE=pytorch $(MAKE) test
 
+test-onnx:
+	DEEPFACE_BACKEND_ENGINE=onnx $(MAKE) test
+
 integration-test:
 	cd tests/integration && python -m pytest . -s --disable-warnings
 

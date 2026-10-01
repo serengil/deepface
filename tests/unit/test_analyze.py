@@ -4,7 +4,7 @@ import numpy as np
 
 # project dependencies
 from deepface import DeepFace
-from deepface.models.demography import Age, Emotion, Gender, Race
+from deepface.models.demography.tf import Age, Emotion, Gender, Race
 from deepface.commons.logger import Logger
 
 logger = Logger()

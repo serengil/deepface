@@ -7,7 +7,7 @@ from numpy.typing import NDArray
 
 # project dependencies
 from deepface.commons import weight_utils
-from deepface.models.spoofing import FasNetBackbone
+from deepface.models.spoofing.tf import FasNetBackbone
 from deepface.models.spoofing.FasNetUtils import crop
 from deepface.commons.logger import Logger
 
