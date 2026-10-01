@@ -5,6 +5,8 @@ from types import SimpleNamespace
 import pytest
 import numpy as np
 
+pytest.importorskip("pymilvus")
+
 from deepface.modules import datastore
 from deepface.modules.database.milvus import MilvusClient
 
