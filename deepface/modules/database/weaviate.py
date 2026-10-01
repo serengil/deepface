@@ -48,6 +48,9 @@ CONNECTION_KEYS = {
     "additional_config",
 }
 
+# options build_additional_config turns into an AdditionalConfig
+ADDITIONAL_CONFIG_KEYS = {"timeout", "proxies", "trust_env", "connection_config", "grpc_config"}
+
 # keys of the grpc_config option, the fields of weaviate.config.GrpcConfig
 GRPC_CONFIG_KEYS = {"channel_options", "credentials"}
 
@@ -99,7 +102,8 @@ class WeaviateClient(Database):
       grpc_config         {"channel_options", "credentials"}: extra gRPC channel options,
                           e.g. [("grpc.keepalive_time_ms", 10000)], and grpc.ChannelCredentials
                           for TLS, e.g. a private CA. Works with any supported client version
-      additional_config   a ready weaviate.classes.init.AdditionalConfig
+      additional_config   a ready weaviate.classes.init.AdditionalConfig, used instead of
+                          timeout, proxies, trust_env, connection_config and grpc_config
 
     Unknown options raise an error. When an option is not given, these environment variables
     are used: DEEPFACE_WEAVIATE_URI (the url or the JSON object), WEAVIATE_API_KEY,
@@ -509,11 +513,22 @@ def resolve_connection_details(
             f" Valid options are: {sorted(CONNECTION_KEYS)}"
         )
 
+    # a ready AdditionalConfig replaces the options deepface would build it from
+    if details.get("additional_config") is not None:
+        overridden = sorted(k for k in ADDITIONAL_CONFIG_KEYS if details.get(k) is not None)
+        if overridden:
+            raise ValueError(
+                f"additional_config cannot be combined with {overridden}."
+                " Set them in the AdditionalConfig instead."
+            )
+
     env_fallbacks = {
         "grpc_port": os.getenv("DEEPFACE_WEAVIATE_GRPC_PORT"),
         "skip_init_checks": os.getenv("DEEPFACE_WEAVIATE_SKIP_INIT_CHECKS"),
         "timeout": os.getenv("DEEPFACE_WEAVIATE_TIMEOUT"),
     }
+    if details.get("additional_config") is not None:
+        del env_fallbacks["timeout"]
     for key, value in env_fallbacks.items():
         if value and key not in details:
             details[key] = value
@@ -528,7 +543,9 @@ def resolve_connection_details(
         raise ValueError(f"deployment must be one of {DEPLOYMENTS}, got {deployment!r}.")
     details["deployment"] = deployment
 
-    if deployment != "local" and not details.get("url") and not details.get("http_host"):
+    if deployment == "cloud" and not details.get("url"):
+        raise ValueError("Weaviate Cloud requires the cluster url in connection_details.")
+    if deployment == "custom" and not details.get("url") and not details.get("http_host"):
         raise ValueError("Weaviate URL not provided in connection_details.")
 
     return details
@@ -565,9 +582,7 @@ def connect(details: Dict[str, Any]) -> Any:
     deployment = details["deployment"]
     # weaviate-client before 4.20 has no GrpcConfig, so deepface applies grpc_config itself
     legacy_grpc_config = (
-        details.get("grpc_config") is not None
-        and details.get("additional_config") is None
-        and load_grpc_config_class() is None
+        details.get("grpc_config") is not None and load_grpc_config_class() is None
     )
 
     if deployment == "cloud":

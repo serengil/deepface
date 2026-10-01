@@ -252,3 +252,24 @@ def test_identify_closes_owned_connection_and_preserves_payload_types(storage):
     assert type(result["id"]) is int
     assert type(result["threshold"]) is float
     assert type(result["verified"]) is bool
+
+
+def test_search_closes_owned_connection(storage):
+    db, options = storage("Facenet512", True)
+    options["connection"] = None
+    datastore.search(**options, search_method="exact", distance_metric="euclidean")
+    assert db.closed
+
+
+def test_search_closes_owned_connection_on_error(storage):
+    db, options = storage("Facenet512", True)
+    options["connection"] = None
+    with pytest.raises(ValueError, match="No embeddings found"):
+        datastore.search(**options, database_type="pgvector", search_method="ann")
+    assert db.closed
+
+
+def test_search_keeps_caller_connection_open(storage):
+    db, options = storage("Facenet512", True)
+    datastore.search(**options, search_method="exact", distance_metric="euclidean")
+    assert not db.closed

@@ -311,8 +311,6 @@ def search(
             - distance: Similarity score between the faces based on the specified model
                 and distance metric
     """
-    dfs: List[pd.DataFrame] = []
-
     # adjust distance metric
     if search_method == "ann":
         # ann does cosine for l2 normalized vectors, euclidean for non-l2 normalized vectors
@@ -337,6 +335,52 @@ def search(
         connection_details=connection_details,
         connection=connection,
     )
+
+    try:
+        return __search(
+            db_client=db_client,
+            img=img,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            distance_metric=distance_metric,
+            threshold=threshold,
+            enforce_detection=enforce_detection,
+            align=align,
+            l2_normalize=l2_normalize,
+            expand_percentage=expand_percentage,
+            normalization=normalization,
+            anti_spoofing=anti_spoofing,
+            similarity_search=similarity_search,
+            k=k,
+            database_type=database_type,
+            search_method=search_method,
+        )
+    finally:
+        # Caller-supplied connections remain owned by the caller.
+        if connection is None:
+            db_client.close()
+
+
+def __search(
+    db_client: Database,
+    img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
+    model_name: str,
+    detector_backend: str,
+    distance_metric: str,
+    threshold: float,
+    enforce_detection: bool,
+    align: bool,
+    l2_normalize: bool,
+    expand_percentage: int,
+    normalization: str,
+    anti_spoofing: bool,
+    similarity_search: bool,
+    k: Optional[int],
+    database_type: str,
+    search_method: str,
+) -> List[pd.DataFrame]:
+    """Search identities using a database client managed by the caller."""
+    dfs: List[pd.DataFrame] = []
 
     results = __get_embeddings(
         img=img,

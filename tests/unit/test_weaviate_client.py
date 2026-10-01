@@ -168,6 +168,9 @@ def test_unknown_option_is_rejected(connectors):
 def test_missing_url(connectors):
     with pytest.raises(ValueError, match="URL not provided"):
         WeaviateClient({"api_key": "k"})
+    with pytest.raises(ValueError, match="Cloud requires the cluster url"):
+        WeaviateClient({"deployment": "cloud", "http_host": "abc.weaviate.cloud", "api_key": "k"})
+    connectors["cloud"].assert_not_called()
     with pytest.raises(ValueError, match="connection details not provided"):
         WeaviateClient()
 
@@ -292,6 +295,30 @@ def test_additional_config_options(connectors):
 
 
 def test_ready_additional_config_is_passed_through(connectors):
+    config = weaviate.classes.init.AdditionalConfig(trust_env=True)
+    WeaviateClient({"url": "http://localhost:8080", "additional_config": config})
+    assert connectors["custom"].call_args.kwargs["additional_config"] is config
+
+
+@pytest.mark.parametrize(
+    "option",
+    [
+        {"timeout": 30},
+        {"proxies": "http://proxy:3128"},
+        {"trust_env": False},
+        {"connection_config": {"session_pool_connections": 7}},
+        {"grpc_config": {"channel_options": [("grpc.keepalive_time_ms", 10000)]}},
+    ],
+)
+def test_ready_additional_config_rejects_options_it_replaces(connectors, option):
+    config = weaviate.classes.init.AdditionalConfig(trust_env=True)
+    with pytest.raises(ValueError, match="cannot be combined"):
+        WeaviateClient({"url": "http://localhost:8080", "additional_config": config, **option})
+    connectors["custom"].assert_not_called()
+
+
+def test_ready_additional_config_ignores_env_timeout(connectors, monkeypatch):
+    monkeypatch.setenv("DEEPFACE_WEAVIATE_TIMEOUT", "30")
     config = weaviate.classes.init.AdditionalConfig(trust_env=True)
     WeaviateClient({"url": "http://localhost:8080", "additional_config": config})
     assert connectors["custom"].call_args.kwargs["additional_config"] is config
