@@ -110,6 +110,42 @@ def register(
         connection=connection,
     )
 
+    try:
+        return __register(
+            db_client=db_client,
+            img=img,
+            img_name=img_name,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            enforce_detection=enforce_detection,
+            align=align,
+            l2_normalize=l2_normalize,
+            expand_percentage=expand_percentage,
+            normalization=normalization,
+            anti_spoofing=anti_spoofing,
+            database_type=database_type,
+        )
+    finally:
+        # Caller-supplied connections remain owned by the caller.
+        if connection is None:
+            db_client.close()
+
+
+def __register(
+    db_client: Database,
+    img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
+    img_name: Optional[str],
+    model_name: str,
+    detector_backend: str,
+    enforce_detection: bool,
+    align: bool,
+    l2_normalize: bool,
+    expand_percentage: int,
+    normalization: str,
+    anti_spoofing: bool,
+    database_type: str,
+) -> Dict[str, Any]:
+    """Register identities using a database client managed by the caller."""
     # graph databases store facial attributes as properties of face nodes
     attributes: List[str] = (
         FACIAL_ATTRIBUTES if database_inventory[database_type]["is_graph_db"] is True else []
@@ -179,10 +215,6 @@ def register(
 
     inserted = db_client.insert_embeddings(embedding_records, batch_size=100)
     logger.debug(f"Successfully registered {inserted} embeddings to the database.")
-
-    # Close the database connection if it was created internally
-    if connection is None:
-        db_client.close()
 
     return {"inserted": inserted}
 
