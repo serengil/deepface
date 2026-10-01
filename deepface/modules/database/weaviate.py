@@ -16,6 +16,58 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
+# Connecting to Weaviate
+#
+# This backend uses weaviate-client v4 (pip install "weaviate-client>=4.16.0"), which talks
+# to Weaviate over REST and gRPC, and needs Weaviate 1.27 or newer.
+#
+# connection_details is a url, or a dict with any of the options below. The same dict can
+# also be given as a JSON string, e.g. in DEEPFACE_CONNECTION_DETAILS for the API.
+#
+#   # self-hosted, gRPC on the default port 50051
+#   connection_details = "http://localhost:8080"
+#
+#   # Weaviate Cloud
+#   connection_details = {"url": "https://my-cluster.weaviate.cloud", "api_key": "..."}
+#
+#   # custom deployment
+#   connection_details = {
+#       "url": "https://weaviate.example.com",
+#       "grpc_host": "grpc.weaviate.example.com",
+#       "grpc_port": 443,
+#       "auth": {"client_secret": "...", "scope": "openid"},
+#       "timeout": {"init": 5, "query": 60, "insert": 120},
+#       "skip_init_checks": False,
+#   }
+#
+# Options:
+#   url                 http(s) url of the REST endpoint
+#   deployment          custom, cloud or local. Inferred from the url when not given:
+#                       *.weaviate.cloud and *.weaviate.network hosts are cloud
+#   http_host, http_port, http_secure
+#                       override what the url gives
+#   grpc_host, grpc_port, grpc_secure
+#                       default to the http host, 50051 and the http scheme
+#   api_key             shortcut for {"auth": {"api_key": ...}}
+#   auth                {"api_key"}, {"access_token", "expires_in", "refresh_token"},
+#                       {"client_secret", "scope"} (OIDC client credentials),
+#                       {"username", "password", "scope"} (OIDC password),
+#                       or an object from weaviate.classes.init.Auth
+#   timeout             seconds for query and insert, [init, query, insert], or a dict
+#                       with init, query, insert and stream keys
+#   headers             extra request headers
+#   skip_init_checks, proxies, trust_env
+#                       passed to the weaviate client as is
+#   connection_config, grpc_config
+#                       kwargs of weaviate.config.ConnectionConfig and GrpcConfig
+#   additional_config   a ready weaviate.classes.init.AdditionalConfig
+#
+# Unknown options raise an error. When an option is not given, these environment variables
+# are used: DEEPFACE_WEAVIATE_URI (the url or the JSON object), WEAVIATE_API_KEY,
+# DEEPFACE_WEAVIATE_GRPC_PORT, DEEPFACE_WEAVIATE_TIMEOUT and
+# DEEPFACE_WEAVIATE_SKIP_INIT_CHECKS. A weaviate.WeaviateClient can also be passed as
+# connection, and is then used as is.
+
 # Weaviate uses this header to learn which integrations talk to it
 INTEGRATION_HEADER = "X-Weaviate-Client-Integration"
 INTEGRATION_NAME = f"deepface/{__version__}"
