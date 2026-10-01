@@ -6,6 +6,7 @@ import struct
 import base64
 import uuid
 import math
+import functools
 from typing import Any, Dict, Optional, List, Set, Tuple, Union
 from urllib.parse import urlparse
 
@@ -15,58 +16,6 @@ from deepface.modules.database.types import Database
 from deepface.commons.logger import Logger
 
 logger = Logger()
-
-# Connecting to Weaviate
-#
-# This backend uses weaviate-client v4 (pip install "weaviate-client>=4.16.0"), which talks
-# to Weaviate over REST and gRPC, and needs Weaviate 1.27 or newer.
-#
-# connection_details is a url, or a dict with any of the options below. The same dict can
-# also be given as a JSON string, e.g. in DEEPFACE_CONNECTION_DETAILS for the API.
-#
-#   # self-hosted, gRPC on the default port 50051
-#   connection_details = "http://localhost:8080"
-#
-#   # Weaviate Cloud
-#   connection_details = {"url": "https://my-cluster.weaviate.cloud", "api_key": "..."}
-#
-#   # custom deployment
-#   connection_details = {
-#       "url": "https://weaviate.example.com",
-#       "grpc_host": "grpc.weaviate.example.com",
-#       "grpc_port": 443,
-#       "auth": {"client_secret": "...", "scope": "openid"},
-#       "timeout": {"init": 5, "query": 60, "insert": 120},
-#       "skip_init_checks": False,
-#   }
-#
-# Options:
-#   url                 http(s) url of the REST endpoint
-#   deployment          custom, cloud or local. Inferred from the url when not given:
-#                       *.weaviate.cloud and *.weaviate.network hosts are cloud
-#   http_host, http_port, http_secure
-#                       override what the url gives
-#   grpc_host, grpc_port, grpc_secure
-#                       default to the http host, 50051 and the http scheme
-#   api_key             shortcut for {"auth": {"api_key": ...}}
-#   auth                {"api_key"}, {"access_token", "expires_in", "refresh_token"},
-#                       {"client_secret", "scope"} (OIDC client credentials),
-#                       {"username", "password", "scope"} (OIDC password),
-#                       or an object from weaviate.classes.init.Auth
-#   timeout             seconds for query and insert, [init, query, insert], or a dict
-#                       with init, query, insert and stream keys
-#   headers             extra request headers
-#   skip_init_checks, proxies, trust_env
-#                       passed to the weaviate client as is
-#   connection_config, grpc_config
-#                       kwargs of weaviate.config.ConnectionConfig and GrpcConfig
-#   additional_config   a ready weaviate.classes.init.AdditionalConfig
-#
-# Unknown options raise an error. When an option is not given, these environment variables
-# are used: DEEPFACE_WEAVIATE_URI (the url or the JSON object), WEAVIATE_API_KEY,
-# DEEPFACE_WEAVIATE_GRPC_PORT, DEEPFACE_WEAVIATE_TIMEOUT and
-# DEEPFACE_WEAVIATE_SKIP_INIT_CHECKS. A weaviate.WeaviateClient can also be passed as
-# connection, and is then used as is.
 
 # Weaviate uses this header to learn which integrations talk to it
 INTEGRATION_HEADER = "X-Weaviate-Client-Integration"
@@ -99,11 +48,64 @@ CONNECTION_KEYS = {
     "additional_config",
 }
 
+# keys of the grpc_config option, the fields of weaviate.config.GrpcConfig
+GRPC_CONFIG_KEYS = {"channel_options", "credentials"}
+
 # pylint: disable=too-many-positional-arguments
 class WeaviateClient(Database):
     """
     Weaviate client for storing and retrieving face embeddings and indices.
-    Requires weaviate-client v4, which talks to Weaviate over REST and gRPC.
+    Requires weaviate-client v4 (pip install "weaviate-client>=4.16.0"), which talks to
+    Weaviate over REST and gRPC, and Weaviate 1.27 or newer.
+
+    connection_details is a url, or a dict with any of the options below. The same dict can
+    also be given as a JSON string, e.g. in DEEPFACE_CONNECTION_DETAILS for the API.
+
+      # self-hosted, gRPC on the default port 50051
+      connection_details = "http://localhost:8080"
+
+      # Weaviate Cloud
+      connection_details = {"url": "https://my-cluster.weaviate.cloud", "api_key": "..."}
+
+      # custom deployment
+      connection_details = {
+          "url": "https://weaviate.example.com",
+          "grpc_host": "grpc.weaviate.example.com",
+          "grpc_port": 443,
+          "auth": {"client_secret": "...", "scope": "openid"},
+          "timeout": {"init": 5, "query": 60, "insert": 120},
+          "skip_init_checks": False,
+      }
+
+    Options:
+      url                 http(s) url of the REST endpoint
+      deployment          custom, cloud or local. Inferred from the url when not given:
+                          *.weaviate.cloud and *.weaviate.network hosts are cloud
+      http_host, http_port, http_secure
+                          override what the url gives
+      grpc_host, grpc_port, grpc_secure
+                          default to the http host, 50051 and the http scheme
+      api_key             shortcut for {"auth": {"api_key": ...}}
+      auth                {"api_key"}, {"access_token", "expires_in", "refresh_token"},
+                          {"client_secret", "scope"} (OIDC client credentials),
+                          {"username", "password", "scope"} (OIDC password),
+                          or an object from weaviate.classes.init.Auth
+      timeout             seconds for query and insert, [init, query, insert], or a dict
+                          with init, query, insert and stream keys
+      headers             extra request headers
+      skip_init_checks, proxies, trust_env
+                          passed to the weaviate client as is
+      connection_config   kwargs of weaviate.config.ConnectionConfig
+      grpc_config         {"channel_options", "credentials"}: extra gRPC channel options,
+                          e.g. [("grpc.keepalive_time_ms", 10000)], and grpc.ChannelCredentials
+                          for TLS, e.g. a private CA. Works with any supported client version
+      additional_config   a ready weaviate.classes.init.AdditionalConfig
+
+    Unknown options raise an error. When an option is not given, these environment variables
+    are used: DEEPFACE_WEAVIATE_URI (the url or the JSON object), WEAVIATE_API_KEY,
+    DEEPFACE_WEAVIATE_GRPC_PORT, DEEPFACE_WEAVIATE_TIMEOUT and
+    DEEPFACE_WEAVIATE_SKIP_INIT_CHECKS. A weaviate.WeaviateClient can also be passed as
+    connection, and is then used as is.
     """
 
     def __init__(
@@ -561,25 +563,48 @@ def connect(details: Dict[str, Any]) -> Any:
         "auth_credentials": build_auth(details),
     }
     deployment = details["deployment"]
+    # weaviate-client before 4.20 has no GrpcConfig, so deepface applies grpc_config itself
+    legacy_grpc_config = (
+        details.get("grpc_config") is not None
+        and details.get("additional_config") is None
+        and load_grpc_config_class() is None
+    )
 
     if deployment == "cloud":
         if common["auth_credentials"] is None:
             raise ValueError("Weaviate Cloud requires an API key or auth credentials.")
+        if legacy_grpc_config:
+            http_host, grpc_host = parse_cloud_hosts(details["url"])
+            return connect_with_legacy_grpc_config(
+                details["grpc_config"], (http_host, 443, True), (grpc_host, 443, True), common
+            )
         return weaviate.connect_to_weaviate_cloud(cluster_url=details["url"], **common)
 
     http_host, http_port, http_secure = parse_http_endpoint(details)
+    grpc_port = int(details.get("grpc_port", DEFAULT_GRPC_PORT))
+    if deployment == "local":
+        # connect_to_local always uses plain http and gRPC on the http host
+        http_secure, grpc_host, grpc_secure = False, http_host, False
+    else:
+        grpc_host = details.get("grpc_host") or http_host
+        grpc_secure = parse_bool(details.get("grpc_secure", http_secure))
 
-    if common["auth_credentials"] is not None and not http_secure and not is_local(http_host):
-        logger.warn(
-            f"Weaviate credentials are sent to {http_host} without TLS. Use an https url"
-            " or set http_secure to protect them."
+    if common["auth_credentials"] is not None:
+        warn_insecure_transports(http_host, http_secure, grpc_host, grpc_secure)
+
+    if legacy_grpc_config:
+        return connect_with_legacy_grpc_config(
+            details["grpc_config"],
+            (http_host, http_port, http_secure),
+            (grpc_host, grpc_port, grpc_secure),
+            common,
         )
 
     if deployment == "local":
         return weaviate.connect_to_local(
             host=http_host,
             port=http_port,
-            grpc_port=int(details.get("grpc_port", DEFAULT_GRPC_PORT)),
+            grpc_port=grpc_port,
             **common,
         )
 
@@ -587,11 +612,31 @@ def connect(details: Dict[str, Any]) -> Any:
         http_host=http_host,
         http_port=http_port,
         http_secure=http_secure,
-        grpc_host=details.get("grpc_host") or http_host,
-        grpc_port=int(details.get("grpc_port", DEFAULT_GRPC_PORT)),
-        grpc_secure=parse_bool(details.get("grpc_secure", http_secure)),
+        grpc_host=grpc_host,
+        grpc_port=grpc_port,
+        grpc_secure=grpc_secure,
         **common,
     )
+
+
+def warn_insecure_transports(
+    http_host: str, http_secure: bool, grpc_host: str, grpc_secure: bool
+) -> None:
+    """
+    Warn when credentials would be sent to a remote host without TLS, over REST or gRPC.
+        The warning names the hosts, never the credentials.
+    """
+    transports = (("REST", http_host, http_secure), ("gRPC", grpc_host, grpc_secure))
+    insecure = [
+        f"{name} to {host}"
+        for name, host, secure in transports
+        if not secure and not is_local(host)
+    ]
+    if insecure:
+        logger.warn(
+            f"Weaviate credentials are sent without TLS over {' and '.join(insecure)}."
+            " Use an https url, or set http_secure and grpc_secure, to protect them."
+        )
 
 
 def parse_http_endpoint(details: Dict[str, Any]) -> Tuple[str, int, bool]:
@@ -696,14 +741,151 @@ def build_additional_config(details: Dict[str, Any]) -> Any:
         kwargs["trust_env"] = parse_bool(details["trust_env"])
     if details.get("connection_config") is not None:
         kwargs["connection"] = ConnectionConfig(**details["connection_config"])
-    if details.get("grpc_config") is not None:
-        try:
-            from weaviate.config import GrpcConfig
-        except ImportError as e:
-            raise ValueError("grpc_config requires a newer weaviate-client version.") from e
-        kwargs["grpc_config"] = GrpcConfig(**details["grpc_config"])
+    grpc_config_class = load_grpc_config_class()
+    if details.get("grpc_config") is not None and grpc_config_class is not None:
+        kwargs["grpc_config"] = grpc_config_class(**parse_grpc_config(details["grpc_config"]))
 
     return AdditionalConfig(**kwargs) if kwargs else None
+
+
+def parse_grpc_config(grpc_config: Any) -> Dict[str, Any]:
+    """
+    Validate the grpc_config option, a dict with channel_options and credentials.
+        Channel options given as lists, e.g. from JSON, become tuples.
+    """
+    if not isinstance(grpc_config, dict):
+        raise ValueError("grpc_config must be a dict with channel_options and credentials.")
+    unknown = set(grpc_config.keys()) - GRPC_CONFIG_KEYS
+    if unknown:
+        raise ValueError(
+            f"Unknown grpc_config option(s): {sorted(unknown)}."
+            f" Valid options are: {sorted(GRPC_CONFIG_KEYS)}"
+        )
+    parsed = dict(grpc_config)
+    if parsed.get("channel_options") is not None:
+        parsed["channel_options"] = [tuple(option) for option in parsed["channel_options"]]
+    return parsed
+
+
+def load_grpc_config_class() -> Any:
+    """
+    Return weaviate.config.GrpcConfig, or None on weaviate-client versions before 4.20.
+    """
+    try:
+        from weaviate.config import GrpcConfig
+    except ImportError:
+        return None
+    return GrpcConfig
+
+
+def parse_cloud_hosts(cluster_url: str) -> Tuple[str, str]:
+    """
+    Resolve the http and gRPC hosts of a Weaviate Cloud cluster, as connect_to_weaviate_cloud does.
+    """
+    host = urlparse(cluster_url).netloc if cluster_url.startswith("http") else cluster_url
+    if host.endswith(".weaviate.network"):
+        ident, domain = host.split(".", 1)
+        return host, f"{ident}.grpc.{domain}"
+    return host, f"grpc-{host}"
+
+
+def connect_with_legacy_grpc_config(
+    grpc_config: Dict[str, Any],
+    http: Tuple[str, int, bool],
+    grpc_endpoint: Tuple[str, int, bool],
+    common: Dict[str, Any],
+) -> Any:
+    """
+    Connect with grpc_config on weaviate-client versions before 4.20, which have no GrpcConfig.
+        Does what the connect_to_* helpers do, with connection params that add the channel
+        options and credentials to the gRPC channel as GrpcConfig does in newer versions.
+        Remove once weaviate-client 4.20 is the minimum.
+    Args:
+        grpc_config (dict): the grpc_config option.
+        http (tuple): host, port and secure flag of the REST endpoint.
+        grpc_endpoint (tuple): host, port and secure flag of the gRPC endpoint.
+        common (dict): headers, additional_config, skip_init_checks and auth_credentials.
+    Returns:
+        client (weaviate.WeaviateClient): connected client.
+    """
+    import weaviate
+    from weaviate.connect.base import ProtocolParams
+
+    options = parse_grpc_config(grpc_config)
+    params = legacy_grpc_connection_params_class()(
+        http=ProtocolParams(host=http[0], port=http[1], secure=http[2]),
+        grpc=ProtocolParams(host=grpc_endpoint[0], port=grpc_endpoint[1], secure=grpc_endpoint[2]),
+    )
+    params.set_grpc_config(options.get("channel_options"), options.get("credentials"))
+
+    client = weaviate.WeaviateClient(
+        connection_params=params,
+        auth_client_secret=common["auth_credentials"],
+        additional_headers=common["headers"],
+        additional_config=common["additional_config"],
+        skip_init_checks=common["skip_init_checks"],
+    )
+    try:
+        client.connect()
+    except Exception:
+        client.close()
+        raise
+    return client
+
+
+@functools.lru_cache(maxsize=None)
+def legacy_grpc_connection_params_class() -> Any:
+    """
+    Build a ConnectionParams subclass whose gRPC channel applies grpc_config options.
+        Created lazily because weaviate-client is an optional dependency.
+    """
+    # pylint: disable=import-outside-toplevel
+    import grpc
+    from pydantic import PrivateAttr
+    from weaviate.connect.base import ConnectionParams, MAX_GRPC_MESSAGE_LENGTH
+
+    class GrpcConfigConnectionParams(ConnectionParams):
+        """
+        ConnectionParams with the channel options and credentials of grpc_config.
+        """
+
+        _channel_options: List[Tuple[str, Any]] = PrivateAttr(default_factory=list)
+        _credentials: Any = PrivateAttr(default=None)
+
+        def set_grpc_config(self, channel_options: Any, credentials: Any) -> None:
+            self._channel_options = list(channel_options or [])
+            self._credentials = credentials
+
+        def _grpc_channel(  # pylint: disable=unused-argument
+            self,
+            proxies: Dict[str, str],
+            grpc_msg_size: Optional[int],
+            is_async: bool,
+            *args: Any,
+            **kwargs: Any,
+        ) -> Any:
+            # same channel as ConnectionParams._grpc_channel in weaviate-client 4.20
+            if grpc_msg_size is None:
+                grpc_msg_size = MAX_GRPC_MESSAGE_LENGTH
+            options: List[Tuple[str, Any]] = [
+                ("grpc.max_send_message_length", grpc_msg_size),
+                ("grpc.max_receive_message_length", grpc_msg_size),
+                ("grpc.default_authority", self.grpc.host),
+            ]
+            if proxies.get("grpc") is not None:
+                options.append(("grpc.http_proxy", proxies["grpc"]))
+            options.extend(self._channel_options)
+
+            mod = grpc.aio if is_async else grpc
+            if self.grpc.secure:
+                return mod.secure_channel(
+                    target=self._grpc_target,
+                    credentials=self._credentials or grpc.ssl_channel_credentials(),
+                    options=options,
+                )
+            return mod.insecure_channel(target=self._grpc_target, options=options)
+
+    return GrpcConfigConnectionParams
 
 
 def build_timeout(timeout: Any) -> Any:

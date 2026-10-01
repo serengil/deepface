@@ -414,12 +414,18 @@ def test_env_api_key_does_not_conflict_with_auth(connectors, monkeypatch):
         ("https://weaviate.internal", False),
         ("http://localhost:8080", False),
         ("http://127.0.0.1:8080", False),
+        ({"url": "https://weaviate.internal", "grpc_secure": False}, True),
+        ({"url": "https://w.internal", "grpc_host": "grpc.internal", "grpc_secure": 0}, True),
+        ({"url": "https://w.internal", "grpc_host": "localhost", "grpc_secure": False}, False),
+        ({"url": "http://localhost:8080", "grpc_host": "grpc.internal"}, True),
+        ({"deployment": "local", "http_host": "weaviate.internal"}, True),
     ],
 )
 def test_credentials_over_plain_http_warn(connectors, monkeypatch, url, warned):
     warnings = []
     monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
-    WeaviateClient({"url": url, "api_key": "s3cr3t-value"})
+    details = url if isinstance(url, dict) else {"url": url}
+    WeaviateClient({**details, "api_key": "s3cr3t-value"})
     assert bool(warnings) is warned
     # the warning names the host, never the credentials
     assert all("s3cr3t-value" not in w for w in warnings)
@@ -430,3 +436,175 @@ def test_no_warning_without_credentials(connectors, monkeypatch):
     monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
     WeaviateClient("http://weaviate.internal:8080")
     assert not warnings
+
+
+def test_insecure_grpc_warning_names_the_grpc_host(connectors, monkeypatch):
+    warnings = []
+    monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
+    WeaviateClient(
+        {
+            "url": "https://weaviate.internal",
+            "grpc_host": "grpc.internal",
+            "grpc_secure": False,
+            "api_key": "k",
+        }
+    )
+    assert len(warnings) == 1
+    assert "gRPC to grpc.internal" in warnings[0] and "REST" not in warnings[0]
+
+
+def test_grpc_config_uses_grpc_config_class(connectors, monkeypatch):
+    grpc_config_class = MagicMock(name="GrpcConfig")
+    monkeypatch.setattr(weaviate_module, "load_grpc_config_class", lambda: grpc_config_class)
+    monkeypatch.setattr(weaviate.classes.init, "AdditionalConfig", MagicMock())
+    WeaviateClient(
+        {
+            "url": "http://localhost:8080",
+            "grpc_config": {"channel_options": [["grpc.keepalive_time_ms", 10000]]},
+        }
+    )
+    grpc_config_class.assert_called_once_with(
+        channel_options=[("grpc.keepalive_time_ms", 10000)]
+    )
+    connectors["custom"].assert_called_once()
+
+
+def test_unknown_grpc_config_key_is_rejected(connectors):
+    with pytest.raises(ValueError, match="Unknown grpc_config option"):
+        WeaviateClient({"url": "http://localhost:8080", "grpc_config": {"keepalive": 1}})
+    with pytest.raises(ValueError, match="grpc_config must be a dict"):
+        WeaviateClient({"url": "http://localhost:8080", "grpc_config": [("a", 1)]})
+
+
+@pytest.fixture
+def legacy_client(monkeypatch, connectors):
+    """
+    Simulate weaviate-client before 4.20: no GrpcConfig, so deepface builds the client.
+    """
+    monkeypatch.setattr(weaviate_module, "load_grpc_config_class", lambda: None)
+    client_class = MagicMock(name="WeaviateClient")
+    monkeypatch.setattr(weaviate, "WeaviateClient", client_class)
+    return client_class
+
+
+def endpoints(params):
+    return (
+        (params.http.host, params.http.port, params.http.secure),
+        (params.grpc.host, params.grpc.port, params.grpc.secure),
+    )
+
+
+@pytest.mark.parametrize(
+    "details, http, grpc_endpoint",
+    [
+        (
+            {"url": "http://weaviate.internal:8081", "grpc_port": 50052},
+            ("weaviate.internal", 8081, False),
+            ("weaviate.internal", 50052, False),
+        ),
+        (
+            {"url": "https://api.example.com", "grpc_host": "grpc.example.com", "grpc_port": 443},
+            ("api.example.com", 443, True),
+            ("grpc.example.com", 443, True),
+        ),
+        (
+            {"deployment": "local", "http_port": 8099, "grpc_port": 50099},
+            ("localhost", 8099, False),
+            ("localhost", 50099, False),
+        ),
+        (
+            {"url": "https://abc.c0.europe-west3.gcp.weaviate.cloud", "api_key": "k"},
+            ("abc.c0.europe-west3.gcp.weaviate.cloud", 443, True),
+            ("grpc-abc.c0.europe-west3.gcp.weaviate.cloud", 443, True),
+        ),
+        (
+            {"url": "abc.weaviate.network", "api_key": "k"},
+            ("abc.weaviate.network", 443, True),
+            ("abc.grpc.weaviate.network", 443, True),
+        ),
+    ],
+)
+def test_legacy_grpc_config_builds_connection_params(
+    legacy_client, connectors, details, http, grpc_endpoint
+):
+    WeaviateClient({**details, "grpc_config": {"channel_options": []}})
+    kwargs = legacy_client.call_args.kwargs
+    assert endpoints(kwargs["connection_params"]) == (http, grpc_endpoint)
+    assert kwargs["additional_headers"] == INTEGRATION
+    assert kwargs["skip_init_checks"] is False
+    legacy_client.return_value.connect.assert_called_once()
+    for connector in connectors.values():
+        connector.assert_not_called()
+
+
+def test_legacy_grpc_config_passes_common_options(legacy_client):
+    WeaviateClient(
+        {
+            "url": "https://weaviate.internal",
+            "api_key": "k",
+            "skip_init_checks": True,
+            "timeout": 30,
+            "grpc_config": {},
+        }
+    )
+    kwargs = legacy_client.call_args.kwargs
+    assert kwargs["auth_client_secret"] == weaviate.classes.init.Auth.api_key("k")
+    assert kwargs["skip_init_checks"] is True
+    assert kwargs["additional_config"].timeout.query == 30
+
+
+def test_legacy_grpc_config_closes_client_on_connect_error(legacy_client):
+    legacy_client.return_value.connect.side_effect = RuntimeError("boom")
+    with pytest.raises(RuntimeError, match="boom"):
+        WeaviateClient({"url": "http://localhost:8080", "grpc_config": {}})
+    legacy_client.return_value.close.assert_called_once()
+
+
+@pytest.mark.parametrize("secure", [True, False])
+def test_legacy_grpc_channel_applies_options_and_credentials(monkeypatch, secure):
+    import grpc  # pylint: disable=import-outside-toplevel
+    from weaviate.connect.base import ProtocolParams  # pylint: disable=import-outside-toplevel
+
+    secure_channel, insecure_channel = MagicMock(), MagicMock()
+    monkeypatch.setattr(grpc, "secure_channel", secure_channel)
+    monkeypatch.setattr(grpc, "insecure_channel", insecure_channel)
+    credentials = object()
+
+    params = weaviate_module.legacy_grpc_connection_params_class()(
+        http=ProtocolParams(host="w.internal", port=443, secure=secure),
+        grpc=ProtocolParams(host="g.internal", port=50051, secure=secure),
+    )
+    params.set_grpc_config([("grpc.keepalive_time_ms", 10000)], credentials)
+    params._grpc_channel(proxies={"grpc": "http://proxy:3128"}, grpc_msg_size=1024, is_async=False)
+
+    channel = secure_channel if secure else insecure_channel
+    kwargs = channel.call_args.kwargs
+    assert kwargs["target"] == "g.internal:50051"
+    assert kwargs["options"] == [
+        ("grpc.max_send_message_length", 1024),
+        ("grpc.max_receive_message_length", 1024),
+        ("grpc.default_authority", "g.internal"),
+        ("grpc.http_proxy", "http://proxy:3128"),
+        ("grpc.keepalive_time_ms", 10000),
+    ]
+    if secure:
+        assert kwargs["credentials"] is credentials
+        insecure_channel.assert_not_called()
+    else:
+        secure_channel.assert_not_called()
+
+
+def test_legacy_grpc_channel_defaults_to_system_tls(monkeypatch):
+    import grpc  # pylint: disable=import-outside-toplevel
+    from weaviate.connect.base import ProtocolParams  # pylint: disable=import-outside-toplevel
+
+    secure_channel = MagicMock()
+    default_credentials = object()
+    monkeypatch.setattr(grpc, "secure_channel", secure_channel)
+    monkeypatch.setattr(grpc, "ssl_channel_credentials", lambda: default_credentials)
+    params = weaviate_module.legacy_grpc_connection_params_class()(
+        http=ProtocolParams(host="w.internal", port=443, secure=True),
+        grpc=ProtocolParams(host="g.internal", port=443, secure=True),
+    )
+    params._grpc_channel(proxies={}, grpc_msg_size=None, is_async=False)
+    assert secure_channel.call_args.kwargs["credentials"] is default_credentials
