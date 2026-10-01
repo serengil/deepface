@@ -298,6 +298,28 @@ dfs = DeepFace.find(
 )
 ```
 
+Custom distance callables are supported by `DeepFace.verify` and `DeepFace.find`, and require an explicit `threshold`; there is no pre-tuned threshold for a custom metric. They receive NumPy arrays. Verification and `find(batched=False)` pass two 1D embeddings and expect a scalar distance.
+
+With `find(batched=True)`, the callable is invoked once with all gallery embeddings of shape `(N, D)` as the first argument and all query embeddings of shape `(M, D)` as the second. It must return a distance matrix of shape `(M, N)`, whose rows correspond to query faces and columns to gallery entries. Scalar-only metrics, such as `scipy.spatial.distance.euclidean`, can be used with `batched=False`. To use the same callback in both modes, handle both 1D and 2D inputs, for example:
+
+```python
+import numpy as np
+from deepface import DeepFace
+
+def custom_euclidean(alpha, beta):
+    if alpha.ndim == 1 and beta.ndim == 1:
+        return np.linalg.norm(alpha - beta)
+    return np.linalg.norm(beta[:, None, :] - alpha[None, :, :], axis=2)
+
+results = DeepFace.find(
+    img_path="img1.jpg",
+    db_path="C:/my_db",
+    distance_metric=custom_euclidean,
+    threshold=10.0,  # Choose a threshold appropriate to your metric and application.
+    batched=True,
+)
+```
+
 **API** - [`Demo`](https://youtu.be/HeKCQ6U9XmI), [`Docker Demo`](https://youtu.be/9Tk9lRQareA)
 
 DeepFace serves an API as well - see [`api folder`](https://github.com/serengil/deepface/tree/master/deepface/api/src) for more details. You can clone deepface source code and run the api with the following command. It will use gunicorn server to get a rest service up. In this way, you can call deepface from an external system such as mobile app or web.

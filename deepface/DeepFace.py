@@ -132,8 +132,10 @@ def verify(
             'yolov11s', 'yolov11m', 'yolov11l', 'yolov12n', 'yolov12s', 'yolov12m', 'yolov12l',
             'centerface' or 'skip' (default is opencv).
 
-        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
+        distance_metric (string or callable): Metric for measuring similarity. Options:
+            'cosine', 'euclidean', 'euclidean_l2', 'angular' (default is cosine).
+            A custom callable receives two 1D NumPy arrays and returns a scalar distance.
+            An explicit threshold is required when using a custom callable.
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Set to False to avoid the exception for low-resolution images (default is True).
@@ -341,8 +343,14 @@ def find(
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
-        distance_metric (string): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2', 'angular' (default is cosine).
+        distance_metric (string or callable): Metric for measuring similarity. Options:
+            'cosine', 'euclidean', 'euclidean_l2', 'angular' (default is cosine).
+            With batched=False, a custom callable receives two 1D NumPy arrays and
+            returns a scalar distance. With batched=True, it receives gallery embeddings
+            of shape (N, D) first and query embeddings of shape (M, D) second, and must
+            return a distance matrix of shape (M, N). Rows correspond to query faces;
+            columns correspond to gallery entries. Scalar-only callables require
+            batched=False. An explicit threshold is required for custom callables.
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Set to False to avoid the exception for low-resolution images (default is True).
