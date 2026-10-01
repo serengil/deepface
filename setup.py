@@ -13,11 +13,13 @@ def parse_requirements(file_name):
 
 requirements = parse_requirements("requirements.txt")
 
-# deepface runs either on tensorflow or on pytorch, and neither of them is a base
-# requirement. `pip install deepface[tensorflow]` and `pip install deepface[pytorch]`
-# install the backend engine you want, without dragging the other one in.
+# deepface runs on tensorflow, pytorch or onnxruntime, and none of them is a base requirement.
+# `pip install deepface[tensorflow]`, `pip install deepface[pytorch]` and
+# `pip install deepface[onnx]` install the backend engine you want, without dragging the
+# others in.
 tensorflow_requirements = parse_requirements("requirements_tf.txt")
 pytorch_requirements = parse_requirements("requirements_pytorch.txt")
+onnx_requirements = parse_requirements("requirements_onnx.txt")
 
 with open("package_info.json", "r", encoding="utf-8") as f:
     package_info = json.load(f)
@@ -41,6 +43,7 @@ setuptools.setup(
                 # "requirements_base.txt",
                 "requirements_tf.txt",
                 "requirements_pytorch.txt",
+                "requirements_onnx.txt",
                 "package_info.json",
             ],
         )
@@ -63,5 +66,6 @@ setuptools.setup(
     extras_require={
         "tensorflow": tensorflow_requirements,
         "pytorch": pytorch_requirements,
+        "onnx": onnx_requirements,
     },
 )

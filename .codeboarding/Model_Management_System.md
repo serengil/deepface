@@ -12,9 +12,9 @@ graph LR
 
     deepface_models_FacialRecognition["deepface.models.FacialRecognition"]
 
-    deepface_models_spoofing_FasNet["deepface.models.spoofing.FasNet"]
+    deepface_models_spoofing_tf_FasNet["deepface.models.spoofing.tf.FasNet"]
 
-    deepface_models_spoofing_FasNetBackbone["deepface.models.spoofing.FasNetBackbone"]
+    deepface_models_spoofing_tf_FasNetBackbone["deepface.models.spoofing.tf.FasNetBackbone"]
 
     deepface_modules_modeling -- "loads" --> deepface_models_Demography
 
@@ -144,7 +144,7 @@ This class represents a concrete implementation of an anti-spoofing model, speci
 
 
 
-- <a href="https://github.com/serengil/deepface/blob/master/deepface/models/spoofing/FasNet.py#L1-L1" target="_blank" rel="noopener noreferrer">`deepface.models.spoofing.FasNet` (1:1)</a>
+- <a href="https://github.com/serengil/deepface/blob/master/deepface/models/spoofing/tf/FasNet.py#L1-L1" target="_blank" rel="noopener noreferrer">`deepface.models.spoofing.tf.FasNet` (1:1)</a>
 
 
 
@@ -162,7 +162,7 @@ This module defines the core neural network architectures, such as `MiniFASNet`,
 
 
 
-- <a href="https://github.com/serengil/deepface/blob/master/deepface/models/spoofing/FasNetBackbone.py#L356-L465" target="_blank" rel="noopener noreferrer">`deepface.models.spoofing.FasNetBackbone:MiniFASNet` (356:465)</a>
+- <a href="https://github.com/serengil/deepface/blob/master/deepface/models/spoofing/tf/FasNetBackbone.py#L356-L465" target="_blank" rel="noopener noreferrer">`deepface.models.spoofing.tf.FasNetBackbone:MiniFASNet` (356:465)</a>
 
 
 

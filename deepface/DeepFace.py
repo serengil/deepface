@@ -49,7 +49,8 @@ if "_DEPRECATION_WARNING_SHOWN" not in globals():
         " Currently, TensorFlow is included by default, but this behavior will be deprecated.\n"
         " Please explicitly specify your preferred backend engine when installing:\n\n"
         "   -> pip install deepface[tensorflow]\n"
-        "   -> pip install deepface[pytorch]\n\n"
+        "   -> pip install deepface[pytorch]\n"
+        "   -> pip install deepface[onnx]\n\n"
         " Otherwise, you will encounter 'module not found' errors.\n"
         + "=" * 70 + "\n"
     )
@@ -60,7 +61,7 @@ if "_DEPRECATION_WARNING_SHOWN" not in globals():
 warnings.filterwarnings("ignore")
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
-# deepface runs either on tensorflow or on pytorch, and it does not import the one it
+# deepface runs on tensorflow, pytorch or onnxruntime, and it does not import the ones it
 # does not run on. see deepface.commons.backend_utils for the way that is decided.
 backend_engine = backend_utils.get_backend_engine()
 logger.debug(f"deepface will run on {backend_engine}")

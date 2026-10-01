@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import cast
+from typing import List, Union, cast
 
 # 3rd party dependencies
 import torch
@@ -17,7 +17,10 @@ from deepface.commons.logger import Logger
 logger = Logger()
 
 # pylint: disable=line-too-long, too-few-public-methods
-WEIGHTS_URL = "https://github.com/serengil/deepface_models/releases/download/v1.0/VGGFace2_DeepFace_weights_val-0.9034.pth"
+WEIGHTS_URL = [
+    "https://github.com/serengil/deepface_models/releases/download/v1.0/VGGFace2_DeepFace_weights_val-0.9034.pth",
+    "https://huggingface.co/serengil/deepface/resolve/main/VGGFace2_DeepFace_weights_val-0.9034.pth",
+]
 
 
 class DeepFaceClient(TorchFacialRecognition):
@@ -119,8 +122,8 @@ class DeepFaceNet(nn.Module):  # type: ignore[misc]
         return cast(Tensor, self.relu(self.F7(x)))
 
 
-def load_model(
-    url: str = WEIGHTS_URL,
+def load_model(  # pylint: disable=dangerous-default-value
+    url: Union[str, List[str]] = WEIGHTS_URL,
 ) -> DeepFaceNet:
     """
     Construct DeepFace model, download its weights and load

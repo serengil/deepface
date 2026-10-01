@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING, Any, Dict, Final, TypedDict
 
 # project dependencies
 from deepface.commons import backend_utils
-from deepface.commons.backend_utils import PYTORCH, TENSORFLOW
+from deepface.commons.backend_utils import ONNX, PYTORCH, TENSORFLOW
 from deepface.modules.exceptions import UnimplementedError
 
 # Models are not imported here but built lazily, on demand. Importing them eagerly would
-# import tensorflow and pytorch both, whereas deepface runs on one of them - see
+# import tensorflow, pytorch and onnxruntime all, whereas deepface runs on one of them - see
 # deepface.commons.backend_utils for the way the backend engine is picked.
 
 if TYPE_CHECKING:
@@ -35,63 +35,76 @@ class AvailableModels(TypedDict):
 AVAILABLE_MODELS: Final[AvailableModels] = {
     "facial_recognition": {
         "VGG-Face": {
-            TENSORFLOW: "deepface.models.facial_recognition.VGGFace.VggFaceClient",
+            TENSORFLOW: "deepface.models.facial_recognition.tf.VGGFace.VggFaceClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.VGGFace.VggFaceClient",
+            ONNX: "deepface.models.facial_recognition.onnx.VGGFace.VggFaceClient",
         },
         "OpenFace": {
-            TENSORFLOW: "deepface.models.facial_recognition.OpenFace.OpenFaceClient",
+            TENSORFLOW: "deepface.models.facial_recognition.tf.OpenFace.OpenFaceClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.OpenFace.OpenFaceClient",
+            ONNX: "deepface.models.facial_recognition.onnx.OpenFace.OpenFaceClient",
         },
         "Facenet": {
-            TENSORFLOW: "deepface.models.facial_recognition.Facenet.FaceNet128dClient",
+            TENSORFLOW: "deepface.models.facial_recognition.tf.Facenet.FaceNet128dClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.Facenet.FaceNet128dClient",
+            ONNX: "deepface.models.facial_recognition.onnx.Facenet.FaceNet128dClient",
         },
         "Facenet512": {
-            TENSORFLOW: "deepface.models.facial_recognition.Facenet.FaceNet512dClient",
+            TENSORFLOW: "deepface.models.facial_recognition.tf.Facenet.FaceNet512dClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.Facenet.FaceNet512dClient",
+            ONNX: "deepface.models.facial_recognition.onnx.Facenet.FaceNet512dClient",
         },
         "DeepFace": {
-            TENSORFLOW: "deepface.models.facial_recognition.FbDeepFace.DeepFaceClient",
+            TENSORFLOW: "deepface.models.facial_recognition.tf.FbDeepFace.DeepFaceClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.FbDeepFace.DeepFaceClient",
+            ONNX: "deepface.models.facial_recognition.onnx.FbDeepFace.DeepFaceClient",
         },
         "DeepID": {
-            TENSORFLOW: "deepface.models.facial_recognition.DeepID.DeepIdClient",
+            TENSORFLOW: "deepface.models.facial_recognition.tf.DeepID.DeepIdClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.DeepID.DeepIdClient",
+            ONNX: "deepface.models.facial_recognition.onnx.DeepID.DeepIdClient",
         },
-        "Dlib": {ANY: "deepface.models.facial_recognition.Dlib.DlibClient"},
+        "Dlib": {ANY: "deepface.models.facial_recognition.dlib.Dlib.DlibClient"},
         "ArcFace": {
-            TENSORFLOW: "deepface.models.facial_recognition.ArcFace.ArcFaceClient",
+            TENSORFLOW: "deepface.models.facial_recognition.tf.ArcFace.ArcFaceClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.ArcFace.ArcFaceClient",
+            ONNX: "deepface.models.facial_recognition.onnx.ArcFace.ArcFaceClient",
         },
-        "SFace": {ANY: "deepface.models.facial_recognition.SFace.SFaceClient"},
+        "SFace": {ANY: "deepface.models.facial_recognition.onnx.SFace.SFaceClient"},
         "GhostFaceNet": {
-            TENSORFLOW: "deepface.models.facial_recognition.GhostFaceNet.GhostFaceNetClient",
+            TENSORFLOW: "deepface.models.facial_recognition.tf.GhostFaceNet.GhostFaceNetClient",
             PYTORCH: "deepface.models.facial_recognition.pytorch.GhostFaceNet.GhostFaceNetClient",
+            ONNX: "deepface.models.facial_recognition.onnx.GhostFaceNet.GhostFaceNetClient",
         },
-        "Buffalo_L": {ANY: "deepface.models.facial_recognition.Buffalo_L.Buffalo_L"},
+        "Buffalo_L": {ANY: "deepface.models.facial_recognition.onnx.Buffalo_L.Buffalo_L"},
     },
     "spoofing": {
         "Fasnet": {
-            TENSORFLOW: "deepface.models.spoofing.FasNet.Fasnet",
+            TENSORFLOW: "deepface.models.spoofing.tf.FasNet.Fasnet",
             PYTORCH: "deepface.models.spoofing.pytorch.FasNet.Fasnet",
+            ONNX: "deepface.models.spoofing.onnx.FasNet.Fasnet",
         },
     },
     "facial_attribute": {
         "Emotion": {
-            TENSORFLOW: "deepface.models.demography.Emotion.EmotionClient",
+            TENSORFLOW: "deepface.models.demography.tf.Emotion.EmotionClient",
             PYTORCH: "deepface.models.demography.pytorch.Emotion.EmotionClient",
+            ONNX: "deepface.models.demography.onnx.Emotion.EmotionClient",
         },
         "Age": {
-            TENSORFLOW: "deepface.models.demography.Age.ApparentAgeClient",
+            TENSORFLOW: "deepface.models.demography.tf.Age.ApparentAgeClient",
             PYTORCH: "deepface.models.demography.pytorch.Age.ApparentAgeClient",
+            ONNX: "deepface.models.demography.onnx.Age.ApparentAgeClient",
         },
         "Gender": {
-            TENSORFLOW: "deepface.models.demography.Gender.GenderClient",
+            TENSORFLOW: "deepface.models.demography.tf.Gender.GenderClient",
             PYTORCH: "deepface.models.demography.pytorch.Gender.GenderClient",
+            ONNX: "deepface.models.demography.onnx.Gender.GenderClient",
         },
         "Race": {
-            TENSORFLOW: "deepface.models.demography.Race.RaceClient",
+            TENSORFLOW: "deepface.models.demography.tf.Race.RaceClient",
             PYTORCH: "deepface.models.demography.pytorch.Race.RaceClient",
+            ONNX: "deepface.models.demography.onnx.Race.RaceClient",
         },
     },
     # face detectors bring their own dependencies - opencv, dlib, mediapipe, ultralytics

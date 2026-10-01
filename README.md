@@ -7,7 +7,6 @@
 [![Pulls](https://img.shields.io/docker/pulls/serengil/deepface?logo=docker)](https://hub.docker.com/r/serengil/deepface)
 [![License](http://img.shields.io/:license-MIT-green.svg?style=flat)](https://github.com/serengil/deepface/blob/master/LICENSE)
 [![DOI](http://img.shields.io/:DOI-10.35378/gujs.1794891-blue.svg?style=flat)](https://doi.org/10.35378/gujs.1794891)
-[![Hacker News](https://img.shields.io/badge/dynamic/json?color=orange&label=Hacker%20News&query=score&url=https%3A%2F%2Fhacker-news.firebaseio.com%2Fv0%2Fitem%2F49872023.json&logo=y-combinator)](https://news.ycombinator.com/item?id=49872023)
 
 [![DeepFace Cloud](https://img.shields.io/badge/%E2%98%81-deepface%20cloud-blue?style=for-the-badge)](https://deepface.dev?source=deepface_repo)
 
@@ -57,6 +56,12 @@ $ pip install deepface[tensorflow]
 
 # or to run deepface on pytorch
 # $ pip install deepface[pytorch]
+
+# or to run deepface on onnxruntime
+# $ pip install deepface[onnx]
+
+# manage backend deep learning framework if you have many
+# export DEEPFACE_BACKEND_ENGINE=onnx 
 ```
 
 Alternatively, you can also install deepface from its source code. Source code may have new features not published in pip release yet.
@@ -64,7 +69,7 @@ Alternatively, you can also install deepface from its source code. Source code m
 ```shell
 $ git clone https://github.com/serengil/deepface.git
 $ cd deepface
-$ pip install -e .[tensorflow]  # or pip install -e .[pytorch]
+$ pip install -e .[tensorflow]  # or pip install -e .[pytorch] or pip install -e .[onnx]
 ```
 
 Once you installed the library, then you will be able to import it and use its functionalities.
