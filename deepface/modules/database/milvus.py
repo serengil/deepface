@@ -3,6 +3,7 @@ import os
 import json
 import hashlib
 import struct
+import math
 from typing import Any, Dict, Optional, List, Union
 
 # project dependencies
@@ -172,7 +173,13 @@ class MilvusClient(Database):
         )
 
         for hit in results[0]:
-            distance = hit['distance']
+            # Milvus returns cosine similarity or squared L2, not DeepFace distances.
+            score = float(hit["distance"])
+            distance = (
+                1.0 - min(max(score, -1.0), 1.0)
+                if l2_normalized
+                else math.sqrt(max(score, 0.0))
+            )
             out.append({
                 "id": hit['id'],
                 "distance": distance,
