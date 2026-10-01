@@ -65,9 +65,14 @@ def find(
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
-        distance_metric (string or callable): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2', 'angular'. Alternatively, a custom callable taking two
-            embeddings and returning a distance.
+        distance_metric (string or callable): Metric for measuring similarity. Options:
+            'cosine', 'euclidean', 'euclidean_l2', 'angular' (default is cosine).
+            With batched=False, a custom callable receives two 1D NumPy arrays and
+            returns a scalar distance. With batched=True, it receives gallery embeddings
+            of shape (N, D) first and query embeddings of shape (M, D) second, and must
+            return a distance matrix of shape (M, N). Rows correspond to query faces;
+            columns correspond to gallery entries. Scalar-only callables require
+            batched=False. An explicit threshold is required for custom callables.
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Default is True. Set to False to avoid the exception for low-resolution images.
@@ -567,9 +572,12 @@ def find_batched(
         model_name (str): Model for face recognition. Options: VGG-Face, Facenet, Facenet512,
             OpenFace, DeepFace, DeepID, Dlib, ArcFace, SFace and GhostFaceNet (default is VGG-Face).
 
-        distance_metric (string or callable): Metric for measuring similarity. Options: 'cosine',
-            'euclidean', 'euclidean_l2', 'angular'. Alternatively, a custom callable taking two
-            embeddings and returning a distance.
+        distance_metric (string or callable): Metric for measuring similarity. Options:
+            'cosine', 'euclidean', 'euclidean_l2', 'angular'. A custom callable receives
+            gallery embeddings of shape (N, D) first and query embeddings of shape (M, D)
+            second. It must return a distance matrix of shape (M, N), with one row per
+            query face and one column per gallery entry. The callable is invoked once
+            with both complete matrices, not once per embedding pair.
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Default is True. Set to False to avoid the exception for low-resolution images.
