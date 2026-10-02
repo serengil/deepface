@@ -257,20 +257,26 @@ class MilvusClient(Database):
         if not self.client.has_collection(collection_name):
             return out
 
-        # Query all
-        results = self.client.query(
+        iterator = self.client.query_iterator(
             collection_name=collection_name,
             filter="",
             output_fields=["id", "embedding", "img_name"],
-            limit=16384  # Milvus limit
+            batch_size=batch_size,
         )
 
-        for res in results:
-            out.append({
-                "id": res["id"],
-                "embedding": res["embedding"],
-                "img_name": res["img_name"],
-            })
+        try:
+            while True:
+                results = iterator.next()
+                if not results:
+                    break
+                for res in results:
+                    out.append({
+                        "id": res["id"],
+                        "embedding": res["embedding"],
+                        "img_name": res["img_name"],
+                    })
+        finally:
+            iterator.close()
 
         return out
 
