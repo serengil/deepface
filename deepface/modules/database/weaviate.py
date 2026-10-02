@@ -861,7 +861,7 @@ def legacy_grpc_connection_params_class() -> Any:
     from pydantic import PrivateAttr
     from weaviate.connect.base import ConnectionParams, ProtocolParams, MAX_GRPC_MESSAGE_LENGTH
 
-    class GrpcConfigConnectionParams(ConnectionParams):
+    class GrpcConfigConnectionParams(ConnectionParams):  # type: ignore[misc]
         """
         ConnectionParams with the channel options and credentials of grpc_config.
         """
