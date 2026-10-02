@@ -62,11 +62,11 @@ class Buffalo_L(FacialRecognition):
         Preprocess the input image or batch of images.
 
         Args:
-            img: Input image or batch with shape (112, 112, 3)
-            or (batch_size, 112, 112, 3).
+            img: BGR input image or batch in [0, 1] scale with shape
+            (112, 112, 3) or (batch_size, 112, 112, 3).
 
         Returns:
-            Preprocessed image(s) with RGB converted to BGR.
+            BGR image(s) in [0, 255] scale, as expected by InsightFace's get_feat.
         """
         if len(img.shape) == 3:
             img = np.expand_dims(img, axis=0)  # Convert single image to batch of 1
@@ -74,9 +74,7 @@ class Buffalo_L(FacialRecognition):
             raise InvalidEmbeddingsShapeError(
                 f"Input must be (112, 112, 3) or (X, 112, 112, 3). Got {img.shape}"
             )
-        # Convert RGB to BGR for the entire batch
-        img = img[:, :, :, ::-1]
-        return img
+        return img * 255
 
     def forward(self, img: NDArray[Any]) -> Union[List[float], List[List[float]]]:
         """
