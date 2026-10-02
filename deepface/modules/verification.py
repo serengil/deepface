@@ -222,7 +222,7 @@ def verify(
         distance=distance,
         model_name=model_name,
         distance_metric=distance_metric,
-        verified=distance <= pretuned_threshold,
+        verified=distance <= threshold,
     )
     facial_areas = (
         no_facial_area if min_idx is None else img1_facial_areas[min_idx],
