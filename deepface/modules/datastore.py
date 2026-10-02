@@ -376,6 +376,8 @@ def search(
             distances, indices = embeddings_index.search(query_vector, k or 20)
             instances = []
             for i, index in enumerate(indices[0]):
+                if index == -1:
+                    continue
                 distance = (
                     math.sqrt(distances[0][i])
                     if distance_metric == "euclidean"
