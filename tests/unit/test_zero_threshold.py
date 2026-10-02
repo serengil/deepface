@@ -37,6 +37,10 @@ def test_verify_threshold(monkeypatch, threshold, distance, metric):
     assert result["threshold"] == expected
     assert result["distance"] == distance
     assert result["verified"] == (distance <= expected)
+    if result["verified"]:
+        assert 51 <= result["confidence"] <= 100
+    else:
+        assert 0 <= result["confidence"] <= 49
 
 
 class ColorModel(FacialRecognition):
@@ -87,3 +91,26 @@ def test_find_threshold(tmp_path, monkeypatch, threshold, batched, metric):
     )
     assert all(row["threshold"] == expected for row in rows)
     assert rows[0]["distance"] == 0.0
+    if not batched:
+        assert all(51 <= row["confidence"] <= 100 for row in rows)
+
+
+@pytest.mark.parametrize("threshold", [23.99, 24.0, 24.01])
+def test_verify_confidence_with_looser_threshold(monkeypatch, threshold):
+    monkeypatch.setattr(
+        modeling, "build_model", lambda **kw: SimpleNamespace(output_shape=2)
+    )
+    result = verification.verify(
+        [1.0, 0.0],
+        [1.0, 24.0],
+        model_name="Facenet512",
+        distance_metric="euclidean",
+        threshold=threshold,
+        silent=True,
+    )
+    assert result["distance"] == 24.0
+    assert result["verified"] == (24.0 <= threshold)
+    if result["verified"]:
+        assert 51 <= result["confidence"] <= 100
+    else:
+        assert 0 <= result["confidence"] <= 49

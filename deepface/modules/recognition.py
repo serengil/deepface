@@ -396,7 +396,7 @@ def find(
                 distance=distance,
                 model_name=model_name,
                 distance_metric=distance_metric,
-                verified=bool(distance <= pretuned_threshold),
+                verified=bool(distance <= target_threshold),
             )
 
             distances.append(distance)
