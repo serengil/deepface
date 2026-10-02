@@ -182,6 +182,9 @@ class CenterFace:
             boxes_np = boxes_np[keep, :]
             lms_np = np.asarray(lms, dtype=np.float32)
             lms_np = lms_np[keep, :]
+        else:
+            boxes_np = np.empty((0, 5), dtype=np.float32)
+            lms_np = np.empty((0, 10), dtype=np.float32)
         return boxes_np, lms_np
 
     def nms(self, boxes: NDArray[Any], scores: NDArray[Any], nms_thresh: float) -> List[int]:
