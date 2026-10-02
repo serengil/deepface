@@ -5,7 +5,7 @@ import uuid
 import time
 import math
 import tempfile
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 
 # 3rd party dependencies
 import pandas as pd
@@ -336,8 +336,9 @@ def search(
         connection=connection,
     )
 
+    linking: Optional["Future[None]"] = None
     try:
-        return __search(
+        dfs, linking = __search(
             db_client=db_client,
             img=img,
             model_name=model_name,
@@ -355,10 +356,15 @@ def search(
             database_type=database_type,
             search_method=search_method,
         )
+        return dfs
     finally:
-        # Caller-supplied connections remain owned by the caller.
+        # Caller-supplied connections remain owned by the caller. Background identity
+        # linking still uses the client, so it closes once linking is done.
         if connection is None:
-            db_client.close()
+            if linking is not None:
+                linking.add_done_callback(lambda _: db_client.close())
+            else:
+                db_client.close()
 
 
 def __search(
@@ -378,8 +384,13 @@ def __search(
     k: Optional[int],
     database_type: str,
     search_method: str,
-) -> List[pd.DataFrame]:
-    """Search identities using a database client managed by the caller."""
+) -> Tuple[List[pd.DataFrame], Optional["Future[None]"]]:
+    """
+    Search identities using a database client managed by the caller.
+    Returns:
+        dfs (List[pd.DataFrame]): search results, one dataframe per detected face.
+        linking (Future or None): background identity linking still using the client.
+    """
     dfs: List[pd.DataFrame] = []
 
     results = __get_embeddings(
@@ -467,7 +478,7 @@ def __search(
             del ids_df
 
             dfs.append(df)
-        return dfs
+        return dfs, None
 
     elif search_method == "ann" and is_vector_db is True:
         for result in results:
@@ -523,7 +534,7 @@ def __search(
                     df = df.nsmallest(k, "distance")
                 dfs.append(df)
 
-        __link_verified_identities(
+        linking = __link_verified_identities(
             db_client=db_client,
             database_type=database_type,
             dfs=dfs,
@@ -532,7 +543,7 @@ def __search(
             align=align,
             l2_normalize=l2_normalize,
         )
-        return dfs
+        return dfs, linking
 
     elif search_method == "exact":
         source_embeddings = db_client.fetch_all_embeddings(
@@ -609,7 +620,7 @@ def __search(
 
             dfs.append(df)
 
-        __link_verified_identities(
+        linking = __link_verified_identities(
             db_client=db_client,
             database_type=database_type,
             dfs=dfs,
@@ -618,7 +629,7 @@ def __search(
             align=align,
             l2_normalize=l2_normalize,
         )
-        return dfs
+        return dfs, linking
 
     else:
         raise ValueError(f"Unsupported search method: {search_method}")
@@ -1157,7 +1168,7 @@ def __link_verified_identities(
     detector_backend: str,
     align: bool,
     l2_normalize: bool,
-) -> None:
+) -> Optional["Future[None]"]:
     """
     Store relationships between identities verified as the same person in a search,
         if the database is a graph database. Only rows within the threshold are linked,
@@ -1171,16 +1182,18 @@ def __link_verified_identities(
         detector_backend (string): face detector backend.
         align (bool): Flag to enable face alignment.
         l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
+    Returns:
+        linking (Future or None): the scheduled linking task, None if nothing is linked.
     """
     if database_inventory[database_type]["is_graph_db"] is False:
-        return
+        return None
 
     clusters = [
         df[df["distance"] <= df["threshold"]]["id"].tolist() for df in dfs if not df.empty
     ]
 
     if not any(len(cluster) > 1 for cluster in clusters):
-        return
+        return None
 
     def link() -> None:
         # search results are already returned, so only log if linking fails
@@ -1196,7 +1209,7 @@ def __link_verified_identities(
         except Exception as err:  # pylint: disable=broad-except
             logger.warn(f"Could not link verified identities in {database_type}: {err}")
 
-    _LINK_EXECUTOR.submit(link)
+    return _LINK_EXECUTOR.submit(link)
 
 
 def __connect_database(

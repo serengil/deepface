@@ -81,7 +81,8 @@ class WeaviateClient(Database):
       }
 
     Options:
-      url                 http(s) url of the REST endpoint
+      url                 http(s) url of the REST endpoint. Without a port, http:// uses 80,
+                          https:// 443 and a host without a scheme 8080
       deployment          custom, cloud or local. Inferred from the url when not given:
                           *.weaviate.cloud and *.weaviate.network hosts are cloud
       http_host, http_port, http_secure
@@ -232,12 +233,13 @@ class WeaviateClient(Database):
                 logger.warn(f"Embedding with hash {embedding_hash} is duplicated in the input.")
                 continue
 
+            # the face is encoded only when added to the batch, after duplicates are dropped
             records[embedding_hash] = {
                 "uuid": str(uuid.uuid5(uuid.NAMESPACE_OID, f"{face_hash}:{embedding_hash}")),
                 "vector": e["embedding"],
+                "face": e["face"],
                 "properties": {
                     "img_name": e["img_name"],
-                    "face": base64.b64encode(e["face"].tobytes()).decode("utf-8"),
                     "face_shape": list(e["face"].shape),
                     "model_name": e["model_name"],
                     "detector_backend": e["detector_backend"],
@@ -258,8 +260,9 @@ class WeaviateClient(Database):
 
         with collection.batch.fixed_size(batch_size=batch_size) as batcher:
             for record in records.values():
+                face = base64.b64encode(record["face"].tobytes()).decode("utf-8")
                 batcher.add_object(
-                    properties=record["properties"],
+                    properties={**record["properties"], "face": face},
                     vector=record["vector"],
                     uuid=record["uuid"],
                 )
@@ -661,10 +664,13 @@ def parse_http_endpoint(details: Dict[str, Any]) -> Tuple[str, int, bool]:
     host, port, secure = "localhost", DEFAULT_HTTP_PORT, False
     url = details.get("url")
     if url:
-        parsed = urlparse(url if "://" in url else f"http://{url}")
+        has_scheme = "://" in url
+        parsed = urlparse(url if has_scheme else f"http://{url}")
         secure = parsed.scheme == "https"
         host = parsed.hostname or host
-        port = parsed.port or (443 if secure else DEFAULT_HTTP_PORT)
+        # a url with a scheme uses its standard port, a bare host weaviate's default
+        default_port = (443 if secure else 80) if has_scheme else DEFAULT_HTTP_PORT
+        port = parsed.port or default_port
 
     secure = parse_bool(details.get("http_secure", secure))
     host = details.get("http_host") or host
@@ -824,14 +830,10 @@ def connect_with_legacy_grpc_config(
         client (weaviate.WeaviateClient): connected client.
     """
     import weaviate
-    from weaviate.connect.base import ProtocolParams
 
-    options = parse_grpc_config(grpc_config)
-    params = legacy_grpc_connection_params_class()(
-        http=ProtocolParams(host=http[0], port=http[1], secure=http[2]),
-        grpc=ProtocolParams(host=grpc_endpoint[0], port=grpc_endpoint[1], secure=grpc_endpoint[2]),
+    params = legacy_grpc_connection_params_class().from_grpc_config(
+        http, grpc_endpoint, parse_grpc_config(grpc_config)
     )
-    params.set_grpc_config(options.get("channel_options"), options.get("credentials"))
 
     client = weaviate.WeaviateClient(
         connection_params=params,
@@ -857,7 +859,7 @@ def legacy_grpc_connection_params_class() -> Any:
     # pylint: disable=import-outside-toplevel
     import grpc
     from pydantic import PrivateAttr
-    from weaviate.connect.base import ConnectionParams, MAX_GRPC_MESSAGE_LENGTH
+    from weaviate.connect.base import ConnectionParams, ProtocolParams, MAX_GRPC_MESSAGE_LENGTH
 
     class GrpcConfigConnectionParams(ConnectionParams):
         """
@@ -867,9 +869,43 @@ def legacy_grpc_connection_params_class() -> Any:
         _channel_options: List[Tuple[str, Any]] = PrivateAttr(default_factory=list)
         _credentials: Any = PrivateAttr(default=None)
 
-        def set_grpc_config(self, channel_options: Any, credentials: Any) -> None:
-            self._channel_options = list(channel_options or [])
-            self._credentials = credentials
+        @classmethod
+        def from_grpc_config(
+            cls,
+            http: Tuple[str, int, bool],
+            grpc_endpoint: Tuple[str, int, bool],
+            grpc_config: Dict[str, Any],
+        ) -> "GrpcConfigConnectionParams":
+            """
+            Build connection params from host, port and secure flag of both endpoints,
+                and a grpc_config validated by parse_grpc_config.
+            """
+            params = cls(
+                http=ProtocolParams(host=http[0], port=http[1], secure=http[2]),
+                grpc=ProtocolParams(
+                    host=grpc_endpoint[0], port=grpc_endpoint[1], secure=grpc_endpoint[2]
+                ),
+            )
+            params._channel_options = list(grpc_config.get("channel_options") or [])
+            params._credentials = grpc_config.get("credentials")
+            return params
+
+        def channel_options(
+            self, proxies: Dict[str, str], grpc_msg_size: Optional[int]
+        ) -> List[Tuple[str, Any]]:
+            """
+            gRPC channel options: the client defaults, then the grpc_config options.
+            """
+            if grpc_msg_size is None:
+                grpc_msg_size = MAX_GRPC_MESSAGE_LENGTH
+            options: List[Tuple[str, Any]] = [
+                ("grpc.max_send_message_length", grpc_msg_size),
+                ("grpc.max_receive_message_length", grpc_msg_size),
+                ("grpc.default_authority", self.grpc.host),
+            ]
+            if proxies.get("grpc") is not None:
+                options.append(("grpc.http_proxy", proxies["grpc"]))
+            return options + self._channel_options
 
         def _grpc_channel(  # pylint: disable=unused-argument
             self,
@@ -880,17 +916,7 @@ def legacy_grpc_connection_params_class() -> Any:
             **kwargs: Any,
         ) -> Any:
             # same channel as ConnectionParams._grpc_channel in weaviate-client 4.20
-            if grpc_msg_size is None:
-                grpc_msg_size = MAX_GRPC_MESSAGE_LENGTH
-            options: List[Tuple[str, Any]] = [
-                ("grpc.max_send_message_length", grpc_msg_size),
-                ("grpc.max_receive_message_length", grpc_msg_size),
-                ("grpc.default_authority", self.grpc.host),
-            ]
-            if proxies.get("grpc") is not None:
-                options.append(("grpc.http_proxy", proxies["grpc"]))
-            options.extend(self._channel_options)
-
+            options = self.channel_options(proxies, grpc_msg_size)
             mod = grpc.aio if is_async else grpc
             if self.grpc.secure:
                 return mod.secure_channel(

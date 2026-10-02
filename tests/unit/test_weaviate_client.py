@@ -1,4 +1,5 @@
 # built-in dependencies
+import base64
 import json
 from types import SimpleNamespace
 from unittest.mock import MagicMock
@@ -67,6 +68,21 @@ def test_https_url_defaults_to_port_443_and_secure_grpc(connectors):
     assert kwargs["http_port"] == 443
     assert kwargs["http_secure"] is True
     assert kwargs["grpc_secure"] is True
+
+
+@pytest.mark.parametrize(
+    "url, port",
+    [
+        ("http://weaviate.internal", 80),
+        ("https://weaviate.internal", 443),
+        ("weaviate.internal", 8080),
+        ("http://weaviate.internal:8081", 8081),
+        ("https://weaviate.internal:8443", 8443),
+    ],
+)
+def test_url_default_ports(connectors, url, port):
+    WeaviateClient(url)
+    assert connectors["custom"].call_args.kwargs["http_port"] == port
 
 
 def test_url_without_scheme(connectors):
@@ -386,6 +402,8 @@ def test_insert_skips_existing_and_duplicate_embeddings():
     assert [a["properties"]["img_name"] for a in added] == ["img2.jpg", "img3.jpg"]
     assert added[0]["vector"] == [2.0, 1.0]
     assert added[0]["properties"]["embedding_hash"] == embedding_hash(2)
+    face = np.frombuffer(base64.b64decode(added[0]["properties"]["face"]), dtype=np.float64)
+    assert np.array_equal(face.reshape(added[0]["properties"]["face_shape"]), np.full((2, 2, 3), 2))
     # deterministic ids make retries idempotent
     client_again, _, batcher_again = build_client()
     client_again.insert_embeddings([embedding_record(2)])
@@ -590,18 +608,17 @@ def test_legacy_grpc_config_closes_client_on_connect_error(legacy_client):
 @pytest.mark.parametrize("secure", [True, False])
 def test_legacy_grpc_channel_applies_options_and_credentials(monkeypatch, secure):
     import grpc  # pylint: disable=import-outside-toplevel
-    from weaviate.connect.base import ProtocolParams  # pylint: disable=import-outside-toplevel
 
     secure_channel, insecure_channel = MagicMock(), MagicMock()
     monkeypatch.setattr(grpc, "secure_channel", secure_channel)
     monkeypatch.setattr(grpc, "insecure_channel", insecure_channel)
     credentials = object()
 
-    params = weaviate_module.legacy_grpc_connection_params_class()(
-        http=ProtocolParams(host="w.internal", port=443, secure=secure),
-        grpc=ProtocolParams(host="g.internal", port=50051, secure=secure),
+    params = weaviate_module.legacy_grpc_connection_params_class().from_grpc_config(
+        ("w.internal", 443, secure),
+        ("g.internal", 50051, secure),
+        {"channel_options": [("grpc.keepalive_time_ms", 10000)], "credentials": credentials},
     )
-    params.set_grpc_config([("grpc.keepalive_time_ms", 10000)], credentials)
     params._grpc_channel(proxies={"grpc": "http://proxy:3128"}, grpc_msg_size=1024, is_async=False)
 
     channel = secure_channel if secure else insecure_channel
@@ -623,15 +640,28 @@ def test_legacy_grpc_channel_applies_options_and_credentials(monkeypatch, secure
 
 def test_legacy_grpc_channel_defaults_to_system_tls(monkeypatch):
     import grpc  # pylint: disable=import-outside-toplevel
-    from weaviate.connect.base import ProtocolParams  # pylint: disable=import-outside-toplevel
 
     secure_channel = MagicMock()
     default_credentials = object()
     monkeypatch.setattr(grpc, "secure_channel", secure_channel)
     monkeypatch.setattr(grpc, "ssl_channel_credentials", lambda: default_credentials)
-    params = weaviate_module.legacy_grpc_connection_params_class()(
-        http=ProtocolParams(host="w.internal", port=443, secure=True),
-        grpc=ProtocolParams(host="g.internal", port=443, secure=True),
+    params = weaviate_module.legacy_grpc_connection_params_class().from_grpc_config(
+        ("w.internal", 443, True), ("g.internal", 443, True), {}
     )
     params._grpc_channel(proxies={}, grpc_msg_size=None, is_async=False)
     assert secure_channel.call_args.kwargs["credentials"] is default_credentials
+
+
+def test_legacy_channel_options_defaults_then_grpc_config():
+    params = weaviate_module.legacy_grpc_connection_params_class().from_grpc_config(
+        ("w.internal", 8080, False),
+        ("g.internal", 50051, False),
+        {"channel_options": [("grpc.keepalive_time_ms", 10000)]},
+    )
+    options = params.channel_options(proxies={}, grpc_msg_size=None)
+    assert options[:3] == [
+        ("grpc.max_send_message_length", weaviate.connect.base.MAX_GRPC_MESSAGE_LENGTH),
+        ("grpc.max_receive_message_length", weaviate.connect.base.MAX_GRPC_MESSAGE_LENGTH),
+        ("grpc.default_authority", "g.internal"),
+    ]
+    assert options[3:] == [("grpc.keepalive_time_ms", 10000)]
