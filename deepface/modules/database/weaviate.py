@@ -60,19 +60,19 @@ COLLECTION_KEYS = {"tenant", "quantization"}
 
 # quantization option -> (minimum weaviate version, vectorIndexConfig entries). Servers older
 # than the minimum silently drop unknown quantizers, so the version is checked here.
-QUANTIZATIONS: Dict[str, Tuple[Tuple[int, int], Dict[str, Any]]] = {
+QUANTIZATIONS: Dict[str, Tuple[Tuple[int, int, int], Dict[str, Any]]] = {
     # also opts out of a server side DEFAULT_QUANTIZATION, e.g. on Weaviate Cloud
-    "none": ((1, 0), {"skipDefaultQuantization": True}),
-    "rq": ((1, 32), {"rq": {"enabled": True, "bits": 8}}),
-    "rq-8": ((1, 32), {"rq": {"enabled": True, "bits": 8}}),
-    "rq-1": ((1, 33), {"rq": {"enabled": True, "bits": 1}}),
-    "bq": ((1, 24), {"bq": {"enabled": True}}),
-    "sq": ((1, 26), {"sq": {"enabled": True}}),
-    "pq": ((1, 23), {"pq": {"enabled": True}}),
+    "none": ((1, 0, 0), {"skipDefaultQuantization": True}),
+    "rq": ((1, 32, 0), {"rq": {"enabled": True, "bits": 8}}),
+    "rq-8": ((1, 32, 0), {"rq": {"enabled": True, "bits": 8}}),
+    "rq-1": ((1, 33, 0), {"rq": {"enabled": True, "bits": 1}}),
+    "bq": ((1, 24, 0), {"bq": {"enabled": True}}),
+    "sq": ((1, 26, 0), {"sq": {"enabled": True}}),
+    "pq": ((1, 23, 0), {"pq": {"enabled": True}}),
 }
 
-# auto tenant creation and activation need weaviate 1.25
-MIN_TENANCY_VERSION = (1, 25)
+# auto tenant activation needs weaviate 1.25.2, older servers drop it silently
+MIN_TENANCY_VERSION = (1, 25, 2)
 TENANT_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 
 # pylint: disable=too-many-positional-arguments
@@ -142,7 +142,7 @@ class WeaviateClient(Database):
                           are created on their first register, and deleting a tenant erases
                           its faces. Collections are created as multi-tenant only when a
                           tenant is given, and an existing collection keeps its mode. Needs
-                          Weaviate 1.25 or newer, and with RBAC the read and create tenant
+                          Weaviate 1.25.2 or newer, and with RBAC the read and create tenant
                           permissions. Falls back to DEEPFACE_WEAVIATE_TENANT.
       quantization        compresses the vectors of new collections: rq (8-bit, Weaviate
                           1.32+), rq-1 (1-bit, 1.33+), bq, sq, pq, or none to opt out of a
@@ -171,7 +171,7 @@ class WeaviateClient(Database):
         options = resolve_collection_options(connection_details)
         self.tenant: Optional[str] = options["tenant"]
         self.quantization: Optional[str] = options["quantization"]
-        self.__server_version: Optional[Tuple[int, int]] = None
+        self.__server_version: Optional[Tuple[int, int, int]] = None
 
         if not hasattr(weaviate, "WeaviateClient"):
             raise ValueError(
@@ -559,7 +559,7 @@ class WeaviateClient(Database):
                     " Quantization is only set when a collection is created."
                 )
 
-    def __require_server_version(self, min_version: Tuple[int, int], feature: str) -> None:
+    def __require_server_version(self, min_version: Tuple[int, int, int], feature: str) -> None:
         """
         Raise if the weaviate server is older than the given version.
         """
@@ -567,8 +567,8 @@ class WeaviateClient(Database):
             self.__server_version = parse_version(self.client.get_meta().get("version", ""))
         if self.__server_version < min_version:
             raise ValueError(
-                f"{feature} requires Weaviate {min_version[0]}.{min_version[1]} or newer,"
-                f" but the server is {self.__server_version[0]}.{self.__server_version[1]}."
+                f"{feature} requires Weaviate {format_version(min_version)} or newer,"
+                f" but the server is {format_version(self.__server_version)}."
             )
 
     @staticmethod
@@ -769,14 +769,22 @@ def quantizer_name(vector_index_config: Any) -> str:
     return name
 
 
-def parse_version(version: str) -> Tuple[int, int]:
+def parse_version(version: str) -> Tuple[int, int, int]:
     """
-    Parse major and minor version numbers from a version string such as 1.33.2.
+    Parse major, minor and patch version numbers from a version string such as 1.33.2.
+        A missing patch number counts as 0.
     """
-    match = re.match(r"^v?(\d+)\.(\d+)", version.strip())
+    match = re.match(r"^v?(\d+)\.(\d+)(?:\.(\d+))?", version.strip())
     if match is None:
-        return (0, 0)
-    return (int(match.group(1)), int(match.group(2)))
+        return (0, 0, 0)
+    return (int(match.group(1)), int(match.group(2)), int(match.group(3) or 0))
+
+
+def format_version(version: Tuple[int, int, int]) -> str:
+    """
+    Format a version tuple such as (1, 25, 2) as 1.25.2.
+    """
+    return ".".join(str(part) for part in version)
 
 
 def infer_deployment(details: Dict[str, Any]) -> str:
