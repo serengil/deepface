@@ -790,11 +790,40 @@ def test_tenant_creates_multi_tenant_collection():
     }
 
 
-def test_tenancy_requires_server_version():
-    client, _, _ = build_client(connection_details={"tenant": "acme"}, server_version="1.24.9")
+@pytest.mark.parametrize("server_version", ["1.24.9", "1.25.0", "1.25.1"])
+def test_tenancy_requires_server_version(server_version):
+    # autoTenantActivation arrived in 1.25.2, older servers drop it silently
+    client, _, _ = build_client(
+        connection_details={"tenant": "acme"}, server_version=server_version
+    )
     client.client.collections.exists.return_value = False
-    with pytest.raises(ValueError, match="multi-tenancy requires Weaviate 1.25"):
+    with pytest.raises(ValueError, match=r"multi-tenancy requires Weaviate 1\.25\.2 or newer"):
         client.initialize_database(model_name="Facenet", detector_backend="opencv")
+    client.client.collections.create_from_dict.assert_not_called()
+
+
+@pytest.mark.parametrize("server_version", ["1.25.2", "1.26.0", "1.39.7"])
+def test_tenancy_accepts_supported_server_version(server_version):
+    client, _, _ = build_client(
+        connection_details={"tenant": "acme"}, server_version=server_version
+    )
+    client.client.collections.exists.return_value = False
+    client.initialize_database(model_name="Facenet", detector_backend="opencv")
+    client.client.collections.create_from_dict.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "version, expected",
+    [
+        ("1.25.2", (1, 25, 2)),
+        ("v1.33.10", (1, 33, 10)),
+        ("1.32", (1, 32, 0)),
+        ("1.36.0-rc.1", (1, 36, 0)),
+        ("", (0, 0, 0)),
+    ],
+)
+def test_parse_version(version, expected):
+    assert weaviate_module.parse_version(version) == expected
 
 
 def test_tenant_on_single_tenant_collection_is_rejected():
