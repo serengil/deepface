@@ -5,7 +5,7 @@ import uuid
 import time
 import math
 import tempfile
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 
 # 3rd party dependencies
 import pandas as pd
@@ -311,6 +311,8 @@ def search(
             - distance: Similarity score between the faces based on the specified model
                 and distance metric
     """
+    dfs: List[pd.DataFrame] = []
+
     # adjust distance metric
     if search_method == "ann":
         # ann does cosine for l2 normalized vectors, euclidean for non-l2 normalized vectors
@@ -335,63 +337,6 @@ def search(
         connection_details=connection_details,
         connection=connection,
     )
-
-    linking: Optional["Future[None]"] = None
-    try:
-        dfs, linking = __search(
-            db_client=db_client,
-            img=img,
-            model_name=model_name,
-            detector_backend=detector_backend,
-            distance_metric=distance_metric,
-            threshold=threshold,
-            enforce_detection=enforce_detection,
-            align=align,
-            l2_normalize=l2_normalize,
-            expand_percentage=expand_percentage,
-            normalization=normalization,
-            anti_spoofing=anti_spoofing,
-            similarity_search=similarity_search,
-            k=k,
-            database_type=database_type,
-            search_method=search_method,
-        )
-        return dfs
-    finally:
-        # Caller-supplied connections remain owned by the caller. Background identity
-        # linking still uses the client, so it closes once linking is done.
-        if connection is None:
-            if linking is not None:
-                linking.add_done_callback(lambda _: db_client.close())
-            else:
-                db_client.close()
-
-
-def __search(
-    db_client: Database,
-    img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
-    model_name: str,
-    detector_backend: str,
-    distance_metric: str,
-    threshold: float,
-    enforce_detection: bool,
-    align: bool,
-    l2_normalize: bool,
-    expand_percentage: int,
-    normalization: str,
-    anti_spoofing: bool,
-    similarity_search: bool,
-    k: Optional[int],
-    database_type: str,
-    search_method: str,
-) -> Tuple[List[pd.DataFrame], Optional["Future[None]"]]:
-    """
-    Search identities using a database client managed by the caller.
-    Returns:
-        dfs (List[pd.DataFrame]): search results, one dataframe per detected face.
-        linking (Future or None): background identity linking still using the client.
-    """
-    dfs: List[pd.DataFrame] = []
 
     results = __get_embeddings(
         img=img,
@@ -478,7 +423,7 @@ def __search(
             del ids_df
 
             dfs.append(df)
-        return dfs, None
+        return dfs
 
     elif search_method == "ann" and is_vector_db is True:
         for result in results:
@@ -534,7 +479,7 @@ def __search(
                     df = df.nsmallest(k, "distance")
                 dfs.append(df)
 
-        linking = __link_verified_identities(
+        __link_verified_identities(
             db_client=db_client,
             database_type=database_type,
             dfs=dfs,
@@ -543,7 +488,7 @@ def __search(
             align=align,
             l2_normalize=l2_normalize,
         )
-        return dfs, linking
+        return dfs
 
     elif search_method == "exact":
         source_embeddings = db_client.fetch_all_embeddings(
@@ -620,7 +565,7 @@ def __search(
 
             dfs.append(df)
 
-        linking = __link_verified_identities(
+        __link_verified_identities(
             db_client=db_client,
             database_type=database_type,
             dfs=dfs,
@@ -629,7 +574,7 @@ def __search(
             align=align,
             l2_normalize=l2_normalize,
         )
-        return dfs, linking
+        return dfs
 
     else:
         raise ValueError(f"Unsupported search method: {search_method}")
@@ -1168,7 +1113,7 @@ def __link_verified_identities(
     detector_backend: str,
     align: bool,
     l2_normalize: bool,
-) -> Optional["Future[None]"]:
+) -> None:
     """
     Store relationships between identities verified as the same person in a search,
         if the database is a graph database. Only rows within the threshold are linked,
@@ -1182,18 +1127,16 @@ def __link_verified_identities(
         detector_backend (string): face detector backend.
         align (bool): Flag to enable face alignment.
         l2_normalize (bool): Flag to enable L2 normalization (unit vector normalization)
-    Returns:
-        linking (Future or None): the scheduled linking task, None if nothing is linked.
     """
     if database_inventory[database_type]["is_graph_db"] is False:
-        return None
+        return
 
     clusters = [
         df[df["distance"] <= df["threshold"]]["id"].tolist() for df in dfs if not df.empty
     ]
 
     if not any(len(cluster) > 1 for cluster in clusters):
-        return None
+        return
 
     def link() -> None:
         # search results are already returned, so only log if linking fails
@@ -1209,7 +1152,7 @@ def __link_verified_identities(
         except Exception as err:  # pylint: disable=broad-except
             logger.warn(f"Could not link verified identities in {database_type}: {err}")
 
-    return _LINK_EXECUTOR.submit(link)
+    _LINK_EXECUTOR.submit(link)
 
 
 def __connect_database(

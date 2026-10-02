@@ -1,6 +1,5 @@
 """Keep normalization, distance, threshold and confidence in the same space."""
 
-import threading
 from copy import deepcopy
 
 import numpy as np
@@ -253,52 +252,3 @@ def test_identify_closes_owned_connection_and_preserves_payload_types(storage):
     assert type(result["id"]) is int
     assert type(result["threshold"]) is float
     assert type(result["verified"]) is bool
-
-
-def test_search_closes_owned_connection(storage):
-    db, options = storage("Facenet512", True)
-    options["connection"] = None
-    datastore.search(**options, search_method="exact", distance_metric="euclidean")
-    assert db.closed
-
-
-def test_search_closes_owned_connection_on_error(storage):
-    db, options = storage("Facenet512", True)
-    options["connection"] = None
-    with pytest.raises(ValueError, match="No embeddings found"):
-        datastore.search(**options, database_type="pgvector", search_method="ann")
-    assert db.closed
-
-
-def test_search_keeps_caller_connection_open(storage):
-    db, options = storage("Facenet512", True)
-    datastore.search(**options, search_method="exact", distance_metric="euclidean")
-    assert not db.closed
-
-
-def test_search_closes_owned_connection_after_identity_linking(storage, monkeypatch):
-    db, options = storage("Facenet512", True, vectors=[[1.0, 0.0], [1.0, 0.0]])
-    options["connection"] = None
-    monkeypatch.setitem(
-        datastore.database_inventory, "postgres", {"is_vector_db": False, "is_graph_db": True}
-    )
-    release, closed = threading.Event(), threading.Event()
-    calls = []
-
-    def link_verified_identities(**_kwargs):
-        release.wait(timeout=5)
-        calls.append(db.closed)
-        return 1
-
-    def close():
-        db.closed = True
-        closed.set()
-
-    db.link_verified_identities = link_verified_identities
-    db.close = close
-    datastore.search(**options, search_method="exact", distance_metric="euclidean")
-    assert not db.closed
-    release.set()
-    assert closed.wait(timeout=5)
-    # linking ran on an open client, and the client was closed afterwards
-    assert calls == [False]
