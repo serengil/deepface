@@ -34,6 +34,7 @@ def normalize_input(img: NDArray[Any], normalization: str = "base") -> NDArray[A
 
     elif normalization == "Facenet":
         mean, std = img.mean(), img.std()
+        std = max(std, 1 / img.size**0.5)
         img = (img - mean) / std
 
     elif normalization == "Facenet2018":
