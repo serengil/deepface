@@ -56,7 +56,7 @@ def extract_image_from_request(img_key: str) -> Union[str, NDArray[Any]]:
         return np_img
     # Check if the request is coming as base64, file path or url from json or form data
     elif request.is_json or request.form:
-        input_args = request.get_json() or request.form.to_dict()
+        input_args = request.get_json() if request.is_json else request.form.to_dict()
 
         if input_args is None:
             raise ValueError("empty input set passed")
