@@ -129,3 +129,81 @@ def test_weaviate_exact_search_scans_whole_collection(flush_data):
     client.close()
     assert len(embeddings) == 250
     logger.info("✅ Weaviate full scan test passed.")
+
+
+def with_options(**options):
+    details = json.loads(connection_details) if connection_details.startswith("{") else {
+        "url": connection_details
+    }
+    return {**details, **options}
+
+
+def test_weaviate_tenants_are_isolated(flush_data):
+    for tenant, img_name in [("acme", "img1.jpg"), ("globex", "img3.jpg")]:
+        result = DeepFace.register(
+            img=f"../unit/dataset/{img_name}",
+            model_name="Facenet",
+            detector_backend="opencv",
+            database_type="weaviate",
+            connection_details=with_options(tenant=tenant),
+        )
+        assert result["inserted"] == 1
+
+    for tenant, img_name in [("acme", "img1.jpg"), ("globex", "img3.jpg")]:
+        dfs = DeepFace.search(
+            img="../unit/dataset/img2.jpg",
+            model_name="Facenet",
+            detector_backend="opencv",
+            distance_metric="euclidean",
+            search_method="ann",
+            similarity_search=True,
+            database_type="weaviate",
+            connection_details=with_options(tenant=tenant),
+        )
+        assert [name.split("/")[-1] for name in dfs[0]["img_name"]] == [img_name]
+
+    with pytest.raises(ValueError, match="No embeddings found"):
+        DeepFace.search(
+            img="../unit/dataset/img2.jpg",
+            model_name="Facenet",
+            detector_backend="opencv",
+            search_method="ann",
+            database_type="weaviate",
+            connection_details=with_options(tenant="initech"),
+        )
+
+    with pytest.raises(ValueError, match="a tenant is required"):
+        DeepFace.search(
+            img="../unit/dataset/img2.jpg",
+            model_name="Facenet",
+            detector_backend="opencv",
+            search_method="ann",
+            database_type="weaviate",
+            connection_details=connection_details,
+        )
+    logger.info("✅ Weaviate tenant isolation test passed.")
+
+
+def test_weaviate_quantized_search_matches_exact(flush_data):
+    details = with_options(quantization="bq")
+    for img_name in DATASET_IMAGES:
+        DeepFace.register(
+            img=f"../unit/dataset/{img_name}",
+            model_name="Facenet",
+            detector_backend="opencv",
+            database_type="weaviate",
+            connection_details=details,
+        )
+    kwargs = {
+        "img": "../unit/dataset/img1.jpg",
+        "model_name": "Facenet",
+        "detector_backend": "opencv",
+        "distance_metric": "euclidean",
+        "database_type": "weaviate",
+        "connection_details": details,
+    }
+    exact = DeepFace.search(search_method="exact", **kwargs)[0]
+    ann = DeepFace.search(search_method="ann", **kwargs)[0]
+    assert list(ann["img_name"]) == list(exact["img_name"])
+    assert list(ann["distance"]) == pytest.approx(list(exact["distance"]), abs=1e-4)
+    logger.info("✅ Weaviate quantized search test passed.")

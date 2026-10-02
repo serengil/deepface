@@ -7,6 +7,7 @@ import base64
 import uuid
 import math
 import functools
+import re
 from typing import Any, Dict, Optional, List, Set, Tuple, Union
 from urllib.parse import urlparse
 
@@ -53,6 +54,26 @@ ADDITIONAL_CONFIG_KEYS = {"timeout", "proxies", "trust_env", "connection_config"
 
 # keys of the grpc_config option, the fields of weaviate.config.GrpcConfig
 GRPC_CONFIG_KEYS = {"channel_options", "credentials"}
+
+# keys that configure the collections deepface creates, not the connection
+COLLECTION_KEYS = {"tenant", "quantization"}
+
+# quantization option -> (minimum weaviate version, vectorIndexConfig entries). Servers older
+# than the minimum silently drop unknown quantizers, so the version is checked here.
+QUANTIZATIONS: Dict[str, Tuple[Tuple[int, int], Dict[str, Any]]] = {
+    # also opts out of a server side DEFAULT_QUANTIZATION, e.g. on Weaviate Cloud
+    "none": ((1, 0), {"skipDefaultQuantization": True}),
+    "rq": ((1, 32), {"rq": {"enabled": True, "bits": 8}}),
+    "rq-8": ((1, 32), {"rq": {"enabled": True, "bits": 8}}),
+    "rq-1": ((1, 33), {"rq": {"enabled": True, "bits": 1}}),
+    "bq": ((1, 24), {"bq": {"enabled": True}}),
+    "sq": ((1, 26), {"sq": {"enabled": True}}),
+    "pq": ((1, 23), {"pq": {"enabled": True}}),
+}
+
+# auto tenant creation and activation need weaviate 1.25
+MIN_TENANCY_VERSION = (1, 25)
+TENANT_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 
 # pylint: disable=too-many-positional-arguments
 class WeaviateClient(Database):
@@ -111,6 +132,24 @@ class WeaviateClient(Database):
     DEEPFACE_WEAVIATE_GRPC_PORT, DEEPFACE_WEAVIATE_TIMEOUT and
     DEEPFACE_WEAVIATE_SKIP_INIT_CHECKS. A weaviate.WeaviateClient can also be passed as
     connection, and is then used as is.
+
+    Two more options configure the collections deepface creates. They can be combined with
+    an existing connection too, e.g. connection_details={"tenant": "acme"}.
+
+      tenant              keeps each gallery of faces isolated with weaviate multi-tenancy,
+                          e.g. one tenant per customer, site or event sharing a cluster.
+                          A search only sees faces registered with the same tenant, tenants
+                          are created on their first register, and deleting a tenant erases
+                          its faces. Collections are created as multi-tenant only when a
+                          tenant is given, and an existing collection keeps its mode. Needs
+                          Weaviate 1.25 or newer, and with RBAC the read and create tenant
+                          permissions. Falls back to DEEPFACE_WEAVIATE_TENANT.
+      quantization        compresses the vectors of new collections: rq (8-bit, Weaviate
+                          1.32+), rq-1 (1-bit, 1.33+), bq, sq, pq, or none to opt out of a
+                          server default quantization. Weaviate rescores results with the
+                          original vectors, so distances and thresholds are unchanged. When
+                          not given, the server default applies. Falls back to
+                          DEEPFACE_WEAVIATE_QUANTIZATION.
     """
 
     def __init__(
@@ -127,6 +166,12 @@ class WeaviateClient(Database):
             ) from e
 
         self.weaviate = weaviate
+
+        # resolved before connecting, so invalid options don't leave a connection open
+        options = resolve_collection_options(connection_details)
+        self.tenant: Optional[str] = options["tenant"]
+        self.quantization: Optional[str] = options["quantization"]
+        self.__server_version: Optional[Tuple[int, int]] = None
 
         if not hasattr(weaviate, "WeaviateClient"):
             raise ValueError(
@@ -166,6 +211,7 @@ class WeaviateClient(Database):
         # not cached, so a collection dropped outside deepface is created again
         if self.client.collections.exists(class_name):
             logger.debug(f"Weaviate collection {class_name} already exists.")
+            self.__check_collection_config(class_name)
             return
 
         vector_index_config: Dict[str, Any] = {
@@ -174,12 +220,30 @@ class WeaviateClient(Database):
         if os.getenv("WEAVIATE_HNSW_M"):
             vector_index_config["maxConnections"] = int(os.environ["WEAVIATE_HNSW_M"])
 
+        if self.quantization is not None:
+            min_version, quantizer_config = QUANTIZATIONS[self.quantization]
+            if self.quantization != "none":
+                self.__require_server_version(min_version, f"quantization '{self.quantization}'")
+            vector_index_config.update(quantizer_config)
+
+        schema: Dict[str, Any] = {
+            "class": class_name,
+            "vectorIndexType": "hnsw",
+            "vectorizer": "none",
+            "vectorIndexConfig": vector_index_config,
+        }
+
+        if self.tenant is not None:
+            self.__require_server_version(MIN_TENANCY_VERSION, "multi-tenancy")
+            schema["multiTenancyConfig"] = {
+                "enabled": True,
+                "autoTenantCreation": True,
+                "autoTenantActivation": True,
+            }
+
         self.client.collections.create_from_dict(
             {
-                "class": class_name,
-                "vectorIndexType": "hnsw",
-                "vectorizer": "none",
-                "vectorIndexConfig": vector_index_config,
+                **schema,
                 "properties": [
                     {"name": "img_name", "dataType": ["text"]},
                     {"name": "face", "dataType": ["blob"]},
@@ -220,7 +284,7 @@ class WeaviateClient(Database):
             aligned=embeddings[0]["aligned"],
             l2_normalized=embeddings[0]["l2_normalized"],
         )
-        collection = self.client.collections.use(class_name)
+        collection = self.__collection(class_name)
 
         records: Dict[str, Dict[str, Any]] = {}
         for e in embeddings:
@@ -233,9 +297,14 @@ class WeaviateClient(Database):
                 logger.warn(f"Embedding with hash {embedding_hash} is duplicated in the input.")
                 continue
 
+            # ids are scoped to the tenant, so the same face gets unrelated ids in each tenant
+            id_name = f"{face_hash}:{embedding_hash}"
+            if self.tenant is not None:
+                id_name = f"{self.tenant}:{id_name}"
+
             # the face is encoded only when added to the batch, after duplicates are dropped
             records[embedding_hash] = {
-                "uuid": str(uuid.uuid5(uuid.NAMESPACE_OID, f"{face_hash}:{embedding_hash}")),
+                "uuid": str(uuid.uuid5(uuid.NAMESPACE_OID, id_name)),
                 "vector": e["embedding"],
                 "face": e["face"],
                 "properties": {
@@ -251,9 +320,13 @@ class WeaviateClient(Database):
                 },
             }
 
-        for embedding_hash in self.__find_existing_hashes(collection, list(records.keys())):
-            logger.warn(f"Embedding with hash {embedding_hash} already exists in {class_name}.")
-            del records[embedding_hash]
+        # a missing tenant is created by the batch insert, and nothing is stored in it yet
+        if self.__tenant_exists(collection):
+            for embedding_hash in self.__find_existing_hashes(collection, list(records.keys())):
+                logger.warn(
+                    f"Embedding with hash {embedding_hash} already exists in {class_name}."
+                )
+                del records[embedding_hash]
 
         if not records:
             return 0
@@ -299,7 +372,9 @@ class WeaviateClient(Database):
             aligned=aligned,
             l2_normalized=l2_normalized,
         )
-        collection = self.client.collections.use(class_name)
+        collection = self.__collection(class_name)
+        if not self.__tenant_exists(collection):
+            return []
 
         embeddings = []
         for obj in collection.iterator(
@@ -354,8 +429,13 @@ class WeaviateClient(Database):
 
         if not self.client.collections.exists(class_name):
             return None
+        self.__check_collection_config(class_name)
 
-        obj = self.client.collections.use(class_name).query.fetch_object_by_id(
+        collection = self.__collection(class_name)
+        if not self.__tenant_exists(collection):
+            return None
+
+        obj = collection.query.fetch_object_by_id(
             str(identity_id),
             include_vector=True,
         )
@@ -403,7 +483,11 @@ class WeaviateClient(Database):
             l2_normalized=l2_normalized,
         )
 
-        response = self.client.collections.use(class_name).query.near_vector(
+        collection = self.__collection(class_name)
+        if not self.__tenant_exists(collection):
+            return []
+
+        response = collection.query.near_vector(
             near_vector=vector,
             limit=limit,
             return_properties=["img_name", "embedding"],
@@ -429,6 +513,63 @@ class WeaviateClient(Database):
         Close the Weaviate client connection.
         """
         self.client.close()
+
+    def __collection(self, class_name: str) -> Any:
+        """
+        Get a collection handle, scoped to the tenant when multi-tenancy is used.
+        """
+        collection = self.client.collections.use(class_name)
+        if self.tenant is not None:
+            collection = collection.with_tenant(self.tenant)
+        return collection
+
+    def __tenant_exists(self, collection: Any) -> bool:
+        """
+        Check that the tenant exists. Tenants are created on the first insert only.
+        """
+        if self.tenant is None:
+            return True
+        return bool(collection.tenants.exists(self.tenant))
+
+    def __check_collection_config(self, class_name: str) -> None:
+        """
+        Check that an existing collection matches the tenant and quantization options.
+        """
+        config = self.client.collections.use(class_name).config.get()
+
+        multi_tenancy = bool(config.multi_tenancy_config.enabled)
+        if self.tenant is not None and not multi_tenancy:
+            raise ValueError(
+                f"Weaviate collection {class_name} was created without multi-tenancy, so it"
+                " cannot be used with a tenant. Remove the tenant option, or drop the"
+                " collection to have it created again with multi-tenancy."
+            )
+        if self.tenant is None and multi_tenancy:
+            raise ValueError(
+                f"Weaviate collection {class_name} has multi-tenancy enabled, so a tenant is"
+                " required. Set the tenant option or DEEPFACE_WEAVIATE_TENANT."
+            )
+
+        if self.quantization is not None:
+            current = quantizer_name(config.vector_index_config)
+            if current != self.quantization.replace("rq-8", "rq"):
+                logger.warn(
+                    f"Weaviate collection {class_name} already exists with quantization"
+                    f" '{current}', so quantization '{self.quantization}' is not applied."
+                    " Quantization is only set when a collection is created."
+                )
+
+    def __require_server_version(self, min_version: Tuple[int, int], feature: str) -> None:
+        """
+        Raise if the weaviate server is older than the given version.
+        """
+        if self.__server_version is None:
+            self.__server_version = parse_version(self.client.get_meta().get("version", ""))
+        if self.__server_version < min_version:
+            raise ValueError(
+                f"{feature} requires Weaviate {min_version[0]}.{min_version[1]} or newer,"
+                f" but the server is {self.__server_version[0]}.{self.__server_version[1]}."
+            )
 
     @staticmethod
     def __find_existing_hashes(collection: Any, embedding_hashes: List[str]) -> Set[str]:
@@ -509,12 +650,7 @@ def resolve_connection_details(
     else:
         raise ValueError("connection_details must be a string or dict with 'url'.")
 
-    unknown = set(details.keys()) - CONNECTION_KEYS
-    if unknown:
-        raise ValueError(
-            f"Unknown Weaviate connection option(s): {sorted(unknown)}."
-            f" Valid options are: {sorted(CONNECTION_KEYS)}"
-        )
+    validate_option_keys(details)
 
     # a ready AdditionalConfig replaces the options deepface would build it from
     if details.get("additional_config") is not None:
@@ -552,6 +688,95 @@ def resolve_connection_details(
         raise ValueError("Weaviate URL not provided in connection_details.")
 
     return details
+
+
+def validate_option_keys(details: Dict[str, Any]) -> None:
+    """
+    Raise on unknown connection details keys, so typos are not silently ignored.
+    """
+    valid_keys = CONNECTION_KEYS | COLLECTION_KEYS
+    unknown = set(details.keys()) - valid_keys
+    if unknown:
+        raise ValueError(
+            f"Unknown Weaviate connection option(s): {sorted(unknown)}."
+            f" Valid options are: {sorted(valid_keys)}"
+        )
+
+
+def resolve_collection_options(
+    connection_details: Optional[Union[str, Dict[str, Any]]] = None,
+) -> Dict[str, Optional[str]]:
+    """
+    Resolve the tenant and quantization options from connection details, falling back to
+        DEEPFACE_WEAVIATE_TENANT and DEEPFACE_WEAVIATE_QUANTIZATION. They are read even when
+        an existing connection is passed, so connection_details may hold only these keys.
+    Returns:
+        options (dict): tenant and quantization, None when not set.
+    """
+    if connection_details is None:
+        # the same fallback as the connection, which may be a JSON object with these options
+        connection_details = os.getenv("DEEPFACE_WEAVIATE_URI") or os.getenv(
+            "DEEPFACE_WEAVIATE_URL"
+        )
+
+    details: Dict[str, Any] = {}
+    if isinstance(connection_details, dict):
+        details = connection_details
+    elif isinstance(connection_details, str) and connection_details.strip().startswith("{"):
+        details = json.loads(connection_details)
+        if not isinstance(details, dict):
+            raise ValueError("Weaviate connection details JSON must be an object.")
+    validate_option_keys(details)
+
+    tenant = details.get("tenant")
+    if tenant is not None and not str(tenant).strip():
+        # an empty tenant would silently store faces outside any tenant
+        raise ValueError("Weaviate tenant is empty. Remove the option or give a tenant name.")
+    tenant = tenant or os.getenv("DEEPFACE_WEAVIATE_TENANT") or None
+    if tenant is not None:
+        tenant = str(tenant)
+        if not TENANT_PATTERN.match(tenant):
+            raise ValueError(
+                f"Invalid Weaviate tenant name {tenant!r}. Tenant names are 1 to 64"
+                " characters of letters, digits, '_' and '-'."
+            )
+
+    quantization = details.get("quantization") or os.getenv("DEEPFACE_WEAVIATE_QUANTIZATION")
+    if quantization is not None:
+        quantization = str(quantization).strip().lower()
+        if quantization not in QUANTIZATIONS:
+            raise ValueError(
+                f"Unsupported Weaviate quantization {quantization!r}."
+                f" Supported values are: {sorted(QUANTIZATIONS)}"
+            )
+
+    return {"tenant": tenant, "quantization": quantization}
+
+
+def quantizer_name(vector_index_config: Any) -> str:
+    """
+    Name the quantizer of a collection's vector index config as a quantization option.
+    """
+    quantizer = getattr(vector_index_config, "quantizer", None)
+    if quantizer is None:
+        return "none"
+    name = type(quantizer).__name__.lower().strip("_")
+    for option in ("rq", "bq", "sq", "pq"):
+        if name.startswith(option):
+            if option == "rq" and getattr(quantizer, "bits", 8) == 1:
+                return "rq-1"
+            return option
+    return name
+
+
+def parse_version(version: str) -> Tuple[int, int]:
+    """
+    Parse major and minor version numbers from a version string such as 1.33.2.
+    """
+    match = re.match(r"^v?(\d+)\.(\d+)", version.strip())
+    if match is None:
+        return (0, 0)
+    return (int(match.group(1)), int(match.group(2)))
 
 
 def infer_deployment(details: Dict[str, Any]) -> str:
