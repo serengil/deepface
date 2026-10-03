@@ -613,19 +613,12 @@ def find_batched(
             contains a list of dictionaries with matching faces.
     """
 
+    representations = [item for item in representations if item.get("embedding") is not None]
     embeddings_list = []
-    valid_mask_lst = []
     metadata: Set[str] = set()
 
     for item in representations:
-        emb = item.get("embedding")
-        if emb is not None:
-            embeddings_list.append(emb)
-            valid_mask_lst.append(True)
-        else:
-            embeddings_list.append(np.zeros_like(representations[0]["embedding"]))
-            valid_mask_lst.append(False)
-
+        embeddings_list.append(item["embedding"])
         metadata.update(item.keys())
 
     # remove embedding key from other keys
@@ -633,7 +626,6 @@ def find_batched(
     metadata_lst = list(metadata)
 
     embeddings = np.array(embeddings_list)  # (N, D)
-    valid_mask = np.array(valid_mask_lst)  # (N,)
 
     data = {
         key: np.array([item.get(key, None) for item in representations]) for key in metadata_lst
@@ -668,6 +660,9 @@ def find_batched(
         source_regions.append(source_region)
         target_thresholds.append(target_threshold)
 
+    if not embeddings_list:
+        return [[] for _ in source_objs]
+
     target_embeddings_np = np.array(target_embeddings)  # (M, D)
     target_thresholds_np = np.array(target_thresholds)  # (M,)
     source_regions_arr = {
@@ -681,7 +676,6 @@ def find_batched(
         NDArray[Any],
         verification.find_distance(embeddings, target_embeddings_np, distance_metric),
     )  # (M, N)
-    distances[:, ~valid_mask] = np.inf
 
     resp_obj = []
     for i in range(len(target_embeddings_np)):
