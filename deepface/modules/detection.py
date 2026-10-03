@@ -373,6 +373,11 @@ def extract_face(
         w = min(img.shape[1] - x, expanded_w)
         h = min(img.shape[0] - y, expanded_h)
 
+    # Clip the box before slicing: negative indexes count from the end of the image.
+    w = max(0, min(img.shape[1], x + w) - max(0, x))
+    h = max(0, min(img.shape[0], y + h) - max(0, y))
+    x, y = max(0, x), max(0, y)
+
     # extract detected face unaligned
     detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
 
