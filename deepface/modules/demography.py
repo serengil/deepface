@@ -109,7 +109,7 @@ def analyze(
     """
 
     # batch input
-    if (isinstance(img_path, np.ndarray) and img_path.ndim == 4 and img_path.shape[0] > 1) or (
+    if (isinstance(img_path, np.ndarray) and img_path.ndim == 4) or (
         isinstance(img_path, list)
     ):
         batch_resp_obj: List[List[Dict[str, Any]]] = []
