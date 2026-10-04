@@ -130,14 +130,16 @@ def test_find_without_refresh_database():
 
     img_path = os.path.join("dataset", "img1.jpg")
 
-    # 1. Calculate hash of the .pkl file;
+    # 1. Calculate hash of the .feather file;
     # 2. Move random image to the temporary created directory;
-    # 3. As a result, there will be a difference between the .pkl file and the disk files;
-    # 4. If refresh_database=False, then .pkl file should not be updated.
+    # 3. As a result, there will be a difference between the .feather file and the disk files;
+    # 4. If refresh_database=False, then .feather file should not be updated.
     #    Recalculate hash and compare it with the hash from pt. 1;
     # 5. After successful check, the image will be moved back to the original destination;
 
-    pkl_path = "dataset/ds_model_vggface_detector_opencv_aligned_normalization_base_expand_0.pkl"
+    pkl_path = (
+        "dataset/ds_model_vggface_detector_opencv_aligned_normalization_base_expand_0.feather"
+    )
     with open(pkl_path, "rb") as f:
         hash_before = hashlib.sha256(f.read())
 
@@ -156,7 +158,7 @@ def test_find_without_refresh_database():
 
     assert hash_before.hexdigest() == hash_after.hexdigest()
 
-    logger.info("✅ .pkl hashes before and after the recognition process are the same")
+    logger.info("✅ .feather hashes before and after the recognition process are the same")
 
     assert len(dfs) > 0
     for df in dfs:
@@ -174,23 +176,30 @@ def test_find_without_refresh_database():
         assert df.shape[0] > 0
     logger.info("✅ test find without refresh database done")
 
+
 def test_find_for_custom_metrics():
     img_path = os.path.join("dataset", "img1.jpg")
-    dfs = DeepFace.find(img_path = img_path, db_path = "dataset", distance_metric = cosine_similarity, threshold = 0.68)
+    dfs = DeepFace.find(
+        img_path=img_path, db_path="dataset", distance_metric=cosine_similarity, threshold=0.68
+    )
 
     df = dfs[0]
     # img47 is webp even though its extension is jpg
     assert df[df["identity"] == "dataset/img47.jpg"].shape[0] == 0
     logger.info("✅ test find for custom distance metric is done")
 
+
 def test_find_for_custom_metrics_without_custom_threshold():
     img_path = os.path.join("dataset", "img1.jpg")
 
-    with pytest.raises(ValueError, match = 'Threshold must be specified when using custom distance metrics'):
-     DeepFace.find(img_path = img_path, db_path = "dataset", distance_metric = cosine_similarity)
+    with pytest.raises(
+        ValueError, match="Threshold must be specified when using custom distance metrics"
+    ):
+        DeepFace.find(img_path=img_path, db_path="dataset", distance_metric=cosine_similarity)
 
     # img47 is webp even though its extension is jpg
     logger.info("✅ test find for custom distance metric without custom threshold is done")
+
 
 def test_find_for_similarity_search():
     angelinas = [
@@ -237,18 +246,18 @@ def test_find_for_similarity_search():
 
     logger.info("✅ test find for similarity search done")
 
+
 def cosine_similarity(x, y):
     x = np.atleast_2d(x)
     y = np.atleast_2d(y)
-    
+
     # Normalize vectors to unit length (L2 norm)
     x_norm = x / np.linalg.norm(x, axis=1, keepdims=True)
     y_norm = y / np.linalg.norm(y, axis=1, keepdims=True)
-    
+
     # Compute cosine similarity via dot product
     similarity = np.dot(x_norm, y_norm.T)
-    
+
     # Convert similarity to distance
     distance_matrix = 1.0 - similarity
     return distance_matrix
-

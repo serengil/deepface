@@ -24,7 +24,7 @@ logger = Logger()
 class FileStore(ABC):
     """
     Abstraction of the place where facial database images and the representations
-    pickle live. Paths handled by a file store are the identities stored in the pickle.
+    datastore live. Paths handled by a file store are the identities stored in the datastore.
     """
 
     @abstractmethod
