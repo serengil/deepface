@@ -46,8 +46,12 @@ def build_session(file_name: str, source_url: Union[str, List[str]]) -> Any:
     available = ort.get_available_providers()
     providers = [provider for provider in PREFERRED_PROVIDERS if provider in available]
 
+    # only log errors, some graphs (e.g. sface) flood stderr with harmless optimization warnings
+    session_options = ort.SessionOptions()
+    session_options.log_severity_level = 3
+
     try:
-        return ort.InferenceSession(weight_file, providers=providers)
+        return ort.InferenceSession(weight_file, sess_options=session_options, providers=providers)
     except Exception as err:
         raise ValueError(
             f"An exception occurred while loading the onnx graph from {weight_file}."
