@@ -15,6 +15,13 @@ from deepface.modules.database.weaviate import WeaviateClient, resolve_connectio
 
 weaviate = pytest.importorskip("weaviate")
 
+# the module is built on the v4 client api, so skip on older clients (e.g. v3)
+if not hasattr(weaviate, "connect_to_weaviate_cloud"):
+    pytest.skip(
+        f"weaviate-client v4 is required, but {weaviate.__version__} is installed",
+        allow_module_level=True,
+    )
+
 # pylint: disable=redefined-outer-name, unused-argument, protected-access
 
 INTEGRATION = {"X-Weaviate-Client-Integration": f"deepface/{__version__}"}
