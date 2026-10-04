@@ -13,7 +13,8 @@ from pyarrow import parquet
 
 # project dependencies
 from deepface.commons import image_utils
-from deepface.modules import representation, detection, verification
+from deepface.modules import representation, detection, verification, modeling
+from deepface.models.FacialRecognition import FacialRecognition
 from deepface.modules.filestore import FileStore, build_file_store
 
 from deepface.modules.exceptions import (
@@ -625,6 +626,13 @@ def find_batched(
             contains a list of dictionaries with matching faces.
     """
 
+    # build_model caches models as singletons, so this returns the already built instance
+    # (represent calls build_model for the same model) without any extra cost
+    model: FacialRecognition = modeling.build_model(
+        task="facial_recognition", model_name=model_name
+    )
+    dims = model.output_shape
+
     embeddings_list = []
     valid_mask_lst = []
     metadata: Set[str] = set()
@@ -635,7 +643,7 @@ def find_batched(
             embeddings_list.append(emb)
             valid_mask_lst.append(True)
         else:
-            embeddings_list.append(np.zeros_like(representations[0]["embedding"]))
+            embeddings_list.append(np.zeros(dims))
             valid_mask_lst.append(False)
 
         metadata.update(item.keys())
