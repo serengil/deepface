@@ -24,6 +24,8 @@ class RetinaFaceClient(Detector):
         Returns:
             rf (module): retinaface.RetinaFace
         """
+        # TODO: make retinaface required once it started to support tf, pytorch and onnx in pip
+        # also move retinaface to requirements_base.txt and remove it from requirements_tf.txt
         try:
             from retinaface import RetinaFace as rf
         except ModuleNotFoundError as err:

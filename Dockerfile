@@ -49,14 +49,26 @@ COPY ./entrypoint.sh /app/deepface/api/src/entrypoint.sh
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
 # -----------------------------------
 # install dependencies - deepface with these dependency versions is working
-RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local.txt
-
-# if you want a smaller image running on onnxruntime only, comment the line above out and
-# activate the lines below instead. tensorflow and its dependent packages are not installed,
-# so retinaface and mtcnn detectors are not available - opencv is the default one anyway.
-# RUN grep -vE "^(tensorflow|keras|mtcnn|retina-face)==" /app/requirements_local.txt > /app/requirements_local_onnx.txt
-# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_onnx.txt onnxruntime==1.16.3
-# ENV DEEPFACE_BACKEND_ENGINE=onnx
+# backend engine is chosen with a build arg: tensorflow (default), pytorch or onnx
+#   docker build -t deepface .                               -> tensorflow
+#   docker build -t deepface --build-arg BACKEND=pytorch .   -> pytorch
+#   docker build -t deepface --build-arg BACKEND=onnx .      -> onnx
+# for pytorch and onnx, tensorflow and its dependent packages are not installed, so
+# retinaface and mtcnn detectors are not available - opencv is the default one anyway.
+# onnx builds the smallest image as it runs on onnxruntime only.
+ARG BACKEND=tensorflow
+RUN if [ "$BACKEND" = "tensorflow" ]; then \
+        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local.txt; \
+    elif [ "$BACKEND" = "pytorch" ]; then \
+        grep -vE "^(tensorflow|keras|mtcnn|retina-face)==" /app/requirements_local.txt > /app/requirements_local_notf.txt && \
+        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt torch==2.1.2; \
+    elif [ "$BACKEND" = "onnx" ]; then \
+        grep -vE "^(tensorflow|keras|mtcnn|retina-face)==" /app/requirements_local.txt > /app/requirements_local_notf.txt && \
+        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt onnxruntime==1.16.3; \
+    else \
+        echo "Unsupported BACKEND=$BACKEND. It must be tensorflow, pytorch or onnx." && exit 1; \
+    fi
+ENV DEEPFACE_BACKEND_ENGINE=$BACKEND
 
 # install deepface from source code (always up-to-date)
 RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e . --no-deps

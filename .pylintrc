@@ -440,7 +440,8 @@ disable=raw-checker-failed,
         consider-using-dict-items,
         consider-iterating-dictionary,
         unexpected-keyword-arg,
-        unknown-option-value
+        unknown-option-value,
+        fixme
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
