@@ -1,4 +1,4 @@
-"""A detector box crossing the top or left border must crop the visible face."""
+"""Detected crops and reported regions must agree at image boundaries."""
 
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -14,7 +14,21 @@ from deepface.modules import detection
 
 
 @pytest.mark.parametrize(
-    "x,y,w,h", [(-4, 3, 12, 10), (3, -4, 10, 12), (-4, -4, 12, 12), (3, 4, 8, 9)]
+    "x,y,w,h",
+    [
+        (-4, 3, 12, 10),
+        (3, -4, 10, 12),
+        (-4, -4, 12, 12),
+        (3, 4, 8, 9),
+        (16, 3, 8, 10),
+        (3, 16, 10, 8),
+        (16, 16, 8, 8),
+        (16, 3, 4, 10),
+        (3, 16, 10, 4),
+        (19, 3, 1, 10),
+        (3, 19, 10, 1),
+        (0, 0, 20, 20),
+    ],
 )
 def test_mtcnn_boxes_are_cropped_to_visible_image(monkeypatch, x, y, w, h):
     img = np.arange(20 * 20 * 3, dtype=np.uint8).reshape(20, 20, 3)
@@ -264,3 +278,95 @@ def test_default_alignment_restores_outside_boxes_after_padding(
         )
         == []
     )
+
+
+@pytest.mark.parametrize("height,width", [(20, 30), (1, 20), (20, 1), (1, 1)])
+def test_skip_reports_the_complete_image_region(height, width):
+    img = np.arange(height * width * 3, dtype=np.uint8).reshape(height, width, 3)
+
+    faces = detection.extract_faces(
+        img_path=img,
+        detector_backend="skip",
+        color_face="bgr",
+        normalize_face=False,
+    )
+
+    assert len(faces) == 1
+    np.testing.assert_array_equal(faces[0]["face"], img)
+    area = faces[0]["facial_area"]
+    assert (area["x"], area["y"], area["w"], area["h"]) == (0, 0, width, height)
+
+
+@pytest.mark.parametrize(
+    "box",
+    [(16, 3, 8, 10), (3, 16, 10, 8), (16, 16, 8, 8), (19, 19, 1, 1), (0, 0, 20, 20)],
+)
+def test_antispoofing_receives_the_visible_crop_region(monkeypatch, box):
+    img = np.arange(20 * 20 * 3, dtype=np.uint8).reshape(20, 20, 3)
+    detector = MtCnnClient.__new__(MtCnnClient)
+    detector.model = SimpleNamespace(
+        detect_faces=lambda _: [
+            {
+                "box": box,
+                "confidence": 0.95,
+                "keypoints": {"left_eye": (2, 5), "right_eye": (6, 5)},
+            }
+        ]
+    )
+    antispoof_model = Mock()
+    antispoof_model.analyze.return_value = (True, 0.9)
+    monkeypatch.setattr(
+        detection.modeling,
+        "build_model",
+        lambda task, model_name: antispoof_model if task == "spoofing" else detector,
+    )
+
+    faces = detection.extract_faces(
+        img_path=img,
+        detector_backend="mtcnn",
+        align=False,
+        color_face="bgr",
+        normalize_face=False,
+        anti_spoofing=True,
+    )
+
+    x, y, w, h = box
+    expected = img[y : y + h, x : x + w]
+    assert len(faces) == 1
+    np.testing.assert_array_equal(faces[0]["face"], expected)
+    area = faces[0]["facial_area"]
+    assert (area["x"], area["y"], area["w"], area["h"]) == (
+        x,
+        y,
+        expected.shape[1],
+        expected.shape[0],
+    )
+    antispoof_model.analyze.assert_called_once()
+    assert antispoof_model.analyze.call_args.kwargs["img"] is img
+    assert antispoof_model.analyze.call_args.kwargs["facial_area"] == (
+        x,
+        y,
+        expected.shape[1],
+        expected.shape[0],
+    )
+    assert faces[0]["is_real"] is True
+    assert faces[0]["antispoof_score"] == 0.9
+
+
+@pytest.mark.parametrize("height,width", [(20, 30), (1, 1)])
+def test_opencv_no_face_fallback_reports_the_complete_image_region(height, width):
+    img = np.zeros((height, width, 3), dtype=np.uint8)
+
+    faces = detection.extract_faces(
+        img_path=img,
+        detector_backend="opencv",
+        enforce_detection=False,
+        align=False,
+        color_face="bgr",
+        normalize_face=False,
+    )
+
+    assert len(faces) == 1
+    np.testing.assert_array_equal(faces[0]["face"], img)
+    area = faces[0]["facial_area"]
+    assert (area["x"], area["y"], area["w"], area["h"]) == (0, 0, width, height)
