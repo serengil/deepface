@@ -5,14 +5,12 @@ from collections import defaultdict
 # 3rd party dependencies
 import numpy as np
 from numpy.typing import NDArray
-from lightphe import LightPHE
 
 # project dependencies
 from deepface.commons import image_utils
 from deepface.modules import modeling, detection, preprocessing
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.modules.normalization import normalize_embedding_l2, normalize_embedding_minmax
-from deepface.modules.encryption import encrypt_embeddings
 from deepface.modules.exceptions import SpoofDetected
 from deepface.commons.logger import Logger
 
@@ -33,7 +31,6 @@ def represent(
     l2_normalize: bool = False,
     minmax_normalize: bool = False,
     return_face: bool = False,
-    cryptosystem: Optional[LightPHE] = None,
 ) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -76,12 +73,6 @@ def represent(
         return_face (bool): If True, the detected face images will also be returned along
             with embeddings. Default is False.
 
-        cryptosystem (LightPHE): An instance of a partially homomorphic encryption system
-            to encrypt the output embeddings. If provided, the embeddings will be encrypted
-            using the specified cryptosystem. Then, you will be able to perform homomorphic
-            operations on the encrypted embeddings without decrypting them first.
-            Check out the repo to find out more: https://github.com/serengil/lightphe
-
     Returns:
         results (List[Dict[str, Any]] or List[Dict[str, Any]]): A list of dictionaries.
             Result type becomes List of List of Dict if batch input passed.
@@ -96,8 +87,6 @@ def represent(
             the full image area and is nonsensical.
         - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
             to 'skip', the confidence will be 0 and is nonsensical.
-        - encrypted_embedding (List[Any]): Encrypted multidimensional vector representing
-            facial features. This field is included only if a `cryptosystem` is provided.
     """
     resp_objs = []
 
@@ -202,8 +191,6 @@ def represent(
     if l2_normalize:
         embeddings = normalize_embedding_l2(embeddings)
 
-    encrypted_embeddings = encrypt_embeddings(embeddings, cryptosystem)
-
     resp_objs_dict = defaultdict(list)
     for idy, batch_index in enumerate(batch_indexes):
         resp_obj = {
@@ -214,10 +201,6 @@ def represent(
 
         if return_face:
             resp_obj["face"] = batch_images_np[idy]
-        if cryptosystem is not None and encrypted_embeddings is not None:
-            resp_obj["encrypted_embedding"] = (
-                encrypted_embeddings if len(batch_images) == 1 else encrypted_embeddings[idy]
-            )
         resp_objs_dict[batch_index].append(resp_obj)
 
     resp_objs = [resp_objs_dict[idx] for idx in range(len(images))]

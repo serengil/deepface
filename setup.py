@@ -60,7 +60,7 @@ setuptools.setup(
     entry_points={
         "console_scripts": ["deepface = deepface.DeepFace:cli"],
     },
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     license="MIT",
     install_requires=requirements,
     extras_require={

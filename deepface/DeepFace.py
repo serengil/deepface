@@ -12,8 +12,6 @@ os.environ["TF_USE_LEGACY_KERAS"] = "1"
 from numpy.typing import NDArray
 
 import pandas as pd
-from lightphe import LightPHE
-from lightdsa import LightDSA
 
 # package dependencies
 from deepface.commons import backend_utils, package_utils, folder_utils
@@ -322,7 +320,7 @@ def find(
     refresh_database: bool = True,
     anti_spoofing: bool = False,
     batched: bool = False,
-    credentials: Optional[Union[LightDSA, Dict[str, Any]]] = None,
+    datastore_format: str = "feather",
 ) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
     """
     Identify individuals in a database. This is a stateful facial recognition function.
@@ -336,7 +334,7 @@ def find(
         db_path (string): Path to the folder containing image files. All detected faces
             in the database will be considered in the decision-making process. Besides a local
             folder, it can be an S3 location (s3://bucket/prefix) or an FTP location
-            (ftp://user:password@host:port/path). The representations pickle is stored
+            (ftp://user:password@host:port/path). The representations datastore is stored
             in the same location. S3 credentials and endpoint are resolved by boto3, e.g. with
             AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_ENDPOINT_URL environment variables.
 
@@ -382,25 +380,14 @@ def find(
         silent (boolean): Suppress or allow some log messages for a quieter analysis process
             (default is False).
 
-        refresh_database (boolean): Synchronizes the images representation (pkl) file with the
+        refresh_database (boolean): Synchronizes the images representation datastore file with the
             directory/db files, if set to false, it will ignore any file changes inside the db_path
             (default is True).
 
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
-        credentials (LightDSA or dict): public - private key pair. This will be used to sign
-            and verify the integrity of the datastore pickle file. Since pickle files are not safe
-            to load from untrusted sources, signing helps detect tampering and prevents loading a
-            modified datastore that could execute arbitrary code.
-
-            ```
-            from lightdsa import LightDSA
-            cs = LightDSA(algorithm_name = "eddsa")
-            DeepFace.find(..., credentials=cs)
-            # DeepFace.find(..., credentials={**cs.dsa.keys, "algorithm_name": cs.algorithm_name})
-            ```
-
-            See LightDSA repo for more details: https://github.com/serengil/LightDSA
+        datastore_format (str): File format of the representations datastore stored in
+            db_path. Options: feather, parquet (default is feather).
 
     Returns:
         results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
@@ -472,7 +459,7 @@ def find(
         refresh_database=refresh_database,
         anti_spoofing=anti_spoofing,
         batched=batched,
-        credentials=credentials,
+        datastore_format=datastore_format,
     )
 
 
@@ -489,7 +476,6 @@ def represent(
     l2_normalize: bool = False,
     minmax_normalize: bool = False,
     return_face: bool = False,
-    cryptosystem: Optional[LightPHE] = None,
 ) -> Union[List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Represent facial images as multi-dimensional vector embeddings.
@@ -536,12 +522,6 @@ def represent(
         return_face (bool): If True, the detected face images will also be returned along
             with embeddings. Default is False.
 
-        cryptosystem (LightPHE): An instance of a partially homomorphic encryption system
-            to encrypt the output embeddings. If provided, the embeddings will be encrypted
-            using the specified cryptosystem. Then, you will be able to perform homomorphic
-            operations on the encrypted embeddings without decrypting them first.
-            Check out the repo to find out more: https://github.com/serengil/lightphe
-
     Returns:
         results (List[Dict[str, Any]] or List[Dict[str, Any]]): A list of dictionaries.
             Result type becomes List of List of Dict if batch input passed.
@@ -558,9 +538,6 @@ def represent(
 
         - face_confidence (float): Confidence score of face detection. If `detector_backend` is set
             to 'skip', the confidence will be 0 and is nonsensical.
-
-        - encrypted_embedding (List[Any]): Encrypted multidimensional vector representing
-            facial features. This field is included only if a `cryptosystem` is provided.
     """
     return representation.represent(
         img_path=img_path,
@@ -575,7 +552,6 @@ def represent(
         l2_normalize=l2_normalize,
         minmax_normalize=minmax_normalize,
         return_face=return_face,
-        cryptosystem=cryptosystem,
     )
 
 

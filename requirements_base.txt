@@ -9,6 +9,5 @@ Flask>=1.1.2
 flask_cors>=4.0.1
 fire>=0.4.0
 gunicorn>=20.1.0
-lightphe>=0.0.15
-lightdsa>=0.0.3
 python-dotenv>=1.0.1
+pyarrow>=14.0.1
