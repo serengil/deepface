@@ -10,6 +10,7 @@ deepface.egg-info/
 tests/unit/dataset/*.pkl
 tests/unit/dataset/*.feather
 tests/unit/dataset/*.parquet
+tests/unit/dataset/*.npz
 tests/unit/*.ipynb
 tests/unit/*.csv
 *.pyc

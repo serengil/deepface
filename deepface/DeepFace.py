@@ -1,7 +1,19 @@
 # common dependencies
 import os
 import warnings
-from typing import Any, Dict, IO, List, Union, Optional, Sequence, Tuple, cast, Callable
+from typing import (
+    Any,
+    Dict,
+    IO,
+    List,
+    Union,
+    Optional,
+    Sequence,
+    Tuple,
+    cast,
+    Callable,
+    TYPE_CHECKING,
+)
 
 # this has to be set before importing tensorflow
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
@@ -10,8 +22,6 @@ os.environ["TF_USE_LEGACY_KERAS"] = "1"
 
 # 3rd party dependencies
 from numpy.typing import NDArray
-
-import pandas as pd
 
 # package dependencies
 from deepface.commons import backend_utils, package_utils, folder_utils
@@ -29,29 +39,11 @@ from deepface.modules import (
 )
 from deepface import __version__
 
+if TYPE_CHECKING:
+    import pandas as pd
+
 
 logger = Logger()
-
-# -----------------------------------
-# warn users about upcoming changes in backend installation.
-
-if "_DEPRECATION_WARNING_SHOWN" not in globals():
-    global _DEPRECATION_WARNING_SHOWN # pylint: disable=global-at-module-level
-    _DEPRECATION_WARNING_SHOWN = True
-    logger.warn(
-        "\n"
-        + "=" * 70 + "\n"
-        " ⚠️ DEPRECATION WARNING:\n"
-        " Running 'pip install deepface' alone will no longer be sufficient and will\n"
-        " NOT install a default backend in an upcoming major release.\n\n"
-        " Currently, TensorFlow is included by default, but this behavior will be deprecated.\n"
-        " Please explicitly specify your preferred backend engine when installing:\n\n"
-        "   -> pip install deepface[tensorflow]\n"
-        "   -> pip install deepface[pytorch]\n"
-        "   -> pip install deepface[onnx]\n\n"
-        " Otherwise, you will encounter 'module not found' errors.\n"
-        + "=" * 70 + "\n"
-    )
 
 # -----------------------------------
 # configurations for dependencies
@@ -319,9 +311,9 @@ def find(
     silent: bool = False,
     refresh_database: bool = True,
     anti_spoofing: bool = False,
-    batched: bool = False,
-    datastore_format: str = "feather",
-) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
+    datastore_format: str = "npz",
+    return_type: Optional[str] = None,
+) -> Union[List["pd.DataFrame"], List[List[Dict[str, Any]]]]:
     """
     Identify individuals in a database. This is a stateful facial recognition function.
         Use search function to do it in a stateless way.
@@ -343,12 +335,12 @@ def find(
 
         distance_metric (string or callable): Metric for measuring similarity. Options:
             'cosine', 'euclidean', 'euclidean_l2', 'angular' (default is cosine).
-            With batched=False, a custom callable receives two 1D NumPy arrays and
-            returns a scalar distance. With batched=True, it receives gallery embeddings
+            With return_type='pandas', a custom callable receives two 1D NumPy arrays and
+            returns a scalar distance. With return_type='dict', it receives gallery embeddings
             of shape (N, D) first and query embeddings of shape (M, D) second, and must
             return a distance matrix of shape (M, N). Rows correspond to query faces;
             columns correspond to gallery entries. Scalar-only callables such as
-            scipy.spatial.distance.euclidean require batched=False. An explicit threshold
+            scipy.spatial.distance.euclidean require return_type='pandas'. An explicit threshold
             is required for custom callables, as they have no pre-tuned threshold.
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
@@ -387,19 +379,26 @@ def find(
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
         datastore_format (str): File format of the representations datastore stored in
-            db_path. Options: feather, parquet (default is feather).
+            db_path. Options: npz, feather, parquet (default is npz).
+            feather and parquet require pyarrow to be installed.
+
+        return_type (str): Type of the returned results. Options: 'pandas' returns a list of
+            pandas dataframes, 'dict' returns a list of list of dicts. Default is 'pandas'
+            if pandas is installed, otherwise 'dict'. Setting it to 'pandas' requires
+            pandas to be installed.
+            'dict' is optimized for large databases and source images with many faces.
 
     Returns:
         results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
-            A list of pandas dataframes (if `batched=False`) or
-            a list of dicts (if `batched=True`).
+            A list of pandas dataframes (if `return_type='pandas'`) or
+            a list of list of dicts (if `return_type='dict'`).
             Each dataframe or dict corresponds to the identity information for
             an individual detected in the source image.
 
             Note: If you have a large database and/or a source photo with many faces,
-            use `batched=True`, as it is optimized for large batch processing.
-            Please pay attention that when using `batched=True`, the function returns
-            a list of dicts (not a list of DataFrames),
+            use `return_type='dict'`, as it is optimized for large batch processing.
+            Please pay attention that when using `return_type='dict'`, the function returns
+            a list of list of dicts (not a list of DataFrames),
             but with the same keys as the columns in the DataFrame.
 
             The DataFrame columns or dict keys include:
@@ -438,7 +437,7 @@ def find(
             db_path="C:/my_db",
             distance_metric=custom_euclidean,
             threshold=10.0,  # Choose a threshold appropriate to your metric and application.
-            batched=True,
+            return_type="dict",
         )
         ```
     """
@@ -458,8 +457,8 @@ def find(
         silent=silent,
         refresh_database=refresh_database,
         anti_spoofing=anti_spoofing,
-        batched=batched,
         datastore_format=datastore_format,
+        return_type=return_type,
     )
 
 
@@ -852,7 +851,8 @@ def search(
     connection_details: Optional[Union[Dict[str, Any], str]] = None,
     connection: Any = None,
     search_method: str = "exact",
-) -> List[pd.DataFrame]:
+    return_type: Optional[str] = None,
+) -> Union[List["pd.DataFrame"], List[List[Dict[str, Any]]]]:
     """
     Search for identities in database for face recognition. This is a stateless facial
         recognition function. Use find function to do it in a stateful way.
@@ -884,6 +884,10 @@ def search(
             If not specified, all faces within the threshold will be returned (default is None).
         search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
             To use ann search, you must run build_index function first to create the index.
+        return_type (str): Type of the returned results. Options: 'pandas' returns a list of
+            pandas dataframes, 'dict' returns a list of list of dicts. Default is 'pandas'
+            if pandas is installed, otherwise 'dict'. Setting it to 'pandas' requires
+            pandas to be installed.
         database_type (str): Type of database to search identities. Options: 'postgres', 'mongo',
             'weaviate', 'neo4j', 'pgvector', 'pinecone', 'milvus', 'qdrant' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
@@ -901,7 +905,7 @@ def search(
             - DEEPFACE_MILVUS_URI
             - DEEPFACE_QDRANT_URI
     Returns:
-        results (List[pd.DataFrame]):
+        results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
             A list of pandas dataframes or a list of dicts. Each dataframe or dict corresponds
                 to the identity information for an individual detected in the source image.
 
@@ -942,6 +946,7 @@ def search(
         connection_details=connection_details,
         connection=connection,
         search_method=search_method,
+        return_type=return_type,
     )
 
 

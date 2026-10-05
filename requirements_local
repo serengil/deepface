@@ -1,7 +1,8 @@
 numpy==1.22.3
-pandas==2.0.3
+# pandas==2.0.3
 Pillow==9.0.0
-opencv-python==4.9.0.80
+# opencv-python>=4.5.5.64
+opencv-contrib-python-headless==4.9.0.80
 tensorflow==2.13.1
 keras==2.13.1
 requests==2.27.1
@@ -15,7 +16,6 @@ retina-face==0.0.17
 fire==0.4.0
 gunicorn==20.1.0
 python-dotenv==1.0.1
-pyarrow==14.0.2
 # psycopg[binary]==3.2.13
 # pymongo==4.3.3
 # faiss-cpu==1.7.3

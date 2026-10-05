@@ -32,6 +32,15 @@ class SsdClient(Detector):
             model (Any): ssd model
         """
 
+        # opencv 5 dropped the caffe importer, so cv2.dnn.readNetFromCaffe is not available
+        opencv_version_major = int(cv2.__version__.split(".")[0])
+        if opencv_version_major >= 5:
+            raise ValueError(
+                f"Ssd requires opencv-python < 5 but you have {cv2.__version__}, "
+                "because opencv 5 does not support caffe models anymore. "
+                "Please install it using 'pip install \"opencv-contrib-python-headless<5\"'."
+            )
+
         # model structure
         output_model = weight_utils.download_weights_if_necessary(
             file_name="deploy.prototxt",

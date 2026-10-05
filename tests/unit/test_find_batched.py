@@ -19,12 +19,13 @@ threshold = verification.find_threshold(model_name="VGG-Face", distance_metric="
 
 def test_find_with_exact_path():
     img_path = os.path.join("dataset", "img1.jpg")
-    results = DeepFace.find(img_path=img_path, db_path="dataset", silent=True, batched=True)
+    results = DeepFace.find(img_path=img_path, db_path="dataset", silent=True, return_type="dict")
     assert len(results) > 0
     required_keys = set(
         [
             "identity",
             "distance",
+            "confidence",
             "threshold",
             "hash",
             "target_x",
@@ -77,7 +78,7 @@ def test_batched_find_with_similarity_search():
         model_name="VGG-Face", distance_metric="cosine"
     )
     results = DeepFace.find(
-        img_path=img_path, db_path="dataset", silent=True, batched=True, similarity_search=True, k=k
+        img_path=img_path, db_path="dataset", silent=True, return_type="dict", similarity_search=True, k=k
     )
     assert isinstance(results, list)
     assert len(results) > 0
@@ -105,7 +106,7 @@ def test_batched_find_with_similarity_search():
 def test_find_with_array_input():
     img_path = os.path.join("dataset", "img1.jpg")
     img1 = cv2.imread(img_path)
-    results = DeepFace.find(img1, db_path="dataset", silent=True, batched=True)
+    results = DeepFace.find(img1, db_path="dataset", silent=True, return_type="dict")
     assert len(results) > 0
     for result in results:
         assert isinstance(result, list)
@@ -130,7 +131,7 @@ def test_find_with_extracted_faces():
     face_objs = DeepFace.extract_faces(img_path)
     img = face_objs[0]["face"]
     results = DeepFace.find(
-        img, db_path="dataset", detector_backend="skip", silent=True, batched=True
+        img, db_path="dataset", detector_backend="skip", silent=True, return_type="dict"
     )
     assert len(results) > 0
     for result in results:
@@ -155,7 +156,7 @@ def test_filetype_for_find():
     only images as jpg and png can be loaded into database
     """
     img_path = os.path.join("dataset", "img1.jpg")
-    results = DeepFace.find(img_path=img_path, db_path="dataset", silent=True, batched=True)
+    results = DeepFace.find(img_path=img_path, db_path="dataset", silent=True, return_type="dict")
 
     result = results[0]
 
@@ -184,7 +185,7 @@ def test_find_batched_for_custom_metrics():
         db_path="dataset",
         distance_metric=cosine_similarity,
         threshold=0.68,
-        batched=True,
+        return_type="dict",
     )
 
     assert isinstance(dfs, list)
@@ -209,10 +210,16 @@ def test_find_batched_for_custom_metrics_without_custom_threshold():
             img_path=img_path,
             db_path="dataset",
             distance_metric=cosine_similarity,
-            batched=True,
+            return_type="dict",
         )
 
     logger.info(
         "✅ test find batched for custom distance metric without custom threshold is done"
     )
 
+
+
+def test_find_with_unsupported_return_type():
+    img_path = os.path.join("dataset", "img1.jpg")
+    with pytest.raises(ValueError, match="Unsupported return_type"):
+        DeepFace.find(img_path=img_path, db_path="dataset", silent=True, return_type="numpy")

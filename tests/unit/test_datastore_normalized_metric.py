@@ -252,3 +252,20 @@ def test_identify_closes_owned_connection_and_preserves_payload_types(storage):
     assert type(result["id"]) is int
     assert type(result["threshold"]) is float
     assert type(result["verified"]) is bool
+
+
+def test_search_return_type_dict_matches_pandas(storage):
+    _, options = storage("Facenet", True)
+    frames = datastore.search(**options, similarity_search=True, return_type="pandas")
+    dicts = datastore.search(**options, similarity_search=True, return_type="dict")
+    assert len(dicts) == len(frames)
+    for frame, records in zip(frames, dicts):
+        assert isinstance(records, list)
+        assert all(isinstance(record, dict) for record in records)
+        assert records == frame.to_dict(orient="records")
+
+
+def test_search_rejects_unsupported_return_type(storage):
+    _, options = storage("Facenet", True)
+    with pytest.raises(ValueError, match="Unsupported return_type"):
+        datastore.search(**options, return_type="numpy")

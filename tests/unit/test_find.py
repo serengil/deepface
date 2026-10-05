@@ -130,15 +130,15 @@ def test_find_without_refresh_database():
 
     img_path = os.path.join("dataset", "img1.jpg")
 
-    # 1. Calculate hash of the .feather file;
+    # 1. Calculate hash of the .npz file;
     # 2. Move random image to the temporary created directory;
-    # 3. As a result, there will be a difference between the .feather file and the disk files;
-    # 4. If refresh_database=False, then .feather file should not be updated.
+    # 3. As a result, there will be a difference between the .npz file and the disk files;
+    # 4. If refresh_database=False, then .npz file should not be updated.
     #    Recalculate hash and compare it with the hash from pt. 1;
     # 5. After successful check, the image will be moved back to the original destination;
 
     pkl_path = (
-        "dataset/ds_model_vggface_detector_opencv_aligned_normalization_base_expand_0.feather"
+        "dataset/ds_model_vggface_detector_opencv_aligned_normalization_base_expand_0.npz"
     )
     with open(pkl_path, "rb") as f:
         hash_before = hashlib.sha256(f.read())
@@ -158,7 +158,7 @@ def test_find_without_refresh_database():
 
     assert hash_before.hexdigest() == hash_after.hexdigest()
 
-    logger.info("✅ .feather hashes before and after the recognition process are the same")
+    logger.info("✅ .npz hashes before and after the recognition process are the same")
 
     assert len(dfs) > 0
     for df in dfs:

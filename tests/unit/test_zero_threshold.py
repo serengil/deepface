@@ -53,9 +53,9 @@ class ColorModel(FacialRecognition):
 
 
 @pytest.mark.parametrize("threshold", [None, 0, 0.0, 0.1, 0.2, 0.3])
-@pytest.mark.parametrize("batched", [False, True])
+@pytest.mark.parametrize("return_type", ["pandas", "dict"])
 @pytest.mark.parametrize("metric", ["euclidean", verification.find_euclidean_distance])
-def test_find_threshold(tmp_path, monkeypatch, threshold, batched, metric):
+def test_find_threshold(tmp_path, monkeypatch, threshold, return_type, metric):
     monkeypatch.setattr(modeling, "build_model", lambda **kw: ColorModel())
     image = np.zeros((4, 4, 3), dtype=np.uint8)
     same = str(tmp_path / "same.png")
@@ -72,7 +72,7 @@ def test_find_threshold(tmp_path, monkeypatch, threshold, batched, metric):
         align=False,
         distance_metric=metric,
         threshold=threshold,
-        batched=batched,
+        return_type=return_type,
         silent=True,
     )
     if callable(metric) and threshold is None:
@@ -80,7 +80,7 @@ def test_find_threshold(tmp_path, monkeypatch, threshold, batched, metric):
             recognition.find(**options)
         return
     result = recognition.find(**options)[0]
-    rows = result if batched else result.to_dict("records")
+    rows = result if return_type == "dict" else result.to_dict("records")
     expected = (
         verification.find_threshold("Facenet512", metric)
         if threshold is None
@@ -91,7 +91,7 @@ def test_find_threshold(tmp_path, monkeypatch, threshold, batched, metric):
     )
     assert all(row["threshold"] == expected for row in rows)
     assert rows[0]["distance"] == 0.0
-    if not batched:
+    if return_type == "pandas":
         assert all(51 <= row["confidence"] <= 100 for row in rows)
 
 

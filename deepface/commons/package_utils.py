@@ -1,6 +1,8 @@
 # built-in dependencies
 import hashlib
+import importlib.util
 import logging
+from typing import Optional
 
 # package dependencies
 from deepface.commons.logger import Logger
@@ -83,3 +85,34 @@ def find_file_hash(file_path: str, hash_algorithm: str = "sha256") -> str:
         while chunk := f.read(8192):
             hash_func.update(chunk)
     return hash_func.hexdigest()
+
+
+def resolve_dataframe_return_type(return_type: Optional[str]) -> str:
+    """
+    Resolve the return type of find and search functions. pandas is an optional dependency,
+        so results are returned as pandas dataframes by default only if it is installed.
+    Args:
+        return_type (str): 'pandas', 'dict' or None. If None, it is resolved to 'pandas'
+            if pandas is installed, otherwise to 'dict'.
+    Returns:
+        return_type (str): 'pandas' or 'dict'
+    """
+    if return_type not in (None, "pandas", "dict"):
+        raise ValueError(f"Unsupported return_type: {return_type}. Options: 'pandas', 'dict'.")
+
+    # check pandas availability without importing it
+    try:
+        pandas_installed = importlib.util.find_spec("pandas") is not None
+    except (ImportError, ValueError):
+        pandas_installed = False
+
+    if return_type is None:
+        return "pandas" if pandas_installed else "dict"
+
+    if return_type == "pandas" and pandas_installed is False:
+        raise ImportError(
+            "pandas is an optional dependency, it is required for return_type='pandas'. "
+            "Please either install it using 'pip install pandas' or set return_type to 'dict'."
+        )
+
+    return return_type

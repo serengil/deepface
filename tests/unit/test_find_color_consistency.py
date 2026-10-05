@@ -22,11 +22,11 @@ class RecordingModel(FacialRecognition):
         return embeddings[0] if len(embeddings) == 1 else embeddings
 
 
-@pytest.mark.parametrize("batched", [False, True])
+@pytest.mark.parametrize("return_type", ["pandas", "dict"])
 @pytest.mark.parametrize("as_array", [False, True])
 @pytest.mark.parametrize("face_count", [1, 2])
 def test_find_query_and_gallery_colors(
-    tmp_path, monkeypatch, batched, as_array, face_count
+    tmp_path, monkeypatch, return_type, as_array, face_count
 ):
     image = np.full((8, 8 * face_count, 3), [20, 80, 220], dtype=np.uint8)
     image_path = str(tmp_path / "color.png")
@@ -58,7 +58,7 @@ def test_find_query_and_gallery_colors(
         align=False,
         distance_metric="euclidean",
         threshold=0.01,
-        batched=batched,
+        return_type=return_type,
         silent=True,
     )
     results = recognition.find(**options)
@@ -70,7 +70,7 @@ def test_find_query_and_gallery_colors(
         )
     assert len(results) == face_count
     for result in results:
-        rows = result if batched else result.to_dict("records")
+        rows = result if return_type == "dict" else result.to_dict("records")
         assert len(rows) == face_count
         assert all(
             row["identity"] == image_path and row["distance"] == 0 for row in rows
