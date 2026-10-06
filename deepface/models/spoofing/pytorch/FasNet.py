@@ -155,7 +155,7 @@ def to_tensor(pic: NDArray[Any]) -> Any:
     See ``ToTensor`` for more details.
 
     Args:
-        pic (PIL Image or numpy.ndarray): Image to be converted to tensor.
+        pic (numpy.ndarray): Image to be converted to tensor.
 
     Returns:
         Tensor: Converted image.
