@@ -176,7 +176,7 @@ def search(
 ) -> Tuple[Dict[str, Any], int]:
     try:
         result = {}
-        dfs = DeepFace.search(
+        results = DeepFace.search(
             img=img,
             model_name=model_name,
             detector_backend=detector_backend,
@@ -192,9 +192,10 @@ def search(
             database_type=database_type,
             connection_details=connection_details,
             search_method=search_method,
+            return_type="dict",
         )
 
-        result["results"] = [df.to_dict(orient="records") for df in dfs]
+        result["results"] = results
         return to_native(result), 200
 
     except Exception as err:

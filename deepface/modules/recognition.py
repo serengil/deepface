@@ -1,18 +1,15 @@
 # built-in dependencies
-from typing import List, Union, Optional, Dict, Any, Set, IO, cast, Callable
+from typing import List, Union, Optional, Dict, Any, Set, IO, cast, Callable, TYPE_CHECKING
+import io
 import time
 
 # 3rd party dependencies
 import numpy as np
 from numpy.typing import NDArray
-import pandas as pd
 from tqdm import tqdm
-import pyarrow as pa
-from pyarrow import feather
-from pyarrow import parquet
 
 # project dependencies
-from deepface.commons import image_utils
+from deepface.commons import image_utils, package_utils
 from deepface.modules import representation, detection, verification, modeling
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.modules.filestore import FileStore, build_file_store
@@ -25,22 +22,19 @@ from deepface.modules.exceptions import (
 )
 from deepface.commons.logger import Logger
 
+if TYPE_CHECKING:
+    import pandas as pd
+    import pyarrow as pa
+
 logger = Logger()
 
-# embeddings are stored as float64 to keep them bit-exact with the in-memory python floats
-DATASTORE_SCHEMA = pa.schema(
-    [
-        ("identity", pa.string()),
-        ("hash", pa.string()),
-        ("embedding", pa.list_(pa.float64())),
-        ("target_x", pa.int64()),
-        ("target_y", pa.int64()),
-        ("target_w", pa.int64()),
-        ("target_h", pa.int64()),
-    ]
-)
+DATASTORE_STRING_COLUMNS = ["identity", "hash"]
+DATASTORE_INT_COLUMNS = ["target_x", "target_y", "target_w", "target_h"]
+DATASTORE_COLUMNS = ["identity", "hash", "embedding"] + DATASTORE_INT_COLUMNS
 
-DATASTORE_FORMATS = {"feather", "parquet"}
+# npz is built on numpy only, feather and parquet require the optional pyarrow dependency
+DATASTORE_FORMATS = {"npz", "feather", "parquet"}
+PYARROW_DATASTORE_FORMATS = {"feather", "parquet"}
 
 
 # pylint: disable=too-many-arguments, too-many-positional-arguments
@@ -60,9 +54,9 @@ def find(
     silent: bool = False,
     refresh_database: bool = True,
     anti_spoofing: bool = False,
-    batched: bool = False,
-    datastore_format: str = "feather",
-) -> Union[List[pd.DataFrame], List[List[Dict[str, Any]]]]:
+    datastore_format: str = "npz",
+    return_type: Optional[str] = None,
+) -> Union[List["pd.DataFrame"], List[List[Dict[str, Any]]]]:
     """
     Identify individuals in a database
 
@@ -83,12 +77,12 @@ def find(
 
         distance_metric (string or callable): Metric for measuring similarity. Options:
             'cosine', 'euclidean', 'euclidean_l2', 'angular' (default is cosine).
-            With batched=False, a custom callable receives two 1D NumPy arrays and
-            returns a scalar distance. With batched=True, it receives gallery embeddings
+            With return_type='pandas', a custom callable receives two 1D NumPy arrays and
+            returns a scalar distance. With return_type='dict', it receives gallery embeddings
             of shape (N, D) first and query embeddings of shape (M, D) second, and must
             return a distance matrix of shape (M, N). Rows correspond to query faces;
             columns correspond to gallery entries. Scalar-only callables require
-            batched=False. An explicit threshold is required for custom callables.
+            return_type='pandas'. An explicit threshold is required for custom callables.
 
         enforce_detection (boolean): If no face is detected in an image, raise an exception.
             Default is True. Set to False to avoid the exception for low-resolution images.
@@ -126,19 +120,26 @@ def find(
         anti_spoofing (boolean): Flag to enable anti spoofing (default is False).
 
         datastore_format (str): File format of the representations datastore stored in
-            db_path. Options: feather, parquet (default is feather).
+            db_path. Options: npz, feather, parquet (default is npz).
+            feather and parquet require pyarrow to be installed.
+
+        return_type (str): Type of the returned results. Options: 'pandas' returns a list of
+            pandas dataframes, 'dict' returns a list of list of dicts. Default is 'pandas'
+            if pandas is installed, otherwise 'dict'. Setting it to 'pandas' requires
+            pandas to be installed.
+            'dict' is optimized for large databases and source images with many faces.
 
     Returns:
         results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
-            A list of pandas dataframes (if `batched=False`) or
-            a list of dicts (if `batched=True`).
+            A list of pandas dataframes (if `return_type='pandas'`) or
+            a list of list of dicts (if `return_type='dict'`).
             Each dataframe or dict corresponds to the identity information for
             an individual detected in the source image.
 
             Note: If you have a large database and/or a source photo with many faces,
-            use `batched=True`, as it is optimized for large batch processing.
-            Please pay attention that when using `batched=True`, the function returns
-            a list of dicts (not a list of DataFrames),
+            use `return_type='dict'`, as it is optimized for large batch processing.
+            Please pay attention that when using `return_type='dict'`, the function returns
+            a list of list of dicts (not a list of DataFrames),
             but with the same keys as the columns in the DataFrame.
 
             The DataFrame columns or dict keys include:
@@ -159,6 +160,8 @@ def find(
             - 'confidence': Confidence score indicating the likelihood that the faces belong to
                     the same individual. This is calculated based on the distance and the threshold.
     """
+    return_type = package_utils.resolve_dataframe_return_type(return_type)
+
     if not isinstance(distance_metric, str) and threshold is None:
         raise ValueError("Threshold must be specified when using custom distance metrics")
 
@@ -167,6 +170,10 @@ def find(
             f"Unsupported datastore_format {datastore_format}. "
             f"Options: {', '.join(sorted(DATASTORE_FORMATS))}"
         )
+
+    # fail before any embedding is computed if pyarrow is required but missing
+    if datastore_format in PYARROW_DATASTORE_FORMATS:
+        __import_pyarrow(datastore_format)
 
     tic = time.time()
 
@@ -331,8 +338,8 @@ def find(
     pretuned_threshold = verification.find_threshold(model_name, distance_metric)
     target_threshold = pretuned_threshold if threshold is None else threshold
 
-    if batched:
-        return find_batched(
+    if return_type == "dict":
+        return __find_as_dicts(
             representations=representations,
             source_objs=source_objs,
             model_name=model_name,
@@ -345,6 +352,9 @@ def find(
             similarity_search=similarity_search,
             k=k,
         )
+
+    # pandas is required only for dataframe results. do not import it in the global level.
+    import pandas as pd
 
     df = pd.DataFrame(representations)
 
@@ -549,7 +559,7 @@ def __find_bulk_embeddings(
     return representations
 
 
-def find_batched(
+def __find_as_dicts(
     representations: List[Dict[str, Any]],
     source_objs: List[Dict[str, Any]],
     model_name: str = "VGG-Face",
@@ -563,9 +573,9 @@ def find_batched(
     k: Optional[int] = None,
 ) -> List[List[Dict[str, Any]]]:
     """
-    Perform batched face recognition by comparing source face embeddings with a set of
-    target embeddings. It calculates pairwise distances between the source and target
-    embeddings using the specified distance metric.
+    Perform face recognition for find with return_type='dict' by comparing source face
+    embeddings with a set of target embeddings. It calculates pairwise distances between
+    the source and target embeddings using the specified distance metric.
     The function uses batch processing for efficient computation of distances.
 
     Args:
@@ -736,8 +746,53 @@ def find_batched(
         if k is not None and len(result_dicts) > k:
             result_dicts = result_dicts[:k]
 
+        for result_dict in result_dicts:
+            result_dict["confidence"] = verification.find_confidence(
+                distance=float(result_dict["distance"]),
+                model_name=model_name,
+                distance_metric=distance_metric,
+                verified=bool(result_dict["distance"] <= result_dict["threshold"]),
+            )
+
         resp_obj.append(result_dicts)
     return resp_obj
+
+
+def __import_pyarrow(datastore_format: str) -> Any:
+    """
+    Import pyarrow lazily because it is only required for feather and parquet datastores
+    Args:
+        datastore_format (str): feather or parquet
+    Returns:
+        pyarrow (module)
+    """
+    # this is not a must dependency. do not import it in the global level.
+    try:
+        import pyarrow as pa
+        from pyarrow import feather, parquet  # pylint: disable=unused-import
+    except ModuleNotFoundError as err:
+        raise ImportError(
+            f"pyarrow is an optional dependency, it is required for {datastore_format} "
+            "datastore format. Please install using 'pip install pyarrow' "
+            "or use the default npz datastore format."
+        ) from err
+    return pa
+
+
+def __build_arrow_schema(pa: Any) -> "pa.Schema":
+    """
+    Build the arrow schema of the datastore
+    Args:
+        pa (module): pyarrow
+    Returns:
+        schema (pa.Schema): datastore schema
+    """
+    # embeddings are stored as float64 to keep them bit-exact with the in-memory python floats
+    return pa.schema(
+        [(name, pa.string()) for name in DATASTORE_STRING_COLUMNS]
+        + [("embedding", pa.list_(pa.float64()))]
+        + [(name, pa.int64()) for name in DATASTORE_INT_COLUMNS]
+    )
 
 
 def __save_representations(
@@ -747,31 +802,20 @@ def __save_representations(
     representations: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
     """
-    Save representations to a feather or parquet file
+    Save representations to a npz, feather or parquet file
 
     Args:
         store (FileStore): file store where the datastore file lives
         datastore_path (str): path to the datastore file
-        datastore_format (str): feather or parquet
+        datastore_format (str): npz, feather or parquet
         representations (list): list of representations to be saved
     """
     representations = representations or []
-    table = pa.Table.from_pydict(
-        {
-            name: [representation[name] for representation in representations]
-            for name in DATASTORE_SCHEMA.names
-        },
-        schema=DATASTORE_SCHEMA,
-    )
-
-    sink = pa.BufferOutputStream()
-    if datastore_format == "feather":
-        # size is not a concern, uncompressed is the fastest to read and write
-        feather.write_feather(table, sink, compression="uncompressed")
+    if datastore_format == "npz":
+        content = __serialize_npz(representations)
     else:
-        parquet.write_table(table, sink)
-
-    store.write_bytes(datastore_path, sink.getvalue().to_pybytes())
+        content = __serialize_arrow(representations, datastore_format)
+    store.write_bytes(datastore_path, content)
 
 
 def __load_representations(
@@ -780,40 +824,162 @@ def __load_representations(
     datastore_format: str,
 ) -> List[Dict[str, Any]]:
     """
-    Load representations from a feather or parquet file
+    Load representations from a npz, feather or parquet file
 
     Args:
         store (FileStore): file store where the datastore file lives
         datastore_path (str): path to the datastore file
-        datastore_format (str): feather or parquet
+        datastore_format (str): npz, feather or parquet
     Returns:
         representations (list): list of loaded representations
     """
-    source = pa.BufferReader(store.read_bytes(datastore_path))
-    if datastore_format == "feather":
-        table = feather.read_table(source)
+    content = store.read_bytes(datastore_path)
+    if datastore_format == "npz":
+        columns = __deserialize_npz(content, datastore_path)
     else:
-        table = parquet.read_table(source)
+        columns = __deserialize_arrow(content, datastore_path, datastore_format)
 
-    missing_columns = set(DATASTORE_SCHEMA.names) - set(table.column_names)
+    return [dict(zip(columns.keys(), row)) for row in zip(*columns.values())]
+
+
+def __serialize_npz(representations: List[Dict[str, Any]]) -> bytes:
+    """
+    Serialize representations into npz bytes.
+        Embeddings are stored as a float64 matrix to keep them bit-exact with the in-memory
+        python floats. Rows of images without a face are zero filled and flagged in has_embedding.
+    Args:
+        representations (list): list of representations to be saved
+    Returns:
+        content (bytes): npz file content
+    """
+    has_embedding = np.array(
+        [representation["embedding"] is not None for representation in representations],
+        dtype=bool,
+    )
+    valid_embeddings = [
+        representation["embedding"]
+        for representation in representations
+        if representation["embedding"] is not None
+    ]
+    dimension = len(valid_embeddings[0]) if len(valid_embeddings) > 0 else 0
+    embeddings = np.zeros((len(representations), dimension), dtype=np.float64)
+    if len(valid_embeddings) > 0:
+        embeddings[has_embedding] = np.array(valid_embeddings, dtype=np.float64)
+
+    arrays: Dict[str, NDArray[Any]] = {
+        "embedding": embeddings,
+        "has_embedding": has_embedding,
+    }
+    for name in DATASTORE_STRING_COLUMNS:
+        # unicode arrays, object arrays would require pickle to load
+        arrays[name] = np.array(
+            [representation[name] for representation in representations], dtype=np.str_
+        )
+    for name in DATASTORE_INT_COLUMNS:
+        arrays[name] = np.array(
+            [representation[name] for representation in representations], dtype=np.int64
+        )
+
+    # size is not a concern and embeddings hardly compress, uncompressed is the fastest
+    sink = io.BytesIO()
+    np.savez(sink, **arrays)
+    return sink.getvalue()
+
+
+def __deserialize_npz(content: bytes, datastore_path: str) -> Dict[str, List[Any]]:
+    """
+    Deserialize npz bytes into columns of representations
+    Args:
+        content (bytes): npz file content
+        datastore_path (str): path to the datastore file
+    Returns:
+        columns (dict): column name to list of values
+    """
+    with np.load(io.BytesIO(content), allow_pickle=False) as npz:
+        missing_columns = set(DATASTORE_COLUMNS + ["has_embedding"]) - set(npz.files)
+        if len(missing_columns) > 0:
+            raise ValueError(
+                f"Datastore {datastore_path} does not have some required columns - "
+                f"{missing_columns}. Consider to delete it."
+            )
+
+        columns: Dict[str, List[Any]] = {
+            name: npz[name].tolist() for name in DATASTORE_COLUMNS if name != "embedding"
+        }
+        has_embedding = npz["has_embedding"].tolist()
+        embeddings = npz["embedding"].tolist()
+
+    columns["embedding"] = [
+        embedding if is_valid else None for embedding, is_valid in zip(embeddings, has_embedding)
+    ]
+    return {name: columns[name] for name in DATASTORE_COLUMNS}
+
+
+def __serialize_arrow(representations: List[Dict[str, Any]], datastore_format: str) -> bytes:
+    """
+    Serialize representations into feather or parquet bytes
+    Args:
+        representations (list): list of representations to be saved
+        datastore_format (str): feather or parquet
+    Returns:
+        content (bytes): feather or parquet file content
+    """
+    pa = __import_pyarrow(datastore_format)
+    schema = __build_arrow_schema(pa)
+    table = pa.Table.from_pydict(
+        {
+            name: [representation[name] for representation in representations]
+            for name in schema.names
+        },
+        schema=schema,
+    )
+
+    sink = pa.BufferOutputStream()
+    if datastore_format == "feather":
+        # size is not a concern, uncompressed is the fastest to read and write
+        pa.feather.write_feather(table, sink, compression="uncompressed")
+    else:
+        pa.parquet.write_table(table, sink)
+    return cast(bytes, sink.getvalue().to_pybytes())
+
+
+def __deserialize_arrow(
+    content: bytes, datastore_path: str, datastore_format: str
+) -> Dict[str, List[Any]]:
+    """
+    Deserialize feather or parquet bytes into columns of representations
+    Args:
+        content (bytes): feather or parquet file content
+        datastore_path (str): path to the datastore file
+        datastore_format (str): feather or parquet
+    Returns:
+        columns (dict): column name to list of values
+    """
+    pa = __import_pyarrow(datastore_format)
+    schema = __build_arrow_schema(pa)
+
+    source = pa.BufferReader(content)
+    if datastore_format == "feather":
+        table = pa.feather.read_table(source)
+    else:
+        table = pa.parquet.read_table(source)
+
+    missing_columns = set(schema.names) - set(table.column_names)
     if len(missing_columns) > 0:
         raise ValueError(
             f"Datastore {datastore_path} does not have some required columns - "
             f"{missing_columns}. Consider to delete it."
         )
-    table = table.select(DATASTORE_SCHEMA.names).cast(DATASTORE_SCHEMA)
+    table = table.select(schema.names).cast(schema)
 
     columns = {
-        name: table.column(name).to_pylist()
-        for name in DATASTORE_SCHEMA.names
-        if name != "embedding"
+        name: table.column(name).to_pylist() for name in schema.names if name != "embedding"
     }
     columns["embedding"] = __embeddings_to_pylist(table.column("embedding"))
+    return {name: columns[name] for name in DATASTORE_COLUMNS}
 
-    return [dict(zip(columns.keys(), row)) for row in zip(*columns.values())]
 
-
-def __embeddings_to_pylist(column: pa.ChunkedArray) -> List[Optional[List[float]]]:
+def __embeddings_to_pylist(column: "pa.ChunkedArray") -> List[Optional[List[float]]]:
     """
     Convert an arrow list<float64> column into python lists of floats, or None for missing ones.
         Converting the flat values once and slicing them is much faster than to_pylist on lists.

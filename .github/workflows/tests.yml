@@ -10,7 +10,7 @@ on:
   #     - 'deepface/**'  
   #     - 'tests/**'
   #     - 'api/**'
-  #     - 'requirements.txt'
+  #     - 'requirements_base.txt'
   #     - '.gitignore'
   #     - 'setup.py'
   pull_request:
@@ -19,7 +19,7 @@ on:
       - 'deepface/**'  
       - 'tests/**'
       - 'api/**'
-      - 'requirements.txt'
+      - 'requirements_base.txt'
       - '.gitignore'
       - 'setup.py'
 

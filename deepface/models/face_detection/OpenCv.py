@@ -7,8 +7,16 @@ import cv2
 from numpy.typing import NDArray
 
 # project dependencies
+from deepface.commons import weight_utils
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.modules.exceptions import UnimplementedError
+
+# opencv 5 wheels do not ship haarcascade files anymore, download them if missing
+HAARCASCADE_URL = "https://github.com/opencv/opencv/raw/4.9.0/data/haarcascades/{file_name}"
+HAARCASCADE_FILES = {
+    "haarcascade": "haarcascade_frontalface_default.xml",
+    "haarcascade_eye": "haarcascade_eye.xml",
+}
 
 # mypy: disable-error-code=attr-defined
 class OpenCvClient(Detector):
@@ -146,31 +154,26 @@ class OpenCvClient(Detector):
         Returns:
             model (Any)
         """
-        opencv_path = self.__get_opencv_path()
-        if model_name == "haarcascade":
-            face_detector_path = os.path.join(opencv_path, "haarcascade_frontalface_default.xml")
-            if not os.path.isfile(face_detector_path):
-                raise ValueError(
-                    "Confirm that opencv is installed on your environment! Expected path ",
-                    face_detector_path,
-                    " violated.",
-                )
-            detector = cv2.CascadeClassifier(face_detector_path)
-
-        elif model_name == "haarcascade_eye":
-            eye_detector_path = os.path.join(opencv_path, "haarcascade_eye.xml")
-            if not os.path.isfile(eye_detector_path):
-                raise ValueError(
-                    "Confirm that opencv is installed on your environment! Expected path ",
-                    eye_detector_path,
-                    " violated.",
-                )
-            detector = cv2.CascadeClassifier(eye_detector_path)
-
-        else:
+        file_name = HAARCASCADE_FILES.get(model_name)
+        if file_name is None:
             raise UnimplementedError(f"unimplemented model_name for build_cascade - {model_name}")
 
-        return detector
+        # opencv 5 moved cascade classifier from the main package to the contrib one
+        if not hasattr(cv2, "CascadeClassifier"):
+            raise ValueError(
+                f"opencv detector requires cv2.CascadeClassifier, which is not available in "
+                f"opencv {cv2.__version__}. Please install the contrib package using "
+                "'pip install opencv-contrib-python-headless' or use opencv < 5."
+            )
+
+        detector_path = os.path.join(self.__get_opencv_path(), file_name)
+        if not os.path.isfile(detector_path):
+            detector_path = weight_utils.download_weights_if_necessary(
+                file_name=file_name,
+                source_url=HAARCASCADE_URL.format(file_name=file_name),
+            )
+
+        return cv2.CascadeClassifier(detector_path)
 
     def __get_opencv_path(self) -> str:
         """

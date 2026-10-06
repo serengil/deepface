@@ -1,6 +1,6 @@
 # built-in dependencies
 import os
-from typing import Any, Dict, IO, List, Tuple, Union, Optional, cast
+from typing import Any, Dict, IO, List, Tuple, Union, Optional, cast, TYPE_CHECKING
 import uuid
 import time
 import math
@@ -8,7 +8,6 @@ import tempfile
 from concurrent.futures import ThreadPoolExecutor
 
 # 3rd party dependencies
-import pandas as pd
 import numpy as np
 from numpy.typing import NDArray
 
@@ -18,7 +17,7 @@ from deepface.modules.database.inventory import database_inventory
 
 from deepface.modules.representation import represent
 from deepface.modules.demography import analyze
-from deepface.commons import image_utils
+from deepface.commons import image_utils, package_utils
 from deepface.modules.verification import (
     find_angular_distance,
     find_cosine_distance,
@@ -29,6 +28,9 @@ from deepface.modules.verification import (
     find_confidence,
 )
 from deepface.commons.logger import Logger
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 logger = Logger()
@@ -236,7 +238,8 @@ def search(
     connection_details: Optional[Union[Dict[str, Any], str]] = None,
     connection: Any = None,
     search_method: str = "exact",
-) -> List[pd.DataFrame]:
+    return_type: Optional[str] = None,
+) -> Union[List["pd.DataFrame"], List[List[Dict[str, Any]]]]:
     """
     Search for identities in database for face recognition. This is a stateless facial
         recognition function. Use find function to do it in a stateful way.
@@ -270,6 +273,10 @@ def search(
             If not specified, all faces within the threshold will be returned (default is None).
         search_method (str): Method to use for searching identities. Options: 'exact', 'ann'.
             To use ann search, you must run build_index function first to create the index.
+        return_type (str): Type of the returned results. Options: 'pandas' returns a list of
+            pandas dataframes, 'dict' returns a list of list of dicts. Default is 'pandas'
+            if pandas is installed, otherwise 'dict'. Setting it to 'pandas' requires
+            pandas to be installed.
         database_type (str): Type of database to search identities. Options: 'postgres', 'mongo',
             'weaviate', 'neo4j', 'pgvector', 'pinecone', 'milvus', 'qdrant' (default is 'postgres').
         connection_details (dict or str): Connection details for the database.
@@ -287,7 +294,7 @@ def search(
             - DEEPFACE_MILVUS_URI
             - DEEPFACE_QDRANT_URI
     Returns:
-        results (List[pd.DataFrame]):
+        results (List[pd.DataFrame] or List[List[Dict[str, Any]]]):
             A list of pandas dataframes or a list of dicts. Each dataframe or dict corresponds
                 to the identity information for an individual detected in the source image.
 
@@ -311,7 +318,10 @@ def search(
             - distance: Similarity score between the faces based on the specified model
                 and distance metric
     """
-    dfs: List[pd.DataFrame] = []
+    return_type = package_utils.resolve_dataframe_return_type(return_type)
+
+    search_results: List[List[Dict[str, Any]]] = []
+    columns: Optional[List[str]] = None
 
     # adjust distance metric
     if search_method == "ann":
@@ -378,15 +388,14 @@ def search(
             for i, index in enumerate(indices[0]):
                 if index == -1:
                     continue
-                distance = (
+                distance = float(
                     math.sqrt(distances[0][i])
                     if distance_metric == "euclidean"
                     else distances[0][i] / 2
                 )
                 verified = bool(distance <= threshold)
                 instance = {
-                    "id": index,
-                    # "img_name": "N/A",  # need to fetch from DB if required
+                    "id": int(index),
                     "model_name": model_name,
                     "detector_backend": detector_backend,
                     "aligned": align,
@@ -413,19 +422,15 @@ def search(
             if len(instances) == 0:
                 continue
 
-            df = pd.DataFrame(instances)
-            df = df.sort_values(by="distance", ascending=True).reset_index(drop=True)
-            if k is not None and k > 0:
-                df = df.nsmallest(k, "distance")
+            instances = __sort_by_distance(instances=instances, k=k)
 
             # we should query DB to get img_name for each id
-            id_mappings = db_client.search_by_id(ids=df["id"].tolist())
-            ids_df = pd.DataFrame(id_mappings, columns=["id", "img_name"])
-            df = df.merge(ids_df, on="id", how="left")
-            del ids_df
+            id_mappings = db_client.search_by_id(ids=[instance["id"] for instance in instances])
+            img_names = {mapping["id"]: mapping["img_name"] for mapping in id_mappings}
+            for instance in instances:
+                instance["img_name"] = img_names.get(instance["id"])
 
-            dfs.append(df)
-        return dfs
+            search_results.append(instances)
 
     elif search_method == "ann" and is_vector_db is True:
         for result in results:
@@ -475,22 +480,17 @@ def search(
                     instances.append(instance)
 
             if len(instances) > 0:
-                df = pd.DataFrame(instances)
-                df = df.sort_values(by="distance", ascending=True).reset_index(drop=True)
-                if k is not None and k > 0:
-                    df = df.nsmallest(k, "distance")
-                dfs.append(df)
+                search_results.append(__sort_by_distance(instances=instances, k=k))
 
         __link_verified_identities(
             db_client=db_client,
             database_type=database_type,
-            dfs=dfs,
+            search_results=search_results,
             model_name=model_name,
             detector_backend=detector_backend,
             align=align,
             l2_normalize=l2_normalize,
         )
-        return dfs
 
     elif search_method == "exact":
         source_embeddings = db_client.fetch_all_embeddings(
@@ -506,80 +506,90 @@ def search(
                 "You must call register some embeddings to the database before using search."
             )
 
+        # keep columns of empty dataframes when nothing is found for a face
+        columns = [key for key in source_embeddings[0] if key != "embedding"] + [
+            "search_method",
+            "target_x",
+            "target_y",
+            "target_w",
+            "target_h",
+            "threshold",
+            "distance_metric",
+            "distance",
+            "confidence",
+        ]
+
         for result in results:
             target_embedding = cast(List[float], result["embedding"])
 
-            df = pd.DataFrame(source_embeddings)
-            df["target_embedding"] = [target_embedding for _ in range(len(df))]
-            df["search_method"] = search_method
-            df["target_x"] = result.get("facial_area", {}).get("x", None)
-            df["target_y"] = result.get("facial_area", {}).get("y", None)
-            df["target_w"] = result.get("facial_area", {}).get("w", None)
-            df["target_h"] = result.get("facial_area", {}).get("h", None)
-            df["threshold"] = threshold
-            df["distance_metric"] = distance_metric
+            instances = []
+            for source in source_embeddings:
+                if distance_metric == "cosine":
+                    source_distance = find_cosine_distance(source["embedding"], target_embedding)
+                elif distance_metric == "euclidean":
+                    source_distance = find_euclidean_distance(source["embedding"], target_embedding)
+                elif distance_metric == "angular":
+                    source_distance = find_angular_distance(source["embedding"], target_embedding)
+                elif distance_metric == "euclidean_l2":
+                    source_distance = find_euclidean_distance(
+                        find_l2_normalize(source["embedding"]),
+                        find_l2_normalize(target_embedding),
+                    )
+                else:
+                    raise ValueError(f"Unsupported distance metric: {distance_metric}")
 
-            if distance_metric == "cosine":
-                df["distance"] = df.apply(
-                    lambda row: find_cosine_distance(row["embedding"], row["target_embedding"]),
-                    axis=1,
+                distance = float(source_distance)
+                verified = bool(distance <= threshold)
+
+                if similarity_search is False and not verified:
+                    continue
+
+                instance = {key: value for key, value in source.items() if key != "embedding"}
+                instance.update(
+                    {
+                        "search_method": search_method,
+                        "target_x": result.get("facial_area", {}).get("x", None),
+                        "target_y": result.get("facial_area", {}).get("y", None),
+                        "target_w": result.get("facial_area", {}).get("w", None),
+                        "target_h": result.get("facial_area", {}).get("h", None),
+                        "threshold": threshold,
+                        "distance_metric": distance_metric,
+                        "distance": distance,
+                        "confidence": find_confidence(
+                            distance=distance,
+                            model_name=model_name,
+                            distance_metric=distance_metric,
+                            verified=verified,
+                        ),
+                    }
                 )
-            elif distance_metric == "euclidean":
-                df["distance"] = df.apply(
-                    lambda row: find_euclidean_distance(row["embedding"], row["target_embedding"]),
-                    axis=1,
-                )
-            elif distance_metric == "angular":
-                df["distance"] = df.apply(
-                    lambda row: find_angular_distance(row["embedding"], row["target_embedding"]),
-                    axis=1,
-                )
-            elif distance_metric == "euclidean_l2":
-                df["distance"] = df.apply(
-                    lambda row: find_euclidean_distance(
-                        find_l2_normalize(row["embedding"]),
-                        find_l2_normalize(row["target_embedding"]),
-                    ),
-                    axis=1,
-                )
-            else:
-                raise ValueError(f"Unsupported distance metric: {distance_metric}")
+                instances.append(instance)
 
-            df["confidence"] = df.apply(
-                lambda row: find_confidence(
-                    distance=row["distance"],
-                    model_name=model_name,
-                    distance_metric=distance_metric,
-                    verified=bool(row["distance"] <= threshold),
-                ),
-                axis=1,
-            )
-
-            df = df.drop(columns=["embedding", "target_embedding"])
-
-            if similarity_search is False:
-                df = df[df["distance"] <= threshold]
-
-            if k is not None and k > 0:
-                df = df.nsmallest(k, "distance")
-
-            df = df.sort_values(by="distance", ascending=True).reset_index(drop=True)
-
-            dfs.append(df)
+            search_results.append(__sort_by_distance(instances=instances, k=k))
 
         __link_verified_identities(
             db_client=db_client,
             database_type=database_type,
-            dfs=dfs,
+            search_results=search_results,
             model_name=model_name,
             detector_backend=detector_backend,
             align=align,
             l2_normalize=l2_normalize,
         )
-        return dfs
 
     else:
         raise ValueError(f"Unsupported search method: {search_method}")
+
+    if return_type == "dict":
+        return search_results
+
+    # pandas is required only for dataframe results. do not import it in the global level.
+    import pandas as pd
+
+    return [
+        pd.DataFrame(instances, columns=None if instances else columns)
+        for instances in search_results
+    ]
 
 
 def identify(
@@ -1107,10 +1117,28 @@ def __assign_attributes(
                     face[attribute] = analysis[f"dominant_{attribute}"]
 
 
+
+def __sort_by_distance(
+    instances: List[Dict[str, Any]], k: Optional[int]
+) -> List[Dict[str, Any]]:
+    """
+    Sort search results of a detected face by distance, and keep the closest k ones.
+    Args:
+        instances (List[Dict[str, Any]]): Search results of a detected face.
+        k (int): Number of closest results to keep. All results are kept if not set.
+    Returns:
+        instances (List[Dict[str, Any]]): Sorted search results.
+    """
+    instances = sorted(instances, key=lambda instance: instance["distance"])
+    if k is not None and k > 0:
+        instances = instances[:k]
+    return instances
+
+
 def __link_verified_identities(
     db_client: Database,
     database_type: str,
-    dfs: List[pd.DataFrame],
+    search_results: List[List[Dict[str, Any]]],
     model_name: str,
     detector_backend: str,
     align: bool,
@@ -1124,7 +1152,7 @@ def __link_verified_identities(
     Args:
         db_client (Database): An instance of the connected database client.
         database_type (str): Type of the database.
-        dfs (List[pd.DataFrame]): Search results, one dataframe per detected face.
+        search_results (List[List[Dict[str, Any]]]): Search results, one list per detected face.
         model_name (str): Model for face recognition.
         detector_backend (string): face detector backend.
         align (bool): Flag to enable face alignment.
@@ -1134,7 +1162,8 @@ def __link_verified_identities(
         return
 
     clusters = [
-        df[df["distance"] <= df["threshold"]]["id"].tolist() for df in dfs if not df.empty
+        [instance["id"] for instance in instances if instance["distance"] <= instance["threshold"]]
+        for instances in search_results
     ]
 
     if not any(len(cluster) > 1 for cluster in clusters):

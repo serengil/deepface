@@ -89,7 +89,7 @@ def test_find_on_s3(s3_prefix):
     __validate(dfs, db_path)
 
     s3 = boto3.client("s3")
-    s3.head_object(Bucket=BUCKET, Key=f"{s3_prefix}/{DATASTORE}.feather")  # raises if not stored
+    s3.head_object(Bucket=BUCKET, Key=f"{s3_prefix}/{DATASTORE}.npz")  # raises if not stored
 
     # add a new image and run again with the stored datastore
     s3.upload_file(os.path.join(DATASET, "img5.jpg"), BUCKET, f"{s3_prefix}/img5.jpg")
@@ -100,6 +100,7 @@ def test_find_on_s3(s3_prefix):
 
 
 def test_find_on_s3_parquet(s3_prefix):
+    pytest.importorskip("pyarrow")
     db_path = f"s3://{BUCKET}/{s3_prefix}"
     dfs = DeepFace.find(img_path=TARGET, db_path=db_path, silent=True, datastore_format="parquet")
     __validate(dfs, db_path)
@@ -120,7 +121,7 @@ def test_find_on_ftp(ftp_dir):
 
     ftp = __ftp()
     buffer = io.BytesIO()
-    ftp.retrbinary(f"RETR {ftp_dir}/{DATASTORE}.feather", buffer.write)
+    ftp.retrbinary(f"RETR {ftp_dir}/{DATASTORE}.npz", buffer.write)
     assert len(buffer.getvalue()) > 0
 
     # remove an image, it must be dropped from the stored datastore

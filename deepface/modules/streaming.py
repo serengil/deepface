@@ -1,5 +1,6 @@
 # built-in dependencies
 import os
+from importlib import metadata
 import time
 from typing import List, Tuple, Optional, cast, Dict, Any
 import traceback
@@ -7,7 +8,6 @@ import traceback
 # 3rd party dependencies
 import numpy as np
 from numpy.typing import NDArray
-import pandas as pd
 import cv2
 
 # project dependencies
@@ -72,6 +72,8 @@ def analysis(
     Returns:
         None
     """
+    __validate_opencv_gui()
+
     # initialize models
     build_demography_models(enable_face_analysis=enable_face_analysis)
     build_facial_recognition_model(model_name=model_name)
@@ -265,36 +267,40 @@ def search_identity(
     target_img = None
     confidence = 0
     try:
-        dfs = DeepFace.find(
-            img_path=detected_face,
-            db_path=db_path,
-            model_name=model_name,
-            detector_backend=detector_backend,
-            distance_metric=distance_metric,
-            enforce_detection=False,
-            silent=True,
+        results = cast(
+            List[List[Dict[str, Any]]],
+            DeepFace.find(
+                img_path=detected_face,
+                db_path=db_path,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                distance_metric=distance_metric,
+                enforce_detection=False,
+                silent=True,
+                return_type="dict",
+            ),
         )
-        dfs = cast(List[pd.DataFrame], dfs)
     except ValueError as err:
         if f"No item found in {db_path}" in str(err):
             logger.warn(
                 f"No item is found in {db_path}."
                 "So, no facial recognition analysis will be performed."
             )
-            dfs = []
+            results = []
         else:
             raise err
-    if len(dfs) == 0:
+    if len(results) == 0:
         # you may consider to return unknown person's image here
         return target_path, target_img, confidence
 
     # detected face is coming from parent, safe to access 1st index
-    df: pd.DataFrame = dfs[0]
+    candidates = results[0]
 
-    if df.shape[0] == 0:
+    if len(candidates) == 0:
         return target_path, target_img, confidence
 
-    candidate = df.iloc[0]
+    # candidates are sorted by distance, so 1st one is the closest
+    candidate = candidates[0]
     target_path = candidate["identity"]
     confidence = candidate["confidence"]
     logger.info(f"Hello, {target_path} (confidence: {confidence}%)")
@@ -328,6 +334,27 @@ def search_identity(
         target_path.split("/")[-1],
         target_img,
         confidence,
+    )
+
+
+def __validate_opencv_gui() -> None:
+    """
+    Streaming shows frames in a window, which requires the gui features of opencv.
+        deepface depends on opencv-contrib-python-headless, which does not have them.
+        opencv-contrib-python is recommended, because opencv-python overwrites the cv2 module
+        and it does not have cascade classifier since opencv 5.
+    """
+    for package in ["opencv-python", "opencv-contrib-python"]:
+        try:
+            metadata.distribution(package)
+            return
+        except metadata.PackageNotFoundError:
+            continue
+
+    raise ImportError(
+        "Streaming requires opencv-contrib-python because it shows frames in a window, "
+        "but deepface depends on opencv-contrib-python-headless, which cannot. "
+        "Please install it using 'pip install opencv-contrib-python'."
     )
 
 
@@ -880,8 +907,7 @@ def overlay_emotion(
     Returns:
         img (np.ndarray): image with overlay emotion analsis results
     """
-    emotion_df = pd.DataFrame(emotion_probas.items(), columns=["emotion", "score"])
-    emotion_df = emotion_df.sort_values(by=["score"], ascending=False).reset_index(drop=True)
+    emotions = sorted(emotion_probas.items(), key=lambda item: item[1], reverse=True)
 
     # background of mood box
 
@@ -911,10 +937,9 @@ def overlay_emotion(
         )
         cv2.addWeighted(overlay, opacity, img, 1 - opacity, 0, img)
 
-    for index, instance in emotion_df.iterrows():
-        current_emotion = instance["emotion"]
+    for index, (current_emotion, score) in enumerate(emotions):
         emotion_label = f"{current_emotion} "
-        emotion_score = instance["score"] / 100
+        emotion_score = score / 100
 
         filled_bar_x = 35  # this is the size if an emotion is 100%
         bar_x = int(filled_bar_x * emotion_score)

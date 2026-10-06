@@ -5,13 +5,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 def parse_requirements(file_name):
-    """Read a requirements file, skipping its blank lines and comments"""
+    """Read a requirements file, skipping its blank lines, comments and pip options"""
     with open(file_name, "r", encoding="utf-8") as f:
         lines = [line.strip() for line in f]
-    return [line for line in lines if line and not line.startswith("#")]
+    return [line for line in lines if line and not line.startswith(("#", "-"))]
 
 
-requirements = parse_requirements("requirements.txt")
+requirements = parse_requirements("requirements_base.txt")
 
 # deepface runs on tensorflow, pytorch or onnxruntime, and none of them is a base requirement.
 # `pip install deepface[tensorflow]`, `pip install deepface[pytorch]` and
@@ -38,9 +38,7 @@ setuptools.setup(
             "",
             [
                 "README.md",
-                "requirements.txt",
-                # TODO: use requirements_base.txt instead of requirements.txt in the next release, and remove requirements.txt from the package. This is a breaking change, so it should be done in a major release.
-                # "requirements_base.txt",
+                "requirements_base.txt",
                 "requirements_tf.txt",
                 "requirements_pytorch.txt",
                 "requirements_onnx.txt",
