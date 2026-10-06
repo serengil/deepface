@@ -24,5 +24,11 @@ python-dotenv==1.0.1
 # pgvector==0.3.6
 # pinecone==5.4.2
 # qdrant-client==1.19.0
+# oracledb==3.3.0
+# pyodbc==5.2.0
+# ibm_db==3.2.6
+# redis==5.2.1
+# cassandra-driver==3.29.2
+# pymysql==1.1.1
 # grpcio==1.62.3
 # grpcio-tools==1.62.3
