@@ -57,7 +57,7 @@ def test_find_with_exact_path():
     logger.info("✅ test find for exact path done")
 
 
-def test_batched_find_with_similarity_search():
+def test_find_dict_with_similarity_search():
     angelinas = [
         os.path.join("dataset", "img1.jpg"),
         os.path.join("dataset", "img2.jpg"),
@@ -100,7 +100,7 @@ def test_batched_find_with_similarity_search():
         assert verified > 0
         assert similar > 0
 
-    logger.info("✅ test batched find with similarity search done")
+    logger.info("✅ test find dict with similarity search done")
 
 
 def test_find_with_array_input():
@@ -178,7 +178,7 @@ def cosine_similarity(x, y):
     return distance_matrix
 
 
-def test_find_batched_for_custom_metrics():
+def test_find_dict_for_custom_metrics():
     img_path = os.path.join("dataset", "img1.jpg")
     dfs = DeepFace.find(
         img_path=img_path,
@@ -197,10 +197,10 @@ def test_find_batched_for_custom_metrics():
             assert "distance" in item
             assert "identity" in item
 
-    logger.info("✅ test find batched for custom distance metric is done")
+    logger.info("✅ test find dict for custom distance metric is done")
 
 
-def test_find_batched_for_custom_metrics_without_custom_threshold():
+def test_find_dict_for_custom_metrics_without_custom_threshold():
     img_path = os.path.join("dataset", "img1.jpg")
 
     with pytest.raises(
@@ -214,7 +214,7 @@ def test_find_batched_for_custom_metrics_without_custom_threshold():
         )
 
     logger.info(
-        "✅ test find batched for custom distance metric without custom threshold is done"
+        "✅ test find dict for custom distance metric without custom threshold is done"
     )
 
 

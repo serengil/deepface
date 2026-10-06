@@ -339,7 +339,7 @@ def find(
     target_threshold = pretuned_threshold if threshold is None else threshold
 
     if return_type == "dict":
-        return find_batched(
+        return __find_as_dicts(
             representations=representations,
             source_objs=source_objs,
             model_name=model_name,
@@ -559,7 +559,7 @@ def __find_bulk_embeddings(
     return representations
 
 
-def find_batched(
+def __find_as_dicts(
     representations: List[Dict[str, Any]],
     source_objs: List[Dict[str, Any]],
     model_name: str = "VGG-Face",
@@ -573,9 +573,9 @@ def find_batched(
     k: Optional[int] = None,
 ) -> List[List[Dict[str, Any]]]:
     """
-    Perform batched face recognition by comparing source face embeddings with a set of
-    target embeddings. It calculates pairwise distances between the source and target
-    embeddings using the specified distance metric.
+    Perform face recognition for find with return_type='dict' by comparing source face
+    embeddings with a set of target embeddings. It calculates pairwise distances between
+    the source and target embeddings using the specified distance metric.
     The function uses batch processing for efficient computation of distances.
 
     Args:
