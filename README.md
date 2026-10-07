@@ -102,7 +102,7 @@ dfs: List[pd.DataFrame] = DeepFace.find(img_path = "img1.jpg", db_path = "C:/my_
 
 **Database-backed face recognition** - [`Demo`](https://youtu.be/1nLxICWpsII)
 
-DeepFace supports database-backed operations for scalable face recognition, allowing embeddings to be explicitly registered in a database rather than processed on-the-fly or stored in local file structures. Supported backends include [postgres](https://sefiks.com/2023/06/22/vector-similarity-search-in-postgresql/), [mongo](https://sefiks.com/2021/01/22/deep-face-recognition-with-mongodb/), [neo4j](https://sefiks.com/2021/04/03/deep-face-recognition-with-neo4j/), [pgvector](https://sefiks.com/2024/07/05/postgres-as-a-vector-database-billion-scale-vector-similarity-search-with-pgvector/), [pinecone](https://sefiks.com/2021/05/19/large-scale-face-recognition-with-pinecone-vector-database/), milvus, qdrant, and weaviate.
+DeepFace supports database-backed operations for scalable face recognition, allowing embeddings to be explicitly registered in a database rather than processed on-the-fly or stored in local file structures. Supported backends include [postgres](https://sefiks.com/2023/06/22/vector-similarity-search-in-postgresql/), [mongo](https://sefiks.com/2021/01/22/deep-face-recognition-with-mongodb/), [neo4j](https://sefiks.com/2021/04/03/deep-face-recognition-with-neo4j/), [pgvector](https://sefiks.com/2024/07/05/postgres-as-a-vector-database-billion-scale-vector-similarity-search-with-pgvector/), [pinecone](https://sefiks.com/2021/05/19/large-scale-face-recognition-with-pinecone-vector-database/), milvus, qdrant, weaviate, sqlite, oracle, mssql, db2, redis, cassandra, and mysql.
 
 * `identify` serves as a database-backed alternative to `verify` for 1:1 identity verification.
 * `search` serves as a database-backed alternative to `find` for 1:N search with optional [`approximate nearest neighbor`](https://sefiks.com/2023/12/31/a-step-by-step-approximate-nearest-neighbor-example-in-python-from-scratch/) support.
@@ -118,7 +118,7 @@ result: dict = DeepFace.identify(img = "target.jpg", identity_id = "17")
 # perform exact search
 dfs: List[pd.DataFrame] = DeepFace.search(img = "target.jpg")
 
-# building index is required for ann search on postgres/mongo, but skipped for native vector dbs
+# building index is required for ann search on non-vector dbs (e.g. postgres, mongo), but skipped for native vector dbs
 _ = DeepFace.build_index()
 
 # perform approximate nearest neighbor search

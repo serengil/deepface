@@ -38,6 +38,38 @@ services:
       PERSISTENCE_DATA_PATH: "./data"
     volumes:
       - ./weaviate_data:/var/lib/weaviate
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+  cassandra:
+    image: cassandra:4.1
+    container_name: cassandra
+    restart: unless-stopped
+    environment:
+      MAX_HEAP_SIZE: 512M
+      HEAP_NEWSIZE: 128M
+    ports:
+      - "9042:9042"
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: deepface
+      MYSQL_USER: deepface_user
+      MYSQL_PASSWORD: deepface_pass
+      MYSQL_ROOT_PASSWORD: deepface_root_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
 volumes:
   postgres_data:
+  cassandra_data:
+  mysql_data:

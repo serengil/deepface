@@ -11,6 +11,13 @@ from deepface.modules.database.neo4j import Neo4jClient
 from deepface.modules.database.pinecone import PineconeClient
 from deepface.modules.database.milvus import MilvusClient
 from deepface.modules.database.qdrant import QdrantClient
+from deepface.modules.database.sqlite import SqliteClient
+from deepface.modules.database.oracle import OracleClient
+from deepface.modules.database.mssql import MsSqlClient
+from deepface.modules.database.db2 import Db2Client
+from deepface.modules.database.redis import RedisClient
+from deepface.modules.database.cassandra import CassandraClient
+from deepface.modules.database.mysql import MySqlClient
 
 
 class DatabaseSpec(TypedDict):
@@ -68,5 +75,47 @@ database_inventory: Dict[str, DatabaseSpec] = {
         "is_graph_db": False,
         "connection_string": "DEEPFACE_QDRANT_URI",
         "client": QdrantClient,
+    },
+    "sqlite": {
+        "is_vector_db": False,
+        "is_graph_db": False,
+        "connection_string": "DEEPFACE_SQLITE_PATH",
+        "client": SqliteClient,
+    },
+    "oracle": {
+        "is_vector_db": False,
+        "is_graph_db": False,
+        "connection_string": "DEEPFACE_ORACLE_URI",
+        "client": OracleClient,
+    },
+    "mssql": {
+        "is_vector_db": False,
+        "is_graph_db": False,
+        "connection_string": "DEEPFACE_MSSQL_URI",
+        "client": MsSqlClient,
+    },
+    "db2": {
+        "is_vector_db": False,
+        "is_graph_db": False,
+        "connection_string": "DEEPFACE_DB2_URI",
+        "client": Db2Client,
+    },
+    "redis": {
+        "is_vector_db": False,
+        "is_graph_db": False,
+        "connection_string": "DEEPFACE_REDIS_URI",
+        "client": RedisClient,
+    },
+    "cassandra": {
+        "is_vector_db": False,
+        "is_graph_db": False,
+        "connection_string": "DEEPFACE_CASSANDRA_URI",
+        "client": CassandraClient,
+    },
+    "mysql": {
+        "is_vector_db": False,
+        "is_graph_db": False,
+        "connection_string": "DEEPFACE_MYSQL_URI",
+        "client": MySqlClient,
     },
 }
