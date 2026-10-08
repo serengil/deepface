@@ -69,9 +69,9 @@ def test_different_detectors():
             h = img_obj["facial_area"]["h"]
 
             assert x < width
-            assert x + w < width
+            assert x + w <= width
             assert y < height
-            assert y + h < height
+            assert y + h <= height
             assert left_eye[0] < height
             assert right_eye[0] < height
             assert left_eye[1] < width
@@ -176,8 +176,8 @@ def test_facial_coordinates_are_in_borders():
 
             assert x >= 0
             assert y >= 0
-            assert x + w < width
-            assert y + h < height
+            assert x + w <= width
+            assert y + h <= height
 
         logger.info(f"✅ facial area coordinates are all in image borders for {detector_backend}")
 
