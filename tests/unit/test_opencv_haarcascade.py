@@ -18,10 +18,15 @@ def test_haarcascade_files_are_downloaded_if_missing(monkeypatch, tmp_path):
     monkeypatch.setattr(OpenCv.OpenCvClient, "_OpenCvClient__get_opencv_path", lambda self: str(tmp_path))
 
     downloads = []
+    original_download = OpenCv.weight_utils.download_weights_if_necessary
 
     def download_weights_if_necessary(file_name, source_url):
         downloads.append((file_name, source_url))
-        return os.path.join(BUNDLED_PATH, file_name)
+        # bundled files are missing in opencv 5, so download them for real
+        bundled_file = os.path.join(BUNDLED_PATH, file_name)
+        if os.path.isfile(bundled_file):
+            return bundled_file
+        return original_download(file_name=file_name, source_url=source_url)
 
     monkeypatch.setattr(
         OpenCv.weight_utils, "download_weights_if_necessary", download_weights_if_necessary
@@ -46,6 +51,9 @@ def test_haarcascade_files_are_downloaded_if_missing(monkeypatch, tmp_path):
 
 
 def test_haarcascade_files_are_not_downloaded_if_bundled(monkeypatch):
+    if not os.path.isfile(os.path.join(BUNDLED_PATH, "haarcascade_frontalface_default.xml")):
+        pytest.skip(f"opencv {OpenCv.cv2.__version__} does not ship haarcascade files")
+
     def download_weights_if_necessary(**kwargs):
         raise AssertionError("bundled haarcascade files must be used")
 

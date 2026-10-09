@@ -87,9 +87,13 @@ def get_backend_engine() -> str:
             packages = BACKEND_REQUIREMENTS[backend]
             requirements = " and ".join(packages)
             verb = "is" if len(packages) == 1 else "are"
+            # onnxruntime is a base requirement, there is no extra to install it
+            command = (
+                "pip install onnxruntime" if backend == ONNX else f"pip install deepface[{backend}]"
+            )
             raise ValueError(
                 f"{BACKEND_ENGINE_ENV_VAR} is set to {backend} but {requirements} "
-                f"{verb} not installed. Please run `pip install deepface[{backend}]` "
+                f"{verb} not installed. Please run `{command}` "
                 f"or unset {BACKEND_ENGINE_ENV_VAR}."
             )
         logger.debug(f"{backend} backend engine is enforced with {BACKEND_ENGINE_ENV_VAR}")
@@ -104,9 +108,9 @@ def get_backend_engine() -> str:
 
     raise ValueError(
         "deepface requires tensorflow, pytorch or onnxruntime to be installed, but none of "
-        "them is available. Please run `pip install deepface[tensorflow]`, "
-        "`pip install deepface[pytorch]` or `pip install deepface[onnx]` to install the "
-        "backend engine you want to use."
+        "them is available. onnxruntime comes with deepface, please run `pip install onnxruntime` "
+        "to restore it, or `pip install deepface[tensorflow]` or `pip install deepface[pytorch]` "
+        "to install the backend engine you want to use."
     )
 
 

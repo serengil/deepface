@@ -1,5 +1,6 @@
 # built-in dependencies
 import base64
+from importlib.metadata import version as package_version
 import os
 import shutil
 import unittest
@@ -8,10 +9,8 @@ from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, patch
 
 # 3rd party dependencies
-import flask
 import gdown
 import numpy as np
-import werkzeug
 from flask import Flask
 from packaging import version
 
@@ -117,7 +116,7 @@ class TestApiFunctions(unittest.TestCase):
                 "utf8"
             )
 
-        data = {"model_name": "Facenet", "detector_backend": "mtcnn", "img": encoded_string}
+        data = {"model_name": "Facenet", "detector_backend": "retinaface", "img": encoded_string}
 
         response = self.app.post("/represent", json=data)
         assert response.status_code == 200
@@ -138,7 +137,7 @@ class TestApiFunctions(unittest.TestCase):
     def test_represent_url(self):
         data = {
             "model_name": "Facenet",
-            "detector_backend": "mtcnn",
+            "detector_backend": "retinaface",
             "img": "https://github.com/serengil/deepface/blob/master/tests/unit/dataset/couple.jpg?raw=true",
         }
 
@@ -601,8 +600,9 @@ def is_form_data_file_testable() -> bool:
     Returns:
         is_form_data_file_testable (bool)
     """
-    flask_version = version.parse(flask.__version__)
-    werkzeus_version = version.parse(werkzeug.__version__)
+    # werkzeug 3 removed __version__, and flask 3.1 deprecated it
+    flask_version = version.parse(package_version("flask"))
+    werkzeus_version = version.parse(package_version("werkzeug"))
     threshold_version = version.parse("2.0.2")
     is_testable = flask_version <= threshold_version and werkzeus_version <= threshold_version
     if is_testable is False:

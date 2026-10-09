@@ -9,3 +9,6 @@ flask_cors>=4.0.1
 fire>=0.4.0
 gunicorn>=20.1.0
 python-dotenv>=1.0.1
+onnxruntime>=1.13.0
+retina-face>=0.0.19
+pandas>=0.23.4
