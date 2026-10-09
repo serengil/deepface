@@ -315,3 +315,35 @@ def test_find_distance_for_custom_metrics_with_list_of_embeddings():
     assert distances.shape == (3, 2)
 
     logger.info("✅ test find_distance for custom distance metric with list of embeddings is done")
+
+
+def test_verify_for_precalculated_embeddings_with_numpy_scalars():
+    model_name = "Facenet"
+
+    img1_embedding = DeepFace.represent(img_path="dataset/img1.jpg", model_name=model_name)[0][
+        "embedding"
+    ]
+    img2_embedding = DeepFace.represent(img_path="dataset/img2.jpg", model_name=model_name)[0][
+        "embedding"
+    ]
+
+    expected = DeepFace.verify(
+        img1_path=img1_embedding, img2_path=img2_embedding, model_name=model_name, silent=True
+    )
+
+    # list(np_array) yields numpy scalars, which are not instances of int or float.
+    for dtype in (np.float32, np.float64):
+        img1_numpy_scalars = list(np.asarray(img1_embedding, dtype=dtype))
+        img2_numpy_scalars = list(np.asarray(img2_embedding, dtype=dtype))
+
+        result = DeepFace.verify(
+            img1_path=img1_numpy_scalars,
+            img2_path=img2_numpy_scalars,
+            model_name=model_name,
+            silent=True,
+        )
+
+        assert result["verified"] == expected["verified"]
+        assert result["distance"] == pytest.approx(expected["distance"], abs=1e-4)
+
+    logger.info("✅ test verify for pre-calculated embeddings with numpy scalars done")
