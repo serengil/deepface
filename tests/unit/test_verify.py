@@ -12,7 +12,7 @@ logger = Logger()
 
 models = ["VGG-Face", "Facenet", "Facenet512", "ArcFace", "GhostFaceNet"]
 metrics = ["cosine", "euclidean", "euclidean_l2", "angular"]
-detectors = ["opencv", "mtcnn"]
+detectors = ["opencv", "retinaface"]
 
 
 def test_different_facial_recognition_models():
@@ -247,14 +247,14 @@ def test_compability_of_verify_and_represent():
     img2 = "dataset/img2.jpg"
 
     resp_obj = DeepFace.verify(
-        img1, img2, model_name="Facenet", detector_backend="mtcnn", distance_metric="cosine"
+        img1, img2, model_name="Facenet", detector_backend="retinaface", distance_metric="cosine"
     )
     alpha = resp_obj["distance"]
 
-    img1_repr = DeepFace.represent(img1, model_name="Facenet", detector_backend="mtcnn")[0][
+    img1_repr = DeepFace.represent(img1, model_name="Facenet", detector_backend="retinaface")[0][
         "embedding"
     ]
-    img2_repr = DeepFace.represent(img2, model_name="Facenet", detector_backend="mtcnn")[0][
+    img2_repr = DeepFace.represent(img2, model_name="Facenet", detector_backend="retinaface")[0][
         "embedding"
     ]
 
@@ -275,7 +275,7 @@ def test_confidence():
             "dataset/img1.jpg",
             "dataset/img2.jpg",
             model_name="Facenet",
-            detector_backend="mtcnn",
+            detector_backend="retinaface",
             distance_metric=distance_metric,
         )
         assert (
@@ -286,7 +286,7 @@ def test_confidence():
             "dataset/img1.jpg",
             "dataset/img8.jpg",
             model_name="Facenet",
-            detector_backend="mtcnn",
+            detector_backend="retinaface",
             distance_metric=distance_metric,
         )
         assert (

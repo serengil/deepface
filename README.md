@@ -51,14 +51,14 @@ DeepFace is a lightweight [face recognition](https://sefiks.com/2018/08/06/deep-
 The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well.
 
 ```shell
-# to run deepface on tensorflow
-$ pip install deepface[tensorflow]
+# runs deepface on onnxruntime by default
+$ pip install deepface
+
+# or to run deepface on tensorflow
+# $ pip install deepface[tensorflow]
 
 # or to run deepface on pytorch
 # $ pip install deepface[pytorch]
-
-# or to run deepface on onnxruntime
-# $ pip install deepface[onnx]
 
 # manage backend deep learning framework if you have many
 # export DEEPFACE_BACKEND_ENGINE=onnx 
@@ -69,7 +69,7 @@ Alternatively, you can also install deepface from its source code. Source code m
 ```shell
 $ git clone https://github.com/serengil/deepface.git
 $ cd deepface
-$ pip install -e .[tensorflow]  # or pip install -e .[pytorch] or pip install -e .[onnx]
+$ pip install -e .  # runs on onnxruntime, or pip install -e .[tensorflow] or pip install -e .[pytorch]
 ```
 
 Once you installed the library, then you will be able to import it and use its functionalities.

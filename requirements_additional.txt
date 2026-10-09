@@ -1,11 +1,9 @@
-opencv-contrib-python>=4.3.0.36
 mediapipe>=0.8.7.3
 dlib>=19.20.0
 ultralytics>=8.1.6
 facenet-pytorch>=2.5.3
 torch>=2.1.2
 insightface>=0.7.3
-onnxruntime>=1.9.0
 tf-keras
 typing-extensions
 pydantic
@@ -14,5 +12,3 @@ grpcio>=1.48.0
 grpcio-tools>=1.48.0
 boto3>=1.28.3
 pyarrow>=14.0.1
-pandas>=0.23.4
-opencv-python>=4.5.5.64

@@ -12,24 +12,19 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-tf_version = package_utils.get_tf_major_version()
-
-# conditional imports
-if tf_version == 1:
-    from keras.models import Sequential
-    from keras.layers import (
-        Dropout,
-        Dense,
-    )
-else:
-    from tensorflow.keras.models import Sequential
-    from tensorflow.keras.layers import (
-        Dropout,
-        Dense,
-    )
-
 
 def test_loading_broken_weights():
+    # keras model is required to load h5 weights, skip on pytorch and onnx environments
+    pytest.importorskip("tensorflow")
+
+    # conditional imports
+    if package_utils.get_tf_major_version() == 1:
+        from keras.models import Sequential
+        from keras.layers import Dropout, Dense
+    else:
+        from tensorflow.keras.models import Sequential
+        from tensorflow.keras.layers import Dropout, Dense
+
     home = folder_utils.get_deepface_home()
     weight_file = os.path.join(home, ".deepface/weights/vgg_face_weights.h5")
 

@@ -21,7 +21,6 @@ COPY ./requirements_base.txt /app/requirements_base.txt
 # setup.py reads requirements of the backend engine extras as well
 COPY ./requirements_tf.txt /app/requirements_tf.txt
 COPY ./requirements_pytorch.txt /app/requirements_pytorch.txt
-COPY ./requirements_onnx.txt /app/requirements_onnx.txt
 COPY ./requirements_local /app/requirements_local.txt
 COPY ./package_info.json /app/
 COPY ./setup.py /app/
@@ -44,21 +43,19 @@ COPY ./entrypoint.sh /app/deepface/api/src/entrypoint.sh
 #   docker build -t deepface --build-arg BACKEND=pytorch .   -> pytorch
 #   docker build -t deepface --build-arg BACKEND=onnx .      -> onnx
 # for pytorch and onnx, tensorflow and its dependent packages are not installed, so
-# retinaface and mtcnn detectors are not available - opencv is the default one anyway.
-# onnx builds the smallest image as it runs on onnxruntime only.
 ARG BACKEND=tensorflow
 RUN if [ "$BACKEND" = "tensorflow" ]; then \
         pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local.txt && \
-        # retina-face and mtcnn depend on opencv-python, which overwrites the cv2 module of
+        # mtcnn depends on opencv-python, which overwrites the cv2 module of
         # opencv-contrib-python-headless and requires gui system libraries. keep the headless one only.
         pip uninstall -y opencv-python && \
         pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org --force-reinstall --no-deps $(grep "^opencv-contrib-python-headless==" /app/requirements_local.txt); \
     elif [ "$BACKEND" = "pytorch" ]; then \
-        grep -vE "^(tensorflow|keras|mtcnn|retina-face)==" /app/requirements_local.txt > /app/requirements_local_notf.txt && \
+        grep -vE "^(tensorflow|keras|mtcnn)==" /app/requirements_local.txt > /app/requirements_local_notf.txt && \
         pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt torch==2.1.2 --extra-index-url https://download.pytorch.org/whl/cpu; \
     elif [ "$BACKEND" = "onnx" ]; then \
-        grep -vE "^(tensorflow|keras|mtcnn|retina-face)==" /app/requirements_local.txt > /app/requirements_local_notf.txt && \
-        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt onnxruntime==1.16.3; \
+        grep -vE "^(tensorflow|keras|mtcnn)==" /app/requirements_local.txt > /app/requirements_local_notf.txt && \
+        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt; \
     else \
         echo "Unsupported BACKEND=$BACKEND. It must be tensorflow, pytorch or onnx." && exit 1; \
     fi
