@@ -347,3 +347,30 @@ def test_verify_for_precalculated_embeddings_with_numpy_scalars():
         assert result["distance"] == pytest.approx(expected["distance"], abs=1e-4)
 
     logger.info("✅ test verify for pre-calculated embeddings with numpy scalars done")
+
+
+def test_verify_for_precalculated_embeddings_with_numpy_integer_scalars():
+    model_name = "Facenet"
+
+    img1_embedding = np.arange(1, 129)
+    img2_embedding = img1_embedding[::-1]
+
+    expected = DeepFace.verify(
+        img1_path=img1_embedding.tolist(),
+        img2_path=img2_embedding.tolist(),
+        model_name=model_name,
+        silent=True,
+    )
+
+    # list(np_array) yields numpy integer scalars, which are not instances of int
+    result = DeepFace.verify(
+        img1_path=list(img1_embedding),
+        img2_path=list(img2_embedding),
+        model_name=model_name,
+        silent=True,
+    )
+
+    assert result["verified"] == expected["verified"]
+    assert result["distance"] == pytest.approx(expected["distance"])
+
+    logger.info("✅ test verify for pre-calculated embeddings with numpy integer scalars done")
