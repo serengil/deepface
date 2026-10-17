@@ -1,7 +1,7 @@
 # built-in dependencies
 import os
 import io
-from typing import Generator, IO, List, Union, Tuple, cast, Any
+from typing import Generator, IO, List, Optional, Union, Tuple, cast, Any
 import hashlib
 import base64
 from pathlib import Path
@@ -11,7 +11,6 @@ import requests  # type: ignore[import-untyped]
 import numpy as np
 from numpy.typing import NDArray
 import cv2
-from PIL import Image
 from werkzeug.datastructures import FileStorage
 
 # project dependencies
@@ -19,7 +18,26 @@ from deepface.modules.exceptions import ImgNotFound, DataTypeError
 
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
-PIL_EXTS = {"jpeg", "png"}
+IMAGE_FORMATS = {"jpeg", "png"}
+
+# file signatures (magic bytes) of the supported image formats
+JPEG_MAGIC = b"\xff\xd8\xff"
+PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+
+
+def detect_image_format(header: bytes) -> Optional[str]:
+    """
+    Detect image format from its content rather than its file extension
+    Args:
+        header (bytes): leading bytes of the image (at least 8 bytes)
+    Returns:
+        format (str): "jpeg" or "png", or None if it is not a supported image
+    """
+    if header.startswith(JPEG_MAGIC):
+        return "jpeg"
+    if header.startswith(PNG_MAGIC):
+        return "png"
+    return None
 
 
 def list_images(path: str) -> List[str]:
@@ -35,8 +53,8 @@ def list_images(path: str) -> List[str]:
         for file in f:
             if os.path.splitext(file)[1].lower() in IMAGE_EXTS:
                 exact_path = os.path.join(r, file)
-                with Image.open(exact_path) as img:  # lazy
-                    if img.format.lower() in PIL_EXTS:
+                with open(exact_path, "rb") as img_file:  # lazy: reads only the header
+                    if detect_image_format(img_file.read(8)) in IMAGE_FORMATS:
                         images.append(exact_path)
     return images
 
@@ -53,8 +71,8 @@ def yield_images(path: str) -> Generator[str, None, None]:
         for file in f:
             if os.path.splitext(file)[1].lower() in IMAGE_EXTS:
                 exact_path = os.path.join(r, file)
-                with Image.open(exact_path) as img:  # lazy
-                    if img.format.lower() in PIL_EXTS:
+                with open(exact_path, "rb") as img_file:  # lazy: reads only the header
+                    if detect_image_format(img_file.read(8)) in IMAGE_FORMATS:
                         yield exact_path
 
 
@@ -177,10 +195,9 @@ def load_image_from_base64(uri: str) -> NDArray[Any]:
 
     # similar to find functionality, we are just considering these extensions
     # content type is safer option than file extension
-    with Image.open(io.BytesIO(decoded_bytes)) as img:
-        file_type = img.format.lower()
-        if file_type not in {"jpeg", "png"}:
-            raise DataTypeError(f"Input image can be jpg or png, but it is {file_type}")
+    file_type = detect_image_format(decoded_bytes[:8])
+    if file_type not in IMAGE_FORMATS:
+        raise DataTypeError("Input image can be jpg or png, but it is neither")
 
     nparr = np.frombuffer(decoded_bytes, np.uint8)
     img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
