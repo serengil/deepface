@@ -1,4 +1,5 @@
 # built-in dependencies
+import os
 from typing import Any, List, Union, cast
 
 # 3rd party dependencies
@@ -16,8 +17,22 @@ logger = Logger()
 # graphs exported from the pytorch models take channels last - (n, X, X, c) shaped - inputs
 # as the tensorflow backend does. So, neither torch nor tensorflow is required to run them.
 
-# execution providers are tried in this order, the ones onnxruntime does not offer are skipped
-PREFERRED_PROVIDERS = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+# set this environment variable to run onnx graphs on other execution providers, in the
+# order of precedence, e.g. DEEPFACE_ONNX_PROVIDERS=coreml or DEEPFACE_ONNX_PROVIDERS=tensorrt,cuda
+PROVIDERS_ENV_VAR = "DEEPFACE_ONNX_PROVIDERS"
+
+# runs on cpu unless onnxruntime-gpu is installed
+DEFAULT_PROVIDERS = "cuda,cpu"
+
+PROVIDERS = {
+    "cpu": "CPUExecutionProvider",
+    "cuda": "CUDAExecutionProvider",
+    "tensorrt": "TensorrtExecutionProvider",
+    "coreml": "CoreMLExecutionProvider",
+    "directml": "DmlExecutionProvider",
+    "openvino": "OpenVINOExecutionProvider",
+    "rocm": "ROCMExecutionProvider",
+}
 
 
 def build_session(file_name: str, source_url: Union[str, List[str]]) -> Any:
@@ -43,8 +58,7 @@ def build_session(file_name: str, source_url: Union[str, List[str]]) -> Any:
         file_name=file_name, source_url=source_url
     )
 
-    available = ort.get_available_providers()
-    providers = [provider for provider in PREFERRED_PROVIDERS if provider in available]
+    providers = resolve_providers(ort.get_available_providers())
 
     # only log errors, some graphs (e.g. sface) flood stderr with harmless optimization warnings
     session_options = ort.SessionOptions()
@@ -60,6 +74,32 @@ def build_session(file_name: str, source_url: Union[str, List[str]]) -> Any:
             "If the issue persists, consider downloading the file directly from the source "
             "and copying it to the target folder."
         ) from err
+
+
+def resolve_providers(available: List[str]) -> List[str]:
+    """
+    Find the execution providers DEEPFACE_ONNX_PROVIDERS lists, skipping the ones
+    the installed onnxruntime does not offer
+    Args:
+        available (list): providers the installed onnxruntime offers
+    Returns:
+        providers (list)
+    """
+    requested = os.environ.get(PROVIDERS_ENV_VAR) or DEFAULT_PROVIDERS
+
+    providers = []
+    for name in requested.lower().replace(" ", "").split(","):
+        if name not in PROVIDERS:
+            raise ValueError(f"{PROVIDERS_ENV_VAR} must list some of {list(PROVIDERS)}")
+        if PROVIDERS[name] in available and PROVIDERS[name] not in providers:
+            providers.append(PROVIDERS[name])
+
+    # cpu is the last resort for the operations other providers do not support
+    if PROVIDERS["cpu"] not in providers:
+        providers.append(PROVIDERS["cpu"])
+
+    logger.debug(f"onnx graphs run on {providers}")
+    return providers
 
 
 def run_session(session: Any, img: NDArray[Any]) -> NDArray[Any]:
