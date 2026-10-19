@@ -39,6 +39,34 @@ def test_pandas_return_type_raises_if_pandas_missing(pandas_missing):
     logger.info("✅ test pandas return type if pandas missing done")
 
 
+def test_pandas_deprecation_warned_once(monkeypatch):
+    warnings = []
+    monkeypatch.setattr(package_utils.logger, "warn", warnings.append)
+    monkeypatch.setattr(package_utils, "_pandas_deprecation_warned", False)
+
+    # explicit return types must not warn
+    package_utils.resolve_dataframe_return_type("pandas")
+    package_utils.resolve_dataframe_return_type("dict")
+    assert warnings == []
+
+    # default return type warns once only
+    package_utils.resolve_dataframe_return_type(None)
+    package_utils.resolve_dataframe_return_type(None)
+    assert len(warnings) == 1
+    assert "deepface[pandas]" in warnings[0]
+    logger.info("✅ test pandas deprecation warned once done")
+
+
+def test_pandas_deprecation_not_warned_if_pandas_missing(monkeypatch, pandas_missing):
+    warnings = []
+    monkeypatch.setattr(package_utils.logger, "warn", warnings.append)
+    monkeypatch.setattr(package_utils, "_pandas_deprecation_warned", False)
+
+    package_utils.resolve_dataframe_return_type(None)
+    assert warnings == []
+    logger.info("✅ test pandas deprecation not warned if pandas missing done")
+
+
 def test_unsupported_return_type():
     with pytest.raises(ValueError, match="Unsupported return_type"):
         package_utils.resolve_dataframe_return_type("numpy")

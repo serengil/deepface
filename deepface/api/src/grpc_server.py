@@ -6,11 +6,18 @@ from typing import Any, Dict, Tuple, Union
 
 # 3rd party dependencies
 import cv2
-import grpc
 import numpy as np
 from numpy.typing import NDArray
-from google.protobuf.struct_pb2 import Struct
-from dotenv import load_dotenv
+
+try:
+    import grpc
+    from google.protobuf.struct_pb2 import Struct
+    from dotenv import load_dotenv
+except ImportError as import_err:
+    raise ImportError(
+        f"{import_err.name} is required to run the deepface grpc server. "
+        'Please run `pip install "deepface[grpc]"` to install it.'
+    ) from import_err
 
 # load environment variables from .env first things first
 load_dotenv()
@@ -18,7 +25,6 @@ load_dotenv()
 # pylint: disable=wrong-import-position
 # project dependencies
 from deepface import __version__
-from deepface.api.src.app import load_models_on_startup
 from deepface.api.src.modules.core import service
 from deepface.api.src.dependencies.variables import Variables
 from deepface.api.src.dependencies.container import Container
@@ -250,7 +256,7 @@ def create_server(port: int = 50051, max_workers: int = 1) -> Tuple[grpc.Server,
     variables = Variables()
     container = Container(variables=variables)
 
-    load_models_on_startup(variables)
+    container.model_service.load_models_on_startup()
 
     server = grpc.server(
         futures.ThreadPoolExecutor(max_workers=max_workers),

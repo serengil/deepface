@@ -9,7 +9,7 @@ import pytest
 # project dependencies
 from deepface.commons.logger import Logger
 
-# grpc is an optional dependency listed in requirements_additional.txt
+# grpc is an optional dependency, install it with `pip install "deepface[grpc]"`
 grpc = pytest.importorskip("grpc", reason="grpcio is not installed")
 json_format = pytest.importorskip("google.protobuf.json_format", reason="protobuf is not installed")
 MessageToDict = json_format.MessageToDict
