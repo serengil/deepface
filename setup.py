@@ -15,10 +15,18 @@ def parse_requirements(file_name):
 requirements = parse_requirements("requirements_base.txt")
 
 # deepface runs on tensorflow, pytorch or onnxruntime. onnxruntime is a base requirement, so
-# `pip install deepface` is enough to run it on onnx. `pip install deepface[tensorflow]` and
-# `pip install deepface[pytorch]` install the other backend engines if you want them.
+# `pip install deepface` is enough to run it on onnx. `pip install "deepface[tensorflow]"` and
+# `pip install "deepface[pytorch]"` install the other backend engines if you want them.
 tensorflow_requirements = parse_requirements("requirements_tf.txt")
 pytorch_requirements = parse_requirements("requirements_pytorch.txt")
+# `pip install "deepface[api]"` installs the dependencies to serve deepface as a rest api
+api_requirements = parse_requirements("requirements_api.txt")
+# `pip install "deepface[cli]"` installs the dependencies to use deepface from the command line
+cli_requirements = parse_requirements("requirements_cli.txt")
+# `pip install "deepface[pandas]"` installs pandas, which will not be a base requirement in the future
+pandas_requirements = parse_requirements("requirements_pandas.txt")
+# `pip install "deepface[grpc]"` installs the dependencies to serve deepface over grpc
+grpc_requirements = parse_requirements("requirements_grpc.txt")
 
 with open("package_info.json", "r", encoding="utf-8") as f:
     package_info = json.load(f)
@@ -40,6 +48,10 @@ setuptools.setup(
                 "requirements_base.txt",
                 "requirements_tf.txt",
                 "requirements_pytorch.txt",
+                "requirements_api.txt",
+                "requirements_cli.txt",
+                "requirements_pandas.txt",
+                "requirements_grpc.txt",
                 "package_info.json",
             ],
         )
@@ -62,5 +74,9 @@ setuptools.setup(
     extras_require={
         "tensorflow": tensorflow_requirements,
         "pytorch": pytorch_requirements,
+        "api": api_requirements,
+        "grpc": grpc_requirements,
+        "cli": cli_requirements,
+        "pandas": pandas_requirements,
     },
 )

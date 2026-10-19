@@ -86,13 +86,28 @@ def resolve_providers(available: List[str]) -> List[str]:
         providers (list)
     """
     requested = os.environ.get(PROVIDERS_ENV_VAR) or DEFAULT_PROVIDERS
+    names = requested.lower().replace(" ", "").split(",")
 
     providers = []
-    for name in requested.lower().replace(" ", "").split(","):
+    for name in names:
         if name not in PROVIDERS:
             raise ValueError(f"{PROVIDERS_ENV_VAR} must list some of {list(PROVIDERS)}")
         if PROVIDERS[name] in available and PROVIDERS[name] not in providers:
             providers.append(PROVIDERS[name])
+
+    # warn if the user explicitly asked for accelerators but none of them is installed,
+    # otherwise graphs silently run on cpu
+    accelerators = [PROVIDERS[name] for name in names if name != "cpu"]
+    if (
+        os.environ.get(PROVIDERS_ENV_VAR)
+        and accelerators
+        and not any(provider in providers for provider in accelerators)
+    ):
+        logger.warn(
+            f"None of {accelerators} set in {PROVIDERS_ENV_VAR} is offered by the installed "
+            f"onnxruntime, which offers {available}. Falling back to cpu. You may need to "
+            "install the matching package, e.g. onnxruntime-gpu for cuda."
+        )
 
     # cpu is the last resort for the operations other providers do not support
     if PROVIDERS["cpu"] not in providers:

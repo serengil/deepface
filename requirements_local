@@ -13,7 +13,7 @@ flask_cors==4.0.1
 mtcnn==0.1.1
 retina-face==0.0.19
 onnxruntime==1.16.3
-fire==0.4.0
+# fire==0.4.0
 gunicorn==20.1.0
 python-dotenv==1.0.1
 # psycopg[binary]==3.2.13

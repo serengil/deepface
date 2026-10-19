@@ -700,7 +700,13 @@ def cli() -> None:
     """
     command line interface function will be offered in this block
     """
-    import fire
+    try:
+        import fire  # pylint: disable=import-error
+    except ImportError as import_err:
+        raise ImportError(
+            "fire is required to use deepface from the command line. "
+            'Please run `pip install "deepface[cli]"` to install it.'
+        ) from import_err
 
     fire.Fire()
 

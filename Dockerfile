@@ -18,9 +18,13 @@ WORKDIR /app
 COPY ./deepface /app/deepface
 # even though we will use local requirements, this one is required to perform install deepface from source code
 COPY ./requirements_base.txt /app/requirements_base.txt
-# setup.py reads requirements of the backend engine extras as well
+# setup.py reads requirements of the backend engine, api, cli, pandas and grpc extras as well
 COPY ./requirements_tf.txt /app/requirements_tf.txt
 COPY ./requirements_pytorch.txt /app/requirements_pytorch.txt
+COPY ./requirements_api.txt /app/requirements_api.txt
+COPY ./requirements_cli.txt /app/requirements_cli.txt
+COPY ./requirements_pandas.txt /app/requirements_pandas.txt
+COPY ./requirements_grpc.txt /app/requirements_grpc.txt
 COPY ./requirements_local /app/requirements_local.txt
 COPY ./package_info.json /app/
 COPY ./setup.py /app/
@@ -49,13 +53,17 @@ RUN if [ "$BACKEND" = "tensorflow" ]; then \
         # mtcnn depends on opencv-python, which overwrites the cv2 module of
         # opencv-contrib-python-headless and requires gui system libraries. keep the headless one only.
         pip uninstall -y opencv-python && \
-        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org --force-reinstall --no-deps $(grep "^opencv-contrib-python-headless==" /app/requirements_local.txt); \
+        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org --force-reinstall --no-deps $(grep "^opencv-contrib-python-headless==" /app/requirements_local.txt) && \
+        # onnxruntime depends on sympy for its symbolic shape inference tools only, not for inference.
+        pip uninstall -y sympy mpmath; \
     elif [ "$BACKEND" = "pytorch" ]; then \
         grep -vE "^(tensorflow|keras|mtcnn)==" /app/requirements_local.txt > /app/requirements_local_notf.txt && \
         pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt torch==2.1.2 --extra-index-url https://download.pytorch.org/whl/cpu; \
     elif [ "$BACKEND" = "onnx" ]; then \
         grep -vE "^(tensorflow|keras|mtcnn)==" /app/requirements_local.txt > /app/requirements_local_notf.txt && \
-        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt; \
+        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt && \
+        # onnxruntime depends on sympy for its symbolic shape inference tools only, not for inference.
+        pip uninstall -y sympy mpmath; \
     else \
         echo "Unsupported BACKEND=$BACKEND. It must be tensorflow, pytorch or onnx." && exit 1; \
     fi

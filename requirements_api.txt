@@ -1,0 +1,4 @@
+Flask>=1.1.2
+flask_cors>=4.0.1
+gunicorn>=20.1.0
+python-dotenv>=1.0.1

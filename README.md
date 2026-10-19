@@ -55,10 +55,10 @@ The easiest way to install deepface is to download it from [`PyPI`](https://pypi
 $ pip install deepface
 
 # or to run deepface on tensorflow
-# $ pip install deepface[tensorflow]
+# $ pip install "deepface[tensorflow]"
 
 # or to run deepface on pytorch
-# $ pip install deepface[pytorch]
+# $ pip install "deepface[pytorch]"
 
 # manage backend deep learning framework if you have many
 # export DEEPFACE_BACKEND_ENGINE=onnx 
@@ -69,7 +69,7 @@ Alternatively, you can also install deepface from its source code. Source code m
 ```shell
 $ git clone https://github.com/serengil/deepface.git
 $ cd deepface
-$ pip install -e .  # runs on onnxruntime, or pip install -e .[tensorflow] or pip install -e .[pytorch]
+$ pip install -e .  # runs on onnxruntime, or pip install -e ".[tensorflow]" or pip install -e ".[pytorch]"
 ```
 
 Once you installed the library, then you will be able to import it and use its functionalities.
@@ -304,8 +304,11 @@ DeepFace serves an API as well - see [`api folder`](https://github.com/serengil/
 
 ```shell
 # running the service directly
+pip install -e ".[api]"  # or pip install "deepface[api]"
 cd scripts && ./service.sh
+```
 
+```shell
 # running the service via docker
 cd scripts && ./dockerize.sh
 ```
@@ -336,6 +339,9 @@ $ curl -X POST http://localhost:5005/search \
 DeepFace can be served over gRPC as well. It covers the same functions as the REST API, and its contract is defined in [`deepface.proto`](https://github.com/serengil/deepface/tree/master/deepface/api/proto/deepface.proto).
 
 ```shell
+# install grpc dependencies
+$ pip install -e ".[grpc]"  # or pip install "deepface[grpc]"
+
 # generate stubs from proto file
 $ make grpc
 
