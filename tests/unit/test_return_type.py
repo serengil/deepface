@@ -41,8 +41,8 @@ def test_pandas_return_type_raises_if_pandas_missing(pandas_missing):
 
 def test_pandas_deprecation_warned_once(monkeypatch):
     warnings = []
-    monkeypatch.setattr(package_utils.logger, "warn", warnings.append)
-    monkeypatch.setattr(package_utils, "_pandas_deprecation_warned", False)
+    monkeypatch.setattr(package_utils.logger, "dump_log", warnings.append)
+    monkeypatch.setattr(package_utils.logger, "_shown_warnings", set())
 
     # explicit return types must not warn
     package_utils.resolve_dataframe_return_type("pandas")
@@ -59,8 +59,8 @@ def test_pandas_deprecation_warned_once(monkeypatch):
 
 def test_pandas_deprecation_not_warned_if_pandas_missing(monkeypatch, pandas_missing):
     warnings = []
-    monkeypatch.setattr(package_utils.logger, "warn", warnings.append)
-    monkeypatch.setattr(package_utils, "_pandas_deprecation_warned", False)
+    monkeypatch.setattr(package_utils.logger, "dump_log", warnings.append)
+    monkeypatch.setattr(package_utils.logger, "_shown_warnings", set())
 
     package_utils.resolve_dataframe_return_type(None)
     assert warnings == []

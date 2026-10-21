@@ -12,9 +12,6 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
-# pandas will not be installed by default in a future release, warn about it once
-_pandas_deprecation_warned = False
-
 
 def get_tf_major_version() -> int:
     """
@@ -129,15 +126,10 @@ def _warn_pandas_deprecation() -> None:
     Warn once that find and search will return dicts instead of pandas dataframes
         by default in a future release, because pandas will become an optional dependency.
     """
-    global _pandas_deprecation_warned  # pylint: disable=global-statement
-
-    if _pandas_deprecation_warned:
-        return
-    _pandas_deprecation_warned = True
-
     logger.warn(
         "In a future release, `pip install deepface` will not install pandas by default, and "
         "find and search will return dicts instead of pandas dataframes if pandas is not "
         'installed. Please run `pip install "deepface[pandas]"` to keep getting dataframes, '
-        "or set return_type explicitly to silence this warning."
+        "or set return_type explicitly to silence this warning.",
+        show_once=True,
     )

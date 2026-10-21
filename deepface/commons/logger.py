@@ -1,5 +1,6 @@
 import os
-from typing import Any
+import hashlib
+from typing import Any, Set
 import logging
 from datetime import datetime
 
@@ -24,6 +25,7 @@ class Logger:
     def __init__(self) -> None:
         if not hasattr(self, "_singleton_initialized"):
             self._singleton_initialized = True  # to prevent multiple initializations
+            self._shown_warnings: Set[str] = set()  # hashes of show_once warnings
             log_level = os.environ.get("DEEPFACE_LOG_LEVEL", str(logging.INFO))
             try:
                 self.log_level = int(log_level)
@@ -53,12 +55,19 @@ class Logger:
         if self.log_level <= logging.DEBUG:
             self.dump_log(f"🕷️ {message}")
 
-    def warn(self, message: Any) -> None:
+    def warn(self, message: Any, show_once: bool = False) -> None:
         """
         Logs a warning message if the log level is set to WARNING or lower.
         Args:
             message: The message to log.
+            show_once: If True, the same message is logged only once per process.
         """
+        if show_once:
+            message_hash = hashlib.sha256(str(message).encode("utf-8")).hexdigest()
+            if message_hash in self._shown_warnings:
+                return
+            self._shown_warnings.add(message_hash)
+
         if self.log_level <= logging.WARNING:
             self.dump_log(f"⚠️ {message}")
 
