@@ -27,7 +27,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./pgvector-init:/docker-entrypoint-initdb.d
   weaviate:
-    image: cr.weaviate.io/semitechnologies/weaviate:1.39.7
+    image: cr.weaviate.io/semitechnologies/weaviate:1.39.13
     ports:
       - "8080:8080"  # REST API
       - "50051:50051"  # gRPC API, used by weaviate-client v4
