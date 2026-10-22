@@ -1,6 +1,6 @@
 # built-in dependencies
 import os
-from typing import Any, List, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 # 3rd party dependencies
 import numpy as np
@@ -35,12 +35,16 @@ PROVIDERS = {
 }
 
 
-def build_session(file_name: str, source_url: Union[str, List[str]]) -> Any:
+def build_session(
+    file_name: str, source_url: Union[str, List[str]], dynamic_shapes: bool = False
+) -> Any:
     """
     Download an onnx graph if necessary and load it into an inference session
     Args:
         file_name (str): name of the onnx file under the weights folder
         source_url (str or list): url(s) to download the onnx file from
+        dynamic_shapes (bool): drop the input and output shapes the graph declares, so
+            graphs exported with a fixed input shape accept any shape
     Returns:
         session (onnxruntime.InferenceSession)
     """
@@ -65,7 +69,11 @@ def build_session(file_name: str, source_url: Union[str, List[str]]) -> Any:
     session_options.log_severity_level = 3
 
     try:
-        return ort.InferenceSession(weight_file, sess_options=session_options, providers=providers)
+        model: Union[str, bytes] = weight_file
+        if dynamic_shapes:
+            with open(weight_file, "rb") as f:
+                model = strip_io_shapes(f.read())
+        return ort.InferenceSession(model, sess_options=session_options, providers=providers)
     except Exception as err:
         raise ValueError(
             f"An exception occurred while loading the onnx graph from {weight_file}."
@@ -134,3 +142,108 @@ def run_session(session: Any, img: NDArray[Any]) -> NDArray[Any]:
 
     inputs = {session.get_inputs()[0].name: np.ascontiguousarray(img, dtype=np.float32)}
     return cast(NDArray[Any], session.run(None, inputs)[0])
+
+
+def strip_io_shapes(model: bytes) -> bytes:
+    """
+    Drop the shapes declared for the inputs and outputs of a serialized onnx graph, so
+    onnxruntime does not reject inputs in other shapes. The onnx package is not a dependency,
+    so the protobuf wire format is edited directly.
+    Args:
+        model (bytes): serialized ModelProto
+    Returns:
+        model (bytes): serialized ModelProto without input and output shapes
+    """
+
+    def tensor_type(buf: bytes) -> bytes:
+        # TypeProto.Tensor.shape = 2
+        return edit_fields(buf, {2: None})
+
+    def type_proto(buf: bytes) -> bytes:
+        # TypeProto.tensor_type = 1
+        return edit_fields(buf, {1: tensor_type})
+
+    def value_info(buf: bytes) -> bytes:
+        # ValueInfoProto.type = 2
+        return edit_fields(buf, {2: type_proto})
+
+    def graph(buf: bytes) -> bytes:
+        # GraphProto.input = 11, GraphProto.output = 12
+        return edit_fields(buf, {11: value_info, 12: value_info})
+
+    # ModelProto.graph = 7
+    return edit_fields(model, {7: graph})
+
+
+def edit_fields(buf: bytes, edits: Dict[int, Optional[Callable[[bytes], bytes]]]) -> bytes:
+    """
+    Edit the length delimited fields of a serialized protobuf message
+    Args:
+        buf (bytes): serialized message
+        edits (dict): field numbers to the functions editing their payloads,
+            None drops the field
+    Returns:
+        buf (bytes): edited message
+    """
+    out = bytearray()
+    pos = 0
+    while pos < len(buf):
+        start = pos
+        key, pos = read_varint(buf, pos)
+        key_end = pos
+        field_number, wire_type = key >> 3, key & 7
+        if wire_type == 0:
+            _, pos = read_varint(buf, pos)
+        elif wire_type == 1:
+            pos += 8
+        elif wire_type == 5:
+            pos += 4
+        elif wire_type == 2:
+            length, payload_start = read_varint(buf, pos)
+            pos = payload_start + length
+            if field_number in edits:
+                edit = edits[field_number]
+                if edit is not None:
+                    payload = edit(buf[payload_start:pos])
+                    out += buf[start:key_end]
+                    out += encode_varint(len(payload)) + payload
+                continue
+        else:
+            raise ValueError(f"Unsupported protobuf wire type {wire_type}")
+        out += buf[start:pos]
+    return bytes(out)
+
+
+def read_varint(buf: bytes, pos: int) -> Tuple[int, int]:
+    """
+    Read a protobuf varint
+    Args:
+        buf (bytes): serialized message
+        pos (int): position of the varint
+    Returns:
+        value (int), pos (int): decoded value and the position after it
+    """
+    value, shift = 0, 0
+    while True:
+        byte = buf[pos]
+        pos += 1
+        value |= (byte & 0x7F) << shift
+        if byte < 0x80:
+            return value, pos
+        shift += 7
+
+
+def encode_varint(value: int) -> bytes:
+    """
+    Encode a protobuf varint
+    Args:
+        value (int): non negative value
+    Returns:
+        encoded (bytes)
+    """
+    out = bytearray()
+    while value >= 0x80:
+        out.append((value & 0x7F) | 0x80)
+        value >>= 7
+    out.append(value)
+    return bytes(out)

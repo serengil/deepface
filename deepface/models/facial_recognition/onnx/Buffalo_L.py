@@ -1,102 +1,96 @@
 # built-in dependencies
 import os
-from typing import List, Union, Any
+from typing import Any, cast
 
 # third-party dependencies
 import numpy as np
 from numpy.typing import NDArray
 
 # project dependencies
-from deepface.commons import weight_utils, folder_utils
+from deepface.commons import folder_utils
+from deepface.commons.onnx_utils import build_session
 from deepface.commons.logger import Logger
-from deepface.models.FacialRecognition import FacialRecognition
+from deepface.models.facial_recognition.onnx.OnnxFacialRecognition import OnnxFacialRecognition
 from deepface.modules.exceptions import InvalidEmbeddingsShapeError
 
 logger = Logger()
 
+# pylint: disable=line-too-long, too-few-public-methods
+WEIGHTS_URL = (
+    "https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg"
+)
 
-class Buffalo_L(FacialRecognition):
+# insightface's ArcFaceONNX.get_feat feeds images as (x - 127.5) / 127.5 scaled RGB
+INPUT_MEAN = 127.5
+INPUT_STD = 127.5
+
+
+class Buffalo_L(OnnxFacialRecognition):
+    """
+    InsightFace's Buffalo_L recognition model (webface_r50) - onnx backend
+    """
+
     def __init__(self) -> None:
-        self.model = None
+        self.model = load_model()
+        self.model_name = "Buffalo_L"
         self.input_shape = (112, 112)
         self.output_shape = 512
-        self.load_model()
-
-    def load_model(self) -> None:
-        """Load the InsightFace Buffalo_L recognition model."""
-        try:
-            from insightface.model_zoo import get_model
-        except Exception as err:
-            raise ModuleNotFoundError(
-                "InsightFace and its dependencies are optional for the Buffalo_L model. "
-                "Please install them with: "
-                "pip install insightface>=0.7.3 onnxruntime>=1.9.0 typing-extensions pydantic"
-                "albumentations"
-            ) from err
-
-        sub_dir = "buffalo_l"
-        model_file = "webface_r50.onnx"
-        model_rel_path = os.path.join(sub_dir, model_file)
-        home = folder_utils.get_deepface_home()
-        weights_dir = os.path.join(home, ".deepface", "weights")
-        buffalo_l_dir = os.path.join(weights_dir, sub_dir)
-
-        if not os.path.exists(buffalo_l_dir):
-            os.makedirs(buffalo_l_dir, exist_ok=True)
-            logger.info(f"Created directory: {buffalo_l_dir}")
-
-        weights_path = weight_utils.download_weights_if_necessary(
-            file_name=model_rel_path,
-            source_url="https://drive.google.com/uc?export=download&confirm=pbef&id=1N0GL-8ehw_bz2eZQWz2b0A5XBdXdxZhg",  # pylint: disable=line-too-long
-        )
-
-        if not os.path.exists(weights_path):
-            raise FileNotFoundError(f"Model file not found at: {weights_path}")
-        logger.debug(f"Model file found at: {weights_path}")
-
-        self.model = get_model(weights_path)
-        self.model.prepare(ctx_id=-1, input_size=self.input_shape)
 
     def preprocess(self, img: NDArray[Any]) -> NDArray[Any]:
         """
-        Preprocess the input image or batch of images.
+        Preprocess the input image or batch of images as insightface's ArcFaceONNX.get_feat does.
 
         Args:
             img: BGR input image or batch in [0, 1] scale with shape
             (112, 112, 3) or (batch_size, 112, 112, 3).
 
         Returns:
-            BGR image(s) in [0, 255] scale, as expected by InsightFace's get_feat.
+            (batch_size, 3, 112, 112) shaped RGB blob in [-1, 1] scale.
         """
-        if len(img.shape) == 3:
+        if img.ndim == 3:
             img = np.expand_dims(img, axis=0)  # Convert single image to batch of 1
-        elif len(img.shape) != 4:
+        elif img.ndim != 4:
             raise InvalidEmbeddingsShapeError(
                 f"Input must be (112, 112, 3) or (X, 112, 112, 3). Got {img.shape}"
             )
-        return img * 255
 
-    def forward(self, img: NDArray[Any]) -> Union[List[float], List[List[float]]]:
+        # BGR to RGB, channels last to channels first
+        blob = (img * 255 - INPUT_MEAN) / INPUT_STD
+        return np.ascontiguousarray(blob[..., ::-1].transpose(0, 3, 1, 2), dtype=np.float32)
+
+    def predict(self, img: NDArray[Any]) -> NDArray[Any]:
         """
-        Extract facial embedding(s) from the input image or batch of images.
-
+        Find raw representations of given images
         Args:
-            img: Input image or batch with shape (112, 112, 3)
-            or (batch_size, 112, 112, 3).
-
+            img (np.ndarray): pre-loaded image in BGR with (112, 112, 3) or (n, 112, 112, 3)
+                shape and [0, 1] scale
         Returns:
-            Embedding as a list of floats (single image)
-            or list of lists of floats (batch).
+            embeddings (np.ndarray): (n, 512) shaped representations
         """
-        # Preprocess the input (single image or batch)
-        img = self.preprocess(img)
-        batch_size = img.shape[0]
+        blob = self.preprocess(img)
+        model_input = self.model.get_inputs()[0]
 
-        # Handle both single images and batches
-        embeddings = []
-        for i in range(batch_size):
-            embedding = self.model.get_feat(img[i])
-            embeddings.append(embedding.flatten().tolist())
+        # feed images one by one if the graph is exported with a fixed batch size
+        if isinstance(model_input.shape[0], int):
+            embeddings = [
+                self.model.run(None, {model_input.name: blob[i : i + 1]})[0]
+                for i in range(blob.shape[0])
+            ]
+            return cast(NDArray[Any], np.concatenate(embeddings, axis=0))
 
-        # Return single embedding if batch_size is 1, otherwise return list of embeddings
-        return embeddings[0] if batch_size == 1 else embeddings
+        return cast(NDArray[Any], self.model.run(None, {model_input.name: blob})[0])
+
+
+def load_model(url: str = WEIGHTS_URL) -> Any:
+    """
+    Download Buffalo_L's onnx graph if necessary and load it
+    Returns:
+        model (onnxruntime.InferenceSession)
+    """
+    # the graph is stored under a sub folder of the weights folder
+    buffalo_l_dir = os.path.join(
+        folder_utils.get_deepface_home(), ".deepface", "weights", "buffalo_l"
+    )
+    os.makedirs(buffalo_l_dir, exist_ok=True)
+
+    return build_session(file_name=os.path.join("buffalo_l", "webface_r50.onnx"), source_url=url)
