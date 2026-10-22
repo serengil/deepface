@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 import cv2
 
 # project dependencies
-from deepface.commons import weight_utils
+from deepface.commons.onnx_utils import build_session
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger
 
@@ -21,19 +21,19 @@ WEIGHTS_URL = "https://github.com/Star-Clouds/CenterFace/raw/master/models/onnx/
 
 class CenterFaceClient(Detector):
     def __init__(self) -> None:
-        # BUG: model must be flushed for each call
-        # self.model = self.build_model()
-        pass
+        self.model = self.build_model()
 
     def build_model(self) -> "CenterFace":
         """
         Download pre-trained weights of CenterFace model if necessary and load built model
         """
-        weights_path = weight_utils.download_weights_if_necessary(
-            file_name="centerface.onnx", source_url=WEIGHTS_URL
+        # the graph declares a fixed (10, 3, 32, 32) shaped input which onnxruntime enforces,
+        # but it is fully convolutional, so its declared shapes are dropped
+        return CenterFace(
+            session=build_session(
+                file_name="centerface.onnx", source_url=WEIGHTS_URL, dynamic_shapes=True
+            )
         )
-
-        return CenterFace(weight_path=weights_path)
 
     def detect_faces(self, img: NDArray[Any]) -> List["FacialAreaRegion"]:
         """
@@ -49,11 +49,7 @@ class CenterFaceClient(Detector):
 
         threshold = float(os.getenv("CENTERFACE_THRESHOLD", "0.35"))
 
-        # BUG: model causes problematic results from 2nd call if it is not flushed
-        # detections, landmarks = self.model.forward(
-        #     img, img.shape[0], img.shape[1], threshold=threshold
-        # )
-        detections, landmarks = self.build_model().forward(
+        detections, landmarks = self.model.forward(
             img, img.shape[0], img.shape[1], threshold=threshold
         )
 
@@ -93,8 +89,8 @@ class CenterFace:
         github.com/Star-Clouds/CenterFace/blob/master/prj-python/centerface.py
     """
 
-    def __init__(self, weight_path: str) -> None:
-        self.net = cv2.dnn.readNetFromONNX(weight_path)
+    def __init__(self, session: Any) -> None:
+        self.session = session
         self.img_h_new: int = 0
         self.img_w_new: int = 0
         self.scale_h: float = 0
@@ -102,19 +98,18 @@ class CenterFace:
 
     def forward(self, img: NDArray[Any], height: int, width: int, threshold: float = 0.5) -> Any:
         self.img_h_new, self.img_w_new, self.scale_h, self.scale_w = self.transform(height, width)
-        return self.inference_opencv(img, threshold)
+        return self.inference_onnx(img, threshold)
 
-    def inference_opencv(self, img: NDArray[Any], threshold: float) -> Any:
-        blob = cv2.dnn.blobFromImage(
-            img,
-            scalefactor=1.0,
-            size=(self.img_w_new, self.img_h_new),
-            mean=(0, 0, 0),
-            swapRB=True,
-            crop=False,
+    def inference_onnx(self, img: NDArray[Any], threshold: float) -> Any:
+        resized = cv2.resize(img, (self.img_w_new, self.img_h_new))
+        # BGR to RGB, channels last to channels first, no scaling as opencv's blobFromImage
+        blob = np.ascontiguousarray(
+            resized[..., ::-1].transpose(2, 0, 1)[np.newaxis], dtype=np.float32
         )
-        self.net.setInput(blob)
-        heatmap, scale, offset, lms = self.net.forward(["537", "538", "539", "540"])
+        input_name = self.session.get_inputs()[0].name
+        heatmap, scale, offset, lms = self.session.run(
+            ["537", "538", "539", "540"], {input_name: blob}
+        )
         return self.postprocess(heatmap, lms, offset, scale, threshold)
 
     def transform(self, h: int, w: int) -> Tuple[int, int, float, float]:

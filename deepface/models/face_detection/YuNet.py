@@ -1,13 +1,14 @@
 # built-in dependencies
 import os
-from typing import Any, List
+from typing import Any, List, cast
 
 # 3rd party dependencies
 import cv2
+import numpy as np
 from numpy.typing import NDArray
 
 # project dependencies
-from deepface.commons import weight_utils
+from deepface.commons.onnx_utils import build_session
 from deepface.models.Detector import Detector, FacialAreaRegion
 from deepface.commons.logger import Logger
 
@@ -15,6 +16,12 @@ logger = Logger()
 
 # pylint:disable=line-too-long
 WEIGHTS_URL = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
+
+# the graph is exported with a fixed (1, 3, 640, 640) shaped input
+INPUT_SIZE = 640
+STRIDES = [8, 16, 32]
+NMS_THRESHOLD = 0.3
+TOP_K = 5000
 
 
 class YuNetClient(Detector):
@@ -25,37 +32,12 @@ class YuNetClient(Detector):
         """
         Build a yunet detector model
         Returns:
-            model (Any)
+            model (onnxruntime.InferenceSession)
         """
-
-        opencv_version = cv2.__version__.split(".")
-        if not len(opencv_version) >= 2:
-            raise ValueError(
-                f"OpenCv's version must have major and minor values but it is {opencv_version}"
-            )
-
-        opencv_version_major = int(opencv_version[0])
-        opencv_version_minor = int(opencv_version[1])
-
-        if opencv_version_major < 4 or (opencv_version_major == 4 and opencv_version_minor < 8):
-            # min requirement: https://github.com/opencv/opencv_zoo/issues/172
-            raise ValueError(f"YuNet requires opencv-python >= 4.8 but you have {cv2.__version__}")
-
-        # pylint: disable=C0301
-        weight_file = weight_utils.download_weights_if_necessary(
+        return build_session(
             file_name="face_detection_yunet_2023mar.onnx",
             source_url=WEIGHTS_URL,
         )
-
-        try:
-            face_detector = cv2.FaceDetectorYN_create(weight_file, "", (0, 0))  # type: ignore[attr-defined]
-        except Exception as err:
-            raise ValueError(
-                "Exception while calling opencv.FaceDetectorYN_create module."
-                + "This is an optional dependency."
-                + "You can install it as pip install opencv-contrib-python."
-            ) from err
-        return face_detector
 
     def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
         """
@@ -71,10 +53,8 @@ class YuNetClient(Detector):
         # We can set it via environment variable.
         score_threshold = float(os.environ.get("yunet_score_threshold", "0.9"))
         resp = []
-        faces = []
         height, width = img.shape[0], img.shape[1]
-        # resize image if it is too large (Yunet fails to detect faces on large input sometimes)
-        # I picked 640 as a threshold because it is the default value of max_size in Yunet.
+        # resize image if it is too large, the graph is exported with a 640x640 input
         resized = False
         r: float = 1  # resize factor
         if height > 640 or width > 640:
@@ -82,11 +62,7 @@ class YuNetClient(Detector):
             img = cv2.resize(img, (int(width * r), int(height * r)))
             height, width = img.shape[0], img.shape[1]
             resized = True
-        self.model.setInputSize((width, height))
-        self.model.setScoreThreshold(score_threshold)
-        _, faces = self.model.detect(img)
-        if faces is None:
-            return resp
+        faces = self.forward(img, score_threshold)
         for face in faces:
             # pylint: disable=W0105
             """
@@ -128,3 +104,80 @@ class YuNetClient(Detector):
             )
             resp.append(facial_area)
         return resp
+
+    def forward(self, img: NDArray[Any], score_threshold: float) -> NDArray[Any]:
+        """
+        Run the graph and decode its outputs as opencv's FaceDetectorYN.detect does
+        Args:
+            img (np.ndarray): pre-loaded image in BGR, its sides must not exceed 640
+            score_threshold (float): minimum score of the detections to keep
+        Returns:
+            faces (np.ndarray): (n, 15) shaped detections, each row is
+                x1, y1, w, h, 5 facial landmarks and score
+        """
+        height, width = img.shape[0], img.shape[1]
+
+        # zero pad bottom and right sides to fit the input size of the graph
+        padded = np.zeros((INPUT_SIZE, INPUT_SIZE, 3), dtype=np.float32)
+        padded[:height, :width] = img
+        # channels last to channels first, opencv's blobFromImage keeps BGR without scaling
+        blob = np.ascontiguousarray(padded.transpose(2, 0, 1)[np.newaxis])
+
+        input_name = self.model.get_inputs()[0].name
+        outputs = dict(
+            zip(
+                [output.name for output in self.model.get_outputs()],
+                self.model.run(None, {input_name: blob}),
+            )
+        )
+
+        boxes, landmarks, scores = [], [], []
+        for stride in STRIDES:
+            cols = INPUT_SIZE // stride
+            cls_scores = np.clip(outputs[f"cls_{stride}"][0, :, 0], 0, 1)
+            obj_scores = np.clip(outputs[f"obj_{stride}"][0, :, 0], 0, 1)
+            bbox = outputs[f"bbox_{stride}"][0]
+            kps = outputs[f"kps_{stride}"][0]
+
+            score = np.sqrt(cls_scores * obj_scores)
+            idx = np.where(score >= score_threshold)[0]
+            rows, cols_idx = idx // cols, idx % cols
+
+            cx = (cols_idx + bbox[idx, 0]) * stride
+            cy = (rows + bbox[idx, 1]) * stride
+            w = np.exp(bbox[idx, 2]) * stride
+            h = np.exp(bbox[idx, 3]) * stride
+            boxes.append(np.stack([cx - w / 2, cy - h / 2, w, h], axis=1))
+
+            lms = kps[idx].reshape(-1, 5, 2)
+            lms_x = (lms[:, :, 0] + cols_idx[:, np.newaxis]) * stride
+            lms_y = (lms[:, :, 1] + rows[:, np.newaxis]) * stride
+            landmarks.append(np.stack([lms_x, lms_y], axis=2).reshape(-1, 10))
+            scores.append(score[idx])
+
+        boxes_np = np.concatenate(boxes, axis=0)
+        scores_np = np.concatenate(scores, axis=0)
+        if len(scores_np) == 0:
+            return np.empty((0, 15), dtype=np.float32)
+
+        # pylint: disable=c-extension-no-member
+        keep = np.array(
+            cv2.dnn.NMSBoxes(
+                boxes_np.tolist(),
+                scores_np.tolist(),
+                score_threshold,
+                NMS_THRESHOLD,
+                top_k=TOP_K,
+            )
+        ).flatten()
+        return cast(
+            NDArray[Any],
+            np.concatenate(
+                [
+                    boxes_np[keep],
+                    np.concatenate(landmarks, axis=0)[keep],
+                    scores_np[keep, np.newaxis],
+                ],
+                axis=1,
+            ).astype(np.float32),
+        )
