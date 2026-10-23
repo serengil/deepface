@@ -42,12 +42,12 @@ COPY ./entrypoint.sh /app/deepface/api/src/entrypoint.sh
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
 # -----------------------------------
 # install dependencies - deepface with these dependency versions is working
-# backend engine is chosen with a build arg: tensorflow (default), pytorch or onnx
-#   docker build -t deepface .                               -> tensorflow
-#   docker build -t deepface --build-arg BACKEND=pytorch .   -> pytorch
-#   docker build -t deepface --build-arg BACKEND=onnx .      -> onnx
+# backend engine is chosen with a build arg: onnx (default), tensorflow or pytorch
+#   docker build -t deepface .                                 -> onnx
+#   docker build -t deepface --build-arg BACKEND=tensorflow .  -> tensorflow
+#   docker build -t deepface --build-arg BACKEND=pytorch .     -> pytorch
 # for pytorch and onnx, tensorflow and its dependent packages are not installed, so
-ARG BACKEND=tensorflow
+ARG BACKEND=onnx
 RUN if [ "$BACKEND" = "tensorflow" ]; then \
         pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local.txt && \
         # mtcnn depends on opencv-python, which overwrites the cv2 module of
