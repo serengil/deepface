@@ -201,8 +201,8 @@ def extract_faces(
         # cast to int for flask, and do final checks for borders
         x = max(0, int(current_region.x))
         y = max(0, int(current_region.y))
-        w = min(width - x - 1, int(current_region.w))
-        h = min(height - y - 1, int(current_region.h))
+        w = min(width - x, int(current_region.w))
+        h = min(height - y, int(current_region.h))
 
         landmarks = {
             "left_eye": current_region.left_eye,
