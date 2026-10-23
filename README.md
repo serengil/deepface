@@ -50,7 +50,7 @@ DeepFace is a lightweight [face recognition](https://sefiks.com/2018/08/06/deep-
 
 The easiest way to install deepface is to download it from [`PyPI`](https://pypi.org/project/deepface/). It's going to install the library itself and its prerequisites as well.
 
-DeepFace is framework agnostic: it can run on top of **ONNX Runtime** (default), **TensorFlow** or **PyTorch**. Install the `tensorflow` or `pytorch` extra if you prefer one of those frameworks instead.
+DeepFace is framework agnostic: it can run on top of **ONNX Runtime** (default), **TensorFlow** or **PyTorch**. ONNX Runtime keeps the install lightweight (a few hundred MB), whereas TensorFlow and PyTorch typically add one to several GB, so install the `tensorflow` or `pytorch` extra only if you prefer one of those frameworks.
 
 ```shell
 # runs deepface on onnxruntime by default
