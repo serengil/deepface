@@ -40,6 +40,14 @@ class DeepFaceClient(FacialRecognition):
     """
 
     def __init__(self) -> None:
+        logger.warn(
+            "Please note that you built an underperforming DeepFace model - even in its best "
+            "configuration, it scores 69.0% accuracy on LFW whereas human beings score 97.5%. "
+            "It is not recommended for production purposes. "
+            "Consider a better-performing model instead - see "
+            "https://github.com/serengil/deepface/tree/master/benchmarks",
+            show_once=True,
+        )
         # DeepFace requires tf 2.12 or less
         if tf_major == 2 and tf_minor > 12:
             # Ref: https://github.com/serengil/deepface/pull/1079
