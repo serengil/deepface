@@ -32,6 +32,14 @@ class DeepFaceClient(TorchFacialRecognition):
     """
 
     def __init__(self) -> None:
+        logger.warn(
+            "Please note that you built an underperforming DeepFace model - even in its best "
+            "configuration, it scores 69.0% accuracy on LFW whereas human beings score 97.5%. "
+            "It is not recommended for production purposes. "
+            "Consider a better-performing model instead - see "
+            "https://github.com/serengil/deepface/tree/master/benchmarks",
+            show_once=True,
+        )
         self.model_name = "DeepFace"
         self.input_shape = (152, 152)
         self.output_shape = 4096

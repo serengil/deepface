@@ -23,6 +23,14 @@ class DeepIdClient(OnnxFacialRecognition):
     """
 
     def __init__(self) -> None:
+        logger.warn(
+            "Please note that you built an underperforming DeepID model - even in its best "
+            "configuration, it scores 66.5% accuracy on LFW whereas human beings score 97.5%. "
+            "It is not recommended for production purposes. "
+            "Consider a better-performing model instead - see "
+            "https://github.com/serengil/deepface/tree/master/benchmarks",
+            show_once=True,
+        )
         self.model_name = "DeepId"
         self.input_shape = (47, 55)
         self.output_shape = 160
