@@ -90,17 +90,23 @@ def represent(
     """
     resp_objs = []
 
-    model: FacialRecognition = modeling.build_model(
-        task="facial_recognition", model_name=model_name
-    )
-
     # Handle list of image paths or 4D numpy array
+    is_batch = isinstance(img_path, list) or (
+        isinstance(img_path, np.ndarray) and img_path.ndim == 4
+    )
     if isinstance(img_path, list):
         images = img_path
     elif isinstance(img_path, np.ndarray) and img_path.ndim == 4:
         images = [img_path[i] for i in range(img_path.shape[0])]
     else:
         images = [img_path]
+
+    if not images:
+        return []
+
+    model: FacialRecognition = modeling.build_model(
+        task="facial_recognition", model_name=model_name
+    )
 
     batch_images, batch_regions, batch_confidences, batch_indexes = [], [], [], []
 
@@ -205,4 +211,4 @@ def represent(
 
     resp_objs = [resp_objs_dict[idx] for idx in range(len(images))]
 
-    return resp_objs[0] if len(images) == 1 else resp_objs
+    return resp_objs if is_batch else resp_objs[0]
