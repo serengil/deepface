@@ -80,8 +80,8 @@ def resize_image(img: NDArray[Any], target_size: Tuple[int, int]) -> NDArray[Any
     factor = min(factor_0, factor_1)
 
     dsize = (
-        int(img.shape[1] * factor),
-        int(img.shape[0] * factor),
+        max(1, int(img.shape[1] * factor)),
+        max(1, int(img.shape[0] * factor)),
     )
     img = cv2.resize(img, dsize)
 
