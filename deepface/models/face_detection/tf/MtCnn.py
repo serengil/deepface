@@ -9,13 +9,13 @@ from numpy.typing import NDArray
 from deepface.models.Detector import Detector, FacialAreaRegion
 
 # mtcnn is an optional dependency requiring keras, it is imported within __init__ on
-# purpose - deepface may well be running on pytorch
+# purpose - it should not be imported unless this detector is built
 
 
 # pylint: disable=too-few-public-methods
 class MtCnnClient(Detector):
     """
-    Class to cover common face detection functionalitiy for MtCnn backend
+    MtCnn Detector for the tensorflow backend engine from github.com/ipazc/mtcnn
     """
 
     def __init__(self) -> None:

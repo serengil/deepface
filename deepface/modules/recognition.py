@@ -882,7 +882,8 @@ def __serialize_npz(representations: List[Dict[str, Any]]) -> bytes:
 
     # size is not a concern and embeddings hardly compress, uncompressed is the fastest
     sink = io.BytesIO()
-    np.savez(sink, **arrays)
+    # numpy 2 stubs think the arrays may fill its allow_pickle argument
+    np.savez(sink, **arrays)  # type: ignore[arg-type]
     return sink.getvalue()
 
 

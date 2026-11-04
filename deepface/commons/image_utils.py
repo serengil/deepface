@@ -1,7 +1,7 @@
 # built-in dependencies
 import os
 import io
-from typing import Generator, IO, List, Optional, Union, Tuple, cast, Any
+from typing import TYPE_CHECKING, Generator, IO, List, Optional, Union, Tuple, cast, Any
 import hashlib
 import base64
 from pathlib import Path
@@ -11,10 +11,13 @@ import requests  # type: ignore[import-untyped]
 import numpy as np
 from numpy.typing import NDArray
 import cv2
-from werkzeug.datastructures import FileStorage
 
 # project dependencies
 from deepface.modules.exceptions import ImgNotFound, DataTypeError
+
+# werkzeug comes with the api extra only, and it is required here for type hints only
+if TYPE_CHECKING:
+    from werkzeug.datastructures import FileStorage
 
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
@@ -205,7 +208,7 @@ def load_image_from_base64(uri: str) -> NDArray[Any]:
     return cast(NDArray[Any], img_bgr)
 
 
-def load_image_from_file_storage(file: FileStorage) -> NDArray[Any]:
+def load_image_from_file_storage(file: "FileStorage") -> NDArray[Any]:
     """
     Loads an image from a FileStorage object and decodes it into an OpenCV image.
     Args:

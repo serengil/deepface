@@ -11,10 +11,17 @@ from unittest.mock import MagicMock, patch
 # 3rd party dependencies
 import gdown
 import numpy as np
-from flask import Flask
+import pytest
 from packaging import version
 
+# the api is an optional extra, skip these tests when it is not installed
+pytest.importorskip("flask", reason="the api extra is not installed")
+pytest.importorskip("flask_cors", reason="the api extra is not installed")
+
+from flask import Flask  # pylint: disable=wrong-import-position
+
 # project dependencies
+# pylint: disable=wrong-import-position
 from deepface.api.src.app import create_app
 from deepface.api.src.modules.core import routes
 from deepface.commons.logger import Logger

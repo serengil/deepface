@@ -20,8 +20,10 @@ blueprint = Blueprint("routes", __name__)
 
 # pylint: disable=no-else-return, broad-except
 
+# route decorators are untyped for mypy when flask, which comes with the api extra, is missing
 
-@blueprint.route("/")
+
+@blueprint.route("/")  # type: ignore[misc]
 def home() -> str:
     return f"<h1>Welcome to DeepFace API v{__version__}!</h1>"
 
@@ -73,7 +75,7 @@ def extract_image_from_request(img_key: str) -> Union[str, NDArray[Any]]:
     raise ValueError(f"'{img_key}' not found in request in either json or form data")
 
 
-@blueprint.route("/represent", methods=["POST"])
+@blueprint.route("/represent", methods=["POST"])  # type: ignore[misc]
 def represent() -> Tuple[Dict[str, Any], int]:
     # load injected container
     container: Container = blueprint.container  # type: ignore[attr-defined]
@@ -106,7 +108,7 @@ def represent() -> Tuple[Dict[str, Any], int]:
     return obj, status_code
 
 
-@blueprint.route("/verify", methods=["POST"])
+@blueprint.route("/verify", methods=["POST"])  # type: ignore[misc]
 def verify() -> Tuple[Dict[str, Any], int]:
     # load injected container
     container: Container = blueprint.container  # type: ignore[attr-defined]
@@ -143,7 +145,7 @@ def verify() -> Tuple[Dict[str, Any], int]:
     return verification, status_code
 
 
-@blueprint.route("/analyze", methods=["POST"])
+@blueprint.route("/analyze", methods=["POST"])  # type: ignore[misc]
 def analyze() -> Tuple[Dict[str, Any], int]:
     # load injected container
     container: Container = blueprint.container  # type: ignore[attr-defined]
@@ -188,7 +190,7 @@ def analyze() -> Tuple[Dict[str, Any], int]:
     return demographies, status_code
 
 
-@blueprint.route("/register", methods=["POST"])
+@blueprint.route("/register", methods=["POST"])  # type: ignore[misc]
 def register() -> Tuple[Dict[str, Any], int]:
     # load injected variables and container
     variables: Variables = blueprint.variables  # type: ignore[attr-defined]
@@ -234,7 +236,7 @@ def register() -> Tuple[Dict[str, Any], int]:
     return result, status_code
 
 
-@blueprint.route("/search", methods=["POST"])
+@blueprint.route("/search", methods=["POST"])  # type: ignore[misc]
 def search() -> Tuple[Dict[str, Any], int]:
     # load injected variables and container
     variables: Variables = blueprint.variables  # type: ignore[attr-defined]
@@ -276,7 +278,7 @@ def search() -> Tuple[Dict[str, Any], int]:
     )
 
 
-@blueprint.route("/build/index", methods=["POST"])
+@blueprint.route("/build/index", methods=["POST"])  # type: ignore[misc]
 def build_index() -> Tuple[Dict[str, Any], int]:
     # load injected variables and container
     variables: Variables = blueprint.variables  # type: ignore[attr-defined]

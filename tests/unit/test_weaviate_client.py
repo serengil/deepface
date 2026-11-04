@@ -10,6 +10,7 @@ import pytest
 
 # project dependencies
 from deepface import __version__
+from deepface.commons.logger import Logger
 from deepface.modules.database import weaviate as weaviate_module
 from deepface.modules.database.weaviate import WeaviateClient, resolve_connection_details
 
@@ -493,7 +494,11 @@ def test_env_api_key_does_not_conflict_with_auth(connectors, monkeypatch):
 )
 def test_credentials_over_plain_http_warn(connectors, monkeypatch, url, warned):
     warnings = []
-    monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
+    # patch the class, not the singleton instance - undoing an instance patch leaves the
+    # original bound method on the instance, which then shadows later class level patches
+    monkeypatch.setattr(
+        Logger, "warn", lambda self, message, show_once=False: warnings.append(message)
+    )
     details = url if isinstance(url, dict) else {"url": url}
     WeaviateClient({**details, "api_key": "s3cr3t-value"})
     assert bool(warnings) is warned
@@ -503,14 +508,18 @@ def test_credentials_over_plain_http_warn(connectors, monkeypatch, url, warned):
 
 def test_no_warning_without_credentials(connectors, monkeypatch):
     warnings = []
-    monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
+    monkeypatch.setattr(
+        Logger, "warn", lambda self, message, show_once=False: warnings.append(message)
+    )
     WeaviateClient("http://weaviate.internal:8080")
     assert not warnings
 
 
 def test_insecure_grpc_warning_names_the_grpc_host(connectors, monkeypatch):
     warnings = []
-    monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
+    monkeypatch.setattr(
+        Logger, "warn", lambda self, message, show_once=False: warnings.append(message)
+    )
     WeaviateClient(
         {
             "url": "https://weaviate.internal",
@@ -768,7 +777,9 @@ def test_quantization_requires_server_version(quantization, server_version):
 
 def test_existing_collection_with_other_quantizer_warns(monkeypatch):
     warnings = []
-    monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
+    monkeypatch.setattr(
+        Logger, "warn", lambda self, message, show_once=False: warnings.append(message)
+    )
     bq = type("_BQConfig", (), {})()
     client, _, _ = build_client(connection_details={"quantization": "rq"}, quantizer=bq)
     client.initialize_database(model_name="Facenet", detector_backend="opencv")
@@ -778,7 +789,9 @@ def test_existing_collection_with_other_quantizer_warns(monkeypatch):
 
 def test_existing_collection_with_same_quantizer_does_not_warn(monkeypatch):
     warnings = []
-    monkeypatch.setattr(weaviate_module.logger, "warn", warnings.append)
+    monkeypatch.setattr(
+        Logger, "warn", lambda self, message, show_once=False: warnings.append(message)
+    )
     rq = type("_RQConfig", (), {"bits": 8})()
     client, _, _ = build_client(connection_details={"quantization": "rq-8"}, quantizer=rq)
     client.initialize_database(model_name="Facenet", detector_backend="opencv")

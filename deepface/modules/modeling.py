@@ -7,11 +7,14 @@ from typing import TYPE_CHECKING, Any, Dict, Final, TypedDict
 # project dependencies
 from deepface.commons import backend_utils
 from deepface.commons.backend_utils import ONNX, PYTORCH, TENSORFLOW
+from deepface.commons.logger import Logger
 from deepface.modules.exceptions import UnimplementedError
 
 # Models are not imported here but built lazily, on demand. Importing them eagerly would
 # import tensorflow, pytorch and onnxruntime all, whereas deepface runs on one of them - see
 # deepface.commons.backend_utils for the way the backend engine is picked.
+
+logger = Logger()
 
 if TYPE_CHECKING:
     cached_models: Dict[str, Dict[str, Any]] = {}
@@ -110,26 +113,43 @@ AVAILABLE_MODELS: Final[AvailableModels] = {
     # face detectors bring their own dependencies - opencv, dlib, mediapipe, ultralytics
     # or retina-face - so they are offered whichever backend engine deepface runs on
     "face_detector": {
-        "opencv": {ANY: "deepface.models.face_detection.OpenCv.OpenCvClient"},
-        "mtcnn": {ANY: "deepface.models.face_detection.MtCnn.MtCnnClient"},
-        "ssd": {ANY: "deepface.models.face_detection.Ssd.SsdClient"},
-        "dlib": {ANY: "deepface.models.face_detection.Dlib.DlibClient"},
-        "retinaface": {ANY: "deepface.models.face_detection.RetinaFace.RetinaFaceClient"},
-        "mediapipe": {ANY: "deepface.models.face_detection.MediaPipe.MediaPipeClient"},
-        "yolov8n": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV8n"},
-        "yolov8m": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV8m"},
-        "yolov8l": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV8l"},
-        "yolov11n": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV11n"},
-        "yolov11s": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV11s"},
-        "yolov11m": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV11m"},
-        "yolov11l": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV11l"},
-        "yolov12n": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV12n"},
-        "yolov12s": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV12s"},
-        "yolov12m": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV12m"},
-        "yolov12l": {ANY: "deepface.models.face_detection.Yolo.YoloDetectorClientV12l"},
-        "yunet": {ANY: "deepface.models.face_detection.YuNet.YuNetClient"},
-        "fastmtcnn": {ANY: "deepface.models.face_detection.FastMtCnn.FastMtCnnClient"},
-        "centerface": {ANY: "deepface.models.face_detection.CenterFace.CenterFaceClient"},
+        "opencv": {ANY: "deepface.models.face_detection.opencv.OpenCv.OpenCvClient"},
+        "mtcnn": {
+            TENSORFLOW: "deepface.models.face_detection.tf.MtCnn.MtCnnClient",
+            PYTORCH: "deepface.models.face_detection.pytorch.MtCnn.MtCnnClient",
+            ONNX: "deepface.models.face_detection.onnx.MtCnn.MtCnnClient",
+        },
+        "ssd": {ANY: "deepface.models.face_detection.opencv.Ssd.SsdClient"},
+        "dlib": {ANY: "deepface.models.face_detection.external.Dlib.DlibClient"},
+        "retinaface": {ANY: "deepface.models.face_detection.external.RetinaFace.RetinaFaceClient"},
+        "mediapipe": {ANY: "deepface.models.face_detection.external.MediaPipe.MediaPipeClient"},
+        "yolov8n": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV8n"},
+        "yolov8m": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV8m"},
+        "yolov8l": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV8l"},
+        "yolov11n": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11n"},
+        "yolov11s": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11s"},
+        "yolov11m": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11m"},
+        "yolov11l": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11l"},
+        "yolov12n": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12n"},
+        "yolov12s": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12s"},
+        "yolov12m": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12m"},
+        "yolov12l": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12l"},
+        "yunet": {ANY: "deepface.models.face_detection.onnx.YuNet.YuNetClient"},
+        # deprecated name of mtcnn on pytorch, see DEPRECATED_MODELS
+        "fastmtcnn": {ANY: "deepface.models.face_detection.pytorch.MtCnn.MtCnnClient"},
+        "centerface": {ANY: "deepface.models.face_detection.onnx.CenterFace.CenterFaceClient"},
+    },
+}
+
+# model names kept for backward compatibility, and the warning shown when they are used
+DEPRECATED_MODELS: Dict[str, Dict[str, str]] = {
+    "face_detector": {
+        "fastmtcnn": (
+            "fastmtcnn detector naming will be deprecated in a future release. "
+            "Please use the mtcnn detector with the pytorch backend engine instead - "
+            f"you may enforce it with the {backend_utils.BACKEND_ENGINE_ENV_VAR}=pytorch "
+            "environment variable."
+        ),
     },
 }
 
@@ -150,6 +170,10 @@ def get_model_class(task: str, model_name: str) -> type:
     sources = AVAILABLE_MODELS[task].get(model_name)  # type: ignore[literal-required]
     if not sources:
         raise UnimplementedError(f"Invalid model_name passed - {task}/{model_name}")
+
+    deprecation_message = DEPRECATED_MODELS.get(task, {}).get(model_name)
+    if deprecation_message:
+        logger.warn(deprecation_message, show_once=True)
 
     backend = backend_utils.get_backend_engine()
     source = sources.get(backend) or sources.get(ANY)
@@ -177,7 +201,7 @@ def build_model(task: str, model_name: str) -> Any:
                 ArcFace, SFace and GhostFaceNet for face recognition
             - Age, Gender, Emotion, Race for facial attributes
             - opencv, mtcnn, ssd, dlib, retinaface, mediapipe, yolov8, 'yolov11n',
-                'yolov11s', 'yolov11m', yunet, fastmtcnn or centerface for face detectors
+                'yolov11s', 'yolov11m', yunet or centerface for face detectors
             - Fasnet for spoofing
     Returns:
             built model class
