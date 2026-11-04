@@ -9,13 +9,13 @@ from numpy.typing import NDArray
 from deepface.models.Detector import Detector, FacialAreaRegion
 
 
-class FastMtCnnClient(Detector):
+class MtCnnClient(Detector):
     """
-    Fast MtCnn Detector from github.com/timesler/facenet-pytorch
+    MtCnn Detector for the pytorch backend engine from github.com/timesler/facenet-pytorch
     """
 
     def __init__(self) -> None:
-        """Initialize FastMtCnnClient and build the model."""
+        """Initialize MtCnnClient and build the model."""
         self.model = self.build_model()
 
     def detect_faces(self, img: NDArray[Any]) -> List[FacialAreaRegion]:
@@ -63,22 +63,22 @@ class FastMtCnnClient(Detector):
 
     def build_model(self) -> Any:
         """
-        Build a fast mtcnn face detector model
+        Build a mtcnn face detector model
         Returns:
             model (Any)
         """
         # this is not a must dependency. do not import it in the global level.
         try:
-            from facenet_pytorch import MTCNN as fast_mtcnn
+            from facenet_pytorch import MTCNN
             import torch
         except ModuleNotFoundError as e:
             raise ImportError(
-                "FastMtcnn is an optional detector, ensure the library is installed. "
+                "MtCnn is an optional detector, ensure the library is installed. "
                 "Please install using 'pip install facenet-pytorch'"
             ) from e
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        face_detector = fast_mtcnn(device=device)
+        face_detector = MTCNN(device=device)
 
         return face_detector
 

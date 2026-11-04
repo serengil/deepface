@@ -1,4 +1,10 @@
 import pytest
+
+# the api is an optional extra, skip these tests when it is not installed
+pytest.importorskip("flask", reason="the api extra is not installed")
+pytest.importorskip("flask_cors", reason="the api extra is not installed")
+
+# pylint: disable=wrong-import-position
 from flask import Flask
 
 from deepface.api.src.app import create_app

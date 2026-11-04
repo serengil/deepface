@@ -77,7 +77,7 @@ def build_model(model_name: str, task: str = "facial_recognition") -> Any:
             - opencv, mtcnn, ssd, dlib, retinaface, mediapipe,
                 yolov8n, yolov8m, yolov8l, yolov11n, yolov11s, yolov11m,
                 yolov11l, yolov12n, yolov12s, yolov12m, yolov12l,
-                yunet, fastmtcnn or centerface for face detectors
+                yunet or centerface for face detectors
             - Fasnet for spoofing
         task (str): facial_recognition, facial_attribute, face_detector, spoofing
             default is facial_recognition

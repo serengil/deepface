@@ -5,7 +5,7 @@ import os
 import pytest
 
 # project dependencies
-from deepface.models.face_detection import OpenCv
+from deepface.models.face_detection.opencv import OpenCv
 from deepface.commons.logger import Logger
 
 logger = Logger()

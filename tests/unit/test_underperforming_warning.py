@@ -6,6 +6,8 @@ import pytest
 
 from deepface.commons.logger import Logger
 
+FRAMEWORKS = {"tf": "tensorflow", "pytorch": "torch"}
+
 
 @pytest.mark.parametrize("backend", ["tf", "pytorch", "onnx"])
 @pytest.mark.parametrize(
@@ -17,6 +19,10 @@ from deepface.commons.logger import Logger
     ],
 )
 def test_underperforming_warning(monkeypatch, backend, module_name, class_name, model_name):
+    # tensorflow and pytorch clients import their framework, which may not be installed
+    if backend in FRAMEWORKS:
+        pytest.importorskip(FRAMEWORKS[backend])
+
     module = importlib.import_module(
         f"deepface.models.facial_recognition.{backend}.{module_name}"
     )

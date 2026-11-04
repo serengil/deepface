@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-from deepface.models.face_detection.CenterFace import CenterFace, CenterFaceClient
+from deepface.models.face_detection.onnx.CenterFace import CenterFace, CenterFaceClient
 from deepface.modules import detection
 from deepface.modules.exceptions import FaceNotDetected
 

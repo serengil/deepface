@@ -11,7 +11,7 @@ import cv2
 from deepface.modules import modeling
 from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
 from deepface.commons import image_utils
-from deepface.models.face_detection import OpenCv
+from deepface.models.face_detection.opencv import OpenCv
 from deepface.modules.exceptions import FaceNotDetected
 from deepface.modules.exceptions import UnimplementedError, ImgNotFound
 from deepface.commons.logger import Logger

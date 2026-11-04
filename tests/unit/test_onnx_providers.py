@@ -45,7 +45,11 @@ def test_unavailable_provider_is_skipped(monkeypatch):
 
 def test_warns_when_no_requested_accelerator_is_installed(monkeypatch):
     warnings = []
-    monkeypatch.setattr(onnx_utils.logger, "warn", warnings.append)
+    # patch the class, not the singleton instance - undoing an instance patch leaves the
+    # original bound method on the instance, which then shadows later class level patches
+    monkeypatch.setattr(
+        Logger, "warn", lambda self, message, show_once=False: warnings.append(message)
+    )
 
     # default providers must not warn on a cpu only onnxruntime
     monkeypatch.delenv(onnx_utils.PROVIDERS_ENV_VAR, raising=False)

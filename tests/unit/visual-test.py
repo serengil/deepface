@@ -29,7 +29,6 @@ detector_backends = [
     "ssd",
     "dlib",
     "mtcnn",
-    "fastmtcnn",
     # "mediapipe", # crashed in mac
     "retinaface",
     "yunet",

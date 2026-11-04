@@ -130,8 +130,9 @@ def load_model_weights(model: Any, weight_file: str) -> Any:
 
 
 # where the weight urls of each model live. a model is skipped when it is not
-# implemented for the backend engine in use, and the file name is the last part of the
-# url unless it is overwritten here
+# implemented for the backend engine in use, or when its implementation for that engine
+# does not download any weights. the file name is the last part of the url unless it is
+# overwritten here
 WEIGHT_SOURCES = [
     # facial recognition
     ("facial_recognition", "VGG-Face", ["WEIGHTS_URL"]),
@@ -155,6 +156,8 @@ WEIGHT_SOURCES = [
     ("face_detector", "yunet", ["WEIGHTS_URL"]),
     ("face_detector", "dlib", ["WEIGHTS_URL"]),
     ("face_detector", "centerface", ["WEIGHTS_URL"]),
+    # mtcnn downloads weights on onnx only, its tensorflow and pytorch packages bring theirs
+    ("face_detector", "mtcnn", ["PNET_WEIGHTS_URL", "RNET_WEIGHTS_URL", "ONET_WEIGHTS_URL"]),
 ]
 
 # models whose weight file is not named after its url
@@ -176,7 +179,7 @@ def download_all_models_in_one_shot() -> None:
     import importlib
     from deepface.commons import backend_utils
     from deepface.modules import modeling
-    from deepface.models.face_detection.Yolo import YoloModel
+    from deepface.models.face_detection.pytorch.Yolo import YoloModel
 
     backend = backend_utils.get_backend_engine()
 
@@ -193,7 +196,10 @@ def download_all_models_in_one_shot() -> None:
         file_name = WEIGHT_FILE_NAMES.get((task, model_name), {}).get(backend)
 
         for attribute in attributes:
-            url = getattr(module, attribute)
+            url = getattr(module, attribute, None)
+            if url is None:
+                logger.info(f"{task}/{model_name} downloads no weights on {backend}, skipping it")
+                continue
             WEIGHTS.append({"filename": file_name, "url": url} if file_name else url)
 
     # yolo detectors keep their file names next to their urls

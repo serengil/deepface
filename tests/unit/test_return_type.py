@@ -41,7 +41,9 @@ def test_pandas_return_type_raises_if_pandas_missing(pandas_missing):
 
 def test_pandas_deprecation_warned_once(monkeypatch):
     warnings = []
-    monkeypatch.setattr(package_utils.logger, "dump_log", warnings.append)
+    # patch the class, not the singleton instance - undoing an instance patch leaves the
+    # original bound method on the instance, which then shadows later class level patches
+    monkeypatch.setattr(Logger, "dump_log", lambda self, message: warnings.append(message))
     monkeypatch.setattr(package_utils.logger, "_shown_warnings", set())
 
     # explicit return types must not warn
@@ -59,7 +61,7 @@ def test_pandas_deprecation_warned_once(monkeypatch):
 
 def test_pandas_deprecation_not_warned_if_pandas_missing(monkeypatch, pandas_missing):
     warnings = []
-    monkeypatch.setattr(package_utils.logger, "dump_log", warnings.append)
+    monkeypatch.setattr(Logger, "dump_log", lambda self, message: warnings.append(message))
     monkeypatch.setattr(package_utils.logger, "_shown_warnings", set())
 
     package_utils.resolve_dataframe_return_type(None)

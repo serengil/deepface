@@ -58,7 +58,7 @@ RUN if [ "$BACKEND" = "tensorflow" ]; then \
         pip uninstall -y sympy mpmath; \
     elif [ "$BACKEND" = "pytorch" ]; then \
         grep -vE "^(tensorflow|keras|mtcnn)==" /app/requirements_local.txt > /app/requirements_local_notf.txt && \
-        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt torch==2.1.2 --extra-index-url https://download.pytorch.org/whl/cpu; \
+        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt torch==2.1.2 facenet-pytorch==2.5.3 --extra-index-url https://download.pytorch.org/whl/cpu; \
     elif [ "$BACKEND" = "onnx" ]; then \
         grep -vE "^(tensorflow|keras|mtcnn)==" /app/requirements_local.txt > /app/requirements_local_notf.txt && \
         pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local_notf.txt && \

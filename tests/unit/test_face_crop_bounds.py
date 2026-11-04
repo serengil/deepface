@@ -7,9 +7,9 @@ import numpy as np
 import pytest
 
 from deepface.models.Detector import FacialAreaRegion
-from deepface.models.face_detection.MtCnn import MtCnnClient
-from deepface.models.face_detection.OpenCv import OpenCvClient
-from deepface.models.face_detection.Ssd import SsdClient
+from deepface.models.face_detection.tf.MtCnn import MtCnnClient
+from deepface.models.face_detection.opencv.OpenCv import OpenCvClient
+from deepface.models.face_detection.opencv.Ssd import SsdClient
 from deepface.modules import detection
 
 
