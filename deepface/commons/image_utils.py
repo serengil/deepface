@@ -141,9 +141,10 @@ def load_image(
 
     # image must be a file on the system then
 
-    # image name must have english characters
+    # Read Unicode paths with Python: OpenCV's filename handling is platform-dependent.
     if not img.isascii():
-        raise ValueError(f"Input image must not have non-english characters - {img}")
+        with open(img, "rb") as img_file:
+            return load_image_from_io_object(img_file), img
 
     img_obj_bgr = cv2.imread(img)
     # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
