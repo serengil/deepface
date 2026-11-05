@@ -6,7 +6,7 @@ import hashlib
 import posixpath
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional, cast
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, quote
 
 # 3rd party dependencies
 import numpy as np
@@ -219,7 +219,7 @@ class FtpFileStore(FileStore):
     def __uri(self, path: str) -> str:
         # identities do not carry credentials
         port = "" if self.port == 21 else f":{self.port}"
-        return f"ftp://{self.host}{port}{path}"
+        return f"ftp://{self.host}{port}{quote(path, safe='/')}"
 
     def __walk(self, ftp: ftplib.FTP, directory: str) -> List[str]:
         try:
