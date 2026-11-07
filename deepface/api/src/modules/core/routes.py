@@ -28,6 +28,27 @@ def home() -> str:
     return f"<h1>Welcome to DeepFace API v{__version__}!</h1>"
 
 
+def read_options() -> Dict[str, Any]:
+    raw_options = request.get_json() if request.is_json else request.form.to_dict()
+    if not isinstance(raw_options, dict):
+        raise ValueError("Expected a JSON object with named options")
+    options: Dict[str, Any] = raw_options
+
+    for key in ("align", "enforce_detection", "anti_spoofing", "l2_normalize", "similarity_search"):
+        if key not in options:
+            continue
+        value = options[key]
+        if isinstance(value, str):
+            value = value.strip().lower()
+        if value in (True, "true", "1"):
+            options[key] = True
+        elif value in (False, "false", "0"):
+            options[key] = False
+        else:
+            raise ValueError(f"Expected a boolean for '{key}'")
+    return options
+
+
 def extract_image_from_request(img_key: str) -> Union[str, NDArray[Any]]:
     """
     Extracts an image from the request either from json or a multipart/form-data file.
@@ -82,9 +103,10 @@ def represent() -> Tuple[Dict[str, Any], int]:
     if not container.auth_service.validate(request.headers):
         return {"message": "Invalid or missing authentication token"}, 401
 
-    input_args = (request.is_json and request.get_json()) or (
-        request.form and request.form.to_dict()
-    )
+    try:
+        input_args = read_options()
+    except ValueError as err:
+        return {"exception": str(err)}, 400
 
     try:
         img = extract_image_from_request("img")
@@ -97,9 +119,9 @@ def represent() -> Tuple[Dict[str, Any], int]:
         img_path=img,
         model_name=input_args.get("model_name", "VGG-Face"),
         detector_backend=input_args.get("detector_backend", "opencv"),
-        enforce_detection=bool(input_args.get("enforce_detection", True)),
-        align=bool(input_args.get("align", True)),
-        anti_spoofing=bool(input_args.get("anti_spoofing", False)),
+        enforce_detection=input_args.get("enforce_detection", True),
+        align=input_args.get("align", True),
+        anti_spoofing=input_args.get("anti_spoofing", False),
         max_faces=int(max_faces) if max_faces is not None else None,
     )
 
@@ -115,9 +137,10 @@ def verify() -> Tuple[Dict[str, Any], int]:
     if not container.auth_service.validate(request.headers):
         return {"message": "Invalid or missing authentication token"}, 401
 
-    input_args = (request.is_json and request.get_json()) or (
-        request.form and request.form.to_dict()
-    )
+    try:
+        input_args = read_options()
+    except ValueError as err:
+        return {"exception": str(err)}, 400
 
     try:
         img1 = extract_image_from_request("img1")
@@ -135,9 +158,9 @@ def verify() -> Tuple[Dict[str, Any], int]:
         model_name=input_args.get("model_name", "VGG-Face"),
         detector_backend=input_args.get("detector_backend", "opencv"),
         distance_metric=input_args.get("distance_metric", "cosine"),
-        align=bool(input_args.get("align", True)),
-        enforce_detection=bool(input_args.get("enforce_detection", True)),
-        anti_spoofing=bool(input_args.get("anti_spoofing", False)),
+        align=input_args.get("align", True),
+        enforce_detection=input_args.get("enforce_detection", True),
+        anti_spoofing=input_args.get("anti_spoofing", False),
     )
 
     logger.debug(verification)
@@ -152,9 +175,10 @@ def analyze() -> Tuple[Dict[str, Any], int]:
     if not container.auth_service.validate(request.headers):
         return {"message": "Invalid or missing authentication token"}, 401
 
-    input_args = (request.is_json and request.get_json()) or (
-        request.form and request.form.to_dict()
-    )
+    try:
+        input_args = read_options()
+    except ValueError as err:
+        return {"exception": str(err)}, 400
 
     try:
         img = extract_image_from_request("img")
@@ -180,9 +204,9 @@ def analyze() -> Tuple[Dict[str, Any], int]:
         img_path=img,
         actions=actions,
         detector_backend=input_args.get("detector_backend", "opencv"),
-        enforce_detection=bool(input_args.get("enforce_detection", True)),
-        align=bool(input_args.get("align", True)),
-        anti_spoofing=bool(input_args.get("anti_spoofing", False)),
+        enforce_detection=input_args.get("enforce_detection", True),
+        align=input_args.get("align", True),
+        anti_spoofing=input_args.get("anti_spoofing", False),
     )
 
     logger.debug(demographies)
@@ -204,9 +228,10 @@ def register() -> Tuple[Dict[str, Any], int]:
             " environment variables"
         }, 500
 
-    input_args = (request.is_json and request.get_json()) or (
-        request.form and request.form.to_dict()
-    )
+    try:
+        input_args = read_options()
+    except ValueError as err:
+        return {"exception": str(err)}, 400
 
     try:
         img = extract_image_from_request("img")
@@ -218,12 +243,12 @@ def register() -> Tuple[Dict[str, Any], int]:
         img_name=input_args.get("img_name"),
         model_name=input_args.get("model_name", "VGG-Face"),
         detector_backend=input_args.get("detector_backend", "opencv"),
-        enforce_detection=bool(input_args.get("enforce_detection", True)),
-        align=bool(input_args.get("align", True)),
-        l2_normalize=bool(input_args.get("l2_normalize", False)),
+        enforce_detection=input_args.get("enforce_detection", True),
+        align=input_args.get("align", True),
+        l2_normalize=input_args.get("l2_normalize", False),
         expand_percentage=int(input_args.get("expand_percentage", 0)),
         normalization=input_args.get("normalization", "base"),
-        anti_spoofing=bool(input_args.get("anti_spoofing", False)),
+        anti_spoofing=input_args.get("anti_spoofing", False),
         database_type=variables.database_type,
         connection_details=variables.conection_details,
     )
@@ -250,9 +275,10 @@ def search() -> Tuple[Dict[str, Any], int]:
             " environment variables"
         }, 500
 
-    input_args = (request.is_json and request.get_json()) or (
-        request.form and request.form.to_dict()
-    )
+    try:
+        input_args = read_options()
+    except ValueError as err:
+        return {"exception": str(err)}, 400
 
     try:
         img = extract_image_from_request("img")
@@ -263,17 +289,17 @@ def search() -> Tuple[Dict[str, Any], int]:
         img=img,
         model_name=input_args.get("model_name", "VGG-Face"),
         detector_backend=input_args.get("detector_backend", "opencv"),
-        enforce_detection=bool(input_args.get("enforce_detection", True)),
-        align=bool(input_args.get("align", True)),
+        enforce_detection=input_args.get("enforce_detection", True),
+        align=input_args.get("align", True),
         distance_metric=input_args.get("distance_metric", "cosine"),
-        l2_normalize=bool(input_args.get("l2_normalize", False)),
+        l2_normalize=input_args.get("l2_normalize", False),
         database_type=variables.database_type,
         connection_details=variables.conection_details,
         search_method=input_args.get("search_method", "exact"),
         expand_percentage=int(input_args.get("expand_percentage", 0)),
         normalization=input_args.get("normalization", "base"),
-        anti_spoofing=bool(input_args.get("anti_spoofing", False)),
-        similarity_search=bool(input_args.get("similarity_search", False)),
+        anti_spoofing=input_args.get("anti_spoofing", False),
+        similarity_search=input_args.get("similarity_search", False),
         k=int(input_args.get("k", 5)) if input_args.get("k") is not None else None,
     )
 
@@ -292,15 +318,16 @@ def build_index() -> Tuple[Dict[str, Any], int]:
             " environment variables"
         }, 500
 
-    input_args = (request.is_json and request.get_json()) or (
-        request.form and request.form.to_dict()
-    )
+    try:
+        input_args = read_options()
+    except ValueError as err:
+        return {"exception": str(err)}, 400
 
     return service.build_index(
         model_name=input_args.get("model_name", "VGG-Face"),
         detector_backend=input_args.get("detector_backend", "opencv"),
-        align=bool(input_args.get("align", True)),
-        l2_normalize=bool(input_args.get("l2_normalize", False)),
+        align=input_args.get("align", True),
+        l2_normalize=input_args.get("l2_normalize", False),
         database_type=variables.database_type,
         connection_details=variables.conection_details,
     )
