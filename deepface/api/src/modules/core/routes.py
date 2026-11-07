@@ -29,9 +29,10 @@ def home() -> str:
 
 
 def read_options() -> Dict[str, Any]:
-    options = request.get_json() if request.is_json else request.form.to_dict()
-    if not isinstance(options, dict):
+    raw_options = request.get_json() if request.is_json else request.form.to_dict()
+    if not isinstance(raw_options, dict):
         raise ValueError("Expected a JSON object with named options")
+    options: Dict[str, Any] = raw_options
 
     for key in ("align", "enforce_detection", "anti_spoofing", "l2_normalize", "similarity_search"):
         if key not in options:
