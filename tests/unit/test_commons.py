@@ -1,5 +1,8 @@
 # built-in dependencies
+import bz2
 import os
+import zipfile
+from pathlib import Path
 from unittest import mock
 from unittest.mock import MagicMock
 import pytest
@@ -278,96 +281,6 @@ class TestDownloadWeightFeature:
 
         logger.info("✅ test download weights while all sources fail is done")
 
-    def test_download_weights_if_necessary_zip(
-        self,
-        mock_open: MagicMock,
-        mock_zipfile: MagicMock,
-        mock_bz2file: MagicMock,
-        mock_makedirs: MagicMock,
-        mock_isfile: MagicMock,
-        mock_gdown: MagicMock,
-        mock_get_deepface_home: MagicMock,
-    ):
-        # Setting up the mock return values
-        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
-        mock_isfile.return_value = False  # Simulate file not being present
-
-        file_name = "model_weights.h5"
-        source_url = "http://example.com/model_weights.zip"
-        compress_type = "zip"
-
-        # Call the function
-        result = weight_utils.download_weights_if_necessary(file_name, source_url, compress_type)
-
-        # Assert that gdown.download was called with the correct parameters
-        mock_gdown.assert_called_once_with(
-            source_url,
-            os.path.normpath("/mock/home/.deepface/weights/model_weights.h5.zip"),
-            quiet=False,
-        )
-
-        # Simulate the unzipping behavior
-        mock_zipfile.return_value.__enter__.return_value.extractall = mock.Mock()
-
-        # Call the function again to simulate unzipping
-        with mock_zipfile.return_value as zip_ref:
-            zip_ref.extractall(os.path.normpath("/mock/home/.deepface/weights"))
-
-        # Assert that the zip file was unzipped correctly
-        zip_ref.extractall.assert_called_once_with(os.path.normpath("/mock/home/.deepface/weights"))
-
-        # Assert that the return value is correct
-        assert result == os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
-
-        logger.info("✅ test download weights for zip is done")
-
-    def test_download_weights_if_necessary_bz2(
-        self,
-        mock_open: MagicMock,
-        mock_zipfile: MagicMock,
-        mock_bz2file: MagicMock,
-        mock_makedirs: MagicMock,
-        mock_isfile: MagicMock,
-        mock_gdown: MagicMock,
-        mock_get_deepface_home: MagicMock,
-    ):
-
-        # Setting up the mock return values
-        mock_get_deepface_home.return_value = os.path.normpath("/mock/home")
-        mock_isfile.return_value = False  # Simulate file not being present
-
-        file_name = "model_weights.h5"
-        source_url = "http://example.com/model_weights.bz2"
-        compress_type = "bz2"
-
-        # Simulate the download success
-        mock_gdown.return_value = None
-
-        # Simulate the BZ2 file reading behavior
-        mock_bz2file.return_value.__enter__.return_value.read.return_value = b"fake data"
-
-        # Call the function under test
-        result = weight_utils.download_weights_if_necessary(file_name, source_url, compress_type)
-
-        # Assert that gdown.download was called with the correct parameters
-        mock_gdown.assert_called_once_with(
-            source_url,
-            os.path.normpath("/mock/home/.deepface/weights/model_weights.h5.bz2"),
-            quiet=False,
-        )
-
-        # Ensure open() is called once for writing the decompressed data
-        mock_open.assert_called_once_with(
-            os.path.normpath("/mock/home/.deepface/weights/model_weights.h5"), "wb"
-        )
-
-        # TODO: find a way to check write is called
-
-        # Assert that the return value is correct
-        assert result == os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
-
-        logger.info("✅ test download weights for bz2 is done")
-
     def test_download_weights_for_non_supported_compress_type(
         self,
         mock_open: MagicMock,
@@ -386,3 +299,48 @@ class TestDownloadWeightFeature:
         with pytest.raises(ValueError, match="unimplemented compress type - 7z"):
             _ = weight_utils.download_weights_if_necessary(file_name, source_url, compress_type)
         logger.info("✅ test download weights for unsupported compress type is done")
+
+@pytest.mark.parametrize("compression", ["zip", "bz2"])
+def test_compressed_weight_fallback(tmp_path, monkeypatch, compression):
+    monkeypatch.setenv("DEEPFACE_HOME", str(tmp_path))
+    folder_utils.initialize_folder()
+    weight = tmp_path / ".deepface" / "weights" / "model.bin"
+    cached_peer = weight.with_name("other.bin")
+    cached_peer.write_bytes(b"other model")
+    sources = []
+
+    def download(url, output, quiet):
+        sources.append(url)
+        assert not weight.exists()
+        if url == "primary":
+            Path(output).write_bytes(b"truncated archive")
+        elif compression == "bz2":
+            Path(output).write_bytes(bz2.compress(b"real model"))
+        else:
+            with zipfile.ZipFile(output, "w") as archive:
+                archive.writestr(weight.name, b"real model")
+                archive.writestr(cached_peer.name, b"unrelated data")
+
+    monkeypatch.setattr(weight_utils.gdown, "download", download)
+    result = weight_utils.download_weights_if_necessary(
+        weight.name, ["primary", "backup"], compression
+    )
+    assert Path(result).read_bytes() == b"real model"
+    assert sources == ["primary", "backup"]
+    assert cached_peer.read_bytes() == b"other model"
+    assert set(weight.parent.iterdir()) == {weight, cached_peer}
+
+
+def test_zip_missing_requested_weight(tmp_path, monkeypatch):
+    monkeypatch.setenv("DEEPFACE_HOME", str(tmp_path))
+    folder_utils.initialize_folder()
+    weight = tmp_path / ".deepface" / "weights" / "model.bin"
+
+    def download(url, output, quiet):
+        with zipfile.ZipFile(output, "w") as archive:
+            archive.writestr("different.bin", b"other model")
+
+    monkeypatch.setattr(weight_utils.gdown, "download", download)
+    with pytest.raises(ValueError, match="while downloading model.bin"):
+        weight_utils.download_weights_if_necessary(weight.name, "source", "zip")
+    assert list(weight.parent.iterdir()) == []
