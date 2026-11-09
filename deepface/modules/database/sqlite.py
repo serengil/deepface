@@ -97,6 +97,7 @@ class SqliteClient(Database):
         """
         Ensure that the `embeddings` and `embeddings_index` tables exist.
         """
+        pending_transaction = self.conn.in_transaction
         cur = self.conn.cursor()
         try:
             cur.execute(CREATE_EMBEDDINGS_TABLE_SQL)
@@ -106,7 +107,8 @@ class SqliteClient(Database):
             logger.debug("Ensured 'embeddings_index' table either exists or was created in SQLite.")
         finally:
             cur.close()
-        self.conn.commit()
+        if not pending_transaction:
+            self.conn.commit()
 
     def close(self) -> None:
         """Close the database connection."""
@@ -199,6 +201,8 @@ class SqliteClient(Database):
         Returns:
             int: Number of embeddings inserted.
         """
+        if batch_size <= 0:
+            raise ValueError("batch_size must be positive.")
         if not embeddings:
             raise ValueError("No embeddings to insert.")
 
@@ -275,6 +279,9 @@ class SqliteClient(Database):
         l2_normalized: bool,
         batch_size: int = 1000,
     ) -> List[Dict[str, Any]]:
+
+        if batch_size <= 0:
+            raise ValueError("batch_size must be positive.")
 
         query = """
             SELECT id, img_name, embedding
@@ -368,7 +375,7 @@ class SqliteClient(Database):
         if not ids:
             return []
 
-        results: List[Dict[str, Any]] = []
+        results: Dict[int, Dict[str, Any]] = {}
 
         cur = self.conn.cursor()
         try:
@@ -377,18 +384,12 @@ class SqliteClient(Database):
                 placeholders = ", ".join("?" for _ in chunk)
                 # we may return the face in the future
                 cur.execute(
-                    f"SELECT id, img_name FROM embeddings WHERE id IN ({placeholders})"
-                    " ORDER BY id ASC;",
+                    f"SELECT id, img_name FROM embeddings WHERE id IN ({placeholders});",
                     chunk,
                 )
                 for r in cur.fetchall():
-                    results.append(
-                        {
-                            "id": r[0],
-                            "img_name": r[1],
-                        }
-                    )
+                    results[r[0]] = {"id": r[0], "img_name": r[1]}
         finally:
             cur.close()
 
-        return results
+        return [results[row_id] for row_id in sorted(results)]
