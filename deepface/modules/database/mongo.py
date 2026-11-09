@@ -223,6 +223,15 @@ class MongoDbClient(Database):
                 result = self.embeddings.insert_many(docs[i : i + batch_size], ordered=False)
                 inserted += len(result.inserted_ids)
         except (self.DuplicateKeyError, self.BulkWriteError) as e:
+            if isinstance(e, self.BulkWriteError):
+                details = e.details or {}
+                errors = details.get("writeErrors", [])
+                if (
+                    details.get("writeConcernErrors")
+                    or not errors
+                    or any(error.get("code") != 11000 for error in errors)
+                ):
+                    raise
             if len(docs) == 1:
                 logger.warn("Duplicate detected for extracted face and embedding.")
                 return inserted
