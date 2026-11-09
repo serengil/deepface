@@ -1,5 +1,7 @@
 # built-in dependencies
 import os
+import shutil
+import tempfile
 from typing import Any, Dict, List, Optional, Union
 import zipfile
 import bz2
@@ -49,21 +51,35 @@ def download_weights_if_necessary(
     if len(source_urls) == 0:
         raise ValueError(f"no source url is given to download {file_name}")
 
-    output = target_file if compress_type is None else f"{target_file}.{compress_type}"
-
     last_err: Optional[Exception] = None
     for idx, url in enumerate(source_urls):
         try:
             logger.info(f"🔗 {file_name} will be downloaded from {url} to {target_file}...")
             ensure_source_is_reachable(url)
-            gdown.download(url, output, quiet=False)
+            if compress_type is None:
+                gdown.download(url, target_file, quiet=False)
+            else:
+                # Stage each attempt on the cache filesystem. Readers should only
+                # see a complete weight, including when a mirror serves a bad archive.
+                with tempfile.TemporaryDirectory(dir=os.path.dirname(target_file)) as staging:
+                    archive = os.path.join(staging, "download")
+                    extracted = os.path.join(staging, "weight")
+                    gdown.download(url, archive, quiet=False)
+                    with open(extracted, "wb") as dest:
+                        if compress_type == "zip":
+                            with zipfile.ZipFile(archive) as zipped, zipped.open(file_name) as src:
+                                shutil.copyfileobj(src, dest)
+                        else:
+                            with bz2.open(archive, "rb") as compressed:
+                                shutil.copyfileobj(compressed, dest)
+                    os.replace(extracted, target_file)
             last_err = None
             break
         except Exception as err:  # pylint: disable=broad-except
             last_err = err
             # do not let a partially downloaded file be used by the next attempt
-            if os.path.isfile(output):
-                os.remove(output)
+            if compress_type is None and os.path.isfile(target_file):
+                os.remove(target_file)
             if idx < len(source_urls) - 1:
                 logger.warn(
                     f"Downloading {file_name} from {url} failed ({err}). "
@@ -76,18 +92,6 @@ def download_weights_if_necessary(
             f"{', '.join(source_urls)}. "
             f"Consider downloading it manually to {target_file}."
         ) from last_err
-
-    # uncompress downloaded file
-    if compress_type == "zip":
-        with zipfile.ZipFile(f"{target_file}.zip", "r") as zip_ref:
-            zip_ref.extractall(os.path.join(home, ".deepface/weights"))
-            logger.info(f"{target_file}.zip unzipped")
-    elif compress_type == "bz2":
-        bz2file = bz2.BZ2File(f"{target_file}.bz2")
-        data = bz2file.read()
-        with open(target_file, "wb") as f:
-            f.write(data)
-        logger.info(f"{target_file}.bz2 unzipped")
 
     return target_file
 
