@@ -187,12 +187,18 @@ class FtpFileStore(FileStore):
     def __init__(self, uri: str) -> None:
         parsed = urlparse(uri)
         if not parsed.hostname:
-            raise ValueError(f"Host is missing in {uri}")
+            raise ValueError("FTP host is missing")
 
         self.host = parsed.hostname
         self.port = parsed.port or 21
-        self.user = unquote(parsed.username or os.environ.get("DEEPFACE_FTP_USER") or "")
-        self.password = unquote(parsed.password or os.environ.get("DEEPFACE_FTP_PASSWORD") or "")
+        self.user = (
+            unquote(parsed.username) if parsed.username else os.environ.get("DEEPFACE_FTP_USER", "")
+        )
+        self.password = (
+            unquote(parsed.password)
+            if parsed.password
+            else os.environ.get("DEEPFACE_FTP_PASSWORD", "")
+        )
         self.root = "/" + unquote(parsed.path).strip("/")
         self.ftp: Optional[ftplib.FTP] = None
 
@@ -202,24 +208,32 @@ class FtpFileStore(FileStore):
                 self.ftp.voidcmd("NOOP")
                 return self.ftp
             except ftplib.all_errors:
+                self.ftp.close()
                 self.ftp = None
 
         ftp = ftplib.FTP()
-        ftp.connect(host=self.host, port=self.port, timeout=60)
-        ftp.login(user=self.user, passwd=self.password)
+        try:
+            ftp.connect(host=self.host, port=self.port, timeout=60)
+            ftp.login(user=self.user, passwd=self.password)
+        except ftplib.all_errors:
+            ftp.close()
+            raise
         self.ftp = ftp
         return ftp
 
     def __path(self, path: str) -> str:
         parsed = urlparse(path)
-        if parsed.scheme != "ftp" or parsed.hostname != self.host:
-            raise ValueError(f"{path} is not in ftp server {self.host}")
+        if (parsed.scheme, parsed.hostname, parsed.port or 21) != ("ftp", self.host, self.port):
+            raise ValueError(
+                f"FTP path must refer to the configured server {self.host}:{self.port}"
+            )
         return unquote(parsed.path)
 
     def __uri(self, path: str) -> str:
         # identities do not carry credentials
         port = "" if self.port == 21 else f":{self.port}"
-        return f"ftp://{self.host}{port}{quote(path, safe='/')}"
+        host = f"[{self.host}]" if ":" in self.host else self.host
+        return f"ftp://{host}{port}{quote(path, safe='/')}"
 
     def __walk(self, ftp: ftplib.FTP, directory: str) -> List[str]:
         try:
@@ -282,8 +296,10 @@ class FtpFileStore(FileStore):
         try:
             ftp.size(self.__path(path))
             return True
-        except ftplib.error_perm:
-            return False
+        except ftplib.error_perm as err:
+            if str(err).startswith("550"):
+                return False
+            raise
 
     def read_bytes(self, path: str) -> bytes:
         buffer = io.BytesIO()
