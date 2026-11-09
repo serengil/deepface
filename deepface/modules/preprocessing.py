@@ -105,10 +105,11 @@ def resize_image(img: NDArray[Any], target_size: Tuple[int, int]) -> NDArray[Any
 
     # make it 4-dimensional how ML models expect. this is what keras'
     # img_to_array does, deepface does not import keras for it anymore
+    scale_bytes = img.dtype == np.uint8
     img = np.asarray(img, dtype=np.float32)
     img = np.expand_dims(img, axis=0)
 
-    if img.max() > 1:
-        img = (img.astype(np.float32) / 255.0).astype(np.float32)
+    if scale_bytes or img.max() > 1:
+        img = img / 255.0
 
     return img

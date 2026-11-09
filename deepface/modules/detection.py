@@ -195,7 +195,7 @@ def extract_faces(
                 )
 
         if normalize_face:
-            if current_img.max() > 1:
+            if current_img.dtype == np.uint8 or current_img.max() > 1:
                 current_img = current_img / 255  # normalize input in [0, 1]
 
         # cast to int for flask, and do final checks for borders
