@@ -51,15 +51,7 @@ def list_images(path: str) -> List[str]:
     Returns:
         images (list): list of exact image paths
     """
-    images = []
-    for r, _, f in os.walk(path):
-        for file in f:
-            if os.path.splitext(file)[1].lower() in IMAGE_EXTS:
-                exact_path = os.path.join(r, file)
-                with open(exact_path, "rb") as img_file:  # lazy: reads only the header
-                    if detect_image_format(img_file.read(8)) in IMAGE_FORMATS:
-                        images.append(exact_path)
-    return images
+    return list(yield_images(path))
 
 
 def yield_images(path: str) -> Generator[str, None, None]:
@@ -72,11 +64,19 @@ def yield_images(path: str) -> Generator[str, None, None]:
     """
     for r, _, f in os.walk(path):
         for file in f:
-            if os.path.splitext(file)[1].lower() in IMAGE_EXTS:
-                exact_path = os.path.join(r, file)
-                with open(exact_path, "rb") as img_file:  # lazy: reads only the header
-                    if detect_image_format(img_file.read(8)) in IMAGE_FORMATS:
-                        yield exact_path
+            if os.path.splitext(file)[1].lower() not in IMAGE_EXTS:
+                continue
+            exact_path = os.path.join(r, file)
+            if not os.path.isfile(exact_path):
+                continue
+            try:
+                with open(exact_path, "rb") as img_file:
+                    image_format = detect_image_format(img_file.read(8))
+            except FileNotFoundError:
+                # The entry may have disappeared since os.walk listed it.
+                continue
+            if image_format in IMAGE_FORMATS:
+                yield exact_path
 
 
 def find_image_hash(file_path: str) -> str:
@@ -150,8 +150,9 @@ def load_image(
             return load_image_from_io_object(img_file), img
 
     img_obj_bgr = cv2.imread(img)
-    # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
-    return cast(NDArray[Any], img_obj_bgr), img
+    if img_obj_bgr is None:
+        raise ValueError(f"Failed to decode image {img}")
+    return img_obj_bgr, img
 
 
 def load_image_from_io_object(obj: IO[bytes]) -> NDArray[Any]:
@@ -163,21 +164,19 @@ def load_image_from_io_object(obj: IO[bytes]) -> NDArray[Any]:
         img (np.ndarray): The decoded image as a numpy array (OpenCV format).
     """
     try:
-        _ = obj.seek(0)
+        obj.seek(0)
     except (AttributeError, TypeError, io.UnsupportedOperation):
-        seekable = False
-        obj = io.BytesIO(obj.read())
-    else:
-        seekable = True
-    try:
-        nparr = np.frombuffer(obj.read(), np.uint8)
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        if img is None:
-            raise ValueError("Failed to decode image")
-        return img
-    finally:
-        if not seekable:
-            obj.close()
+        pass
+    return _decode_image(obj.read())
+
+
+def _decode_image(contents: bytes) -> NDArray[Any]:
+    """Decode image bytes in BGR format, including a clear error for an empty body."""
+    data = np.frombuffer(contents, np.uint8)
+    image = cv2.imdecode(data, cv2.IMREAD_COLOR) if data.size else None
+    if image is None:
+        raise ValueError("Failed to decode image")
+    return image
 
 
 def load_image_from_base64(uri: str) -> NDArray[Any]:
@@ -203,10 +202,7 @@ def load_image_from_base64(uri: str) -> NDArray[Any]:
     if file_type not in IMAGE_FORMATS:
         raise DataTypeError("Input image can be jpg or png, but it is neither")
 
-    nparr = np.frombuffer(decoded_bytes, np.uint8)
-    img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    return cast(NDArray[Any], img_bgr)
+    return _decode_image(decoded_bytes)
 
 
 def load_image_from_file_storage(file: "FileStorage") -> NDArray[Any]:
@@ -217,11 +213,7 @@ def load_image_from_file_storage(file: "FileStorage") -> NDArray[Any]:
     Returns:
         img (np.ndarray): The decoded image as a numpy array (OpenCV format).
     """
-    file_bytes = np.frombuffer(file.read(), np.uint8)
-    image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-    if image is None:
-        raise ValueError("Failed to decode image")
-    return image
+    return _decode_image(file.read())
 
 
 def load_image_from_web(url: str) -> NDArray[Any]:
@@ -234,6 +226,6 @@ def load_image_from_web(url: str) -> NDArray[Any]:
     """
     with requests.get(url, stream=True, timeout=60) as response:
         response.raise_for_status()
-        image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
-        img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-    return cast(NDArray[Any], img)
+        # Decode HTTP content encodings (e.g. gzip) before decoding the image.
+        response.raw.decode_content = True
+        return _decode_image(response.raw.read())
