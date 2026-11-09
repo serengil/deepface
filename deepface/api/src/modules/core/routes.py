@@ -28,7 +28,7 @@ def home() -> str:
     return f"<h1>Welcome to DeepFace API v{__version__}!</h1>"
 
 
-def read_options() -> Dict[str, Any]:
+def read_options(*integer_fields: str) -> Dict[str, Any]:
     raw_options = request.get_json() if request.is_json else request.form.to_dict()
     if not isinstance(raw_options, dict):
         raise ValueError("Expected a JSON object with named options")
@@ -46,6 +46,16 @@ def read_options() -> Dict[str, Any]:
             options[key] = False
         else:
             raise ValueError(f"Expected a boolean for '{key}'")
+    for key in integer_fields:
+        if key not in options or (options[key] is None and key in ("max_faces", "k")):
+            continue
+        value = options[key]
+        if isinstance(value, bool) or not isinstance(value, (int, str)):
+            raise ValueError(f"Expected an integer for '{key}'")
+        try:
+            options[key] = int(value)
+        except ValueError as err:
+            raise ValueError(f"Expected an integer for '{key}'") from err
     return options
 
 
@@ -104,7 +114,7 @@ def represent() -> Tuple[Dict[str, Any], int]:
         return {"message": "Invalid or missing authentication token"}, 401
 
     try:
-        input_args = read_options()
+        input_args = read_options("max_faces")
     except ValueError as err:
         return {"exception": str(err)}, 400
 
@@ -113,8 +123,6 @@ def represent() -> Tuple[Dict[str, Any], int]:
     except Exception as err:
         return {"exception": str(err)}, 400
 
-    max_faces = input_args.get("max_faces")
-
     obj, status_code = service.represent(
         img_path=img,
         model_name=input_args.get("model_name", "VGG-Face"),
@@ -122,7 +130,7 @@ def represent() -> Tuple[Dict[str, Any], int]:
         enforce_detection=input_args.get("enforce_detection", True),
         align=input_args.get("align", True),
         anti_spoofing=input_args.get("anti_spoofing", False),
-        max_faces=int(max_faces) if max_faces is not None else None,
+        max_faces=input_args.get("max_faces"),
     )
 
     logger.debug(obj)
@@ -229,7 +237,7 @@ def register() -> Tuple[Dict[str, Any], int]:
         }, 500
 
     try:
-        input_args = read_options()
+        input_args = read_options("expand_percentage")
     except ValueError as err:
         return {"exception": str(err)}, 400
 
@@ -246,7 +254,7 @@ def register() -> Tuple[Dict[str, Any], int]:
         enforce_detection=input_args.get("enforce_detection", True),
         align=input_args.get("align", True),
         l2_normalize=input_args.get("l2_normalize", False),
-        expand_percentage=int(input_args.get("expand_percentage", 0)),
+        expand_percentage=input_args.get("expand_percentage", 0),
         normalization=input_args.get("normalization", "base"),
         anti_spoofing=input_args.get("anti_spoofing", False),
         database_type=variables.database_type,
@@ -276,7 +284,7 @@ def search() -> Tuple[Dict[str, Any], int]:
         }, 500
 
     try:
-        input_args = read_options()
+        input_args = read_options("expand_percentage", "k")
     except ValueError as err:
         return {"exception": str(err)}, 400
 
@@ -296,11 +304,11 @@ def search() -> Tuple[Dict[str, Any], int]:
         database_type=variables.database_type,
         connection_details=variables.conection_details,
         search_method=input_args.get("search_method", "exact"),
-        expand_percentage=int(input_args.get("expand_percentage", 0)),
+        expand_percentage=input_args.get("expand_percentage", 0),
         normalization=input_args.get("normalization", "base"),
         anti_spoofing=input_args.get("anti_spoofing", False),
         similarity_search=input_args.get("similarity_search", False),
-        k=int(input_args.get("k", 5)) if input_args.get("k") is not None else None,
+        k=input_args.get("k"),
     )
 
 
