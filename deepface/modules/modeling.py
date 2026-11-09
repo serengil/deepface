@@ -2,7 +2,8 @@ from __future__ import annotations
 
 # built-in dependencies
 import importlib
-from typing import TYPE_CHECKING, Any, Dict, Final, TypedDict
+from threading import RLock
+from typing import Any, Dict, Final, TypedDict
 
 # project dependencies
 from deepface.commons import backend_utils
@@ -16,8 +17,7 @@ from deepface.modules.exceptions import UnimplementedError
 
 logger = Logger()
 
-if TYPE_CHECKING:
-    cached_models: Dict[str, Dict[str, Any]] = {}
+_MODEL_LOCK = RLock()
 
 # a model that does not depend on a backend engine, e.g. an opencv or an onnx one,
 # is registered with this key and is available whichever engine deepface runs on
@@ -191,6 +191,9 @@ def get_model_class(task: str, model_name: str) -> type:
     return getattr(module, class_name)  # type: ignore[no-any-return]
 
 
+cached_models: Dict[str, Dict[str, Any]] = {task: {} for task in AVAILABLE_MODELS}
+
+
 def build_model(task: str, model_name: str) -> Any:
     """
     This function loads a pre-trained models as singletonish way
@@ -207,17 +210,14 @@ def build_model(task: str, model_name: str) -> Any:
             built model class
     """
 
-    # singleton design pattern
-    global cached_models
-
     if task not in AVAILABLE_MODELS.keys():
         raise UnimplementedError(f"unimplemented task - {task}")
 
-    if "cached_models" not in globals():
-        cached_models = {current_task: {} for current_task in AVAILABLE_MODELS.keys()}
-
-    # pylint: disable=possibly-used-before-assignment
     if cached_models[task].get(model_name) is None:
-        cached_models[task][model_name] = get_model_class(task=task, model_name=model_name)()
+        with _MODEL_LOCK:
+            if cached_models[task].get(model_name) is None:
+                cached_models[task][model_name] = get_model_class(
+                    task=task, model_name=model_name
+                )()
 
     return cached_models[task][model_name]
