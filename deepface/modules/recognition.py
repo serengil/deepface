@@ -324,7 +324,7 @@ def find(
     source_objs: List[Dict[str, Any]] = cast(
         List[Dict[str, Any]],
         detection.extract_faces(
-            img_path=img_path,
+            img_path=img,
             detector_backend=detector_backend,
             grayscale=False,
             enforce_detection=enforce_detection,
