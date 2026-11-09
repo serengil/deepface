@@ -3,7 +3,7 @@ import os
 import json
 import struct
 import hashlib
-from typing import Any, Dict, Optional, List, Union
+from typing import Any, Dict, Optional, List, Set, Union
 
 # 3rd party dependencies
 import numpy as np
@@ -15,9 +15,6 @@ from deepface.modules.exceptions import DuplicateEntryError
 from deepface.commons.logger import Logger
 
 logger = Logger()
-
-
-_SCHEMA_CHECKED: Dict[str, bool] = {}
 
 
 # pylint: disable=too-many-positional-arguments
@@ -47,6 +44,7 @@ class PGVectorClient(Database):
 
         self.psycopg = psycopg
         self.errors = errors
+        self._checked_tables: Set[str] = set()
 
         if connection is not None:
             self.conn = connection
@@ -69,11 +67,8 @@ class PGVectorClient(Database):
 
         # is pgvector extension installed?
         try:
-            if not _SCHEMA_CHECKED.get("pgvector_extension"):
-                with self.conn.cursor() as cur:
-                    cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
-                    self.conn.commit()
-                    _SCHEMA_CHECKED["pgvector_extension"] = True
+            with self.conn.transaction(), self.conn.cursor() as cur:
+                cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
         except Exception as e:
             raise ValueError(
                 "Ensure pgvector extension is installed properly by running: "
@@ -100,16 +95,15 @@ class PGVectorClient(Database):
         aligned = kwargs.get("aligned", True)
         l2_normalized = kwargs.get("l2_normalized", False)
 
-        model = build_model(task="facial_recognition", model_name=model_name)
-        dimensions = model.output_shape
-
         table_name = self.__generate_table_name(
             model_name, detector_backend, aligned, l2_normalized
         )
 
-        if _SCHEMA_CHECKED.get(table_name):
+        if table_name in self._checked_tables:
             logger.debug("PostgreSQL schema already checked, skipping.")
             return
+
+        dimensions = build_model(task="facial_recognition", model_name=model_name).output_shape
 
         create_table_stmt = f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
@@ -132,27 +126,21 @@ class PGVectorClient(Database):
         index_name = f"{table_name}_{'cosine' if l2_normalized else 'euclidean'}_idx"
 
         create_index_stmt = f"""
-            CREATE INDEX {index_name}
+            CREATE INDEX IF NOT EXISTS {index_name}
             ON {table_name}
             USING hnsw (embedding {'vector_cosine_ops' if l2_normalized else 'vector_l2_ops'});
         """
 
+        owns_transaction = (
+            self.conn.info.transaction_status == self.psycopg.pq.TransactionStatus.IDLE
+        )
         try:
-            with self.conn.cursor() as cur:
+            with self.conn.transaction(), self.conn.cursor() as cur:
                 # create table if not exists
                 cur.execute(create_table_stmt)
 
-                # create index if not exists
-                try:
-                    cur.execute(create_index_stmt)
-                except Exception as e:  # pylint: disable=broad-except
-                    # unfortunately if not exists is not supported for index creation
-                    if getattr(e, "sqlstate", None) == "42P07":
-                        self.conn.rollback()
-                    else:
-                        raise
+                cur.execute(create_index_stmt)
 
-            self.conn.commit()
         except Exception as e:
             if getattr(e, "sqlstate", None) == "42501":  # permission denied
                 raise ValueError(
@@ -163,7 +151,8 @@ class PGVectorClient(Database):
                 ) from e
             raise
 
-        _SCHEMA_CHECKED[table_name] = True
+        if owns_transaction:
+            self._checked_tables.add(table_name)
 
     def insert_embeddings(self, embeddings: List[Dict[str, Any]], batch_size: int = 100) -> int:
         """
