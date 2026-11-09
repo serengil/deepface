@@ -142,16 +142,11 @@ class PineconeClient(Database):
         """
         out: List[Dict[str, Any]] = []
 
-        self.initialize_database(
-            model_name=model_name,
-            detector_backend=detector_backend,
-            aligned=aligned,
-            l2_normalized=l2_normalized,
-        )
-
         index_name = self.__generate_index_name(
             model_name, detector_backend, aligned, l2_normalized
         )
+        if not self.client.has_index(index_name):
+            return out
 
         index = self.client.Index(index_name)
         results = index.query(
@@ -238,16 +233,11 @@ class PineconeClient(Database):
         """
         out: List[Dict[str, Any]] = []
 
-        self.initialize_database(
-            model_name=model_name,
-            detector_backend=detector_backend,
-            aligned=aligned,
-            l2_normalized=l2_normalized,
-        )
-
         index_name = self.__generate_index_name(
             model_name, detector_backend, aligned, l2_normalized
         )
+        if not self.client.has_index(index_name):
+            return out
 
         index = self.client.Index(index_name)
 
