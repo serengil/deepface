@@ -81,12 +81,9 @@ class SsdClient(Detector):
 
         target_size = (300, 300)
 
-        original_size = img.shape
+        height, width = img.shape[:2]
 
         current_img = cv2.resize(img, target_size)
-
-        aspect_ratio_x = original_size[1] / target_size[1]
-        aspect_ratio_y = original_size[0] / target_size[0]
 
         imageBlob = cv2.dnn.blobFromImage(image=current_img)
 
@@ -108,10 +105,7 @@ class SsdClient(Detector):
             (faces[:, ssd_labels.is_face] == 1) & (faces[:, ssd_labels.confidence] >= 0.90)
         ]
         margins = [ssd_labels.left, ssd_labels.top, ssd_labels.right, ssd_labels.bottom]
-        faces[:, margins] = np.int32(faces[:, margins] * 300)
-        faces[:, margins] = np.int32(
-            faces[:, margins] * [aspect_ratio_x, aspect_ratio_y, aspect_ratio_x, aspect_ratio_y]
-        )
+        faces[:, margins] = np.int32(faces[:, margins] * [width, height, width, height])
         faces[:, [ssd_labels.right, ssd_labels.bottom]] -= faces[
             :, [ssd_labels.left, ssd_labels.top]
         ]
