@@ -1,8 +1,11 @@
 # built-in dependencies
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union, TYPE_CHECKING
 
 # project dependencies
 from deepface.commons.logger import Logger
+
+if TYPE_CHECKING:
+    from werkzeug.datastructures import Headers
 
 logger = Logger()
 
@@ -21,7 +24,7 @@ class AuthService:
             return parts[1]
         return None
 
-    def validate(self, headers: Dict[str, Any]) -> bool:
+    def validate(self, headers: Union[Dict[str, Any], "Headers"]) -> bool:
         if not self.is_auth_enabled:
             logger.debug("Authentication is disabled. Skipping token validation.")
             return True
