@@ -38,7 +38,8 @@ def download_weights_if_necessary(
     """
     home = folder_utils.get_deepface_home()
 
-    target_file = os.path.normpath(os.path.join(home, ".deepface/weights", file_name))
+    weights_dir = os.path.normpath(os.path.join(home, ".deepface/weights"))
+    target_file = os.path.normpath(os.path.join(weights_dir, file_name))
 
     if os.path.isfile(target_file):
         logger.debug(f"{file_name} is already available at {target_file}")
@@ -61,17 +62,17 @@ def download_weights_if_necessary(
             else:
                 # Stage each attempt on the cache filesystem. Readers should only
                 # see a complete weight, including when a mirror serves a bad archive.
-                with tempfile.TemporaryDirectory(dir=os.path.dirname(target_file)) as staging:
+                with tempfile.TemporaryDirectory(dir=weights_dir) as staging:
                     archive = os.path.join(staging, "download")
                     extracted = os.path.join(staging, "weight")
                     gdown.download(url, archive, quiet=False)
-                    with open(extracted, "wb") as dest:
-                        if compress_type == "zip":
-                            with zipfile.ZipFile(archive) as zipped, zipped.open(file_name) as src:
-                                shutil.copyfileobj(src, dest)
-                        else:
-                            with bz2.open(archive, "rb") as compressed:
-                                shutil.copyfileobj(compressed, dest)
+                    if compress_type == "zip":
+                        extracted = _extract_zip_weights(archive, staging, weights_dir, file_name)
+                    elif compress_type == "bz2":
+                        with bz2.open(archive, "rb") as compressed, open(extracted, "wb") as dest:
+                            shutil.copyfileobj(compressed, dest)
+                    else:
+                        raise UnimplementedError(f"unimplemented compress type - {compress_type}")
                     os.replace(extracted, target_file)
             last_err = None
             break
@@ -94,6 +95,29 @@ def download_weights_if_necessary(
         ) from last_err
 
     return target_file
+
+
+def _extract_zip_weights(archive: str, staging: str, weights_dir: str, file_name: str) -> str:
+    """Extract every ZIP member before publishing any files to the weights cache."""
+    extracted_dir = os.path.join(staging, "extracted")
+    with zipfile.ZipFile(archive) as zipped:
+        zipped.extractall(extracted_dir)
+
+    extracted = os.path.normpath(os.path.join(extracted_dir, file_name))
+    if not os.path.isfile(extracted):
+        raise ValueError(f"{file_name} is missing from the downloaded ZIP archive")
+
+    # Retain extractall's multi-file behavior, including replacement of existing
+    # members, but only after the entire archive has decompressed successfully.
+    # The caller publishes the requested weight last, once its companion files exist.
+    for directory, _, files in os.walk(extracted_dir):
+        target_dir = os.path.join(weights_dir, os.path.relpath(directory, extracted_dir))
+        os.makedirs(target_dir, exist_ok=True)
+        for name in files:
+            source = os.path.normpath(os.path.join(directory, name))
+            if not os.path.samefile(source, extracted):
+                os.replace(source, os.path.join(target_dir, name))
+    return extracted
 
 
 def ensure_source_is_reachable(url: str) -> None:

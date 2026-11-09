@@ -300,6 +300,66 @@ class TestDownloadWeightFeature:
             _ = weight_utils.download_weights_if_necessary(file_name, source_url, compress_type)
         logger.info("✅ test download weights for unsupported compress type is done")
 
+
+def test_download_weights_if_necessary_zip(tmp_path, monkeypatch):
+    monkeypatch.setenv("DEEPFACE_HOME", str(tmp_path))
+    folder_utils.initialize_folder()
+    weight = tmp_path / ".deepface" / "weights" / "model_weights.h5"
+    companion = weight.with_name("companion.bin")
+    companion.write_bytes(b"old companion")
+    nested = weight.parent / "metadata" / "config.json"
+
+    def download(url, output, quiet):
+        assert not weight.exists()
+        with zipfile.ZipFile(output, "w") as archive:
+            archive.writestr("metadata/", b"")
+            archive.writestr("metadata/config.json", b"{}")
+            archive.writestr(companion.name, b"new companion")
+            archive.writestr(weight.name, b"model weights")
+
+    mocked_download = mock.Mock(side_effect=download)
+    monkeypatch.setattr(weight_utils.gdown, "download", mocked_download)
+    replacements = []
+    replace = os.replace
+
+    def publish(source, target):
+        replacements.append(Path(target))
+        replace(source, target)
+
+    monkeypatch.setattr(weight_utils.os, "replace", publish)
+    source_url = "http://example.com/model_weights.zip"
+    result = weight_utils.download_weights_if_necessary(weight.name, source_url, "zip")
+
+    assert Path(result) == weight
+    assert weight.read_bytes() == b"model weights"
+    assert companion.read_bytes() == b"new companion"
+    assert nested.read_bytes() == b"{}"
+    assert replacements[-1] == weight
+    assert set(replacements) == {weight, companion, nested}
+    mocked_download.assert_called_once_with(source_url, mock.ANY, quiet=False)
+    assert set(weight.parent.iterdir()) == {weight, companion, nested.parent}
+
+
+def test_download_weights_if_necessary_bz2(tmp_path, monkeypatch):
+    monkeypatch.setenv("DEEPFACE_HOME", str(tmp_path))
+    folder_utils.initialize_folder()
+    weight = tmp_path / ".deepface" / "weights" / "model_weights.h5"
+
+    def download(url, output, quiet):
+        assert not weight.exists()
+        Path(output).write_bytes(bz2.compress(b"model weights"))
+
+    mocked_download = mock.Mock(side_effect=download)
+    monkeypatch.setattr(weight_utils.gdown, "download", mocked_download)
+    source_url = "http://example.com/model_weights.bz2"
+    result = weight_utils.download_weights_if_necessary(weight.name, source_url, "bz2")
+
+    assert Path(result) == weight
+    assert weight.read_bytes() == b"model weights"
+    mocked_download.assert_called_once_with(source_url, mock.ANY, quiet=False)
+    assert list(weight.parent.iterdir()) == [weight]
+
+
 @pytest.mark.parametrize("compression", ["zip", "bz2"])
 def test_compressed_weight_fallback(tmp_path, monkeypatch, compression):
     monkeypatch.setenv("DEEPFACE_HOME", str(tmp_path))
@@ -319,7 +379,6 @@ def test_compressed_weight_fallback(tmp_path, monkeypatch, compression):
         else:
             with zipfile.ZipFile(output, "w") as archive:
                 archive.writestr(weight.name, b"real model")
-                archive.writestr(cached_peer.name, b"unrelated data")
 
     monkeypatch.setattr(weight_utils.gdown, "download", download)
     result = weight_utils.download_weights_if_necessary(
@@ -329,6 +388,38 @@ def test_compressed_weight_fallback(tmp_path, monkeypatch, compression):
     assert sources == ["primary", "backup"]
     assert cached_peer.read_bytes() == b"other model"
     assert set(weight.parent.iterdir()) == {weight, cached_peer}
+
+
+def test_zip_corrupt_companion_retries_before_publishing(tmp_path, monkeypatch):
+    monkeypatch.setenv("DEEPFACE_HOME", str(tmp_path))
+    folder_utils.initialize_folder()
+    weight = tmp_path / ".deepface" / "weights" / "model.bin"
+    companion = weight.with_name("companion.bin")
+    companion.write_bytes(b"cached companion")
+    sources = []
+
+    def download(url, output, quiet):
+        sources.append(url)
+        # A failure in a later member must not publish the already extracted files.
+        assert not weight.exists()
+        assert companion.read_bytes() == b"cached companion"
+        with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_STORED) as archive:
+            archive.writestr(companion.name, b"updated companion")
+            archive.writestr(weight.name, b"real model")
+            archive.writestr("last.bin", b"last member data")
+        if url == "primary":
+            data = Path(output).read_bytes()
+            Path(output).write_bytes(data.replace(b"last member data", b"bad! member data"))
+
+    monkeypatch.setattr(weight_utils.gdown, "download", download)
+    result = weight_utils.download_weights_if_necessary(weight.name, ["primary", "backup"], "zip")
+
+    assert Path(result).read_bytes() == b"real model"
+    assert sources == ["primary", "backup"]
+    assert companion.read_bytes() == b"updated companion"
+    last_member = weight.with_name("last.bin")
+    assert last_member.read_bytes() == b"last member data"
+    assert set(weight.parent.iterdir()) == {weight, companion, last_member}
 
 
 def test_zip_missing_requested_weight(tmp_path, monkeypatch):
