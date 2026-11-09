@@ -5,6 +5,7 @@ import ftplib
 import hashlib
 import posixpath
 from abc import ABC, abstractmethod
+from contextlib import closing
 from typing import Any, List, Optional, cast
 from urllib.parse import urlparse, unquote, quote
 
@@ -124,14 +125,17 @@ class S3FileStore(FileStore):
             raise ValueError(f"Bucket name is missing in {uri}")
 
         self.bucket = parsed.netloc
-        self.prefix = parsed.path.strip("/")
+        self.prefix = self.__key(uri).rstrip("/")
         self.client = boto3.client("s3")
 
     def __key(self, path: str) -> str:
-        parsed = urlparse(path)
-        if parsed.scheme != "s3" or parsed.netloc != self.bucket:
+        # S3 identities use raw object keys. A query or fragment delimiter after
+        # the bucket, or another leading slash, belongs to the key.
+        scheme, _, location = path.partition("://")
+        bucket, _, key = location.partition("/")
+        if scheme.lower() != "s3" or bucket != self.bucket:
             raise ValueError(f"{path} is not in bucket {self.bucket}")
-        return parsed.path.lstrip("/")
+        return key
 
     def validate(self) -> None:
         try:
@@ -171,7 +175,8 @@ class S3FileStore(FileStore):
 
     def read_bytes(self, path: str) -> bytes:
         obj = self.client.get_object(Bucket=self.bucket, Key=self.__key(path))
-        return cast(bytes, obj["Body"].read())
+        with closing(obj["Body"]) as body:
+            return cast(bytes, body.read())
 
     def write_bytes(self, path: str, data: bytes) -> None:
         self.client.put_object(Bucket=self.bucket, Key=self.__key(path), Body=data)
