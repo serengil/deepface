@@ -671,9 +671,9 @@ def __find_as_dicts(
 
     target_embeddings = []
     source_regions = []
-    target_thresholds = []
-
-    target_threshold = threshold if similarity_search is False else np.inf
+    target_threshold = (
+        verification.find_threshold(model_name, distance_metric) if threshold is None else threshold
+    )
 
     for source_obj in source_objs:
         if anti_spoofing and not source_obj.get("is_real", True):
@@ -696,10 +696,8 @@ def __find_as_dicts(
 
         target_embeddings.append(target_representation)
         source_regions.append(source_region)
-        target_thresholds.append(target_threshold)
 
     target_embeddings_np = np.array(target_embeddings)  # (M, D)
-    target_thresholds_np = np.array(target_thresholds)  # (M,)
     source_regions_arr = {
         "source_x": np.array([region["x"] for region in source_regions]),
         "source_y": np.array([region["y"] for region in source_regions]),
@@ -716,7 +714,6 @@ def __find_as_dicts(
     resp_obj = []
     for i in range(len(target_embeddings_np)):
         target_distances = distances[i]  # (N,)
-        target_threshold = target_thresholds_np[i]
 
         N = embeddings.shape[0]
         result_data = dict(data)
@@ -731,7 +728,7 @@ def __find_as_dicts(
             }
         )
 
-        mask = target_distances <= target_threshold
+        mask = target_distances <= (np.inf if similarity_search else target_threshold)
 
         filtered_data = {key: value[mask] for key, value in result_data.items()}
 
