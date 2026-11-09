@@ -1132,7 +1132,12 @@ def __assign_attributes(
         for face in faces:
             analysis = analyses_by_area.get(area_key(face["facial_area"]))
             # skip detector reports the whole image with different dummy areas
-            if analysis is None and len(faces) == 1 and len(analyses) == 1:
+            if (
+                analysis is None
+                and detector_backend == "skip"
+                and len(faces) == 1
+                and len(analyses) == 1
+            ):
                 analysis = analyses[0]
             if analysis is None:
                 logger.warn(
