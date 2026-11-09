@@ -66,11 +66,18 @@ def download_weights_if_necessary(
                     archive = os.path.join(staging, "download")
                     extracted = os.path.join(staging, "weight")
                     gdown.download(url, archive, quiet=False)
+
+                    # uncompress downloaded file
                     if compress_type == "zip":
-                        extracted = _extract_zip_weights(archive, staging, weights_dir, file_name)
+                        extracted_dir = os.path.join(staging, "extracted")
+                        with zipfile.ZipFile(archive, "r") as zip_ref:
+                            zip_ref.extractall(extracted_dir)
+                        extracted = _publish_zip_weights(extracted_dir, weights_dir, file_name)
+                        logger.info(f"{target_file}.zip unzipped")
                     elif compress_type == "bz2":
-                        with bz2.open(archive, "rb") as compressed, open(extracted, "wb") as dest:
-                            shutil.copyfileobj(compressed, dest)
+                        with bz2.BZ2File(archive, "rb") as bz2file, open(extracted, "wb") as f:
+                            shutil.copyfileobj(bz2file, f)
+                        logger.info(f"{target_file}.bz2 unzipped")
                     else:
                         raise UnimplementedError(f"unimplemented compress type - {compress_type}")
                     os.replace(extracted, target_file)
@@ -97,12 +104,8 @@ def download_weights_if_necessary(
     return target_file
 
 
-def _extract_zip_weights(archive: str, staging: str, weights_dir: str, file_name: str) -> str:
-    """Extract every ZIP member before publishing any files to the weights cache."""
-    extracted_dir = os.path.join(staging, "extracted")
-    with zipfile.ZipFile(archive) as zipped:
-        zipped.extractall(extracted_dir)
-
+def _publish_zip_weights(extracted_dir: str, weights_dir: str, file_name: str) -> str:
+    """Publish an already extracted ZIP, leaving its requested weight until last."""
     extracted = os.path.normpath(os.path.join(extracted_dir, file_name))
     if not os.path.isfile(extracted):
         raise ValueError(f"{file_name} is missing from the downloaded ZIP archive")
