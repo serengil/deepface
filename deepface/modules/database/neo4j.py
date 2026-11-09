@@ -3,7 +3,7 @@ import os
 import json
 import hashlib
 import struct
-from typing import Any, Dict, Optional, List, Tuple, Union
+from typing import Any, Dict, Optional, List, Set, Tuple, Union, Sequence
 from itertools import combinations
 from urllib.parse import urlparse
 
@@ -15,9 +15,6 @@ from deepface.modules.verification import find_cosine_distance, find_euclidean_d
 from deepface.commons.logger import Logger
 
 logger = Logger()
-
-_SCHEMA_CHECKED: Dict[str, bool] = {}
-
 
 # pylint: disable=too-many-positional-arguments
 class Neo4jClient(Database):
@@ -36,6 +33,7 @@ class Neo4jClient(Database):
             ) from e
 
         self.GraphDatabase = GraphDatabase
+        self._schema_checked: Set[str] = set()
         if connection is not None:
             self.conn = connection
         else:
@@ -53,12 +51,6 @@ class Neo4jClient(Database):
                 self.conn = self.GraphDatabase.driver(uri, auth=(parsed.username, parsed.password))
             else:
                 raise ValueError("connection_details must be a string.")
-
-        if not self.__is_gds_installed():
-            raise ValueError(
-                "Neo4j Graph Data Science (GDS) plugin is not installed. "
-                "Please install the GDS plugin to use Neo4j as a database backend."
-            )
 
     def close(self) -> None:
         """
@@ -84,13 +76,13 @@ class Neo4jClient(Database):
             l2_normalized=l2_normalized,
         )
 
+        if node_label in self._schema_checked:
+            logger.debug(f"Neo4j index {node_label} already exists, skipping creation.")
+            return
+
         model = build_model(task="facial_recognition", model_name=model_name)
         dimensions = model.output_shape
         similarity_function = "cosine" if l2_normalized else "euclidean"
-
-        if _SCHEMA_CHECKED.get(node_label):
-            logger.debug(f"Neo4j index {node_label} already exists, skipping creation.")
-            return
 
         index_query = f"""
             CREATE VECTOR INDEX {node_label}_embedding_idx IF NOT EXISTS
@@ -114,7 +106,7 @@ class Neo4jClient(Database):
             session.execute_write(lambda tx: tx.run(index_query))
             session.execute_write(lambda tx: tx.run(uniq_query))
 
-        _SCHEMA_CHECKED[node_label] = True
+        self._schema_checked.add(node_label)
         logger.debug(f"Neo4j index {node_label} ensured.")
 
     def insert_embeddings(self, embeddings: List[Dict[str, Any]], batch_size: int = 100) -> int:
@@ -257,7 +249,7 @@ class Neo4jClient(Database):
 
     def link_verified_identities(
         self,
-        clusters: List[List[str]],
+        clusters: Sequence[Sequence[Union[str, int]]],
         model_name: str = "VGG-Face",
         detector_backend: str = "opencv",
         aligned: bool = True,
@@ -286,9 +278,13 @@ class Neo4jClient(Database):
             l2_normalized=l2_normalized,
         )
 
+        def id_key(identity: Union[str, int]) -> Tuple[bool, Union[str, int]]:
+            # Keep links canonical in a graph containing both kinds of public ID.
+            return isinstance(identity, str), identity
+
         pairs = set()
         for cluster in clusters:
-            for src, dst in combinations(sorted(set(cluster)), 2):
+            for src, dst in combinations(sorted(set(cluster), key=id_key), 2):
                 pairs.add((src, dst))
 
         if not pairs:
@@ -296,13 +292,16 @@ class Neo4jClient(Database):
 
         query = f"""
         UNWIND $pairs AS p
-        MATCH (a:{node_label}) WHERE elementId(a) = p.src
-        MATCH (b:{node_label}) WHERE elementId(b) = p.dst
+        MATCH (a:{node_label}) WHERE coalesce(a.id, elementId(a)) = p.src
+        MATCH (b:{node_label}) WHERE coalesce(b.id, elementId(b)) = p.dst
         MERGE (a)-[:VERIFIED]->(b)
         RETURN count(*) AS processed
         """
 
-        payload = [{"src": src, "dst": dst} for src, dst in sorted(pairs)]
+        payload = [
+            {"src": src, "dst": dst}
+            for src, dst in sorted(pairs, key=lambda pair: (id_key(pair[0]), id_key(pair[1])))
+        ]
 
         return self.__run_in_batches(query=query, payload=payload, batch_size=batch_size)
 
@@ -468,7 +467,7 @@ class Neo4jClient(Database):
         CALL db.index.vector.queryNodes($index_name, $limit, $vector)
         YIELD node, score
         RETURN
-          elementId(node) AS id,
+          coalesce(node.id, elementId(node)) AS id,
           node.img_name AS img_name,
           node.face_hash AS face_hash,
           node.embedding AS embedding,
@@ -509,20 +508,6 @@ class Neo4jClient(Database):
                 )
 
         return out
-
-    def __is_gds_installed(self) -> bool:
-        """
-        Check if the Graph Data Science (GDS) plugin is installed in the Neo4j database.
-        """
-        query = "RETURN gds.version() AS version"
-        try:
-            with self.conn.session() as session:
-                result = session.run(query).single()
-                logger.debug(f"GDS version: {result['version']}")
-                return True
-        except Exception as e:  # pylint: disable=broad-except
-            logger.error(f"GDS plugin not installed or error occurred: {e}")
-            return False
 
     @staticmethod
     def __generate_node_label(

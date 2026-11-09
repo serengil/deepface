@@ -1,5 +1,5 @@
 # built-in dependencies
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Union, Optional, Sequence
 from abc import ABC, abstractmethod
 
 
@@ -115,7 +115,7 @@ class Database(ABC):
 
     def link_verified_identities(
         self,
-        clusters: List[List[str]],
+        clusters: Sequence[Sequence[Union[str, int]]],
         model_name: str = "VGG-Face",
         detector_backend: str = "opencv",
         aligned: bool = True,
