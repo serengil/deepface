@@ -259,12 +259,15 @@ def find(
         old_images = stored_images - storage_images  # images removed from storage
 
         # detect replaced images
+        hashes: Dict[str, str] = {}
         for current_representation in representations:
             identity = current_representation["identity"]
-            if identity in old_images:
+            if identity in old_images or identity in replaced_images:
                 continue
+            if identity not in hashes:
+                hashes[identity] = store.find_hash(identity)
             alpha_hash = current_representation["hash"]
-            beta_hash = store.find_hash(identity)
+            beta_hash = hashes[identity]
             if alpha_hash != beta_hash:
                 logger.debug(f"Even though {identity} represented before, it's replaced later.")
                 replaced_images.add(identity)
@@ -733,18 +736,11 @@ def __find_as_dicts(
 
         mask = target_distances <= target_threshold
 
-        filtered_data = {key: value[mask] for key, value in result_data.items()}
-
-        sorted_indices = np.argsort(filtered_data["distance"])
-        sorted_data = {key: value[sorted_indices] for key, value in filtered_data.items()}
-
-        num_results = len(sorted_data["distance"])
-        result_dicts = [
-            {key: sorted_data[key][i] for key in sorted_data} for i in range(num_results)
-        ]
-
-        if k is not None and len(result_dicts) > k:
-            result_dicts = result_dicts[:k]
+        matched = np.flatnonzero(mask)
+        indices = matched[np.argsort(target_distances[matched])]
+        if k is not None:
+            indices = indices[:k]
+        result_dicts = [{key: values[j] for key, values in result_data.items()} for j in indices]
 
         for result_dict in result_dicts:
             result_dict["confidence"] = verification.find_confidence(
@@ -904,15 +900,22 @@ def __deserialize_npz(content: bytes, datastore_path: str) -> Dict[str, List[Any
                 f"{missing_columns}. Consider to delete it."
             )
 
-        columns: Dict[str, List[Any]] = {
-            name: npz[name].tolist() for name in DATASTORE_COLUMNS if name != "embedding"
-        }
-        has_embedding = npz["has_embedding"].tolist()
-        embeddings = npz["embedding"].tolist()
+        arrays = {name: npz[name] for name in DATASTORE_COLUMNS + ["has_embedding"]}
+        embeddings = arrays.pop("embedding")
+        present = arrays.pop("has_embedding")
+        if (
+            present.dtype != np.bool_
+            or present.ndim != 1
+            or embeddings.ndim != 2
+            or embeddings.shape[0] != len(present)
+            or any(column.shape != present.shape for column in arrays.values())
+        ):
+            raise ValueError(f"Inconsistent gallery columns in {datastore_path}")
 
-    columns["embedding"] = [
-        embedding if is_valid else None for embedding, is_valid in zip(embeddings, has_embedding)
-    ]
+        columns: Dict[str, List[Any]] = {name: column.tolist() for name, column in arrays.items()}
+        columns["embedding"] = [
+            embeddings[i].tolist() if valid else None for i, valid in enumerate(present)
+        ]
     return {name: columns[name] for name in DATASTORE_COLUMNS}
 
 
