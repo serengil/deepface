@@ -63,14 +63,8 @@ def extract_image_from_request(img_key: str) -> Union[str, NDArray[Any]]:
     """
 
     # Check if the request is multipart/form-data (file input)
-    if request.files:
-        # request.files is instance of werkzeug.datastructures.ImmutableMultiDict
-        # file is instance of werkzeug.datastructures.FileStorage
-        file = request.files.get(img_key)
-
-        if file is None:
-            raise ValueError(f"Request form data doesn't have {img_key}")
-
+    file = request.files.get(img_key)
+    if file is not None:
         if file.filename == "":
             raise ValueError(f"No file uploaded for '{img_key}'")
 
