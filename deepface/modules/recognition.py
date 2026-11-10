@@ -233,11 +233,6 @@ def find(
                 f"Consider to delete {datastore_path}"
             )
 
-    # Get the list of images on storage
-    storage_images = set(store.list_images())
-
-    if len(storage_images) == 0 and refresh_database is True:
-        raise EmptyDatasource(f"No item found in {db_path}")
     if len(representations) == 0 and refresh_database is False:
         raise EmptyDatasource(f"Nothing is found in {datastore_path}")
 
@@ -252,6 +247,10 @@ def find(
 
     # Enforce data consistency amongst on disk images and datastore file
     if refresh_database:
+        storage_images = set(store.list_images())
+        if not storage_images:
+            raise EmptyDatasource(f"No item found in {db_path}")
+
         # embedded images
         stored_images = {representation["identity"] for representation in representations}
 
@@ -324,7 +323,7 @@ def find(
     source_objs: List[Dict[str, Any]] = cast(
         List[Dict[str, Any]],
         detection.extract_faces(
-            img_path=img_path,
+            img_path=img,
             detector_backend=detector_backend,
             grayscale=False,
             enforce_detection=enforce_detection,
@@ -671,8 +670,16 @@ def __find_as_dicts(
 
     target_embeddings = []
     source_regions = []
+    target_thresholds = []
+
     target_threshold = (
-        verification.find_threshold(model_name, distance_metric) if threshold is None else threshold
+        (
+            verification.find_threshold(model_name, distance_metric)
+            if threshold is None
+            else threshold
+        )
+        if similarity_search is False
+        else np.inf
     )
 
     for source_obj in source_objs:
@@ -696,8 +703,10 @@ def __find_as_dicts(
 
         target_embeddings.append(target_representation)
         source_regions.append(source_region)
+        target_thresholds.append(target_threshold)
 
     target_embeddings_np = np.array(target_embeddings)  # (M, D)
+    target_thresholds_np = np.array(target_thresholds)  # (M,)
     source_regions_arr = {
         "source_x": np.array([region["x"] for region in source_regions]),
         "source_y": np.array([region["y"] for region in source_regions]),
@@ -714,6 +723,7 @@ def __find_as_dicts(
     resp_obj = []
     for i in range(len(target_embeddings_np)):
         target_distances = distances[i]  # (N,)
+        target_threshold = target_thresholds_np[i]
 
         N = embeddings.shape[0]
         result_data = dict(data)
@@ -728,7 +738,7 @@ def __find_as_dicts(
             }
         )
 
-        mask = target_distances <= (np.inf if similarity_search else target_threshold)
+        mask = target_distances <= target_threshold
 
         filtered_data = {key: value[mask] for key, value in result_data.items()}
 
