@@ -672,7 +672,15 @@ def __find_as_dicts(
     source_regions = []
     target_thresholds = []
 
-    target_threshold = threshold if similarity_search is False else np.inf
+    target_threshold = (
+        (
+            verification.find_threshold(model_name, distance_metric)
+            if threshold is None
+            else threshold
+        )
+        if similarity_search is False
+        else np.inf
+    )
 
     for source_obj in source_objs:
         if anti_spoofing and not source_obj.get("is_real", True):
