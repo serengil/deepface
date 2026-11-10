@@ -436,6 +436,7 @@ def search(
                     instances.append(instance)
 
             if len(instances) == 0:
+                search_results.append([])
                 continue
 
             instances = __sort_by_distance(instances=instances, k=k)
@@ -497,6 +498,8 @@ def search(
 
             if len(instances) > 0:
                 search_results.append(__sort_by_distance(instances=instances, k=k))
+            else:
+                search_results.append([])
 
         __link_verified_identities(
             db_client=db_client,
