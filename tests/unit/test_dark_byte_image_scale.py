@@ -28,5 +28,4 @@ class DarkImageScaleTests(TestCase):
                 batch = preprocessing.resize_image(img, (2, 3))
                 self.assertEqual(batch.shape, (1, 2, 3, 3))
                 np.testing.assert_allclose(batch, expected)
-                if np.issubdtype(dtype, np.floating):
-                    self.assertEqual(batch.dtype, dtype)
+                self.assertEqual(batch.dtype, np.float32)
