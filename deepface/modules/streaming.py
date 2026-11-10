@@ -98,7 +98,7 @@ def analysis(
 
     # Ensure the output directory exists if output_path is provided
     if output_path:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     # Initialize video writer if output_path is provided
     video_writer = (
         cv2.VideoWriter(
@@ -110,6 +110,11 @@ def analysis(
         if output_path
         else None
     )
+
+    if video_writer is not None and not video_writer.isOpened():
+        video_writer.release()
+        cap.release()
+        raise ValueError(f"Cannot open video output: {output_path}")
 
     freezed_img = None
     freeze = False

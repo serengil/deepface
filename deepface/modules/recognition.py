@@ -233,11 +233,6 @@ def find(
                 f"Consider to delete {datastore_path}"
             )
 
-    # Get the list of images on storage
-    storage_images = set(store.list_images())
-
-    if len(storage_images) == 0 and refresh_database is True:
-        raise EmptyDatasource(f"No item found in {db_path}")
     if len(representations) == 0 and refresh_database is False:
         raise EmptyDatasource(f"Nothing is found in {datastore_path}")
 
@@ -252,6 +247,10 @@ def find(
 
     # Enforce data consistency amongst on disk images and datastore file
     if refresh_database:
+        storage_images = set(store.list_images())
+        if not storage_images:
+            raise EmptyDatasource(f"No item found in {db_path}")
+
         # embedded images
         stored_images = {representation["identity"] for representation in representations}
 
@@ -324,7 +323,7 @@ def find(
     source_objs: List[Dict[str, Any]] = cast(
         List[Dict[str, Any]],
         detection.extract_faces(
-            img_path=img_path,
+            img_path=img,
             detector_backend=detector_backend,
             grayscale=False,
             enforce_detection=enforce_detection,

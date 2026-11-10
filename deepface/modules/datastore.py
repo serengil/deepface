@@ -496,7 +496,10 @@ def search(
                 if similarity_search is True or verified:
                     instances.append(instance)
 
-            search_results.append(__sort_by_distance(instances=instances, k=k))
+            if len(instances) > 0:
+                search_results.append(__sort_by_distance(instances=instances, k=k))
+            else:
+                search_results.append([])
 
         __link_verified_identities(
             db_client=db_client,
