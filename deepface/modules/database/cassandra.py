@@ -128,25 +128,30 @@ def _parse_uri(uri: str) -> Tuple[Dict[str, Any], str]:
     Parse a uri as cassandra://user:password@host1,host2:9042/keyspace into
         cluster arguments and keyspace.
     """
-    parsed = urlparse(uri)
-    if parsed.scheme != "cassandra":
+    scheme, separator, location = uri.partition("://")
+    if not separator or scheme.lower() != "cassandra":
         raise ValueError("Cassandra uri must start with cassandra://")
 
-    userinfo, _, hosts = parsed.netloc.rpartition("@")
+    authority, _, path = location.partition("/")
+    userinfo, _, hosts = authority.rpartition("@")
 
     details: Dict[str, Any] = {"contact_points": []}
     for host in hosts.split(","):
-        host, _, port = host.partition(":")
-        details["contact_points"].append(host)
-        if port:
-            details["port"] = int(port)
+        endpoint = urlparse(f"//{host}")
+        if not endpoint.hostname:
+            raise ValueError("Cassandra URI must contain a host for each contact point.")
+        details["contact_points"].append(endpoint.hostname)
+        if endpoint.port is not None:
+            if "port" in details and details["port"] != endpoint.port:
+                raise ValueError("Cassandra contact points must use the same port.")
+            details["port"] = endpoint.port
 
     if userinfo:
         username, _, password = userinfo.partition(":")
         details["username"] = unquote(username)
         details["password"] = unquote(password)
 
-    return details, parsed.path.strip("/") or _DEFAULT_KEYSPACE
+    return details, urlparse("/" + path).path.strip("/") or _DEFAULT_KEYSPACE
 
 
 # pylint: disable=too-many-positional-arguments, too-many-instance-attributes
