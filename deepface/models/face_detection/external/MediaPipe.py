@@ -3,6 +3,7 @@ import os
 from typing import Any, List
 
 # 3rd party dependencies
+import cv2
 from numpy.typing import NDArray
 
 # project dependencies
@@ -57,7 +58,8 @@ class MediaPipeClient(Detector):
         img_width = img.shape[1]
         img_height = img.shape[0]
 
-        results = self.model.process(img)
+        # DeepFace supplies BGR images; MediaPipe expects three-channel RGB.
+        results = self.model.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 
         # If no face has been detected, return an empty list
         if results.detections is None:
