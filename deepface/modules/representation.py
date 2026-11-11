@@ -90,12 +90,13 @@ def represent(
     """
     resp_objs = []
 
-    # Handle list of image paths or 4D numpy array
-    is_batch = isinstance(img_path, list) or (
+    # Handle image sequences or a 4D numpy array. Strings are single image paths.
+    is_sequence = isinstance(img_path, Sequence) and not isinstance(img_path, (str, bytes))
+    is_batch = is_sequence or (
         isinstance(img_path, np.ndarray) and img_path.ndim == 4
     )
-    if isinstance(img_path, list):
-        images = img_path
+    if is_sequence:
+        images = list(cast(Sequence[Union[str, NDArray[Any], IO[bytes]]], img_path))
     elif isinstance(img_path, np.ndarray) and img_path.ndim == 4:
         images = [img_path[i] for i in range(img_path.shape[0])]
     else:
