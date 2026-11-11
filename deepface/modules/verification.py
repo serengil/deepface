@@ -299,6 +299,18 @@ def __extract_faces_and_embeddings(
     return embeddings, facial_areas
 
 
+def _unit_directions(vectors: NDArray[Any]) -> NDArray[Any]:
+    """Normalize rows without overflowing their squared norm or losing subnormal directions."""
+    vectors = np.asarray(vectors, dtype=np.float64)
+    scale = np.max(np.abs(vectors), axis=-1, keepdims=True, initial=0.0)
+    scaled = vectors / np.where(scale == 0, 1, scale)
+    norm = np.linalg.norm(scaled, axis=-1, keepdims=True)
+    # Preserve the existing undefined scalar cosine and zero batch-row behavior.
+    if vectors.ndim == 1 and not np.any(scale):
+        return np.full(vectors.shape, np.nan)
+    return cast(NDArray[Any], scaled / np.where(norm == 0, 1, norm))
+
+
 def find_cosine_distance(
     source_representation: Union[NDArray[Any], List[float]],
     test_representation: Union[NDArray[Any], List[float]],
@@ -318,15 +330,15 @@ def find_cosine_distance(
 
     if source_representation.ndim == 1 and test_representation.ndim == 1:
         # single embedding
-        dot_product = np.dot(source_representation, test_representation)
-        source_norm = np.linalg.norm(source_representation)
-        test_norm = np.linalg.norm(test_representation)
-        distances = 1 - dot_product / (source_norm * test_norm)
+        similarity = np.dot(
+            _unit_directions(source_representation), _unit_directions(test_representation)
+        )
+        distances = 1 - similarity
         return cast(np.float64, distances)
     elif source_representation.ndim == 2 and test_representation.ndim == 2:
         # list of embeddings (batch)
-        source_normed = l2_normalize(source_representation, axis=1)  # (N, D)
-        test_normed = l2_normalize(test_representation, axis=1)  # (M, D)
+        source_normed = _unit_directions(source_representation)  # (N, D)
+        test_normed = _unit_directions(test_representation)  # (M, D)
         cosine_similarities = np.dot(test_normed, source_normed.T)  # (M, N)
         distances = 1 - cosine_similarities
         return cast(NDArray[Any], distances)
@@ -360,16 +372,15 @@ def find_angular_distance(
 
     if source_representation.ndim == 1 and test_representation.ndim == 1:
         # single embedding
-        dot_product = np.dot(source_representation, test_representation)
-        source_norm = np.linalg.norm(source_representation)
-        test_norm = np.linalg.norm(test_representation)
-        similarity = dot_product / (source_norm * test_norm)
+        similarity = np.dot(
+            _unit_directions(source_representation), _unit_directions(test_representation)
+        )
         distances = np.arccos(np.clip(similarity, -1.0, 1.0)) / np.pi
         return cast(np.float64, distances)
     elif source_representation.ndim == 2 and test_representation.ndim == 2:
         # list of embeddings (batch)
-        source_normed = l2_normalize(source_representation, axis=1)  # (N, D)
-        test_normed = l2_normalize(test_representation, axis=1)  # (M, D)
+        source_normed = _unit_directions(source_representation)  # (N, D)
+        test_normed = _unit_directions(test_representation)  # (M, D)
         similarity = np.dot(test_normed, source_normed.T)  # (M, N)
         distances = np.arccos(np.clip(similarity, -1.0, 1.0)) / np.pi
         return cast(NDArray[Any], distances)
@@ -398,6 +409,11 @@ def find_euclidean_distance(
     # Convert inputs to numpy arrays if necessary
     source_representation = np.asarray(source_representation)
     test_representation = np.asarray(test_representation)
+
+    # Integer subtraction wraps before np.linalg.norm gets a chance to promote it.
+    if source_representation.dtype.kind in "iu" or test_representation.dtype.kind in "iu":
+        source_representation = source_representation.astype(np.float64, copy=False)
+        test_representation = test_representation.astype(np.float64, copy=False)
 
     # Single embedding case (1D arrays)
     if source_representation.ndim == 1 and test_representation.ndim == 1:
