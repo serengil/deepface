@@ -92,8 +92,8 @@ def find_image_hash(file_path: str) -> str:
 
     # some properties
     file_size = file_stats.st_size
-    creation_time = file_stats.st_ctime
-    modification_time = file_stats.st_mtime
+    creation_time = file_stats.st_ctime_ns
+    modification_time = file_stats.st_mtime_ns
 
     properties = f"{file_size}-{creation_time}-{modification_time}"
 
