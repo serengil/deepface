@@ -56,7 +56,8 @@ def download_weights_if_necessary(
         try:
             logger.info(f"🔗 {file_name} will be downloaded from {url} to {target_file}...")
             ensure_source_is_reachable(url)
-            gdown.download(url, output, quiet=False)
+            if gdown.download(url, output, quiet=False) is None:
+                raise ValueError(f"Downloading {file_name} from {url} did not complete.")
             last_err = None
             break
         except Exception as err:  # pylint: disable=broad-except
