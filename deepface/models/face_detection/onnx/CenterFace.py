@@ -155,31 +155,35 @@ class CenterFace:
         scale0, scale1 = scale[0, 0, :, :], scale[0, 1, :, :]
         offset0, offset1 = offset[0, 0, :, :], offset[0, 1, :, :]
         c0, c1 = np.where(heatmap > threshold)
-        boxes, lms = [], []
-        if len(c0) > 0:
-            # pylint:disable=consider-using-enumerate
-            for i in range(len(c0)):
-                s0, s1 = np.exp(scale0[c0[i], c1[i]]) * 4, np.exp(scale1[c0[i], c1[i]]) * 4
-                o0, o1 = offset0[c0[i], c1[i]], offset1[c0[i], c1[i]]
-                s = heatmap[c0[i], c1[i]]
-                x1, y1 = max(0, (c1[i] + o1 + 0.5) * 4 - s1 / 2), max(
-                    0, (c0[i] + o0 + 0.5) * 4 - s0 / 2
-                )
-                x1, y1 = min(x1, size[1]), min(y1, size[0])
-                boxes.append([x1, y1, min(x1 + s1, size[1]), min(y1 + s0, size[0]), s])
-                lm = []
-                for j in range(5):
-                    lm.append(landmark[0, j * 2 + 1, c0[i], c1[i]] * s1 + x1)
-                    lm.append(landmark[0, j * 2, c0[i], c1[i]] * s0 + y1)
-                lms.append(lm)
-            boxes_np = np.asarray(boxes, dtype=np.float32)
-            keep = self.nms(boxes_np[:, :4], boxes_np[:, 4], 0.3)
-            boxes_np = boxes_np[keep, :]
-            lms_np = np.asarray(lms, dtype=np.float32)
-            lms_np = lms_np[keep, :]
-        else:
-            boxes_np = np.empty((0, 5), dtype=np.float32)
-            lms_np = np.empty((0, 10), dtype=np.float32)
+        if c0.size == 0:
+            return np.empty((0, 5), dtype=np.float32), np.empty((0, 10), dtype=np.float32)
+
+        heights = np.exp(scale0[c0, c1]) * 4
+        widths = np.exp(scale1[c0, c1]) * 4
+        # Decode landmarks and both corners from the uncut prediction. Clipping
+        # the origin first translates an edge face and its eyes into the image.
+        left = (c1 + offset1[c0, c1] + 0.5) * 4 - widths / 2
+        top = (c0 + offset0[c0, c1] + 0.5) * 4 - heights / 2
+        boxes_np = np.column_stack(
+            (
+                np.clip(left, 0, size[1]),
+                np.clip(top, 0, size[0]),
+                np.clip(left + widths, 0, size[1]),
+                np.clip(top + heights, 0, size[0]),
+                heatmap[c0, c1],
+            )
+        ).astype(np.float32)
+        keep = self.nms(boxes_np[:, :4], boxes_np[:, 4], 0.3)
+        boxes_np = boxes_np[keep]
+        # Materialize the ten landmark coordinates only for surviving proposals.
+        rows, cols = c0[keep], c1[keep]
+        lms_np = np.empty((len(keep), 10), dtype=np.float32)
+        lms_np[:, 0::2] = (
+            landmark[0, 1::2, :, :][:, rows, cols].T * widths[keep, None] + left[keep, None]
+        )
+        lms_np[:, 1::2] = (
+            landmark[0, 0::2, :, :][:, rows, cols].T * heights[keep, None] + top[keep, None]
+        )
         return boxes_np, lms_np
 
     def nms(self, boxes: NDArray[Any], scores: NDArray[Any], nms_thresh: float) -> List[int]:
@@ -189,37 +193,15 @@ class CenterFace:
         y2 = boxes[:, 3]
         areas = (x2 - x1 + 1) * (y2 - y1 + 1)
         order = np.argsort(scores)[::-1]
-        num_detections = boxes.shape[0]
-        suppressed = np.zeros((num_detections,), dtype=bool)
-
         keep = []
-        for _i in range(num_detections):
-            i = order[_i]
-            if suppressed[i]:
-                continue
+        while order.size:
+            i = order[0]
             keep.append(i)
-
-            ix1 = x1[i]
-            iy1 = y1[i]
-            ix2 = x2[i]
-            iy2 = y2[i]
-            iarea = areas[i]
-
-            for _j in range(_i + 1, num_detections):
-                j = order[_j]
-                if suppressed[j]:
-                    continue
-
-                xx1 = max(ix1, x1[j])
-                yy1 = max(iy1, y1[j])
-                xx2 = min(ix2, x2[j])
-                yy2 = min(iy2, y2[j])
-                w = max(0, xx2 - xx1 + 1)
-                h = max(0, yy2 - yy1 + 1)
-
-                inter = w * h
-                ovr = inter / (iarea + areas[j] - inter)
-                if ovr >= nms_thresh:
-                    suppressed[j] = True
+            rest = order[1:]
+            w = np.maximum(0, np.minimum(x2[i], x2[rest]) - np.maximum(x1[i], x1[rest]) + 1)
+            h = np.maximum(0, np.minimum(y2[i], y2[rest]) - np.maximum(y1[i], y1[rest]) + 1)
+            inter = w * h
+            overlap = inter / (areas[i] + areas[rest] - inter)
+            order = rest[overlap < nms_thresh]
 
         return keep
