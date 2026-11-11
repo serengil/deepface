@@ -5,7 +5,7 @@ import hashlib
 import struct
 from typing import Any, Dict, Optional, List, Tuple, Union
 from itertools import combinations
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 
 # project dependencies
@@ -49,8 +49,12 @@ class Neo4jClient(Database):
 
             if isinstance(self.conn_details, str):
                 parsed = urlparse(self.conn_details)
-                uri = f"{parsed.scheme}://{parsed.hostname}:{parsed.port}"
-                self.conn = self.GraphDatabase.driver(uri, auth=(parsed.username, parsed.password))
+                # Keep optional ports, IPv6 brackets and routing parameters for the driver.
+                uri = parsed._replace(netloc=parsed.netloc.rsplit("@", 1)[-1]).geturl()
+                username = unquote(parsed.username or "")
+                password = unquote(parsed.password or "")
+                auth = (username, password) if parsed.username is not None else None
+                self.conn = self.GraphDatabase.driver(uri, auth=auth)
             else:
                 raise ValueError("connection_details must be a string.")
 
