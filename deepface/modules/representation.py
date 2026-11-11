@@ -100,7 +100,7 @@ def represent(
     elif isinstance(img_path, np.ndarray) and img_path.ndim == 4:
         images = [img_path[i] for i in range(img_path.shape[0])]
     else:
-        images = [img_path]
+        images = [cast(Union[str, NDArray[Any], IO[bytes]], img_path)]
 
     if not images:
         return []
