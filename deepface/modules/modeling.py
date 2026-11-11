@@ -123,17 +123,52 @@ AVAILABLE_MODELS: Final[AvailableModels] = {
         "dlib": {ANY: "deepface.models.face_detection.external.Dlib.DlibClient"},
         "retinaface": {ANY: "deepface.models.face_detection.external.RetinaFace.RetinaFaceClient"},
         "mediapipe": {ANY: "deepface.models.face_detection.external.MediaPipe.MediaPipeClient"},
-        "yolov8n": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV8n"},
-        "yolov8m": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV8m"},
-        "yolov8l": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV8l"},
-        "yolov11n": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11n"},
-        "yolov11s": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11s"},
-        "yolov11m": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11m"},
-        "yolov11l": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11l"},
-        "yolov12n": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12n"},
-        "yolov12s": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12s"},
-        "yolov12m": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12m"},
-        "yolov12l": {ANY: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12l"},
+        # yolo runs on ultralytics for the pytorch engine, and on onnx for every other engine -
+        # onnxruntime is a base requirement, so tensorflow users need no ultralytics or torch
+        "yolov8n": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV8n",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV8n",
+        },
+        "yolov8m": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV8m",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV8m",
+        },
+        "yolov8l": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV8l",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV8l",
+        },
+        "yolov11n": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11n",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV11n",
+        },
+        "yolov11s": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11s",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV11s",
+        },
+        "yolov11m": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11m",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV11m",
+        },
+        "yolov11l": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV11l",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV11l",
+        },
+        "yolov12n": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12n",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV12n",
+        },
+        "yolov12s": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12s",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV12s",
+        },
+        "yolov12m": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12m",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV12m",
+        },
+        "yolov12l": {
+            PYTORCH: "deepface.models.face_detection.pytorch.Yolo.YoloDetectorClientV12l",
+            ANY: "deepface.models.face_detection.onnx.Yolo.YoloDetectorClientV12l",
+        },
         "yunet": {ANY: "deepface.models.face_detection.onnx.YuNet.YuNetClient"},
         # deprecated name of mtcnn on pytorch, see DEPRECATED_MODELS
         "fastmtcnn": {ANY: "deepface.models.face_detection.pytorch.MtCnn.MtCnnClient"},
