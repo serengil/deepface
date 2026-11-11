@@ -1,10 +1,8 @@
 # built-in dependencies
-import os
 from typing import Any, Dict, IO, List, Tuple, Union, Optional, cast, TYPE_CHECKING
 import uuid
 import time
 import math
-import tempfile
 from concurrent.futures import ThreadPoolExecutor
 
 # 3rd party dependencies
@@ -935,7 +933,7 @@ def build_index(
     )
     toc = time.time()
 
-    if not source_embeddings:
+    if not source_embeddings and index is None:
         raise ValueError(
             "No embeddings found in the database for the criteria "
             f"{model_name=}, {detector_backend=}, {align=}, {l2_normalize=}."
@@ -945,44 +943,37 @@ def build_index(
         f"Fetched {len(source_embeddings)} embeddings from database in {toc - tic:.2f} seconds."
     )
 
-    unindexed_source_embeddings = [
-        item for item in source_embeddings if item["id"] not in indexed_embeddings
-    ]
-
-    if not unindexed_source_embeddings:
+    # HNSW cannot remove vectors. Rebuild if a stored identity disappeared,
+    # otherwise it can keep occupying a nearest-neighbour slot indefinitely.
+    if indexed_embeddings.difference(item["id"] for item in source_embeddings):
+        index.reset()
+        indexed_embeddings.clear()
+    elif source_embeddings and all(item["id"] in indexed_embeddings for item in source_embeddings):
         logger.info("All embeddings are already indexed. No new embeddings to index.")
         return
-
-    ids = [item["id"] for item in unindexed_source_embeddings]
-    vectors = np.array([item["embedding"] for item in unindexed_source_embeddings], dtype="float32")
-
-    embedding_dim_size = len(source_embeddings[0]["embedding"])
+    elif not source_embeddings:
+        return
 
     if index is None:
-        base_index = faiss.IndexHNSWFlat(embedding_dim_size, max_neighbors_per_node)
-        index = faiss.IndexIDMap(base_index)
+        dimension = len(source_embeddings[0]["embedding"])
+        index = faiss.IndexIDMap(faiss.IndexHNSWFlat(dimension, max_neighbors_per_node))
 
     tic = time.time()
-    for i in range(0, len(vectors), batch_size):
-        batch_ids = np.array(ids[i : i + batch_size], dtype="int64")
-        batch_vectors = vectors[i : i + batch_size]
-        index.add_with_ids(batch_vectors, batch_ids)
+    for i in range(0, len(source_embeddings), batch_size):
+        batch = [
+            item
+            for item in source_embeddings[i : i + batch_size]
+            if item["id"] not in indexed_embeddings
+        ]
+        if batch:
+            vectors = np.asarray([item["embedding"] for item in batch], dtype="float32")
+            ids = np.asarray([item["id"] for item in batch], dtype="int64")
+            index.add_with_ids(vectors, ids)
+    logger.info(f"Updated the search index in {time.time() - tic:.2f} seconds.")
 
-    toc = time.time()
-    logger.info(f"Added {len(vectors)} embeddings to index in {toc - tic:.2f} seconds.")
-
-    index_path = os.path.join(
-        tempfile.gettempdir(), f"{model_name}_{detector_backend}_{align}_{l2_normalize}.faiss"
-    )
-
-    # now create index from scratch, then think how to load an index and add new vectors to it
-    tic = time.time()
-    faiss.write_index(index, index_path)
-    toc = time.time()
-    logger.info(f"Saved index to disk in {toc - tic:.2f} seconds")
-
-    with open(index_path, "rb") as f:
-        index_data = f.read()
+    # Serialize this invocation's index directly. Independent databases can use
+    # identical model and detector settings concurrently.
+    index_data = faiss.serialize_index(index).tobytes()
 
     tic = time.time()
     db_client.upsert_embeddings_index(
@@ -994,10 +985,6 @@ def build_index(
     )
     toc = time.time()
     logger.info(f"Upserted index to database in {toc - tic:.2f} seconds.")
-
-    # clean up temp file
-    if os.path.exists(index_path):
-        os.remove(index_path)
 
 
 def __get_embeddings(
