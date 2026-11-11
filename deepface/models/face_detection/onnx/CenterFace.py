@@ -177,7 +177,7 @@ class CenterFace:
         boxes_np = boxes_np[keep]
         # Materialize the ten landmark coordinates only for surviving proposals.
         rows, cols = c0[keep], c1[keep]
-        lms_np = np.empty((len(keep), 10), dtype=np.float32)
+        lms_np: NDArray[Any] = np.empty((len(keep), 10), dtype=np.float32)
         lms_np[:, 0::2] = (
             landmark[0, 1::2, :, :][:, rows, cols].T * widths[keep, None] + left[keep, None]
         )
