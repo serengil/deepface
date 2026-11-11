@@ -117,10 +117,14 @@ class MilvusClient(Database):
             for e in batch:
                 face_json = json.dumps(e["face"].tolist())
                 face_hash = hashlib.sha256(face_json.encode()).hexdigest()
-                embedding_bytes = struct.pack(f'{len(e["embedding"])}d', *e["embedding"])
+                embedding_bytes = struct.pack(f'<{len(e["embedding"])}d', *e["embedding"])
                 embedding_hash = hashlib.sha256(embedding_bytes).hexdigest()
 
-                emb_id = hash(f"{face_hash}:{embedding_hash}") % (2**63)
+                # Python hashes are salted per process; persistent IDs must survive restarts.
+                identity_digest = hashlib.sha256(
+                    f"{face_hash}:{embedding_hash}".encode()
+                ).digest()
+                emb_id = int.from_bytes(identity_digest[:8], "big") & (2**63 - 1)
 
                 data.append({
                     "id": emb_id,
