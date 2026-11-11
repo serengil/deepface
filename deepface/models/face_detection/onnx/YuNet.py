@@ -168,7 +168,8 @@ class YuNetClient(Detector):
                 score_threshold,
                 NMS_THRESHOLD,
                 top_k=TOP_K,
-            )
+            ),
+            dtype=np.intp,
         ).flatten()
         return cast(
             NDArray[Any],
