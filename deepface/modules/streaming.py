@@ -12,6 +12,8 @@ import cv2
 
 # project dependencies
 from deepface import DeepFace
+from deepface.commons import image_utils
+from deepface.modules.filestore import build_file_store
 from deepface.commons.logger import Logger
 
 logger = Logger()
@@ -311,10 +313,11 @@ def search_identity(
     logger.info(f"Hello, {target_path} (confidence: {confidence}%)")
 
     # load found identity image - extracted if possible
+    target_source = build_file_store(db_path).load_image(target_path)
     target_objs: List[Dict[str, Any]] = cast(
         List[Dict[str, Any]],
         DeepFace.extract_faces(
-            img_path=target_path,
+            img_path=target_source,
             detector_backend=detector_backend,
             enforce_detection=False,
             align=True,
@@ -330,7 +333,7 @@ def search_identity(
         target_img *= 255
         target_img = target_img[:, :, ::-1]
     else:
-        target_img = cv2.imread(target_path)
+        target_img, _ = image_utils.load_image(target_source)
 
     # resize anyway
     target_img = cv2.resize(target_img, (IDENTIFIED_IMG_SIZE, IDENTIFIED_IMG_SIZE))
