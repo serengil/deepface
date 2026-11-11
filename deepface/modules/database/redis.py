@@ -207,37 +207,39 @@ class RedisClient(Database):
             last_id = self.conn.incrby(f"{self.key_prefix}:embedding_id", len(batch))
             ids = list(range(last_id - len(batch) + 1, last_id + 1))
 
-            # claim dedup keys atomically, and release them if any record is a duplicate
             dedup_keys = [
                 f"{self.key_prefix}:dedup:{r['face_hash']}:{r['embedding_hash']}" for r in batch
             ]
-            pipe = self.conn.pipeline(transaction=False)
-            for dedup_key, identity_id in zip(dedup_keys, ids):
-                pipe.set(dedup_key, identity_id, nx=True)
-            claimed = pipe.execute()
-
-            if not all(claimed):
-                pipe = self.conn.pipeline(transaction=False)
-                for dedup_key, is_claimed in zip(dedup_keys, claimed):
-                    if is_claimed:
-                        pipe.delete(dedup_key)
-                pipe.execute()
-
-                if len(records) == 1:
-                    logger.warn("Duplicate detected for extracted face and embedding.")
-                    return 0
-                raise DuplicateEntryError(
-                    f"Duplicate detected for extracted face and embedding in {i}-th batch"
-                )
-
-            pipe = self.conn.pipeline(transaction=True)
-            for identity_id, r in zip(ids, batch):
-                pipe.hset(self._embedding_key(identity_id), mapping=r)
-                criteria_key = f"{self.key_prefix}:criteria:" + self._criteria_suffix(
-                    r["model_name"], r["detector_backend"], r["aligned"], r["l2_normalized"]
-                )
-                pipe.zadd(criteria_key, {str(identity_id): identity_id})
-            pipe.execute()
+            # Claim uniqueness in the same transaction as the record and its lookup.
+            # A failure before EXEC must not permanently reserve an unwritten face.
+            for attempt in range(3):
+                with self.conn.pipeline(transaction=True) as pipe:
+                    try:
+                        pipe.watch(*dedup_keys)
+                        if len(set(dedup_keys)) != len(dedup_keys) or pipe.exists(*dedup_keys):
+                            if len(records) == 1:
+                                logger.warn("Duplicate detected for extracted face and embedding.")
+                                return 0
+                            raise DuplicateEntryError(
+                                "Duplicate detected for extracted face and embedding "
+                                f"in {i}-th batch"
+                            )
+                        pipe.multi()
+                        for identity_id, dedup_key, r in zip(ids, dedup_keys, batch):
+                            pipe.set(dedup_key, identity_id)
+                            pipe.hset(self._embedding_key(identity_id), mapping=r)
+                            criteria_key = f"{self.key_prefix}:criteria:" + self._criteria_suffix(
+                                r["model_name"],
+                                r["detector_backend"],
+                                r["aligned"],
+                                r["l2_normalized"],
+                            )
+                            pipe.zadd(criteria_key, {str(identity_id): identity_id})
+                        pipe.execute()
+                        break
+                    except self.redis.WatchError:
+                        if attempt == 2:
+                            raise
 
         return len(records)
 
