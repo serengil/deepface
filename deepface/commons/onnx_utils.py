@@ -192,6 +192,8 @@ def edit_fields(buf: bytes, edits: Dict[int, Optional[Callable[[bytes], bytes]]]
         key, pos = read_varint(buf, pos)
         key_end = pos
         field_number, wire_type = key >> 3, key & 7
+        if not 0 < field_number < 2**29:
+            raise ValueError("Invalid protobuf field number")
         if wire_type == 0:
             _, pos = read_varint(buf, pos)
         elif wire_type == 1:
@@ -201,6 +203,8 @@ def edit_fields(buf: bytes, edits: Dict[int, Optional[Callable[[bytes], bytes]]]
         elif wire_type == 2:
             length, payload_start = read_varint(buf, pos)
             pos = payload_start + length
+            if pos > len(buf):
+                raise ValueError("Truncated protobuf length-delimited field")
             if field_number in edits:
                 edit = edits[field_number]
                 if edit is not None:
@@ -210,6 +214,8 @@ def edit_fields(buf: bytes, edits: Dict[int, Optional[Callable[[bytes], bytes]]]
                 continue
         else:
             raise ValueError(f"Unsupported protobuf wire type {wire_type}")
+        if pos > len(buf):
+            raise ValueError("Truncated protobuf fixed-width field")
         out += buf[start:pos]
     return bytes(out)
 
@@ -223,14 +229,18 @@ def read_varint(buf: bytes, pos: int) -> Tuple[int, int]:
     Returns:
         value (int), pos (int): decoded value and the position after it
     """
-    value, shift = 0, 0
-    while True:
+    value = 0
+    for shift in range(0, 70, 7):
+        if pos < 0 or pos >= len(buf):
+            raise ValueError("Truncated protobuf varint")
         byte = buf[pos]
         pos += 1
+        if shift == 63 and byte > 1:
+            raise ValueError("Protobuf varint exceeds 64 bits")
         value |= (byte & 0x7F) << shift
         if byte < 0x80:
             return value, pos
-        shift += 7
+    raise ValueError("Protobuf varint exceeds 10 bytes")
 
 
 def encode_varint(value: int) -> bytes:
