@@ -89,145 +89,149 @@ def analysis(
     cap = cv2.VideoCapture(source if isinstance(source, str) else int(source))
     if not cap.isOpened():
         logger.error(f"Cannot open video source: {source}")
+        cap.release()
         return
 
-    # Get video properties
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = cap.get(cv2.CAP_PROP_FPS)
+    video_writer = None
+    try:
+        # Get video properties
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
 
-    # Ensure the output directory exists if output_path is provided
-    if output_path:
-        os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-    # Initialize video writer if output_path is provided
-    video_writer = (
-        cv2.VideoWriter(
-            output_path,
-            cv2.VideoWriter_fourcc(*"mp4v"),  # type: ignore[attr-defined]
-            fps,
-            (width, height),
+        # Ensure the output directory exists if output_path is provided
+        if output_path:
+            os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+        # Initialize video writer if output_path is provided
+        video_writer = (
+            cv2.VideoWriter(
+                output_path,
+                cv2.VideoWriter_fourcc(*"mp4v"),  # type: ignore[attr-defined]
+                fps,
+                (width, height),
+            )
+            if output_path
+            else None
         )
-        if output_path
-        else None
-    )
 
-    if video_writer is not None and not video_writer.isOpened():
-        video_writer.release()
-        cap.release()
-        raise ValueError(f"Cannot open video output: {output_path}")
+        if video_writer is not None and not video_writer.isOpened():
+            raise ValueError(f"Cannot open video output: {output_path}")
 
-    freezed_img = None
-    freeze = False
-    num_frames_with_faces = 0
-    tic = time.time()
-    frame = 0
+        freezed_img = None
+        freeze = False
+        num_frames_with_faces = 0
+        tic = time.time()
+        frame = 0
 
-    while True:
-        has_frame, img = cap.read()
-        if not has_frame:
-            break
+        while True:
+            has_frame, img = cap.read()
+            if not has_frame:
+                break
 
-        raw_img = img.copy()  # type: ignore[union-attr]
+            raw_img = img.copy()  # type: ignore[union-attr]
 
-        faces_coordinates = []
+            faces_coordinates = []
 
-        if not freeze:
-            faces_coordinates = grab_facial_areas(
-                img=img, detector_backend=detector_backend, anti_spoofing=anti_spoofing
-            )
-
-            # use raw_img otherwise countdown number will appear in the middle of the face
-            detected_faces = extract_facial_areas(img=raw_img, faces_coordinates=faces_coordinates)
-
-            img = highlight_facial_areas(img=img, faces_coordinates=faces_coordinates)
-
-            # highlight how many seconds required to freeze in the middle of detected face
-            img = countdown_to_freeze(
-                img=img,
-                faces_coordinates=faces_coordinates,
-                frame_threshold=frame_threshold,
-                num_frames_with_faces=num_frames_with_faces,
-            )
-
-            num_frames_with_faces = num_frames_with_faces + 1 if len(faces_coordinates) else 0
-
-            freeze = num_frames_with_faces > 0 and num_frames_with_faces % frame_threshold == 0
-
-            if freeze:
-                frame += 1
-
-                # restore raw image to get rid of countdown informtion
-                img = raw_img.copy()
-
-                # add analyze results into img
-                img = highlight_facial_areas(
-                    img=img, faces_coordinates=faces_coordinates, anti_spoofing=anti_spoofing
+            if not freeze:
+                faces_coordinates = grab_facial_areas(
+                    img=img, detector_backend=detector_backend, anti_spoofing=anti_spoofing
                 )
 
-                if debug is True:
-                    cv2.imwrite(f"freezed_{frame}_0.jpg", detected_faces[0])
-                    cv2.imwrite(f"freezed_{frame}_1.jpg", img)
+                # use raw_img otherwise countdown number will appear in the middle of the face
+                detected_faces = extract_facial_areas(
+                    img=raw_img, faces_coordinates=faces_coordinates
+                )
 
-                # note: faces already detected from img (original one) in grab_facial_areas()
-                # perform_demography_analysis and perform_facial_recognition are using
-                # pre-detected faces, not using anything from img
+                img = highlight_facial_areas(img=img, faces_coordinates=faces_coordinates)
 
-                # age, gender and emotion analysis
-                img = perform_demography_analysis(
-                    enable_face_analysis=enable_face_analysis,
+                # highlight how many seconds required to freeze in the middle of detected face
+                img = countdown_to_freeze(
                     img=img,
                     faces_coordinates=faces_coordinates,
-                    detected_faces=detected_faces,
+                    frame_threshold=frame_threshold,
+                    num_frames_with_faces=num_frames_with_faces,
                 )
 
-                if debug is True:
-                    cv2.imwrite(f"freezed_{frame}_2.jpg", img)
+                num_frames_with_faces = num_frames_with_faces + 1 if len(faces_coordinates) else 0
 
-                # facial recogntion analysis
-                img = perform_facial_recognition(
-                    img=img,
-                    faces_coordinates=faces_coordinates,
-                    detected_faces=detected_faces,
-                    db_path=db_path,
-                    detector_backend=detector_backend,
-                    distance_metric=distance_metric,
-                    model_name=model_name,
-                )
+                freeze = num_frames_with_faces > 0 and num_frames_with_faces % frame_threshold == 0
 
-                if debug is True:
-                    cv2.imwrite(f"freezed_{frame}_3.jpg", img)
+                if freeze:
+                    frame += 1
 
-                # freeze the img after analysis
-                freezed_img = img.copy()
+                    # restore raw image to get rid of countdown informtion
+                    img = raw_img.copy()
 
-                # start counter for freezing
+                    # add analyze results into img
+                    img = highlight_facial_areas(
+                        img=img, faces_coordinates=faces_coordinates, anti_spoofing=anti_spoofing
+                    )
+
+                    if debug is True:
+                        cv2.imwrite(f"freezed_{frame}_0.jpg", detected_faces[0])
+                        cv2.imwrite(f"freezed_{frame}_1.jpg", img)
+
+                    # note: faces already detected from img (original one) in grab_facial_areas()
+                    # perform_demography_analysis and perform_facial_recognition are using
+                    # pre-detected faces, not using anything from img
+
+                    # age, gender and emotion analysis
+                    img = perform_demography_analysis(
+                        enable_face_analysis=enable_face_analysis,
+                        img=img,
+                        faces_coordinates=faces_coordinates,
+                        detected_faces=detected_faces,
+                    )
+
+                    if debug is True:
+                        cv2.imwrite(f"freezed_{frame}_2.jpg", img)
+
+                    # facial recogntion analysis
+                    img = perform_facial_recognition(
+                        img=img,
+                        faces_coordinates=faces_coordinates,
+                        detected_faces=detected_faces,
+                        db_path=db_path,
+                        detector_backend=detector_backend,
+                        distance_metric=distance_metric,
+                        model_name=model_name,
+                    )
+
+                    if debug is True:
+                        cv2.imwrite(f"freezed_{frame}_3.jpg", img)
+
+                    # freeze the img after analysis
+                    freezed_img = img.copy()
+
+                    # start counter for freezing
+                    tic = time.time()
+                    logger.info("freezed")
+
+            elif freeze and time.time() - tic > time_threshold:
+                freeze = False
+                freezed_img = None
+                # reset counter for freezing
                 tic = time.time()
-                logger.info("freezed")
+                logger.info("Freeze released")
 
-        elif freeze and time.time() - tic > time_threshold:
-            freeze = False
-            freezed_img = None
-            # reset counter for freezing
-            tic = time.time()
-            logger.info("Freeze released")
+            # count how many seconds required to relased freezed image in the left up area
+            freezed_img = countdown_to_release(
+                img=freezed_img, tic=tic, time_threshold=time_threshold
+            )
+            display_img = img if freezed_img is None else freezed_img
 
-        # count how many seconds required to relased freezed image in the left up area
-        freezed_img = countdown_to_release(img=freezed_img, tic=tic, time_threshold=time_threshold)
-        display_img = img if freezed_img is None else freezed_img
+            # Save the frame to output video if writer is initialized
+            if video_writer:
+                video_writer.write(display_img)
 
-        # Save the frame to output video if writer is initialized
-        if video_writer:
-            video_writer.write(display_img)
-
-        cv2.imshow("img", display_img)
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
-
-    # Release resources
-    cap.release()
-    if video_writer:
-        video_writer.release()
-    cv2.destroyAllWindows()
+            cv2.imshow("img", display_img)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+    finally:
+        cap.release()
+        if video_writer is not None:
+            video_writer.release()
+        cv2.destroyAllWindows()
 
 
 def build_facial_recognition_model(model_name: str) -> None:
