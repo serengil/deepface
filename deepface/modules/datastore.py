@@ -1,6 +1,6 @@
 # built-in dependencies
 import os
-from typing import Any, Dict, IO, List, Tuple, Union, Optional, cast, TYPE_CHECKING
+from typing import Any, Dict, IO, List, Tuple, Union, Optional, cast, TYPE_CHECKING, Generator
 import uuid
 import time
 import math
@@ -19,9 +19,6 @@ from deepface.modules.representation import represent
 from deepface.modules.demography import analyze
 from deepface.commons import image_utils, package_utils
 from deepface.modules.verification import (
-    find_angular_distance,
-    find_cosine_distance,
-    find_euclidean_distance,
     find_distance,
     l2_normalize as find_l2_normalize,
     find_threshold,
@@ -542,22 +539,8 @@ def search(
             target_embedding = cast(List[float], result["embedding"])
 
             instances = []
-            for source in source_embeddings:
-                if distance_metric == "cosine":
-                    source_distance = find_cosine_distance(source["embedding"], target_embedding)
-                elif distance_metric == "euclidean":
-                    source_distance = find_euclidean_distance(source["embedding"], target_embedding)
-                elif distance_metric == "angular":
-                    source_distance = find_angular_distance(source["embedding"], target_embedding)
-                elif distance_metric == "euclidean_l2":
-                    source_distance = find_euclidean_distance(
-                        find_l2_normalize(source["embedding"]),
-                        find_l2_normalize(target_embedding),
-                    )
-                else:
-                    raise ValueError(f"Unsupported distance metric: {distance_metric}")
-
-                distance = float(source_distance)
+            distances = __find_exact_distances(source_embeddings, target_embedding, distance_metric)
+            for source, distance in zip(source_embeddings, distances):
                 verified = bool(distance <= threshold)
 
                 if similarity_search is False and not verified:
@@ -1151,6 +1134,36 @@ def __assign_attributes(
                 if attribute in attributes:
                     face[attribute] = analysis[f"dominant_{attribute}"]
 
+
+
+def __find_exact_distances(
+    sources: List[Dict[str, Any]], target: List[float], metric: str
+) -> Generator[float, None, None]:
+    """Compute exact distances in bounded batches, preserving source row order."""
+    query = np.asarray(target)
+    # Bound temporary matrices even for high-dimensional VGG-Face galleries.
+    for offset in range(0, len(sources), 256):
+        vectors = np.asarray([source["embedding"] for source in sources[offset : offset + 256]])
+        if metric in ("cosine", "angular"):
+            # Exact search historically uses scalar cosine without an epsilon term.
+            similarity = (vectors @ query) / (
+                np.linalg.norm(vectors, axis=1) * np.linalg.norm(query)
+            )
+            distances = (
+                1 - similarity
+                if metric == "cosine"
+                else np.arccos(np.clip(similarity, -1.0, 1.0)) / np.pi
+            )
+        elif metric == "euclidean":
+            distances = np.linalg.norm(vectors - query, axis=1)
+        elif metric == "euclidean_l2":
+            distances = np.linalg.norm(
+                find_l2_normalize(vectors, axis=1) - find_l2_normalize(query), axis=1
+            )
+        else:
+            raise ValueError(f"Unsupported distance metric: {metric}")
+        for distance in distances:
+            yield float(distance)
 
 
 def __sort_by_distance(
