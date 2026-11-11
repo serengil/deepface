@@ -901,7 +901,7 @@ def build_index(
         return
 
     try:
-        import faiss
+        import faiss  # pylint: disable=unused-import
     except ImportError as e:
         raise ValueError("faiss is not installed. Please install faiss to use build_index.") from e
 
@@ -910,6 +910,33 @@ def build_index(
         connection_details=connection_details,
         connection=connection,
     )
+
+    try:
+        __build_index(
+            db_client=db_client,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            align=align,
+            l2_normalize=l2_normalize,
+            batch_size=batch_size,
+            max_neighbors_per_node=max_neighbors_per_node,
+        )
+    finally:
+        if connection is None:
+            db_client.close()
+
+
+def __build_index(
+    db_client: Database,
+    model_name: str,
+    detector_backend: str,
+    align: bool,
+    l2_normalize: bool,
+    batch_size: int,
+    max_neighbors_per_node: int,
+) -> None:
+    """Build the index using an already acquired database client."""
+    import faiss
 
     index = __get_index(
         db_client=db_client,
