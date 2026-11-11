@@ -185,6 +185,10 @@ def represent(
             batch_confidences.append(confidence)
             batch_indexes.append(idx)
 
+    if not batch_images:
+        empty_results: List[List[Dict[str, Any]]] = [[] for _ in images]
+        return empty_results if is_batch else []
+
     # Convert list of images to a numpy array for batch processing
     batch_images_np = np.concatenate(batch_images, axis=0)
 
