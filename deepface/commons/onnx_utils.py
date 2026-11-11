@@ -67,6 +67,10 @@ def build_session(
     # only log errors, some graphs (e.g. sface) flood stderr with harmless optimization warnings
     session_options = ort.SessionOptions()
     session_options.log_severity_level = 3
+    if PROVIDERS["directml"] in providers:
+        # DirectML does not support memory patterns or parallel graph execution.
+        session_options.enable_mem_pattern = False
+        session_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
 
     try:
         model: Union[str, bytes] = weight_file
