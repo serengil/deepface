@@ -399,6 +399,16 @@ def find_euclidean_distance(
     source_representation = np.asarray(source_representation)
     test_representation = np.asarray(test_representation)
 
+    if (
+        source_representation.ndim in (1, 2)
+        and test_representation.ndim in (1, 2)
+        and source_representation.shape[-1] != test_representation.shape[-1]
+    ):
+        raise ValueError(
+            "Embeddings must have the same dimension, but received "
+            f"source shape: {source_representation.shape}, test shape: {test_representation.shape}"
+        )
+
     # Single embedding case (1D arrays)
     if source_representation.ndim == 1 and test_representation.ndim == 1:
         distances = np.linalg.norm(source_representation - test_representation)
