@@ -4,6 +4,8 @@ import io
 import ftplib
 import hashlib
 import posixpath
+import stat
+import tempfile
 from abc import ABC, abstractmethod
 from contextlib import closing
 from typing import Any, List, Optional, cast
@@ -95,8 +97,24 @@ class LocalFileStore(FileStore):
             return f.read()
 
     def write_bytes(self, path: str, data: bytes) -> None:
-        with open(path, "wb") as f:
-            f.write(data)
+        # Preserve symlink targets and replace only a complete file in the same directory.
+        target = os.path.realpath(path)
+        descriptor, temporary = tempfile.mkstemp(prefix=".deepface-", dir=os.path.dirname(target))
+        try:
+            with os.fdopen(descriptor, "wb") as output:
+                try:
+                    os.chmod(temporary, stat.S_IMODE(os.stat(target).st_mode))
+                except FileNotFoundError:
+                    pass
+                output.write(data)
+                output.flush()
+                os.fsync(output.fileno())
+            os.replace(temporary, target)
+        finally:
+            try:
+                os.unlink(temporary)
+            except FileNotFoundError:
+                pass
 
     def load_image(self, path: str) -> Any:
         # extract_faces loads the image from its path itself
