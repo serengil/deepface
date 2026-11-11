@@ -179,6 +179,10 @@ def extract_faces(
         if current_img.shape[0] == 0 or current_img.shape[1] == 0:
             continue
 
+        # Normalized faces are float64, which OpenCV's grayscale conversion cannot consume.
+        if (grayscale is True or color_face == "gray") and current_img.dtype == np.float64:
+            current_img = current_img.astype(np.float32)
+
         if grayscale is True:
             logger.warn("Parameter grayscale is deprecated. Use color_face instead.")
             current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
