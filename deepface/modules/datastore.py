@@ -336,9 +336,6 @@ def search(
     """
     return_type = package_utils.resolve_dataframe_return_type(return_type)
 
-    search_results: List[List[Dict[str, Any]]] = []
-    columns: Optional[List[str]] = None
-
     # adjust distance metric
     if search_method == "ann":
         # ann does cosine for l2 normalized vectors, euclidean for non-l2 normalized vectors
@@ -363,6 +360,56 @@ def search(
         connection_details=connection_details,
         connection=connection,
     )
+
+    try:
+        return __search(
+            db_client=db_client,
+            img=img,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            distance_metric=distance_metric,
+            enforce_detection=enforce_detection,
+            align=align,
+            l2_normalize=l2_normalize,
+            expand_percentage=expand_percentage,
+            normalization=normalization,
+            anti_spoofing=anti_spoofing,
+            similarity_search=similarity_search,
+            k=k,
+            database_type=database_type,
+            search_method=search_method,
+            return_type=return_type,
+            threshold=threshold,
+        )
+    finally:
+        # Graph clients may still be writing relationships in the background.
+        # Caller-supplied connections remain owned by the caller.
+        if connection is None and database_inventory[database_type]["is_graph_db"] is False:
+            db_client.close()
+
+
+def __search(
+    db_client: Database,
+    img: Union[str, NDArray[Any], IO[bytes], List[str], List[NDArray[Any]], List[IO[bytes]]],
+    model_name: str,
+    detector_backend: str,
+    distance_metric: str,
+    enforce_detection: bool,
+    align: bool,
+    l2_normalize: bool,
+    expand_percentage: int,
+    normalization: str,
+    anti_spoofing: bool,
+    similarity_search: bool,
+    k: Optional[int],
+    database_type: str,
+    search_method: str,
+    return_type: str,
+    threshold: float,
+) -> Union[List["pd.DataFrame"], List[List[Dict[str, Any]]]]:
+    """Search using a database client whose lifetime is managed by the caller."""
+    search_results: List[List[Dict[str, Any]]] = []
+    columns: Optional[List[str]] = None
 
     results = __get_embeddings(
         img=img,
