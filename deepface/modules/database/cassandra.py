@@ -408,31 +408,42 @@ class CassandraClient(Database):
         Returns:
             bytes: Serialized index data.
         """
-        pointer = self.session.execute(
-            self._cql(
-                "SELECT version, chunks FROM {ks}.embeddings_index WHERE model_name = %s"
-                " AND detector_backend = %s AND align = %s AND l2_normalized = %s"
-            ),
-            (model_name, detector_backend, aligned, l2_normalized),
-        ).one()
+        previous_version = None
+        expected_chunks = 0
+        chunks: List[bytes] = []
+        for _ in range(2):
+            pointer = self.session.execute(
+                self._cql(
+                    "SELECT version, chunks FROM {ks}.embeddings_index WHERE model_name = %s"
+                    " AND detector_backend = %s AND align = %s AND l2_normalized = %s"
+                ),
+                (model_name, detector_backend, aligned, l2_normalized),
+            ).one()
 
-        if pointer is None or pointer.version is None:
-            raise ValueError(
-                "No Embeddings index found for the specified parameters "
-                f" {model_name=}, {detector_backend=}, {aligned=}, {l2_normalized=}. "
-                "You must run build_index first."
+            if pointer is None or pointer.version is None:
+                raise ValueError(
+                    "No Embeddings index found for the specified parameters "
+                    f" {model_name=}, {detector_backend=}, {aligned=}, {l2_normalized=}. "
+                    "You must run build_index first."
+                )
+            if pointer.version == previous_version:
+                break
+            previous_version = pointer.version
+            expected_chunks = pointer.chunks
+
+            statement = self.SimpleStatement(
+                self._cql("SELECT data FROM {ks}.embeddings_index_chunks WHERE version = %s"),
+                fetch_size=8,
             )
+            chunks = [row.data for row in self.session.execute(statement, (pointer.version,))]
+            if len(chunks) == expected_chunks:
+                return b"".join(chunks)
+            # Publication switches the pointer before removing old chunks. A reader
+            # that captured the old pointer can retry the newly published version once.
 
-        statement = self.SimpleStatement(
-            self._cql("SELECT data FROM {ks}.embeddings_index_chunks WHERE version = %s"),
-            fetch_size=8,
+        raise ValueError(
+            f"Embeddings index is incomplete: found {len(chunks)} of {expected_chunks} chunks."
         )
-        chunks = [row.data for row in self.session.execute(statement, (pointer.version,))]
-        if len(chunks) != pointer.chunks:
-            raise ValueError(
-                f"Embeddings index is incomplete: found {len(chunks)} of {pointer.chunks} chunks."
-            )
-        return b"".join(chunks)
 
     def insert_embeddings(self, embeddings: List[Dict[str, Any]], batch_size: int = 100) -> int:
         """
