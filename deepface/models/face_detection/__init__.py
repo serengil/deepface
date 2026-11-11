@@ -27,9 +27,12 @@ onnxruntime.
 |              |    |         |      |        |          |   to its tf, pytorch or onnx      |
 |              |    |         |      |        |          |   model with the same environment |
 |              |    |         |      |        |          |   variable                        |
-| yolov8       |    | F       |      |        |          | ultralytics and torch             |
-| yolov11      |    | F       |      |        |          | ultralytics and torch             |
-| yolov12      |    | F       |      |        |          | ultralytics and torch             |
+| yolov8       |    | R       | R    |        |          | pytorch: ultralytics and torch    |
+|              |    |         |      |        |          | onnx: base                        |
+| yolov11      |    | R       | R    |        |          | pytorch: ultralytics and torch    |
+|              |    |         |      |        |          | onnx: base                        |
+| yolov12      |    | R       | R    |        |          | pytorch: ultralytics and torch    |
+|              |    |         |      |        |          | onnx: base                        |
 | yunet        |    |         | F    |        |          | base                              |
 | centerface   |    |         | F    |        |          | base                              |
 | opencv       |    |         |      | F      |          | base (haar cascade)               |
