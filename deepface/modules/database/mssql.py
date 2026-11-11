@@ -3,6 +3,7 @@ import os
 import json
 import hashlib
 import struct
+import re
 from typing import Any, Dict, Optional, List, Union, cast
 
 # 3rd party dependencies
@@ -19,7 +20,9 @@ logger = Logger()
 _SEARCH_BY_ID_CHUNK_SIZE = 500
 
 # error numbers raised by sql server for unique constraint and unique index violations
-_UNIQUE_VIOLATION_CODES = ("2627", "2601")
+_UNIQUE_VIOLATION_PATTERN = re.compile(
+    r"\((?:2627|2601)\)(?:\s+\(SQL\w+\))?(?=\s*(?:;|$))"
+)
 
 # hashes are kept as fixed length strings, because MAX types cannot be part of a unique key
 CREATE_EMBEDDINGS_TABLE_SQL = """
@@ -66,8 +69,9 @@ def _decode_embedding(embedding_bytes: bytes) -> List[float]:
 
 
 def _is_unique_violation(error: Exception) -> bool:
-    message = " ".join(str(arg) for arg in error.args)
-    return any(code in message for code in _UNIQUE_VIOLATION_CODES)
+    # pyodbc appends native error numbers at diagnostic boundaries. A number
+    # appearing inside a constraint name or user value is not an error code.
+    return any(_UNIQUE_VIOLATION_PATTERN.search(str(arg)) for arg in error.args)
 
 
 # pylint: disable=too-many-positional-arguments
