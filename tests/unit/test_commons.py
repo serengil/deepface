@@ -174,12 +174,12 @@ class TestDownloadWeightFeature:
             "http://backup.example.com/model_weights.h5",
         ]
 
-        # primary source fails, backup one succeeds
-        mock_gdown.side_effect = [Exception("Download failed!"), None]
+        expected_path = os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
+
+        # primary source fails, backup one succeeds (gdown returns the output path on success)
+        mock_gdown.side_effect = [Exception("Download failed!"), expected_path]
 
         result = weight_utils.download_weights_if_necessary(file_name, source_urls)
-
-        expected_path = os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
         assert result == expected_path
         assert mock_gdown.call_args_list == [
             mock.call(source_urls[0], expected_path, quiet=False),
@@ -340,8 +340,10 @@ class TestDownloadWeightFeature:
         source_url = "http://example.com/model_weights.bz2"
         compress_type = "bz2"
 
-        # Simulate the download success
-        mock_gdown.return_value = None
+        # Simulate the download success (gdown returns the output path on success)
+        mock_gdown.return_value = os.path.normpath(
+            "/mock/home/.deepface/weights/model_weights.h5.bz2"
+        )
 
         # Simulate the BZ2 file reading behavior
         mock_bz2file.return_value.__enter__.return_value.read.return_value = b"fake data"
