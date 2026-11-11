@@ -4,6 +4,7 @@ import json
 import hashlib
 import struct
 import math
+import re
 from typing import Any, Dict, Optional, List, Union
 
 # project dependencies
@@ -294,4 +295,11 @@ class PineconeClient(Database):
             "Aligned" if aligned else "Unaligned",
             "Norm" if l2_normalized else "Raw",
         ]
-        return "-".join(index_name_attributes).lower()
+        name = "-".join(index_name_attributes).lower()
+        # Keep existing valid names reachable. Pinecone rejects underscores and names
+        # longer than 45 characters; a digest keeps shortened criteria distinct.
+        if len(name) <= 45 and re.fullmatch(r"[a-z0-9-]+", name):
+            return name
+        prefix = re.sub(r"[^a-z0-9-]", "-", name)[:32].rstrip("-")
+        suffix = hashlib.sha256(name.encode()).hexdigest()[:12]
+        return f"{prefix}-{suffix}"
