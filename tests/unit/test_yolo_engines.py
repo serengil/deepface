@@ -80,6 +80,67 @@ def test_nms_keeps_highest_scores_and_suppresses_overlaps():
     assert onnx_yolo.nms(boxes, scores, 1.0).tolist() == [1, 0, 2, 3]
 
 
+@pytest.mark.parametrize("limit", [0, 1, 2, 3, 10, None])
+def test_nms_limit_preserves_score_order_and_suppression(limit):
+    boxes = np.array(
+        [[0, 0, 10, 10], [1, 1, 11, 11], [20, 20, 30, 30], [40, 40, 50, 50]],
+        dtype=np.float32,
+    )
+    # Tied scores keep their original order, including when the limit cuts through a tie.
+    scores = np.array([0.8, 0.9, 0.7, 0.7], dtype=np.float32)
+    expected = [1, 2, 3]
+    assert onnx_yolo.nms(boxes, scores, 0.5, max_detections=limit).tolist() == expected[:limit]
+
+
+def test_nms_stops_comparing_after_the_last_requested_detection(monkeypatch):
+    boxes = np.column_stack((np.arange(1000) * 2, np.zeros(1000)))
+    boxes = np.column_stack((boxes, boxes + 1)).astype(np.float32)
+    scores = np.linspace(0.9, 0.3, len(boxes), dtype=np.float32)
+    real_minimum = np.minimum
+    comparisons = []
+
+    def minimum(first, rest):
+        comparisons.append(rest.size)
+        return real_minimum(first, rest)
+
+    monkeypatch.setattr(onnx_yolo.np, "minimum", minimum)
+    kept = onnx_yolo.nms(boxes, scores, 0.7, max_detections=3)
+
+    assert kept.tolist() == [0, 1, 2]
+    # There is no need to compare the third kept box with candidates that cannot be returned.
+    assert comparisons == [999, 999, 998, 998]
+
+
+def test_detector_caps_nms_before_decoding_faces(monkeypatch):
+    count = onnx_yolo.MAX_DETECTIONS + 100
+    x = (np.arange(count) % 20) * 20 + 5
+    y = (np.arange(count) // 20) * 20 + 5
+    predictions = np.column_stack(
+        (x, y, np.full(count, 4), np.full(count, 4), np.linspace(0.99, 0.3, count))
+    ).astype(np.float32)
+    session = _NoFaceSession()
+    monkeypatch.setattr(session, "run", lambda *_: [predictions.T[np.newaxis]])
+    client = onnx_yolo.YoloDetectorClient.__new__(onnx_yolo.YoloDetectorClient)
+    client.model = session
+    client.input_size = 640
+    real_nms = onnx_yolo.nms
+    kept_counts = []
+
+    def nms(*args, **kwargs):
+        kept = real_nms(*args, **kwargs)
+        kept_counts.append(len(kept))
+        return kept
+
+    monkeypatch.setattr(onnx_yolo, "nms", nms)
+    faces = client.detect_faces(np.zeros((640, 640, 3), dtype=np.uint8))
+
+    assert kept_counts == [onnx_yolo.MAX_DETECTIONS]
+    assert len(faces) == onnx_yolo.MAX_DETECTIONS
+    for index, face in enumerate(faces):
+        assert (face.x, face.y, face.w, face.h) == (int(x[index]) - 2, int(y[index]) - 2, 4, 4)
+        assert face.confidence == pytest.approx(float(predictions[index, 4]))
+
+
 class _NoFaceSession:  # pylint: disable=too-few-public-methods
     class _Input:  # pylint: disable=too-few-public-methods
         name = "images"
