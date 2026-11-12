@@ -25,29 +25,22 @@ def normalize_embedding_minmax(
     if dim_max - dim_min == 0:
         return embeddings
 
+    def normalize_vector(vector: List[float]) -> List[float]:
+        # Clip before scaling, including values outside the model's range.
+        values = np.asarray(vector)
+        if values.dtype == object:
+            # Arbitrarily large Python integers need object storage; preserve
+            # Python's NaN handling when clipping this uncommon input type.
+            clipped = np.asarray([min(max(value, dim_min), dim_max) for value in vector])
+        else:
+            clipped = np.clip(values, dim_min, dim_max)
+        return cast(List[float], ((clipped - dim_min) / (dim_max - dim_min)).tolist())
+
     if is_flat_embedding(embeddings):
-        embeddings = cast(List[float], embeddings)  # let type checker know
+        return normalize_vector(cast(List[float], embeddings))
 
-        # Clamp vals to [dim_min, dim_max] to ensure the norm-embedding stays in [0, 1]
-        embeddings = [max(x, dim_min) for x in embeddings]  # lower-bound clamp
-        embeddings = [min(x, dim_max) for x in embeddings]  # upper-bound clamp
-
-        embeddings = [(x - dim_min) / (dim_max - dim_min) for x in embeddings]
-
-    else:
-        normalized_embeddings = []
-        for emb in embeddings:
-            emb = cast(List[float], emb)  # let type checker know
-
-            # Clamp vals to [dim_min, dim_max] to ensure the norm-embedding stays in [0, 1]
-            emb = [max(x, dim_min) for x in emb]  # lower-bound clamp
-            emb = [min(x, dim_max) for x in emb]  # upper-bound clamp
-
-            emb = [(min(max(x, dim_min), dim_max) - dim_min) / (dim_max - dim_min) for x in emb]
-            normalized_embeddings.append(emb)
-        embeddings = normalized_embeddings
-
-    return embeddings
+    # Process each row separately to retain support for empty or unequal rows.
+    return [normalize_vector(cast(List[float], emb)) for emb in embeddings]
 
 
 def normalize_embedding_l2(
