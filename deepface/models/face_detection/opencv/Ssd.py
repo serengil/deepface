@@ -1,6 +1,7 @@
 # built-in dependencies
 from typing import List, Any
 from enum import IntEnum
+from threading import Lock
 
 # 3rd party dependencies
 import cv2
@@ -24,6 +25,7 @@ WEIGHTS_URL = "https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_de
 class SsdClient(Detector):
     def __init__(self) -> None:
         self.model = self.build_model()
+        self._inference_lock = Lock()
 
     def build_model(self) -> Any:
         """
@@ -91,8 +93,10 @@ class SsdClient(Detector):
         imageBlob = cv2.dnn.blobFromImage(image=current_img)
 
         face_detector = self.model
-        face_detector.setInput(imageBlob)
-        detections = face_detector.forward()
+        # Cached detectors share a mutable OpenCV network between callers.
+        with self._inference_lock:
+            face_detector.setInput(imageBlob)
+            detections = face_detector.forward().copy()
 
         class ssd_labels(IntEnum):
             img_id = 0
