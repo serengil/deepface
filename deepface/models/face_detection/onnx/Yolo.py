@@ -113,13 +113,19 @@ def letterbox(img: NDArray[Any], size: int) -> Tuple[NDArray[Any], float]:
     return padded, gain
 
 
-def nms(boxes: NDArray[Any], scores: NDArray[Any], threshold: float) -> NDArray[Any]:
+def nms(
+    boxes: NDArray[Any],
+    scores: NDArray[Any],
+    threshold: float,
+    max_detections: Optional[int] = None,
+) -> NDArray[Any]:
     """
     Greedy non maximum suppression - torchvision.ops.nms
     Args:
         boxes (np.ndarray): (n, 4) shaped boxes in x1, y1, x2, y2
         scores (np.ndarray): (n,) shaped scores
         threshold (float): boxes overlapping a kept one more than this iou are dropped
+        max_detections (int or None): stop after this many boxes are kept, or keep all
     Returns:
         keep (np.ndarray): indices of the kept boxes, sorted by score in descending order
     """
@@ -127,10 +133,12 @@ def nms(boxes: NDArray[Any], scores: NDArray[Any], threshold: float) -> NDArray[
     areas = (x2 - x1) * (y2 - y1)
     order = np.argsort(-scores, kind="stable")
 
-    keep = []
-    while order.size > 0:
+    keep: List[int] = []
+    while order.size > 0 and (max_detections is None or len(keep) < max_detections):
         i = order[0]
         keep.append(i)
+        if max_detections is not None and len(keep) == max_detections:
+            break
         rest = order[1:]
         iw = np.maximum(0.0, np.minimum(x2[i], x2[rest]) - np.maximum(x1[i], x1[rest]))
         ih = np.maximum(0.0, np.minimum(y2[i], y2[rest]) - np.maximum(y1[i], y1[rest]))
@@ -187,7 +195,7 @@ class YoloDetectorClient(Detector):
         boxes[:, 2:] = predictions[:, :2] + predictions[:, 2:4] / 2
         scores = predictions[:, 4]
 
-        keep = nms(boxes, scores, IOU_THRESHOLD)[:MAX_DETECTIONS]
+        keep = nms(boxes, scores, IOU_THRESHOLD, max_detections=MAX_DETECTIONS)
         boxes, scores, predictions = boxes[keep], scores[keep], predictions[keep]
 
         # map boxes back to the original image - ultralytics' scale_boxes
