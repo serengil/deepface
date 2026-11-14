@@ -9,3 +9,4 @@ grpcio>=1.48.0
 grpcio-tools>=1.48.0
 boto3>=1.28.3
 pyarrow>=14.0.1
+khatt>=0.10.0
