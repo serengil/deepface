@@ -1,5 +1,6 @@
 # built-in dependencies
 import os
+import re
 from importlib import metadata
 import time
 from typing import List, Tuple, Optional, cast, Dict, Any
@@ -22,6 +23,8 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 IDENTIFIED_IMG_SIZE = 112
 TEXT_COLOR = (255, 255, 255)
+# letters of the arabic script, which join and run right to left
+ARABIC_LETTERS = re.compile("[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff\ufb50-\ufdff\ufe70-\ufeff]")
 
 
 # pylint: disable=unused-variable, too-many-positional-arguments
@@ -363,6 +366,33 @@ def __validate_opencv_gui() -> None:
     )
 
 
+def put_label(img: NDArray[Any], label: str, org: Tuple[int, int]) -> None:
+    """
+    Write a label onto the image, as cv2.putText would
+    Args:
+        img (np.ndarray): image itself
+        label (str): text to write
+        org (tuple): bottom left corner of the text
+    Note:
+        cv2.putText cannot join Arabic letters or lay them out right to left: opencv 5 writes
+        them apart and in reverse order, and opencv 4 writes question marks. When a label
+        has Arabic letters and khatt is installed, khatt writes it instead.
+    """
+    if ARABIC_LETTERS.search(label):
+        try:
+            import khatt
+        except ImportError:
+            logger.warn(
+                "Labels with Arabic letters are not drawn correctly by opencv. "
+                "Please install khatt using 'pip install khatt'.",
+                show_once=True,
+            )
+        else:
+            khatt.put_text(img, label, org, font="cairo", size_px=15, color=TEXT_COLOR)
+            return
+    cv2.putText(img, label, org, cv2.FONT_HERSHEY_SIMPLEX, 0.5, TEXT_COLOR, 1)
+
+
 def build_demography_models(enable_face_analysis: bool) -> None:
     """
     Build demography analysis models
@@ -694,15 +724,7 @@ def overlay_identified_face(
                 img,
             )
 
-            cv2.putText(
-                img,
-                label,
-                (x + w, y + 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,
-                TEXT_COLOR,
-                1,
-            )
+            put_label(img, label, (x + w, y + 10))
 
             # connect face and text
             cv2.line(
@@ -745,15 +767,7 @@ def overlay_identified_face(
                 img,
             )
 
-            cv2.putText(
-                img,
-                label,
-                (x - IDENTIFIED_IMG_SIZE, y + h - 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,
-                TEXT_COLOR,
-                1,
-            )
+            put_label(img, label, (x - IDENTIFIED_IMG_SIZE, y + h - 10))
 
             # connect face and text
             cv2.line(
@@ -799,15 +813,7 @@ def overlay_identified_face(
                 img,
             )
 
-            cv2.putText(
-                img,
-                label,
-                (x - IDENTIFIED_IMG_SIZE, y + 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,
-                TEXT_COLOR,
-                1,
-            )
+            put_label(img, label, (x - IDENTIFIED_IMG_SIZE, y + 10))
 
             # connect face and text
             cv2.line(
@@ -859,15 +865,7 @@ def overlay_identified_face(
                 img,
             )
 
-            cv2.putText(
-                img,
-                label,
-                (x + w, y + h - 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,
-                TEXT_COLOR,
-                1,
-            )
+            put_label(img, label, (x + w, y + h - 10))
 
             # connect face and text
             cv2.line(
