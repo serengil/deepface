@@ -135,17 +135,20 @@ def represent(
             if len(img.shape) != 3:
                 raise ValueError(f"Input img must be 3 dimensional but it is {img.shape}")
 
-            # Convert to RGB format to keep compatability with `extract_faces`.
-            img = img[:, :, ::-1]
-
             # make dummy region and confidence to keep compatibility with `extract_faces`
             img_objs = [
                 {
-                    "face": img,
+                    # Convert to RGB format to keep compatibility with `extract_faces`.
+                    "face": img[:, :, ::-1],
                     "facial_area": {"x": 0, "y": 0, "w": img.shape[1], "h": img.shape[0]},
                     "confidence": 0,
                 }
             ]
+            if anti_spoofing is True:
+                antispoof_model = modeling.build_model(task="spoofing", model_name="Fasnet")
+                img_objs[0]["is_real"], _ = antispoof_model.analyze(
+                    img=img, facial_area=(0, 0, img.shape[1], img.shape[0])
+                )
         # ---------------------------------
 
         if max_faces is not None and max_faces < len(img_objs):
