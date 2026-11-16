@@ -6,6 +6,7 @@ import struct
 import math
 import re
 from typing import Any, Dict, Optional, List, Union
+from contextlib import closing
 
 # project dependencies
 from deepface.modules.database.types import Database
@@ -101,33 +102,32 @@ class PineconeClient(Database):
         )
 
         # connect to the index
-        index = self.client.Index(index_name)
+        with closing(self.client.Index(index_name)) as index:
+            total = 0
+            for i in range(0, len(embeddings), batch_size):
+                batch = embeddings[i : i + batch_size]
+                vectors = []
+                for e in batch:
+                    face_json = json.dumps(e["face"].tolist())
+                    face_hash = hashlib.sha256(face_json.encode()).hexdigest()
+                    embedding_bytes = struct.pack(f'{len(e["embedding"])}d', *e["embedding"])
+                    embedding_hash = hashlib.sha256(embedding_bytes).hexdigest()
 
-        total = 0
-        for i in range(0, len(embeddings), batch_size):
-            batch = embeddings[i : i + batch_size]
-            vectors = []
-            for e in batch:
-                face_json = json.dumps(e["face"].tolist())
-                face_hash = hashlib.sha256(face_json.encode()).hexdigest()
-                embedding_bytes = struct.pack(f'{len(e["embedding"])}d', *e["embedding"])
-                embedding_hash = hashlib.sha256(embedding_bytes).hexdigest()
+                    vectors.append(
+                        {
+                            "id": f"{face_hash}:{embedding_hash}",
+                            "values": e["embedding"],
+                            "metadata": {
+                                "img_name": e["img_name"],
+                                # "face": e["face"].tolist(),
+                                # "face_shape": list(e["face"].shape),
+                            },
+                        }
+                    )
+                index.upsert(vectors=vectors)
+                total += len(vectors)
 
-                vectors.append(
-                    {
-                        "id": f"{face_hash}:{embedding_hash}",
-                        "values": e["embedding"],
-                        "metadata": {
-                            "img_name": e["img_name"],
-                            # "face": e["face"].tolist(),
-                            # "face_shape": list(e["face"].shape),
-                        },
-                    }
-                )
-            index.upsert(vectors=vectors)
-            total += len(vectors)
-
-        return total
+            return total
 
     def search_by_vector(
         self,
@@ -154,16 +154,16 @@ class PineconeClient(Database):
             model_name, detector_backend, aligned, l2_normalized
         )
 
-        index = self.client.Index(index_name)
-        results = index.query(
-            vector=vector,
-            top_k=limit,
-            include_metadata=True,
-            include_values=False,
-        )
+        with closing(self.client.Index(index_name)) as index:
+            results = index.query(
+                vector=vector,
+                top_k=limit,
+                include_metadata=True,
+                include_values=False,
+            )
 
-        if not results.matches:
-            return out
+            if not results.matches:
+                return out
 
         for res in results.matches:
             score = float(res.score)
@@ -209,22 +209,22 @@ class PineconeClient(Database):
         if not self.client.has_index(index_name):
             return None
 
-        index = self.client.Index(index_name)
-        fetched = index.fetch(ids=[str(identity_id)])
-        vector = fetched.get("vectors", {}).get(str(identity_id))
+        with closing(self.client.Index(index_name)) as index:
+            fetched = index.fetch(ids=[str(identity_id)])
+            vector = fetched.get("vectors", {}).get(str(identity_id))
 
-        if not vector:
-            return None
+            if not vector:
+                return None
 
-        return {
-            "id": str(identity_id),
-            "img_name": (vector.get("metadata") or {}).get("img_name"),
-            "model_name": model_name,
-            "detector_backend": detector_backend,
-            "aligned": aligned,
-            "l2_normalized": l2_normalized,
-            "embedding": vector.get("values"),
-        }
+            return {
+                "id": str(identity_id),
+                "img_name": (vector.get("metadata") or {}).get("img_name"),
+                "model_name": model_name,
+                "detector_backend": detector_backend,
+                "aligned": aligned,
+                "l2_normalized": l2_normalized,
+                "embedding": vector.get("values"),
+            }
 
     def fetch_all_embeddings(
         self,
@@ -250,33 +250,34 @@ class PineconeClient(Database):
             model_name, detector_backend, aligned, l2_normalized
         )
 
-        index = self.client.Index(index_name)
+        with closing(self.client.Index(index_name)) as index:
+            # Fetch all IDs
+            ids: List[str] = []
+            for _id in index.list():
+                ids.extend(_id)
 
-        # Fetch all IDs
-        ids: List[str] = []
-        for _id in index.list():
-            ids.extend(_id)
+            for i in range(0, len(ids), batch_size):
+                batch_ids = ids[i : i + batch_size]
+                fetched = index.fetch(ids=batch_ids)
+                for _id, v in fetched.get("vectors", {}).items():
+                    md = v.get("metadata") or {}
+                    out.append(
+                        {
+                            "id": _id,
+                            "embedding": v.get("values"),
+                            "img_name": md.get("img_name"),
+                            "face_hash": md.get("face_hash"),
+                            "embedding_hash": md.get("embedding_hash"),
+                        }
+                    )
 
-        for i in range(0, len(ids), batch_size):
-            batch_ids = ids[i : i + batch_size]
-            fetched = index.fetch(ids=batch_ids)
-            for _id, v in fetched.get("vectors", {}).items():
-                md = v.get("metadata") or {}
-                out.append(
-                    {
-                        "id": _id,
-                        "embedding": v.get("values"),
-                        "img_name": md.get("img_name"),
-                        "face_hash": md.get("face_hash"),
-                        "embedding_hash": md.get("embedding_hash"),
-                    }
-                )
-
-        return out
+            return out
 
     def close(self) -> None:
-        """Pinecone client does not require explicit closure"""
-        return
+        """Close the control-plane client and release its connection pool."""
+        close = getattr(self.client, "close", None)
+        if close is not None:
+            close()
 
     @staticmethod
     def __generate_index_name(
