@@ -1,5 +1,6 @@
 # built-in dependencies
 import os
+from threading import Lock
 from typing import Any, List, Dict, Tuple, Optional
 
 # 3rd party dependencies
@@ -18,6 +19,7 @@ HAARCASCADE_FILES = {
     "haarcascade_eye": "haarcascade_eye.xml",
 }
 
+
 # mypy: disable-error-code=attr-defined
 class OpenCvClient(Detector):
     """
@@ -27,6 +29,7 @@ class OpenCvClient(Detector):
     def __init__(self) -> None:
         """OpenCV face detector model initialization"""
         self.model = self.build_model()
+        self._inference_lock = Lock()
 
     def build_model(self) -> Dict[str, Any]:
         """
@@ -58,9 +61,11 @@ class OpenCvClient(Detector):
             # faces = detector["face_detector"].detectMultiScale(img, 1.3, 5)
 
             # note that, by design, opencv's haarcascade scores are >0 but not capped at 1
-            faces, _, scores = self.model["face_detector"].detectMultiScale3(
-                img, 1.1, 10, outputRejectLevels=True
-            )
+            # CascadeClassifier keeps mutable image buffers between native calls.
+            with self._inference_lock:
+                faces, _, scores = self.model["face_detector"].detectMultiScale3(
+                    img, 1.1, 10, outputRejectLevels=True
+                )
         except:
             pass
 
@@ -110,7 +115,8 @@ class OpenCvClient(Detector):
             img, cv2.COLOR_BGR2GRAY
         )  # eye detector expects gray scale image
 
-        eyes = self.model["eye_detector"].detectMultiScale(detected_face_gray, 1.1, 10)
+        with self._inference_lock:
+            eyes = self.model["eye_detector"].detectMultiScale(detected_face_gray, 1.1, 10)
 
         # ----------------------------------------------------------------
 
