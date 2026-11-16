@@ -93,8 +93,9 @@ class MongoDbClient(Database):
         )
 
         # counters collection for auto-incrementing IDs
-        if not self.counters.find_one({"_id": "embedding_id"}):
-            self.counters.insert_one({"_id": "embedding_id", "seq": 0})
+        self.counters.update_one(
+            {"_id": "embedding_id"}, {"$setOnInsert": {"seq": 0}}, upsert=True
+        )
 
         logger.debug("MongoDB indexes ensured.")
 
