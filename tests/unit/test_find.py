@@ -138,7 +138,7 @@ def test_find_without_refresh_database():
     # 5. After successful check, the image will be moved back to the original destination;
 
     pkl_path = (
-        "dataset/ds_model_vggface_detector_opencv_aligned_normalization_base_expand_0.npz"
+        "dataset/ds_model_vggface_detector_opencv_aligned_normalization_base_expand_0_enforce_true.npz"
     )
     with open(pkl_path, "rb") as f:
         hash_before = hashlib.sha256(f.read())

@@ -195,6 +195,9 @@ def find(
         "expand",
         str(expand_percentage),
     ]
+    # Missing detections become either whole-image embeddings or empty rows.
+    if detector_backend != "skip":
+        file_parts.extend(["enforce", str(enforce_detection)])
 
     file_name = "_".join(file_parts)
     file_name = file_name.replace("-", "").lower() + f".{datastore_format}"
