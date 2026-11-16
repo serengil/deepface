@@ -212,7 +212,9 @@ class TestDownloadWeightFeature:
         not_found, found = MagicMock(status_code=404), MagicMock(status_code=200)
         mock_requests_head.side_effect = [not_found, found]
 
-        weight_utils.download_weights_if_necessary(file_name, source_urls)
+        with mock.patch("requests.get") as mocked_get:
+            mocked_get.return_value.__enter__.return_value.status_code = 404
+            weight_utils.download_weights_if_necessary(file_name, source_urls)
 
         expected_path = os.path.normpath("/mock/home/.deepface/weights/model_weights.h5")
         mock_gdown.assert_called_once_with(source_urls[1], expected_path, quiet=False)

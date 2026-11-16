@@ -102,9 +102,18 @@ def ensure_source_is_reachable(url: str) -> None:
         url (str): source url to be downloaded
     """
     response = requests.head(url, allow_redirects=True, timeout=30)
-    # some servers do not allow head requests, let gdown decide for them
-    if response.status_code >= 400 and response.status_code != 405:
-        raise ValueError(f"{url} responded with status code {response.status_code}")
+    try:
+        status_code = response.status_code
+    finally:
+        response.close()
+    if status_code < 400:
+        return
+
+    # A GET-authorized URL may reject HEAD, including method-specific signed URLs.
+    # Check the download method before rejecting a source or handing an error page to gdown.
+    with requests.get(url, stream=True, timeout=30) as response:
+        if response.status_code >= 400:
+            raise ValueError(f"{url} responded with status code {response.status_code}")
 
 
 def load_model_weights(model: Any, weight_file: str) -> Any:
