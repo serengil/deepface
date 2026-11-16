@@ -254,8 +254,9 @@ class PineconeClient(Database):
 
         # Fetch all IDs
         ids: List[str] = []
-        for _id in index.list():
-            ids.extend(_id)
+        for page in index.list():
+            page_ids = (item.id for item in page.vectors) if hasattr(page, "vectors") else page
+            ids.extend(page_ids)
 
         for i in range(0, len(ids), batch_size):
             batch_ids = ids[i : i + batch_size]
