@@ -295,7 +295,7 @@ class PGVectorClient(Database):
                         {
                             "id": r[0],
                             "img_name": r[1],
-                            "embedding": list(r[2]),
+                            "embedding": r[2].to_list() if hasattr(r[2], "to_list") else list(r[2]),
                             "model_name": model_name,
                             "detector_backend": detector_backend,
                             "aligned": aligned,
@@ -353,7 +353,7 @@ class PGVectorClient(Database):
             "detector_backend": r[3],
             "aligned": r[4],
             "l2_normalized": r[5],
-            "embedding": list(r[6]),
+            "embedding": r[6].to_list() if hasattr(r[6], "to_list") else list(r[6]),
         }
 
     def search_by_vector(
