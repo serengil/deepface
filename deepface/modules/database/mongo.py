@@ -80,6 +80,19 @@ class MongoDbClient(Database):
             name="uniq_face_embedding",
         )
 
+        # Cover gallery filtering and its identity order, plus direct identity lookups.
+        self.embeddings.create_index(
+            [
+                ("model_name", self.ASCENDING),
+                ("detector_backend", self.ASCENDING),
+                ("aligned", self.ASCENDING),
+                ("l2_normalized", self.ASCENDING),
+                ("sequence", self.ASCENDING),
+            ],
+            name="ix_embeddings_criteria",
+        )
+        self.embeddings.create_index("sequence", name="ix_embeddings_sequence")
+
         # Unique constraint for embeddings_index
         self.embeddings_index.create_index(
             [
