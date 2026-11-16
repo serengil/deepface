@@ -262,8 +262,8 @@ def __extract_faces_and_embeddings(
         embeddings (List[float])
         facial areas (List[dict])
     """
-    embeddings = []
-    facial_areas = []
+    embeddings: List[List[float]] = []
+    facial_areas: List[Dict[str, Any]] = []
 
     img_objs: List[Dict[str, Any]] = cast(
         List[Dict[str, Any]],
@@ -278,23 +278,27 @@ def __extract_faces_and_embeddings(
         ),
     )
 
-    # find embeddings for each face
+    if not img_objs:
+        return embeddings, facial_areas
+
     for img_obj in img_objs:
         if anti_spoofing is True and img_obj.get("is_real", True) is False:
             raise SpoofDetected("Spoof detected in given image.")
-        img_embedding_obj = representation.represent(
-            img_path=img_obj["face"][:, :, ::-1],  # make compatible with direct representation call
+        facial_areas.append(img_obj["facial_area"])
+
+    # The faces are already extracted; represent can infer them in one batch.
+    img_embedding_objs = cast(
+        List[List[Dict[str, Any]]],
+        representation.represent(
+            img_path=[img_obj["face"][:, :, ::-1] for img_obj in img_objs],
             model_name=model_name,
             enforce_detection=enforce_detection,
             detector_backend="skip",
             align=align,
             normalization=normalization,
-        )
-        # already extracted face given, safe to access its 1st item
-        img_embedding_obj = cast(List[Dict[str, Any]], img_embedding_obj)
-        img_embedding = img_embedding_obj[0]["embedding"]
-        embeddings.append(img_embedding)
-        facial_areas.append(img_obj["facial_area"])
+        ),
+    )
+    embeddings = [img_embedding_obj[0]["embedding"] for img_embedding_obj in img_embedding_objs]
 
     return embeddings, facial_areas
 
