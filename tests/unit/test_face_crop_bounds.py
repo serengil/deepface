@@ -79,13 +79,13 @@ def test_mtcnn_boxes_are_cropped_to_visible_image(monkeypatch, x, y, w, h):
 
 def test_ssd_negative_box_uses_visible_face_and_real_eye_fallback(monkeypatch):
     img = np.arange(20 * 20 * 3, dtype=np.uint8).reshape(20, 20, 3)
-    client = SsdClient.__new__(SsdClient)
-    client.model = Mock()
+    monkeypatch.setattr(SsdClient, "build_model", lambda self: Mock())
+    client = SsdClient()
     client.model.forward.return_value = np.array(
         [[[[0, 1, 0.95, -0.2, 0.15, 0.4, 0.65]]]], dtype=np.float32
     )
-    eye_detector = OpenCvClient.__new__(OpenCvClient)
-    eye_detector.model = {"eye_detector": Mock()}
+    monkeypatch.setattr(OpenCvClient, "build_model", lambda self: {"eye_detector": Mock()})
+    eye_detector = OpenCvClient()
     eye_detector.model["eye_detector"].detectMultiScale.return_value = []
     monkeypatch.setattr(
         detection.modeling,

@@ -1,7 +1,7 @@
 """The MediaPipe boundary consumes RGB while DeepFace detectors receive BGR."""
 
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import numpy as np
 
@@ -9,10 +9,10 @@ from deepface.models.face_detection.external.MediaPipe import MediaPipeClient
 
 
 def client_with(detections):
-    client = MediaPipeClient.__new__(MediaPipeClient)
-    client.model = Mock()
-    client.model.process.return_value = SimpleNamespace(detections=detections)
-    return client
+    model = Mock()
+    model.process.return_value = SimpleNamespace(detections=detections)
+    with patch.object(MediaPipeClient, "build_model", return_value=model):
+        return MediaPipeClient()
 
 
 def test_detector_receives_rgb_without_mutating_input():
