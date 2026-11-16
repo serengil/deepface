@@ -113,7 +113,7 @@ class MilvusClient(Database):
         total = 0
         for i in range(0, len(embeddings), batch_size):
             batch = embeddings[i : i + batch_size]
-            data = []
+            data: Dict[int, Dict[str, Any]] = {}
             for e in batch:
                 face_json = json.dumps(e["face"].tolist())
                 face_hash = hashlib.sha256(face_json.encode()).hexdigest()
@@ -126,14 +126,14 @@ class MilvusClient(Database):
                 ).digest()
                 emb_id = int.from_bytes(identity_digest[:8], "big") & (2**63 - 1)
 
-                data.append({
+                data[emb_id] = {
                     "id": emb_id,
                     "embedding": e["embedding"],
                     "img_name": e["img_name"],
                     # Store other metadata as dynamic fields
-                })
-            self.client.insert(collection_name=collection_name, data=data)
-            total += len(data)
+                }
+            self.client.upsert(collection_name=collection_name, data=list(data.values()))
+            total += len(batch)
 
         return total
 

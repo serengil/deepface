@@ -17,7 +17,7 @@ def inserted_ids(embeddings):
     client.client = Mock()
     client.client.has_collection.return_value = True
     client.insert_embeddings(embeddings)
-    return [row["id"] for row in client.client.insert.call_args.kwargs["data"]]
+    return [row["id"] for row in client.client.upsert.call_args.kwargs["data"]]
 
 
 def record(value=0.25):
@@ -58,4 +58,4 @@ def test_id_stays_in_signed_int64_and_distinguishes_embeddings():
     assert 0 <= first < 2**63
     assert 0 <= second < 2**63
     assert first != second
-    assert inserted_ids([record(), record()]) == [first, first]
+    assert inserted_ids([record(), record()]) == [first]
