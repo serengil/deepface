@@ -1,5 +1,6 @@
 # built-in dependencies
 import os
+from threading import Lock
 from typing import Any, List
 
 # 3rd party dependencies
@@ -17,6 +18,7 @@ class MediaPipeClient(Detector):
 
     def __init__(self) -> None:
         self.model = self.build_model()
+        self._inference_lock = Lock()
 
     def build_model(self) -> Any:
         """
@@ -59,7 +61,8 @@ class MediaPipeClient(Detector):
         img_height = img.shape[0]
 
         # DeepFace supplies BGR images; MediaPipe expects three-channel RGB.
-        results = self.model.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        with self._inference_lock:
+            results = self.model.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 
         # If no face has been detected, return an empty list
         if results.detections is None:
