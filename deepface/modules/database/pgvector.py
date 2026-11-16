@@ -142,15 +142,22 @@ class PGVectorClient(Database):
                 # create table if not exists
                 cur.execute(create_table_stmt)
 
-                # create index if not exists
-                try:
-                    cur.execute(create_index_stmt)
-                except Exception as e:  # pylint: disable=broad-except
-                    # unfortunately if not exists is not supported for index creation
-                    if getattr(e, "sqlstate", None) == "42P07":
-                        self.conn.rollback()
-                    else:
-                        raise
+                if dimensions > 2000:
+                    logger.warn(
+                        f"Skipping HNSW index for {dimensions}-dimensional embeddings; "
+                        "pgvector vector indexes support at most 2000 dimensions. "
+                        "Searches will use an exact scan."
+                    )
+                else:
+                    # create index if not exists
+                    try:
+                        cur.execute(create_index_stmt)
+                    except Exception as e:  # pylint: disable=broad-except
+                        # unfortunately if not exists is not supported for index creation
+                        if getattr(e, "sqlstate", None) == "42P07":
+                            self.conn.rollback()
+                        else:
+                            raise
 
             self.conn.commit()
         except Exception as e:
