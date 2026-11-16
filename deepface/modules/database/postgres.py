@@ -285,25 +285,28 @@ class PostgresClient(Database):
 
         embeddings: List[Dict[str, Any]] = []
 
-        with self.conn.cursor(name="embeddings_cursor") as cur:
-            cur.execute(query, (model_name, detector_backend, aligned, l2_normalized))
-            while True:
-                batch = cur.fetchmany(batch_size)
-                if not batch:
-                    break
+        # A server-side cursor needs a transaction even on autocommit connections.
+        # Nested contexts preserve any transaction already owned by the caller.
+        with self.conn.transaction():
+            with self.conn.cursor(name="embeddings_cursor") as cur:
+                cur.execute(query, (model_name, detector_backend, aligned, l2_normalized))
+                while True:
+                    batch = cur.fetchmany(batch_size)
+                    if not batch:
+                        break
 
-                for r in batch:
-                    embeddings.append(
-                        {
-                            "id": r[0],
-                            "img_name": r[1],
-                            "embedding": r[2],
-                            "model_name": model_name,
-                            "detector_backend": detector_backend,
-                            "aligned": aligned,
-                            "l2_normalized": l2_normalized,
-                        }
-                    )
+                    for r in batch:
+                        embeddings.append(
+                            {
+                                "id": r[0],
+                                "img_name": r[1],
+                                "embedding": r[2],
+                                "model_name": model_name,
+                                "detector_backend": detector_backend,
+                                "aligned": aligned,
+                                "l2_normalized": l2_normalized,
+                            }
+                        )
         return embeddings
 
     # criteria arguments are not required, because all embeddings are stored in a single table
