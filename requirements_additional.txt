@@ -1,4 +1,4 @@
-mediapipe>=0.8.7.3
+mediapipe>=0.8.7.3,<0.10.30
 dlib>=19.20.0
 ultralytics>=8.1.6
 torch>=2.1.2
