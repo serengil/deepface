@@ -203,7 +203,7 @@ def __register(
             source = sources[img_index]
             img_identifiers[img_index] = img_name or (
                 source
-                if isinstance(source, str) and source.endswith((".jpg", ".jpeg", ".png"))
+                if isinstance(source, str) and source.lower().endswith((".jpg", ".jpeg", ".png"))
                 else str(uuid.uuid4())
             )
 
