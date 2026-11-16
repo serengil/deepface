@@ -202,6 +202,9 @@ class MySqlClient(Database):
             INSERT INTO embeddings_index_chunks (index_id, chunk, data) VALUES (%s, %s, %s)
         """
         try:
+            # Supplied connections may use autocommit; the chunk replacement must be atomic.
+            if self.conn.get_autocommit():
+                self.conn.begin()
             with self.conn.cursor() as cur:
                 cur.execute(
                     upsert_query,
