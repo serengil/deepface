@@ -97,7 +97,7 @@ def _parse_uri(uri: str) -> Dict[str, Any]:
     if parsed.password:
         details["password"] = unquote(parsed.password)
     if parsed.path.strip("/"):
-        details["database"] = parsed.path.strip("/")
+        details["database"] = unquote(parsed.path.strip("/"))
     return details
 
 
