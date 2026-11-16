@@ -60,4 +60,4 @@ def test_search_does_not_close_graph_client_before_background_linking(monkeypatc
             release.set()
         assert completed.wait(timeout=5)
     assert client.linked == [[1, 2]]
-    assert client.closed is False
+    assert client.closed is (not borrowed)

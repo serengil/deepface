@@ -382,10 +382,13 @@ def search(
             threshold=threshold,
         )
     finally:
-        # Graph clients may still be writing relationships in the background.
         # Caller-supplied connections remain owned by the caller.
-        if connection is None and database_inventory[database_type]["is_graph_db"] is False:
-            db_client.close()
+        if connection is None:
+            if database_inventory[database_type]["is_graph_db"]:
+                # The single worker closes this client after its pending relationship writes.
+                _LINK_EXECUTOR.submit(db_client.close)
+            else:
+                db_client.close()
 
 
 def __search(
