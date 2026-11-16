@@ -2,6 +2,7 @@
 from typing import List, Union, Optional, Dict, Any, Set, IO, cast, Callable, TYPE_CHECKING
 import io
 import time
+from contextlib import closing
 
 # 3rd party dependencies
 import numpy as np
@@ -177,137 +178,136 @@ def find(
 
     tic = time.time()
 
-    store = build_file_store(db_path)
+    with closing(build_file_store(db_path)) as store:
+        img, _ = image_utils.load_image(img_path)
+        if img is None:
+            raise ImgNotFound(f"Passed image path {img_path} does not exist!")
 
-    img, _ = image_utils.load_image(img_path)
-    if img is None:
-        raise ImgNotFound(f"Passed image path {img_path} does not exist!")
+        file_parts = [
+            "ds",
+            "model",
+            model_name,
+            "detector",
+            detector_backend,
+            "aligned" if align else "unaligned",
+            "normalization",
+            normalization,
+            "expand",
+            str(expand_percentage),
+        ]
 
-    file_parts = [
-        "ds",
-        "model",
-        model_name,
-        "detector",
-        detector_backend,
-        "aligned" if align else "unaligned",
-        "normalization",
-        normalization,
-        "expand",
-        str(expand_percentage),
-    ]
+        file_name = "_".join(file_parts)
+        file_name = file_name.replace("-", "").lower() + f".{datastore_format}"
 
-    file_name = "_".join(file_parts)
-    file_name = file_name.replace("-", "").lower() + f".{datastore_format}"
+        datastore_path = store.join(file_name)
+        representations = []
 
-    datastore_path = store.join(file_name)
-    representations = []
+        # required columns for representations
+        df_cols = {
+            "identity",
+            "hash",
+            "embedding",
+            "target_x",
+            "target_y",
+            "target_w",
+            "target_h",
+        }
 
-    # required columns for representations
-    df_cols = {
-        "identity",
-        "hash",
-        "embedding",
-        "target_x",
-        "target_y",
-        "target_w",
-        "target_h",
-    }
+        # Ensure the proper datastore file exists
+        if not store.exists(datastore_path):
+            __save_representations(
+                store=store, datastore_path=datastore_path, datastore_format=datastore_format
+            )
 
-    # Ensure the proper datastore file exists
-    if not store.exists(datastore_path):
-        __save_representations(
+        # Load the representations from the existing datastore
+        representations = __load_representations(
             store=store, datastore_path=datastore_path, datastore_format=datastore_format
         )
 
-    # Load the representations from the existing datastore
-    representations = __load_representations(
-        store=store, datastore_path=datastore_path, datastore_format=datastore_format
-    )
+        # check each item of representations list has required keys
+        for i, current_representation in enumerate(representations):
+            missing_keys = df_cols - set(current_representation.keys())
+            if len(missing_keys) > 0:
+                raise ValueError(
+                    f"{i}-th item does not have some required keys - {missing_keys}."
+                    f"Consider to delete {datastore_path}"
+                )
 
-    # check each item of representations list has required keys
-    for i, current_representation in enumerate(representations):
-        missing_keys = df_cols - set(current_representation.keys())
-        if len(missing_keys) > 0:
-            raise ValueError(
-                f"{i}-th item does not have some required keys - {missing_keys}."
-                f"Consider to delete {datastore_path}"
+        if len(representations) == 0 and refresh_database is False:
+            raise EmptyDatasource(f"Nothing is found in {datastore_path}")
+
+        must_save_datastore = False
+        new_images, old_images, replaced_images = set(), set(), set()
+
+        if not refresh_database:
+            logger.info(
+                f"Could be some changes in {db_path} not tracked."
+                "Set refresh_database to true to assure that any changes will be tracked."
             )
 
-    if len(representations) == 0 and refresh_database is False:
-        raise EmptyDatasource(f"Nothing is found in {datastore_path}")
+        # Enforce data consistency amongst on disk images and datastore file
+        if refresh_database:
+            storage_images = set(store.list_images())
+            if not storage_images:
+                raise EmptyDatasource(f"No item found in {db_path}")
 
-    must_save_datastore = False
-    new_images, old_images, replaced_images = set(), set(), set()
+            # embedded images
+            stored_images = {representation["identity"] for representation in representations}
 
-    if not refresh_database:
-        logger.info(
-            f"Could be some changes in {db_path} not tracked."
-            "Set refresh_database to true to assure that any changes will be tracked."
-        )
+            new_images = storage_images - stored_images  # images added to storage
+            old_images = stored_images - storage_images  # images removed from storage
 
-    # Enforce data consistency amongst on disk images and datastore file
-    if refresh_database:
-        storage_images = set(store.list_images())
-        if not storage_images:
-            raise EmptyDatasource(f"No item found in {db_path}")
+            # detect replaced images
+            for current_representation in representations:
+                identity = current_representation["identity"]
+                if identity in old_images:
+                    continue
+                alpha_hash = current_representation["hash"]
+                beta_hash = store.find_hash(identity)
+                if alpha_hash != beta_hash:
+                    logger.debug(f"Even though {identity} represented before, it's replaced later.")
+                    replaced_images.add(identity)
 
-        # embedded images
-        stored_images = {representation["identity"] for representation in representations}
+        if not silent and (len(new_images) > 0 or len(old_images) > 0 or len(replaced_images) > 0):
+            logger.info(
+                f"Found {len(new_images)} newly added image(s)"
+                f", {len(old_images)} removed image(s)"
+                f", {len(replaced_images)} replaced image(s)."
+            )
 
-        new_images = storage_images - stored_images  # images added to storage
-        old_images = stored_images - storage_images  # images removed from storage
+        # append replaced images into both old and new images. these will be dropped and re-added.
+        new_images.update(replaced_images)
+        old_images.update(replaced_images)
 
-        # detect replaced images
-        for current_representation in representations:
-            identity = current_representation["identity"]
-            if identity in old_images:
-                continue
-            alpha_hash = current_representation["hash"]
-            beta_hash = store.find_hash(identity)
-            if alpha_hash != beta_hash:
-                logger.debug(f"Even though {identity} represented before, it's replaced later.")
-                replaced_images.add(identity)
+        # remove old images first
+        if len(old_images) > 0:
+            representations = [rep for rep in representations if rep["identity"] not in old_images]
+            must_save_datastore = True
 
-    if not silent and (len(new_images) > 0 or len(old_images) > 0 or len(replaced_images) > 0):
-        logger.info(
-            f"Found {len(new_images)} newly added image(s)"
-            f", {len(old_images)} removed image(s)"
-            f", {len(replaced_images)} replaced image(s)."
-        )
+        # find representations for new images
+        if len(new_images) > 0:
+            representations += __find_bulk_embeddings(
+                store=store,
+                employees=new_images,
+                model_name=model_name,
+                detector_backend=detector_backend,
+                enforce_detection=enforce_detection,
+                align=align,
+                expand_percentage=expand_percentage,
+                normalization=normalization,
+                silent=silent,
+            )  # add new images
+            must_save_datastore = True
 
-    # append replaced images into both old and new images. these will be dropped and re-added.
-    new_images.update(replaced_images)
-    old_images.update(replaced_images)
-
-    # remove old images first
-    if len(old_images) > 0:
-        representations = [rep for rep in representations if rep["identity"] not in old_images]
-        must_save_datastore = True
-
-    # find representations for new images
-    if len(new_images) > 0:
-        representations += __find_bulk_embeddings(
-            store=store,
-            employees=new_images,
-            model_name=model_name,
-            detector_backend=detector_backend,
-            enforce_detection=enforce_detection,
-            align=align,
-            expand_percentage=expand_percentage,
-            normalization=normalization,
-            silent=silent,
-        )  # add new images
-        must_save_datastore = True
-
-    if must_save_datastore:
-        __save_representations(
-            store=store,
-            datastore_path=datastore_path,
-            representations=representations,
-            datastore_format=datastore_format,
-        )
-        if not silent:
-            logger.info(f"There are now {len(representations)} representations in {file_name}")
+        if must_save_datastore:
+            __save_representations(
+                store=store,
+                datastore_path=datastore_path,
+                representations=representations,
+                datastore_format=datastore_format,
+            )
+            if not silent:
+                logger.info(f"There are now {len(representations)} representations in {file_name}")
 
     # Should we have no representations bailout
     if len(representations) == 0:

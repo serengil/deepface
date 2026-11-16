@@ -56,6 +56,9 @@ class FileStore(ABC):
     def write_bytes(self, path: str, data: bytes) -> None:
         """Write content into a file in the store"""
 
+    def close(self) -> None:
+        """Release resources owned by the store, if any."""
+
     def load_image(self, path: str) -> Any:
         """
         Load an image in a form that detection.extract_faces accepts
@@ -180,6 +183,10 @@ class S3FileStore(FileStore):
 
     def write_bytes(self, path: str, data: bytes) -> None:
         self.client.put_object(Bucket=self.bucket, Key=self.__key(path), Body=data)
+
+    def close(self) -> None:
+        """Close the S3 client\'s HTTP connection pool."""
+        self.client.close()
 
 
 class FtpFileStore(FileStore):
@@ -314,6 +321,14 @@ class FtpFileStore(FileStore):
     def write_bytes(self, path: str, data: bytes) -> None:
         self.__connection().storbinary(f"STOR {self.__path(path)}", io.BytesIO(data))
 
+    def close(self) -> None:
+        """Close the cached FTP connection without another network round trip."""
+        if self.ftp is not None:
+            try:
+                self.ftp.close()
+            finally:
+                self.ftp = None
+
 
 def build_file_store(db_path: str) -> FileStore:
     """
@@ -335,5 +350,9 @@ def build_file_store(db_path: str) -> FileStore:
     else:
         raise ValueError(f"Unsupported db_path scheme {scheme}. Options: s3, ftp or local folder.")
 
-    store.validate()
+    try:
+        store.validate()
+    except Exception:
+        store.close()
+        raise
     return store
