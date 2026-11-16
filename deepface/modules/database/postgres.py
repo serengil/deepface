@@ -51,6 +51,12 @@ CREATE_EMBEDDINGS_INDEX_TABLE_SQL = """
 """
 
 
+CREATE_EMBEDDINGS_CRITERIA_INDEX_SQL = """
+    CREATE INDEX IF NOT EXISTS ix_embeddings_criteria
+    ON embeddings (model_name, detector_backend, aligned, l2_normalized, id);
+"""
+
+
 # pylint: disable=too-many-positional-arguments
 class PostgresClient(Database):
     def __init__(
@@ -104,6 +110,7 @@ class PostgresClient(Database):
         with self.conn.cursor() as cur:
             try:
                 cur.execute(CREATE_EMBEDDINGS_TABLE_SQL)
+                cur.execute(CREATE_EMBEDDINGS_CRITERIA_INDEX_SQL)
                 logger.debug("Ensured 'embeddings' table either exists or was created in Postgres.")
 
                 cur.execute(CREATE_EMBEDDINGS_INDEX_TABLE_SQL)

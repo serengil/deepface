@@ -52,6 +52,12 @@ CREATE_EMBEDDINGS_INDEX_TABLE_SQL = """
 """
 
 
+CREATE_EMBEDDINGS_CRITERIA_INDEX_SQL = """
+    CREATE INDEX IF NOT EXISTS ix_embeddings_criteria
+    ON embeddings (model_name, detector_backend, aligned, l2_normalized, id);
+"""
+
+
 def _decode_embedding(embedding_bytes: bytes) -> List[float]:
     """
     Embeddings are stored as little-endian float64 bytes to keep them lossless.
@@ -100,6 +106,7 @@ class SqliteClient(Database):
         cur = self.conn.cursor()
         try:
             cur.execute(CREATE_EMBEDDINGS_TABLE_SQL)
+            cur.execute(CREATE_EMBEDDINGS_CRITERIA_INDEX_SQL)
             logger.debug("Ensured 'embeddings' table either exists or was created in SQLite.")
 
             cur.execute(CREATE_EMBEDDINGS_INDEX_TABLE_SQL)
