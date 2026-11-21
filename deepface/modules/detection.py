@@ -203,10 +203,17 @@ def extract_faces(
                 current_img = current_img / 255  # normalize input in [0, 1]
 
         # cast to int for flask, and do final checks for borders
-        x = max(0, int(current_region.x))
-        y = max(0, int(current_region.y))
-        w = min(width - x, int(current_region.w))
-        h = min(height - y, int(current_region.h))
+        # clip the box to the image, including the part that overflows to the left or top
+        x1 = int(current_region.x)
+        y1 = int(current_region.y)
+        x = max(0, x1)
+        y = max(0, y1)
+        w = max(0, min(width, x1 + int(current_region.w)) - x)
+        h = max(0, min(height, y1 + int(current_region.h)) - y)
+
+        # a box that lies entirely in the padding has nothing left, skip it like align=False
+        if w == 0 or h == 0:
+            continue
 
         landmarks = {
             "left_eye": current_region.left_eye,

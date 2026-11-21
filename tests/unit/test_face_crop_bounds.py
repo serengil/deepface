@@ -370,3 +370,67 @@ def test_opencv_no_face_fallback_reports_the_complete_image_region(height, width
     np.testing.assert_array_equal(faces[0]["face"], img)
     area = faces[0]["facial_area"]
     assert (area["x"], area["y"], area["w"], area["h"]) == (0, 0, width, height)
+
+
+@pytest.mark.parametrize(
+    "box,expected_area",
+    [
+        # bordered-image coordinates; the 20x20 image sits at [10, 30) after padding
+        ((5, 14, 10, 9), (0, 4, 5, 9)),
+        ((14, 5, 9, 10), (4, 0, 9, 5)),
+        ((5, 5, 10, 10), (0, 0, 5, 5)),
+        ((26, 14, 10, 9), (16, 4, 4, 9)),
+    ],
+)
+def test_default_alignment_clips_reported_area_to_the_image(monkeypatch, box, expected_area):
+    img = np.arange(20 * 20 * 3, dtype=np.uint8).reshape(20, 20, 3)
+    x, y, _, _ = box
+    client = MtCnnClient.__new__(MtCnnClient)
+    client.model = SimpleNamespace(
+        detect_faces=lambda _: [
+            {
+                "box": box,
+                "confidence": 0.95,
+                "keypoints": {"left_eye": (x + 6, y + 3), "right_eye": (x + 2, y + 3)},
+            }
+        ]
+    )
+    monkeypatch.setattr(detection.modeling, "build_model", lambda **kwargs: client)
+
+    faces = detection.extract_faces(
+        img_path=img,
+        detector_backend="mtcnn",
+        color_face="bgr",
+        normalize_face=False,
+    )
+
+    area = faces[0]["facial_area"]
+    assert (area["x"], area["y"], area["w"], area["h"]) == expected_area
+    assert area["x"] + area["w"] <= 20
+    assert area["y"] + area["h"] <= 20
+
+
+@pytest.mark.parametrize("box", [(2, 14, 5, 9), (32, 14, 5, 9)])
+def test_default_alignment_skips_boxes_entirely_in_the_padding(monkeypatch, box):
+    img = np.arange(20 * 20 * 3, dtype=np.uint8).reshape(20, 20, 3)
+    x, y, _, _ = box
+    client = MtCnnClient.__new__(MtCnnClient)
+    client.model = SimpleNamespace(
+        detect_faces=lambda _: [
+            {
+                "box": box,
+                "confidence": 0.95,
+                "keypoints": {"left_eye": (x + 4, y + 3), "right_eye": (x + 1, y + 3)},
+            }
+        ]
+    )
+    monkeypatch.setattr(detection.modeling, "build_model", lambda **kwargs: client)
+
+    faces = detection.extract_faces(
+        img_path=img,
+        detector_backend="mtcnn",
+        align=True,
+        enforce_detection=False,
+    )
+
+    assert faces == []
