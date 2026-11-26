@@ -395,6 +395,24 @@ DeepFace can also be used to compare a child's face to their parents' or relativ
 
 <p align="center"><img src="https://raw.githubusercontent.com/serengil/deepface/master/icon/parental-look-alike-scaled.jpg" width="90%"></p>
 
+## Limitations and Ethical Considerations
+
+Face recognition and facial attribute analysis technologies raise significant ethical concerns that users and developers should carefully consider:
+
+- **Demographic Bias**: Face recognition models may exhibit varying accuracy across different demographic groups (age, gender, race, and ethnicity). Studies have shown that some models perform less accurately for underrepresented populations, which can lead to unfair outcomes in real-world applications. Users should evaluate model performance across diverse demographic groups before deployment.
+
+- **Privacy and Consent**: Collecting, storing, and processing facial data raises serious privacy concerns. Always ensure that you have explicit, informed consent from individuals before capturing or analyzing their facial images. Comply with applicable data protection regulations such as GDPR, CCPA, and other local privacy laws.
+
+- **Potential for Misuse**: Face recognition technology can be misused for surveillance, profiling, or discriminatory purposes. Developers and users have a responsibility to ensure that this technology is applied ethically and lawfully, and to consider the potential societal impacts of their applications.
+
+- **Race and Ethnicity Classification**: The race and ethnicity prediction feature should be used with extreme caution. Racial classification is a socially complex and sensitive area, and automated predictions may reinforce stereotypes or misrepresent individuals. This feature is intended for research and demographic analysis purposes only, and should not be used for discriminatory or harmful purposes.
+
+- **Accuracy Limitations**: No face recognition system is perfectly accurate. False positives and false negatives can have serious consequences, particularly in high-stakes applications such as law enforcement or security. Always incorporate human review and appropriate thresholds when using this library in critical systems.
+
+- **Training Data Representation**: The models wrapped by DeepFace are trained on various datasets, each with their own demographic biases and limitations. The accuracy and fairness of these models are inherently limited by the representativeness and quality of their training data.
+
+For further reading on fairness and bias in face recognition, refer to resources such as the [Gender Shades project](http://gendershades.org/) and the [ACM FAT/CC conference proceedings](https://www.acm.org/fairness-accountability-and-transparency).
+
 ## Support
 
 There are many ways to support a project - starring⭐️ the GitHub repo is just one 🙏 It really helps the project get discovered by more people.
