@@ -718,7 +718,8 @@ def __find_as_dicts(
         NDArray[Any],
         verification.find_distance(embeddings, target_embeddings_np, distance_metric),
     )  # (M, N)
-    distances[:, ~valid_mask] = np.inf
+    if not np.all(valid_mask):
+        distances = np.where(valid_mask[None, :], distances, np.inf)
 
     resp_obj = []
     for i in range(len(target_embeddings_np)):
