@@ -157,6 +157,9 @@ class SqliteClient(Database):
                 ),
             )
             self.conn.commit()
+        except self.sqlite3.Error:
+            self.conn.rollback()
+            raise
         finally:
             cur.close()
 
@@ -271,6 +274,9 @@ class SqliteClient(Database):
             raise DuplicateEntryError(
                 f"Duplicate detected for extracted face and embedding columns in {i}-th batch"
             ) from e
+        except self.sqlite3.Error:
+            self.conn.rollback()
+            raise
         finally:
             cur.close()
 
