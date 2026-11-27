@@ -234,6 +234,6 @@ def load_image_from_web(url: str) -> NDArray[Any]:
     """
     with requests.get(url, stream=True, timeout=60) as response:
         response.raise_for_status()
-        image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
+        image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
         img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
     return cast(NDArray[Any], img)

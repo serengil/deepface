@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import pytest
 import requests
+from urllib3.response import HTTPResponse
 
 from deepface.commons import image_utils
 
@@ -17,7 +18,9 @@ def image_response(monkeypatch):
     response = requests.Response()
     response.status_code = 200
     response.url = "https://example.com/image.png"
-    response.raw = io.BytesIO(contents.tobytes())
+    response.raw = HTTPResponse(
+        body=io.BytesIO(contents.tobytes()), preload_content=False, decode_content=False
+    )
     get = Mock(return_value=response)
     monkeypatch.setattr(image_utils.requests, "get", get)
     return response, get, pixels
