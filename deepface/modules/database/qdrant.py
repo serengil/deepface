@@ -125,16 +125,12 @@ class QdrantClient(Database):
         l2_normalized: bool = False,
         limit: int = 10,
     ) -> List[Dict[str, Any]]:
-        self.initialize_database(
-            model_name=model_name,
-            detector_backend=detector_backend,
-            aligned=aligned,
-            l2_normalized=l2_normalized,
-        )
-
         collection_name = self.__generate_collection_name(
             model_name, detector_backend, aligned, l2_normalized
         )
+
+        if not self._client.collection_exists(collection_name):
+            return []
 
         results = self._client.query_points(
             collection_name=collection_name,
