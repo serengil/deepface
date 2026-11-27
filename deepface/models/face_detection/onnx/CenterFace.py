@@ -91,17 +91,17 @@ class CenterFace:
 
     def __init__(self, session: Any) -> None:
         self.session = session
-        self.img_h_new: int = 0
-        self.img_w_new: int = 0
-        self.scale_h: float = 0
-        self.scale_w: float = 0
 
     def forward(self, img: NDArray[Any], height: int, width: int, threshold: float = 0.5) -> Any:
-        self.img_h_new, self.img_w_new, self.scale_h, self.scale_w = self.transform(height, width)
-        return self.inference_onnx(img, threshold)
+        # Cached models serve multiple requests; keep each image's geometry local.
+        geometry = self.transform(height, width)
+        return self.inference_onnx(img, threshold, geometry)
 
-    def inference_onnx(self, img: NDArray[Any], threshold: float) -> Any:
-        resized = cv2.resize(img, (self.img_w_new, self.img_h_new))
+    def inference_onnx(
+        self, img: NDArray[Any], threshold: float, geometry: Tuple[int, int, float, float]
+    ) -> Any:
+        img_h_new, img_w_new, _, _ = geometry
+        resized = cv2.resize(img, (img_w_new, img_h_new))
         # BGR to RGB, channels last to channels first, no scaling as opencv's blobFromImage
         blob = np.ascontiguousarray(
             resized[..., ::-1].transpose(2, 0, 1)[np.newaxis], dtype=np.float32
@@ -110,7 +110,7 @@ class CenterFace:
         heatmap, scale, offset, lms = self.session.run(
             ["537", "538", "539", "540"], {input_name: blob}
         )
-        return self.postprocess(heatmap, lms, offset, scale, threshold)
+        return self.postprocess(heatmap, lms, offset, scale, threshold, geometry=geometry)
 
     def transform(self, h: int, w: int) -> Tuple[int, int, float, float]:
         img_h_new, img_w_new = int(np.ceil(h / 32) * 32), int(np.ceil(w / 32) * 32)
@@ -124,18 +124,21 @@ class CenterFace:
         offset: NDArray[Any],
         scale: NDArray[Any],
         threshold: float,
+        *,
+        geometry: Tuple[int, int, float, float],
     ) -> Any:
+        img_h_new, img_w_new, scale_h, scale_w = geometry
         dets, lms = self.decode(
-            heatmap, scale, offset, lms, (self.img_h_new, self.img_w_new), threshold=threshold
+            heatmap, scale, offset, lms, (img_h_new, img_w_new), threshold=threshold
         )
         if len(dets) > 0:
             dets[:, 0:4:2], dets[:, 1:4:2] = (
-                dets[:, 0:4:2] / self.scale_w,
-                dets[:, 1:4:2] / self.scale_h,
+                dets[:, 0:4:2] / scale_w,
+                dets[:, 1:4:2] / scale_h,
             )
             lms[:, 0:10:2], lms[:, 1:10:2] = (
-                lms[:, 0:10:2] / self.scale_w,
-                lms[:, 1:10:2] / self.scale_h,
+                lms[:, 0:10:2] / scale_w,
+                lms[:, 1:10:2] / scale_h,
             )
         else:
             dets = np.empty(shape=[0, 5], dtype=np.float32)
