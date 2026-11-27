@@ -61,17 +61,19 @@ def normalize_embedding_l2(
         List[float] or List[List[float]]: L2-normalized embeddings.
     """
     if is_flat_embedding(embeddings):
-        norm = float(np.linalg.norm(embeddings))
+        values = np.asarray(embeddings)
+        norm = float(np.linalg.norm(values))
         if norm > 0:
             embeddings = cast(List[float], embeddings)  # let type checker know
-            embeddings = (np.array(embeddings) / norm).tolist()
+            embeddings = (values / norm).tolist()
     else:
         normalized_embeddings = []
         for emb in embeddings:
             emb = cast(List[float], emb)  # let type checker know
-            norm = float(np.linalg.norm(emb))
+            values = np.asarray(emb)
+            norm = float(np.linalg.norm(values))
             if norm > 0:
-                normalized_emb = (np.array(emb) / norm).tolist()
+                normalized_emb = (values / norm).tolist()
             else:
                 normalized_emb = emb
             normalized_embeddings.append(normalized_emb)
